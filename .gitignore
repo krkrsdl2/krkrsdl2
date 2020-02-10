@@ -1,0 +1,8 @@
+*.o
+.DS_Store
+krkrsdl2
+*.a
+*.exe
+*.7z
+build-mingw
+build
