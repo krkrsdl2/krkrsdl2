@@ -22,6 +22,10 @@ Code from this project is based on the following projects:
 * [varFile](https://github.com/wtnbgo/varFile)
 * [Kirikiroid2](https://github.com/zeas2/Kirikiroid2)
 
+## IRC Channel
+
+Members of the Kirikiri SDL2 project can be found in the [#krkrsdl2 channel on freenode](https://webchat.freenode.net/?channel=#krkrsdl2).
+
 ## License
 
 This code is based on a modified 3-clause BSD license. Please read `LICENSE` for more information.

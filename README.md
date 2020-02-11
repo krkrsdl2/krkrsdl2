@@ -22,6 +22,10 @@
 * [varFile](https://github.com/wtnbgo/varFile)
 * [Kirikiroid2](https://github.com/zeas2/Kirikiroid2)
 
+## IRCチャンネル
+
+吉里吉里SDL2プロジェクトのメンバーは、[freenodeの＃krkrsdl2チャンネル](https://webchat.freenode.net/?channel=#krkrsdl2)で見つけることができます。
+
 ## ライセンス
 
 このコードは、修正された3条項のBSDライセンスに基づいています。 詳細については、`LICENSE`をお読みください。
