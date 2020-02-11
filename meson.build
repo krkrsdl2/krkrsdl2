@@ -1,5 +1,8 @@
 project('krkrsdl2', ['c', 'cpp'], default_options: ['optimization=3', 'debug=true', 'warning_level=1'], version: 'unknown')
 
+cxx = meson.get_compiler('cpp')
+host_system = host_machine.system()
+
 freetype2_dep = dependency('freetype2', method: 'auto')
 libpng_dep = dependency('libpng', method: 'auto')
 libturbojpeg_dep = dependency('libturbojpeg', method: 'auto')
@@ -176,6 +179,9 @@ krkrsdl2_cflags = []
 krkrsdl2_cflags += ['-DTJS_TEXT_OUT_CRLF', '-DTVP_TEXT_READ_ANSI_MBCS']
 krkrsdl2_cppflags = []
 krkrsdl2_cppflags += ['-std=c++11']
+if cxx.get_id() == 'gcc'
+	krkrsdl2_cppflags += ['-fno-delete-null-pointer-checks']
+endif
 krkrsdl2_ldflags = []
 krkrsdl2_dependson = [
 	freetype2_dep,
