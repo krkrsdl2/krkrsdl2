@@ -682,7 +682,7 @@ tjs_uint32 TVPGetCurrentShiftKeyState()
 
 ttstr TVPGetPlatformName()
 {
-	return "MacOS";
+	return SDL_GetPlatform();
 }
 
 ttstr TVPGetOSName()
