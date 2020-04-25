@@ -191,4 +191,4 @@ krkrsdl2_dependson = [
 	sdl2_dep,
 	zlib_dep,
 ]
-krkrsdl2 = executable('krkrsdl2', sources: krkrsdl2_src, c_args: krkrsdl2_cflags, cpp_args: krkrsdl2_cppflags, link_args: krkrsdl2_ldflags, include_directories: krkrsdl2_includes, dependencies: krkrsdl2_dependson, install: true)
+krkrsdl2 = executable('krkrsdl2', sources: krkrsdl2_src, c_args: krkrsdl2_cflags, cpp_args: krkrsdl2_cppflags, link_args: krkrsdl2_ldflags, include_directories: include_directories(krkrsdl2_includes), dependencies: krkrsdl2_dependson, install: true)
