@@ -183,6 +183,9 @@ if cxx.get_id() == 'gcc'
 	krkrsdl2_cppflags += ['-fno-delete-null-pointer-checks']
 endif
 krkrsdl2_ldflags = []
+if target_machine.system() == 'linux'
+	krkrsdl2_ldflags += ['-pthread']
+endif
 krkrsdl2_dependson = [
 	freetype2_dep,
 	libpng_dep,
