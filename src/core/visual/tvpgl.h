@@ -46,18 +46,16 @@ typedef struct
 /*]*/
 
 #ifdef _WIN32
-#define TVP_GL_FUNC_DECL(rettype, funcname, arg)  rettype __cdecl funcname arg
-#define TVP_GL_FUNC_EXTERN_DECL(rettype, funcname, arg)  extern rettype __cdecl funcname arg
-#define TVP_GL_FUNC_PTR_DECL(rettype, funcname, arg) rettype (__cdecl * funcname) arg
-#define TVP_GL_FUNC_PTR_EXTERN_DECL_(rettype, funcname, arg) extern rettype (__cdecl * funcname) arg
-#define TVP_GL_FUNC_PTR_EXTERN_DECL TVP_GL_FUNC_PTR_EXTERN_DECL_
-#elif defined(__GNUC__)
-#define TVP_GL_FUNC_DECL(rettype, funcname, arg)  rettype funcname arg
-#define TVP_GL_FUNC_EXTERN_DECL(rettype, funcname, arg)  extern rettype funcname arg
-#define TVP_GL_FUNC_PTR_DECL(rettype, funcname, arg) rettype (*funcname) arg
-#define TVP_GL_FUNC_PTR_EXTERN_DECL_(rettype, funcname, arg) extern rettype (*funcname) arg
-#define TVP_GL_FUNC_PTR_EXTERN_DECL TVP_GL_FUNC_PTR_EXTERN_DECL_
+#define TVP_GL_FUNC_DECL_TYPE __cdecl
+#else
+#define TVP_GL_FUNC_DECL_TYPE
 #endif
+
+#define TVP_GL_FUNC_DECL(rettype, funcname, arg)  rettype TVP_GL_FUNC_DECL_TYPE funcname arg
+#define TVP_GL_FUNC_EXTERN_DECL(rettype, funcname, arg)  extern rettype TVP_GL_FUNC_DECL_TYPE funcname arg
+#define TVP_GL_FUNC_PTR_DECL(rettype, funcname, arg) rettype (TVP_GL_FUNC_DECL_TYPE * funcname) arg
+#define TVP_GL_FUNC_PTR_EXTERN_DECL_(rettype, funcname, arg) extern rettype (TVP_GL_FUNC_DECL_TYPE * funcname) arg
+#define TVP_GL_FUNC_PTR_EXTERN_DECL TVP_GL_FUNC_PTR_EXTERN_DECL_
 
 extern unsigned char TVPDivTable[256*256];
 extern unsigned char TVP252DitherPalette[3][256];
