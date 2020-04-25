@@ -5,6 +5,7 @@ host_system = host_machine.system()
 
 freetype2_dep = dependency('freetype2', method: 'auto')
 libpng_dep = dependency('libpng', method: 'auto')
+libjpeg_dep = dependency('libjpeg', method: 'auto')
 libturbojpeg_dep = dependency('libturbojpeg', method: 'auto')
 oniguruma_dep = dependency('oniguruma', method: 'auto')
 sdl2_dep = dependency('sdl2', method: 'auto')
@@ -189,6 +190,7 @@ endif
 krkrsdl2_dependson = [
 	freetype2_dep,
 	libpng_dep,
+	libjpeg_dep,
 	libturbojpeg_dep,
 	oniguruma_dep,
 	sdl2_dep,
