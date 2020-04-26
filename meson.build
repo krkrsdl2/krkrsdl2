@@ -8,6 +8,7 @@ libpng_dep = dependency('libpng', method: 'auto')
 libjpeg_dep = dependency('libjpeg', method: 'auto')
 libturbojpeg_dep = dependency('libturbojpeg', method: 'auto')
 oniguruma_dep = dependency('oniguruma', method: 'auto')
+opusfile_dep = dependency('opusfile', method: 'auto')
 sdl2_dep = dependency('sdl2', method: 'auto')
 zlib_dep = dependency('zlib', method: 'auto')
 
@@ -39,6 +40,7 @@ krkrsdl2_src = [
 	'src/core/msg/win32/MsgImpl.cpp',
 	'src/core/sdl2/SDLApplication.cpp',
 	'src/core/sound/MathAlgorithms.cpp',
+	'src/core/sound/OpusCodecDecoder.cpp',
 	'src/core/sound/PhaseVocoderDSP.cpp',
 	'src/core/sound/PhaseVocoderFilter.cpp',
 	'src/core/sound/RealFFT.cpp',
@@ -177,8 +179,11 @@ krkrsdl2_includes = [
 	'src/plugins',
 ]
 krkrsdl2_cflags = []
-krkrsdl2_cflags += ['-DTJS_TEXT_OUT_CRLF', '-DTVP_TEXT_READ_ANSI_MBCS']
+krkrsdl2_cflags += [
+	'-DTVP_OPUS_DECODER_IMPLEMENT',
+]
 krkrsdl2_cppflags = []
+krkrsdl2_cppflags += krkrsdl2_cflags
 krkrsdl2_cppflags += ['-std=c++11']
 if cxx.get_id() == 'gcc'
 	krkrsdl2_cppflags += ['-fno-delete-null-pointer-checks']
@@ -193,6 +198,7 @@ krkrsdl2_dependson = [
 	libjpeg_dep,
 	libturbojpeg_dep,
 	oniguruma_dep,
+	opusfile_dep,
 	sdl2_dep,
 	zlib_dep,
 ]
