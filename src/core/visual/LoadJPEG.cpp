@@ -565,7 +565,11 @@ void TVPSaveAsJPG(void* formatdata, tTJSBinaryStream* dst, const tTVPBaseBitmap*
 		cinfo.image_width = width;
 		cinfo.image_height = height;
 		cinfo.input_components = 4;
-		cinfo.in_color_space = JCS_EXT_BGRX;//JCS_RGB;
+#ifdef JCS_EXTENSIONS
+		cinfo.in_color_space = JCS_EXT_BGRX;
+#else
+		cinfo.in_color_space = JCS_RGB;
+#endif
 		cinfo.dct_method = opt.dct_method; //JDCT_ISLOW;
 		jpeg_set_defaults( &cinfo );
 		jpeg_set_quality( &cinfo, opt.quality, TRUE );
