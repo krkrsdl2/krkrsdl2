@@ -541,6 +541,7 @@ public:
 						break;
 					}
 					case SDL_KEYUP: {
+						TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, event.key.keysym.sym));
 						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, event.key.keysym.sym, s));
 						break;
 					}
