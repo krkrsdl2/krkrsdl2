@@ -511,7 +511,6 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::SetTargetWindow(HWND wnd, bool is_main
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPBasicDrawDevice::SetDestRectangle(const tTVPRect & rect)
 {
-#if 0
 	BackBufferDirty = true;
 	// 位置だけの変更の場合かどうかをチェックする
 	if(rect.get_width() == DestRect.get_width() && rect.get_height() == DestRect.get_height()) {
@@ -519,13 +518,16 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::SetDestRectangle(const tTVPRect & rect
 		inherited::SetDestRectangle(rect);
 	} else {
 		// サイズも違う
+#if 0
 		if( rect.get_width() > (tjs_int)D3dPP.BackBufferWidth || rect.get_height() > (tjs_int)D3dPP.BackBufferHeight ) {
 			// バックバッファサイズよりも大きいサイズが指定された場合一度破棄する。後のEnsureDeviceで再生成される。
 			DestroyD3DDevice();
 		}
 		bool success = true;
+#endif
 		inherited::SetDestRectangle(rect);
 
+#if 0
 		try {
 			EnsureDevice();
 		} catch(const eTJS & e) {
@@ -538,8 +540,8 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::SetDestRectangle(const tTVPRect & rect
 		if( success == false ) {
 			DestroyD3DDevice();
 		}
-	}
 #endif
+	}
 }
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPBasicDrawDevice::NotifyLayerResize(iTVPLayerManager * manager)

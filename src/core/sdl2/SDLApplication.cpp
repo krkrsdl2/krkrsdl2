@@ -94,6 +94,17 @@ public:
 			framebuffer = NULL;
 		}
 		framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, w, h);
+		if( TJSNativeInstance )
+		{
+			tTVPRect r;
+			r.left = 0;
+			r.top = 0;
+			r.right = w;
+			r.bottom = h;
+			TJSNativeInstance->NotifyWindowExposureToLayer(r);
+			TJSNativeInstance->GetDrawDevice()->SetClipRectangle(r);
+			TJSNativeInstance->GetDrawDevice()->SetDestRectangle(r);
+		}
 	}
 	virtual bool GetFormEnabled() override {
 		return SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN;
