@@ -38,17 +38,20 @@ bool TVPAcceptSaveAsJPG(void* formatdata, const ttstr & type, class iTJSDispatch
 	return result;
 }
 
+//#define TVP_USE_TURBO_JPEG_API
 extern "C"
 {
+#ifdef TVP_USE_TURBO_JPEG_API
 #include <turbojpeg.h>
 #define XMD_H
+#endif
 #if 0
 #include <jinclude.h>
 #endif
 #include <jpeglib.h>
 #include <jerror.h>
 }
-#define TVP_USE_TURBO_JPEG_API
+
 //---------------------------------------------------------------------------
 // JPEG loading handler
 //---------------------------------------------------------------------------
@@ -270,7 +273,9 @@ void TVPLoadJPEG(void* formatdata, void *callbackdata, tTVPGraphicSizeCallback s
 	tjDestroy( jpegDecompressor );
 #else
 	// JPEG loading handler
+#if 0
 	static_assert(false,"Not supported non TURBO_JPEG_API.");
+#endif
 
 	// JPEG does not support palettized image
 	if(mode == glmPalettized)
