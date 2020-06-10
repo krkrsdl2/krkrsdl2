@@ -100,8 +100,6 @@ krkrsdl2_src = [
 	'src/core/utils/TimerThread.cpp',
 	'src/core/utils/VelocityTracker.cpp',
 	'src/core/utils/cp932_uni.cpp',
-	'src/core/utils/encoding/gbk2unicode.c',
-	'src/core/utils/encoding/jis2unicode.c',
 	'src/core/utils/md5.c',
 	'src/core/utils/uni_cp932.cpp',
 	'src/core/utils/win32/ClipboardImpl.cpp',

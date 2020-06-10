@@ -23,100 +23,13 @@
 #include "tjsError.h"
 #include "CharacterSet.h"
 
-extern "C" int sjis_mbtowc(unsigned short *wc, const unsigned char *s);
-extern "C" int gbk_mbtowc(unsigned short *wc, const unsigned char *s);
-
-int utf8_mbtowc(unsigned short *pwc, const unsigned char *s) {
-	unsigned char c = s[0];
-
-	if (c < 0x80) {
-		*pwc = c;
-		return 1;
-	} else if (c < 0xc2) {
-		return -1;
-	} else if (c < 0xe0) {
-		if (!((s[1] ^ 0x80) < 0x40))
-			return -1;
-		*pwc = ((unsigned short)(c & 0x1f) << 6)
-			| (unsigned short)(s[1] ^ 0x80);
-		return 2;
-	} else if (c < 0xf0) {
-		if (!((s[1] ^ 0x80) < 0x40 && (s[2] ^ 0x80) < 0x40
-			&& (c >= 0xe1 || s[1] >= 0xa0)))
-			return -1;
-		*pwc = ((unsigned short)(c & 0x0f) << 12)
-			| ((unsigned short)(s[1] ^ 0x80) << 6)
-			| (unsigned short)(s[2] ^ 0x80);
-		return 3;
-	} else
-		return -1;
-}
-
-int(*mbtowc_for_text_stream)(unsigned short *wc, const unsigned char *s) = nullptr;
-
-static size_t _TextStream_mbstowcs(int(*func_mbtowc)(unsigned short *, const unsigned char *), tjs_char *pwcs, const tjs_nchar *s, size_t n)
-{
-    if(!s) return -1;
-    if(pwcs && n == 0) return 0;
-
-    size_t count = 0;
-    int cl;
-    if(!pwcs) {
-        while(*s) {
-			unsigned short wc;
-			cl = func_mbtowc(&wc, (const unsigned char*)s);
-            if(cl <= 0)
-                return -1;
-            s += cl;
-            ++count;
-        }
-    } else {
-        while(*s && n > 0) {
-			cl = func_mbtowc((unsigned short *)pwcs, (const unsigned char*)s);
-            if(cl <= 0)
-                return -1;
-            n --;
-            s += cl;
-            pwcs++;
-            ++count;
-        }
-    }
-    return count;
-}
-
-/*
-	Text stream is used by TJS's Array.save, Dictionary.saveStruct etc.
-	to input/output text files.
-*/
-
-extern size_t TextStream_mbstowcs(tjs_char *pwcs, const tjs_nchar *s, size_t n) {
-	if (mbtowc_for_text_stream) {
-		return _TextStream_mbstowcs(mbtowc_for_text_stream, pwcs, s, n);
-	}
-	// trying every encoding available
-	size_t ret = _TextStream_mbstowcs(sjis_mbtowc, pwcs, s, n);
-	if (ret == (size_t)-1) {
-		ret = _TextStream_mbstowcs(utf8_mbtowc, pwcs, s, n);
-		if (ret != (size_t)-1) {
-			mbtowc_for_text_stream = utf8_mbtowc;
-			return ret;
-		}
-		ret = _TextStream_mbstowcs(gbk_mbtowc, pwcs, s, n);
-		if (ret != (size_t)-1) {
-			mbtowc_for_text_stream = gbk_mbtowc;
-			return ret;
-		}
-	}
-	return ret;
-}
-
 /*
 	Text stream is used by TJS's Array.save, Dictionary.saveStruct etc.
 	to input/output text files.
 */
 
 #ifdef TVP_TEXT_READ_ANSI_MBCS
-static ttstr DefaultReadEncoding = TJS_W("");
+static ttstr DefaultReadEncoding = TJS_W("Shift_JIS");
 #else
 static ttstr DefaultReadEncoding = TJS_W("UTF-8");
 #endif
@@ -278,20 +191,12 @@ public:
 							Buffer = new tjs_char [ BufferLen +1];
 							TVPUtf8ToWideCharString((const char*)nbuf, Buffer);
 						} else if( encoding == TJS_W("Shift_JIS") ) {
-							BufferLen = _TextStream_mbstowcs(sjis_mbtowc, NULL, (tjs_nchar*)nbuf, 0);
+							BufferLen = TJS_narrowtowidelen((tjs_nchar*)nbuf);
 							if(BufferLen == (size_t)-1) TVPThrowExceptionMessage(TJSNarrowToWideConversionError);
 							Buffer = new tjs_char [ BufferLen +1];
-							_TextStream_mbstowcs(sjis_mbtowc, Buffer, (tjs_nchar*)nbuf, BufferLen);
-						} else if( encoding == TJS_W("GBK") ) {
-							BufferLen = _TextStream_mbstowcs(sjis_mbtowc, NULL, (tjs_nchar*)nbuf, 0);
-							if(BufferLen == (size_t)-1) TVPThrowExceptionMessage(TJSNarrowToWideConversionError);
-							Buffer = new tjs_char [ BufferLen +1];
-							_TextStream_mbstowcs(gbk_mbtowc, Buffer, (tjs_nchar*)nbuf, BufferLen);
+							TJS_narrowtowide(Buffer, (tjs_nchar*)nbuf, BufferLen);
 						} else {
-							BufferLen = TextStream_mbstowcs(NULL, (tjs_nchar*)nbuf, 0);
-							if (BufferLen == (size_t)-1) TVPThrowExceptionMessage(TJSNarrowToWideConversionError);
-							Buffer = new tjs_char [ BufferLen +1];
-							TextStream_mbstowcs(Buffer, (tjs_nchar*)nbuf, BufferLen);
+							TVPThrowExceptionMessage(TVPUnsupportedEncoding, encoding);
 						}
 					}
 					catch(...)
