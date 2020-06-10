@@ -670,10 +670,6 @@ bool TVPGetJoyPadAsyncState(tjs_uint keycode, bool getcurrent)
 	return false;
 }
 
-void TVPRelinquishCPU() {
-	SDL_Delay(0);
-}
-
 TTVPWindowForm *TVPCreateAndAddWindow(tTJSNI_Window *w) {
 	return new TVPWindowLayer(w);
 }

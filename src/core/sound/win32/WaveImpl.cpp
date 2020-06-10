@@ -1955,7 +1955,9 @@ void tTVPWaveSoundBufferDecodeThread::Execute(void)
 				else
 				{
 					// buffer is not full; sleep shorter
-					TVPRelinquishCPU();
+#if 0
+					Sleep(1);
+#endif
 					if(!GetTerminated()) SetPriority(TVPDecodeThreadLowPriority);
 				}
 				st = et;
