@@ -42,7 +42,6 @@
 #endif
 #include "ScriptMgnIntf.h"
 #include "tjsArray.h"
-#include "Platform.h"
 
 //---------------------------------------------------------------------------
 static ttstr TVPAppTitle;

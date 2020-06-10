@@ -27,7 +27,6 @@
 #include "Random.h"
 #include "UtilStreams.h"
 #include "TickCount.h"
-#include "Platform.h"
 
 #define DWORD uint32_t
 #ifdef TVP_SUPPORT_OLD_WAVEUNPACKER

@@ -43,7 +43,6 @@
 #include "WaveImpl.h"
 #include "GraphicsLoadThread.h"
 #include "CharacterSet.h"
-#include "Platform.h"
 #include "EventIntf.h"
 #include "StorageIntf.h"
 #include "TVPColor.h"
