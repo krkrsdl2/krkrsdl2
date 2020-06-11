@@ -25,9 +25,7 @@
 #include "WeightFunctor.h"
 #include "ThreadIntf.h"
 
-#if 0
 #include "aligned_allocator.h"
-#endif
 #include "ResampleImageInternal.h"
 
 
@@ -210,7 +208,7 @@ void tTVPResampleClipping::setClipping( const tTVPRect &cliprect, const tTVPRect
 template<typename TWeight=float, int NAlign=4>
 struct AxisParam {
 	typedef TWeight weight_t;
-	typedef std::vector<weight_t > weight_vector_t;
+	typedef std::vector<weight_t,aligned_allocator<weight_t,NAlign> > weight_vector_t;
 	static const int ALIGN_DIV = (NAlign/4);
 	static const int ALIGN_OFFSET = ALIGN_DIV-1;
 
