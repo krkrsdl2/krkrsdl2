@@ -50,11 +50,7 @@ void FontSystem::ConstructDefaultFont() {
 		DefaultFont.Height = -12;
 		DefaultFont.Flags = 0;
 		DefaultFont.Angle = 0;
-#if 0
 		DefaultFont.Face = TVPGetDefaultFaceNames();
-#else
-		DefaultFont.Face = ttstr(TJS_W("Noto Sans,MotoyaLMaru,Roboto"));
-#endif
 	}
 }
 
