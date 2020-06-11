@@ -2251,12 +2251,13 @@ TJS_BEGIN_NATIVE_METHOD_DECL(resetMouseVelocity)
 }
 TJS_END_NATIVE_METHOD_DECL_OUTER(cls, resetMouseVelocity)
 //---------------------------------------------------------------------------
+#if 0
 TJS_BEGIN_NATIVE_PROP_DECL(HWND)
 {
 	TJS_BEGIN_NATIVE_PROP_GETTER
 	{
 		TJS_GET_NATIVE_INSTANCE(/*var. name*/_this, /*var. type*/tTJSNI_Window);
-		*result = (tTVInteger)(tjs_intptr_t)_this/*->GetWindowHandleForPlugin()*/;
+		*result = (tTVInteger)(tjs_intptr_t)_this->GetWindowHandleForPlugin();
 		return TJS_S_OK;
 	}
 	TJS_END_NATIVE_PROP_GETTER
@@ -2264,6 +2265,7 @@ TJS_BEGIN_NATIVE_PROP_DECL(HWND)
 	TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL_OUTER(cls, HWND)
+#endif
 //---------------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(drawDevice)
 {
