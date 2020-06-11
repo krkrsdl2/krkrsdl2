@@ -206,6 +206,8 @@ void TJS_INTF_METHOD tTVPDrawDevice::SetClipRectangle(const tTVPRect & rect)
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPDrawDevice::GetSrcSize(tjs_int &w, tjs_int &h)
 {
+	w = 0;
+	h = 0;
 	iTVPLayerManager * manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
 	if(!manager) return;
 	if(!manager->GetPrimaryLayerSize(w, h))
