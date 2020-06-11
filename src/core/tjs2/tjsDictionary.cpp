@@ -235,6 +235,7 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/loadStruct)
 	if( result )
 	{
 		iTJSTextReadStream * stream = TJSCreateTextStreamForRead(name, mode);
+		if( !stream ) return TJS_E_INVALIDPARAM;
 		if( tTJS::LoadTextDictionaryArray( stream, result, name.c_str() ) ) {
 			return TJS_S_OK;
 		}
