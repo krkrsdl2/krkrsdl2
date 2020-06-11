@@ -167,7 +167,9 @@ public:
 		return SDL_GetWindowTitle(window);
 	}
 	virtual void SetCaption(const tjs_string & ws) override {
+#if 0
 		SDL_SetWindowTitle(window, ttstr(ws).AsNarrowStdString().c_str());
+#endif
 	}
 	virtual void SetWidth(tjs_int w) override {
 		int h;
