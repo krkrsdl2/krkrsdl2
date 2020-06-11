@@ -410,7 +410,6 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 #endif
 	} catch( const EAbort & ) {
 		// nothing to do
-#if !(defined(_MSC_VER) && defined(_DEBUG))
 	} catch( const Exception &exception ) {
 		TVPOnError();
 		if(!TVPSystemUninitCalled)
@@ -441,7 +440,6 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 #endif
 	} catch(...) {
 		ShowException( (const tjs_char*)TVPUnknownError );
-#endif
 	}
 
 #if 0
@@ -578,7 +576,6 @@ void tTVPApplication::Run() {
 		if (TVPSystemControl) TVPSystemControl->SystemWatchTimerTimer();
 	} catch (const EAbort &) {
 		// nothing to do
-#if !(defined(_MSC_VER) && defined(_DEBUG))
 	} catch (const Exception &exception) {
 		TVPOnError();
 		if(!TVPSystemUninitCalled)
@@ -599,7 +596,6 @@ void tTVPApplication::Run() {
 		ShowException( e );
 	} catch (...) {
 		ShowException((const tjs_char*)TVPUnknownError);
-#endif
 	}
 }
 
