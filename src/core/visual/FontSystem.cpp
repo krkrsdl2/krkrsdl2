@@ -119,9 +119,7 @@ const tjs_char* FontSystem::GetDefaultFontName() const {
 }
 //---------------------------------------------------------------------------
 void FontSystem::SetDefaultFontName( const tjs_char* name ) {
-#if 0
 	TVPSetDefaultFontName( name );
-#endif
 	DefaultFont.Face = ttstr(TVPGetDefaultFontName());
 }
 //---------------------------------------------------------------------------
