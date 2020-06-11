@@ -260,7 +260,7 @@ public:
 	bool CanDeliverEvents() const; // tTJSNI_BaseWindow::CanDeliverEvents override
 
 public:
-	TTVPWindowForm * GetForm() const override { return Form; }
+	TTVPWindowForm * GetForm() const { return Form; }
 	void NotifyWindowClose();
 
 	void TickBeat();
