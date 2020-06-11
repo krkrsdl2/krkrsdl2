@@ -222,14 +222,14 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/loadStruct)
 				}
 			}
 		} catch(...) {
-			delete stream;
+			stream->Destruct();
 			if( dicfree ) {
 				if( dic ) dic->Release();
 				dic = NULL;
 			}
 			throw;
 		}
-		delete stream;
+		stream->Destruct();
 		if( isbin ) return TJS_S_OK;
 	}
 	if( result )
@@ -1078,12 +1078,12 @@ tjs_error TJSReadDictionaryObject( tTJSVariant &result, const ttstr& name, const
 			}
 		}
 	} catch(...) {
-		delete stream;
+		stream->Destruct();
 		if( dic ) dic->Release();
 		dic = nullptr;
 		throw;
 	}
-	delete stream;
+	stream->Destruct();
 	if( isbin ) return TJS_S_OK;
 
 	// try text style
