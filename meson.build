@@ -491,7 +491,6 @@ krkrsdl2_includes = [
 	'external/krkrz/external/freetype/src',
 	'external/krkrz/external/freetype/devel',
 	'external/krkrz/external/libjpeg-turbo',
-	'external/krkrz/external/libjpeg-turbo/vcproj',
 	'external/krkrz/external/libogg/include',
 	'external/krkrz/external/lpng',
 	'external/krkrz/external/onig',
@@ -505,6 +504,7 @@ krkrsdl2_includes = [
 	'external/krkrz/external/opusfile/include',
 	'external/krkrz/external/opusfile/src',
 	'external/krkrz/external/zlib',
+	'src/config',
 	'src/plugins',
 ]
 krkrsdl2_cflags = []
