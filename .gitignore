@@ -4,5 +4,6 @@ krkrsdl2
 *.a
 *.exe
 *.7z
-build-mingw
+build-*
+build_*
 build
