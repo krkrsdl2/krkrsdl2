@@ -515,7 +515,11 @@ krkrsdl2_cflags += [
 	'-DFLOAT_APPROX',
 ]
 if target_machine.system() == 'emscripten'
-	krkrsdl2_cflags += ['-pthread']
+	krkrsdl2_cflags += [
+		'-pthread',
+		'-s', 'DISABLE_EXCEPTION_CATCHING=0',
+		'-g4',
+	]
 endif
 krkrsdl2_cppflags = []
 krkrsdl2_cppflags += krkrsdl2_cflags
@@ -528,7 +532,11 @@ if target_machine.system() == 'linux'
 	krkrsdl2_ldflags += ['-pthread']
 endif
 if target_machine.system() == 'emscripten'
-	krkrsdl2_ldflags += ['-pthread', '-s', 'USE_PTHREADS=1']
+	krkrsdl2_ldflags += [
+		'-pthread', '-s', 'USE_PTHREADS=1', 
+		'-s', 'DISABLE_EXCEPTION_CATCHING=0',
+		'-g4', '--source-map-base', 'http://localhost:8080/'
+	]
 endif
 krkrsdl2_dependson = [
 	sdl2_dep,
