@@ -44,6 +44,10 @@
 #include "ScriptMgnIntf.h"
 #include "tjsArray.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 //---------------------------------------------------------------------------
 static ttstr TVPAppTitle;
 static bool TVPAppTitleInit = false;
@@ -320,6 +324,12 @@ bool TVPShellExecute(const ttstr &target, const ttstr &param)
 		return false;
 	}
 	else
+#endif
+#ifdef __EMSCRIPTEN__
+	ttstr build_string = ttstr("window.open('");
+	build_string += target;
+	build_string += ttstr("')");
+	emscripten_run_script(build_string.AsNarrowStdString().c_str());
 #endif
 	{
 		return true;
