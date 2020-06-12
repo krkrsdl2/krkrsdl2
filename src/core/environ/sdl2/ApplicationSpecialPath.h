@@ -60,10 +60,12 @@ public:
 	static tjs_string GetDataPathDirectory( tjs_string datapath, const tjs_string& exename ) {
 		if (datapath != TJS_W("")) return datapath;
 		ttstr nativeDataPath = ttstr(TVPGetAppPath().AsStdString());
+#ifndef __EMSCRIPTEN__
 		if (!nativeDataPath.IsEmpty())
 		{
 			TVPGetLocalName(nativeDataPath);
 		}
+#endif
 		nativeDataPath += TJS_W("/savedata/");
 		return nativeDataPath.AsStdString();
 #if 0
