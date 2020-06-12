@@ -518,6 +518,7 @@ if target_machine.system() == 'emscripten'
 	krkrsdl2_cflags += [
 		'-pthread',
 		'-s', 'DISABLE_EXCEPTION_CATCHING=0',
+		'-s', 'EXIT_RUNTIME=1',
 		'-g4',
 	]
 endif
@@ -535,7 +536,9 @@ if target_machine.system() == 'emscripten'
 	krkrsdl2_ldflags += [
 		'-pthread', '-s', 'USE_PTHREADS=1', 
 		'-s', 'DISABLE_EXCEPTION_CATCHING=0',
-		'-g4', '--source-map-base', 'http://localhost:8080/'
+		'-s', 'EXIT_RUNTIME=1',
+		'-g4', '--source-map-base', 'http://localhost:8080/',
+		'--preload-file', join_paths(meson.source_root(), 'data') + '@/data',
 	]
 endif
 krkrsdl2_dependson = [
