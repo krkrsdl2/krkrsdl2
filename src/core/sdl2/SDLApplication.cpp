@@ -10,10 +10,17 @@
 #include "SysInitIntf.h"
 #include <SDL.h>
 
+#include <unistd.h>
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
+
 class TVPWindowLayer;
 static TVPWindowLayer *_lastWindowLayer, *_currentWindowLayer;
 
-bool sdlProcessEvents();
+void sdlProcessEvents();
 
 #define MK_SHIFT 4
 #define MK_CONTROL 8
@@ -574,7 +581,8 @@ public:
 	}
 };
 
-bool sdlProcessEvents() {
+void sdlProcessEvents()
+{
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
 		if (_currentWindowLayer) {
@@ -582,7 +590,6 @@ bool sdlProcessEvents() {
 		}
 	}
 	::Application->Run();
-	return true;
 }
 
 int main(int argc, char **argv) {
@@ -602,30 +609,20 @@ int main(int argc, char **argv) {
 		memcpy(warg_copy, warg, sizeof(tjs_char) * (strlen(argv[i]) + 1));
 		_wargv[i] = warg_copy;
 	}
+#ifdef __EMSCRIPTEN__
+	chdir("/data");
+#endif
 
 	::Application = new tTVPApplication();
 	::Application->StartApplication( _argc, _wargv );
 
-    Uint32 startTime = 0;
-    Uint32 endTime = 0;
-    Uint32 delta = 0;
-    short timePerFrame = 16; // miliseconds
-    
-	while (sdlProcessEvents()) {
-		// if (!startTime) {
-  //           startTime = SDL_GetTicks(); 
-  //       } else {
-  //           delta = endTime - startTime; // how many ms for a frame
-  //       }
-        
-  //       if (delta < timePerFrame) {
-  //           SDL_Delay(timePerFrame - delta);
-  //       }
-        
-  //       startTime = endTime;
-  //       endTime = SDL_GetTicks();
+#ifdef __EMSCRIPTEN__
+	emscripten_set_main_loop(sdlProcessEvents, 0, 0);
+#else
+	while (1) {
+		sdlProcessEvents();
 	}
-	SDL_Quit();
+#endif
 	return 0;
 }
 

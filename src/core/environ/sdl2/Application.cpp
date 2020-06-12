@@ -48,6 +48,9 @@
 #include "StorageIntf.h"
 #include "TVPColor.h"
 #include <unistd.h>
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 #if 0
 #include "resource.h"
@@ -101,6 +104,7 @@ static MemoryLeaksDebugBreakPoint gMemoryLeaksDebugBreakPoint;
 #endif
 #endif
 
+#include <unistd.h>
 tjs_string ExePath() {
 #if 0
 	tjs_char szFull[_MAX_PATH];
@@ -110,6 +114,11 @@ tjs_string ExePath() {
 	static tjs_string exepath(TJS_W(""));
 	if (exepath.empty()) {
 		exepath = tjs_string(_wargv[0]);
+		if (exepath.empty())
+		{
+			static char buf[4096];
+			exepath = ttstr(getcwd(buf, 4096)).AsStdString();
+		}
 	}
 	return exepath;
 }
@@ -616,7 +625,11 @@ void tTVPApplication::ShowException( const tjs_char* e ) {
 	::MessageBox( NULL, e, TVPFatalError, MB_OK );
 #endif
 	TVPAddLog(ttstr(TVPScriptExceptionRaised) + TJS_W("\n") + e);
+#ifdef __EMSCRIPTEN__
+	emscripten_cancel_main_loop();
+#else
 	exit(1);
+#endif
 }
 void tTVPApplication::Run() {
 #if 0
@@ -631,7 +644,11 @@ void tTVPApplication::Run() {
 	try {
 		if (tarminate_) {
 			TVPSystemUninit();
+#ifdef __EMSCRIPTEN__
+			emscripten_cancel_main_loop();
+#else
 			exit(1);
+#endif
 		}
 		ProcessMessages();
 		if (TVPSystemControl) TVPSystemControl->SystemWatchTimerTimer();
