@@ -432,10 +432,6 @@ krkrsdl2_src = [
 	'external/krkrz/external/zlib/compress.c',
 	'external/krkrz/external/zlib/crc32.c',
 	'external/krkrz/external/zlib/deflate.c',
-	'external/krkrz/external/zlib/gzclose.c',
-	'external/krkrz/external/zlib/gzlib.c',
-	'external/krkrz/external/zlib/gzread.c',
-	'external/krkrz/external/zlib/gzwrite.c',
 	'external/krkrz/external/zlib/infback.c',
 	'external/krkrz/external/zlib/inffast.c',
 	'external/krkrz/external/zlib/inflate.c',
@@ -518,6 +514,9 @@ krkrsdl2_cflags += [
 	'-DHAVE_LRINT',
 	'-DFLOAT_APPROX',
 ]
+if target_machine.system() == 'emscripten'
+	krkrsdl2_cflags += ['-pthread']
+endif
 krkrsdl2_cppflags = []
 krkrsdl2_cppflags += krkrsdl2_cflags
 krkrsdl2_cppflags += ['-std=c++11']
@@ -527,6 +526,9 @@ endif
 krkrsdl2_ldflags = []
 if target_machine.system() == 'linux'
 	krkrsdl2_ldflags += ['-pthread']
+endif
+if target_machine.system() == 'emscripten'
+	krkrsdl2_ldflags += ['-pthread', '-s', 'USE_PTHREADS=1']
 endif
 krkrsdl2_dependson = [
 	sdl2_dep,
