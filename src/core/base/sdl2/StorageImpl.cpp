@@ -291,7 +291,7 @@ void TVPPreNormalizeStorageName(ttstr &name)
 	if( TJS_strstr(name.c_str(), TJS_W(":")) == nullptr && TJS_strstr(name.c_str(), TJS_W("file:")) == nullptr ) {
 		char* tmppath = realpath(name.AsNarrowStdString().c_str(), NULL);
 		if (tmppath) {
-			ttstr newname(TJS_W("file:"));
+			ttstr newname(TJS_W("file://./"));
 			newname += tmppath;
 			if (lastchar == TJS_W('/'))
 				newname += TJS_W("/");
