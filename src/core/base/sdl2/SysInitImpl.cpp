@@ -911,7 +911,7 @@ void TVPInitializeBaseSystems()
 
 	// set default current directory
 	{
-		TVPSetCurrentDirectory( IncludeTrailingBackslash(ExtractFileDir(ExePath())) );
+		TVPSetCurrentDirectory( IncludeTrailingForwardslash(ExtractFileDir(ExePath())) );
 	}
 
 	// load message map file
