@@ -519,7 +519,6 @@ if target_machine.system() == 'emscripten'
 		'-pthread',
 		'-s', 'DISABLE_EXCEPTION_CATCHING=0',
 		'-s', 'EXIT_RUNTIME=1',
-		'-g4',
 	]
 endif
 krkrsdl2_cppflags = []
@@ -539,7 +538,6 @@ if target_machine.system() == 'emscripten'
 		'-s', 'EXIT_RUNTIME=1',
 		'-s', 'ALLOW_MEMORY_GROWTH=1',
 		'--no-heap-copy',
-		'-g4', '--source-map-base', 'http://localhost:8080/',
 		'--preload-file', join_paths(meson.source_root(), 'data') + '@/data',
 	]
 endif
