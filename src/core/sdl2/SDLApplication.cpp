@@ -8,6 +8,7 @@
 #include "SystemImpl.h"
 #include "TVPWindow.h"
 #include "SysInitIntf.h"
+#include "CharacterSet.h"
 #include <SDL.h>
 
 #include <unistd.h>
@@ -25,6 +26,265 @@ void sdlProcessEvents();
 #define MK_SHIFT 4
 #define MK_CONTROL 8
 #define MK_ALT (0x20)
+
+static SDL_Keycode vk_key_to_sdl_key(tjs_uint key)
+{
+	// This is generated using regex find replace
+	if (key == VK_BACK) return SDLK_BACKSPACE;
+	if (key == VK_TAB) return SDLK_TAB;
+	if (key == VK_CLEAR) return SDLK_CLEAR;
+	if (key == VK_RETURN) return SDLK_RETURN;
+	if (key == VK_PAUSE) return SDLK_PAUSE;
+	if (key == VK_CAPITAL) return SDLK_CAPSLOCK;
+	if (key == VK_ESCAPE) return SDLK_ESCAPE;
+	if (key == VK_SPACE) return SDLK_SPACE;
+	if (key == VK_PRIOR) return SDLK_PAGEUP;
+	if (key == VK_NEXT) return SDLK_PAGEDOWN;
+	if (key == VK_END) return SDLK_END;
+	if (key == VK_HOME) return SDLK_HOME;
+	if (key == VK_LEFT) return SDLK_LEFT;
+	if (key == VK_UP) return SDLK_UP;
+	if (key == VK_RIGHT) return SDLK_RIGHT;
+	if (key == VK_DOWN) return SDLK_DOWN;
+	if (key == VK_SELECT) return SDLK_SELECT;
+	if (key == VK_EXECUTE) return SDLK_EXECUTE;
+	if (key == VK_SNAPSHOT) return SDLK_PRINTSCREEN;
+	if (key == VK_INSERT) return SDLK_INSERT;
+	if (key == VK_DELETE) return SDLK_DELETE;
+	if (key == VK_HELP) return SDLK_HELP;
+	if (key == VK_0) return SDLK_0;
+	if (key == VK_1) return SDLK_1;
+	if (key == VK_2) return SDLK_2;
+	if (key == VK_3) return SDLK_3;
+	if (key == VK_4) return SDLK_4;
+	if (key == VK_5) return SDLK_5;
+	if (key == VK_6) return SDLK_6;
+	if (key == VK_7) return SDLK_7;
+	if (key == VK_8) return SDLK_8;
+	if (key == VK_9) return SDLK_9;
+	if (key == VK_A) return SDLK_a;
+	if (key == VK_B) return SDLK_b;
+	if (key == VK_C) return SDLK_c;
+	if (key == VK_D) return SDLK_d;
+	if (key == VK_E) return SDLK_e;
+	if (key == VK_F) return SDLK_f;
+	if (key == VK_G) return SDLK_g;
+	if (key == VK_H) return SDLK_h;
+	if (key == VK_I) return SDLK_i;
+	if (key == VK_J) return SDLK_j;
+	if (key == VK_K) return SDLK_k;
+	if (key == VK_L) return SDLK_l;
+	if (key == VK_M) return SDLK_m;
+	if (key == VK_N) return SDLK_n;
+	if (key == VK_O) return SDLK_o;
+	if (key == VK_P) return SDLK_p;
+	if (key == VK_Q) return SDLK_q;
+	if (key == VK_R) return SDLK_r;
+	if (key == VK_S) return SDLK_s;
+	if (key == VK_T) return SDLK_t;
+	if (key == VK_U) return SDLK_u;
+	if (key == VK_V) return SDLK_v;
+	if (key == VK_W) return SDLK_w;
+	if (key == VK_X) return SDLK_x;
+	if (key == VK_Y) return SDLK_y;
+	if (key == VK_Z) return SDLK_z;
+	if (key == VK_LWIN) return SDLK_LGUI;
+	if (key == VK_RWIN) return SDLK_RGUI;
+	if (key == VK_SLEEP) return SDLK_SLEEP;
+	if (key == VK_NUMPAD0) return SDLK_KP_0;
+	if (key == VK_NUMPAD1) return SDLK_KP_1;
+	if (key == VK_NUMPAD2) return SDLK_KP_2;
+	if (key == VK_NUMPAD3) return SDLK_KP_3;
+	if (key == VK_NUMPAD4) return SDLK_KP_4;
+	if (key == VK_NUMPAD5) return SDLK_KP_5;
+	if (key == VK_NUMPAD6) return SDLK_KP_6;
+	if (key == VK_NUMPAD7) return SDLK_KP_7;
+	if (key == VK_NUMPAD8) return SDLK_KP_8;
+	if (key == VK_NUMPAD9) return SDLK_KP_9;
+	if (key == VK_MULTIPLY) return SDLK_KP_MULTIPLY;
+	if (key == VK_ADD) return SDLK_KP_PLUS;
+	if (key == VK_SUBTRACT) return SDLK_KP_MINUS;
+	if (key == VK_DECIMAL) return SDLK_KP_PERIOD;
+	if (key == VK_DIVIDE) return SDLK_KP_DIVIDE;
+	if (key == VK_F1) return SDLK_F1;
+	if (key == VK_F2) return SDLK_F2;
+	if (key == VK_F3) return SDLK_F3;
+	if (key == VK_F4) return SDLK_F4;
+	if (key == VK_F5) return SDLK_F5;
+	if (key == VK_F6) return SDLK_F6;
+	if (key == VK_F7) return SDLK_F7;
+	if (key == VK_F8) return SDLK_F8;
+	if (key == VK_F9) return SDLK_F9;
+	if (key == VK_F10) return SDLK_F10;
+	if (key == VK_F11) return SDLK_F11;
+	if (key == VK_F12) return SDLK_F12;
+	if (key == VK_F13) return SDLK_F13;
+	if (key == VK_F14) return SDLK_F14;
+	if (key == VK_F15) return SDLK_F15;
+	if (key == VK_F16) return SDLK_F16;
+	if (key == VK_F17) return SDLK_F17;
+	if (key == VK_F18) return SDLK_F18;
+	if (key == VK_F19) return SDLK_F19;
+	if (key == VK_F20) return SDLK_F20;
+	if (key == VK_F21) return SDLK_F21;
+	if (key == VK_F22) return SDLK_F22;
+	if (key == VK_F23) return SDLK_F23;
+	if (key == VK_F24) return SDLK_F24;
+	if (key == VK_NUMLOCK) return SDLK_NUMLOCKCLEAR;
+	if (key == VK_SCROLL) return SDLK_SCROLLLOCK;
+	if (key == VK_LSHIFT) return SDLK_LSHIFT;
+	if (key == VK_RSHIFT) return SDLK_RSHIFT;
+	if (key == VK_LCONTROL) return SDLK_LCTRL;
+	if (key == VK_RCONTROL) return SDLK_RCTRL;
+	if (key == VK_LMENU) return SDLK_MENU;
+	if (key == VK_RMENU) return SDLK_MENU;
+	if (key == VK_BROWSER_BACK) return SDLK_AC_BACK;
+	if (key == VK_BROWSER_FORWARD) return SDLK_AC_FORWARD;
+	if (key == VK_BROWSER_REFRESH) return SDLK_AC_REFRESH;
+	if (key == VK_BROWSER_STOP) return SDLK_AC_STOP;
+	if (key == VK_BROWSER_SEARCH) return SDLK_AC_SEARCH;
+	if (key == VK_BROWSER_FAVORITES) return SDLK_AC_BOOKMARKS;
+	if (key == VK_BROWSER_HOME) return SDLK_AC_HOME;
+	if (key == VK_VOLUME_MUTE) return SDLK_MUTE;
+	if (key == VK_VOLUME_DOWN) return SDLK_VOLUMEDOWN;
+	if (key == VK_VOLUME_UP) return SDLK_VOLUMEUP;
+	if (key == VK_MEDIA_NEXT_TRACK) return SDLK_AUDIONEXT;
+	if (key == VK_MEDIA_PREV_TRACK) return SDLK_AUDIOPREV;
+	if (key == VK_MEDIA_STOP) return SDLK_AUDIOSTOP;
+	if (key == VK_MEDIA_PLAY_PAUSE) return SDLK_AUDIOPLAY;
+	if (key == VK_LAUNCH_MAIL) return SDLK_MAIL;
+	if (key == VK_LAUNCH_MEDIA_SELECT) return SDLK_MEDIASELECT;
+}
+
+static tjs_uint sdl_key_to_vk_key(SDL_Keycode key)
+{
+	// This is generated using regex find replace
+	if (key == SDLK_BACKSPACE) return VK_BACK;
+	if (key == SDLK_TAB) return VK_TAB;
+	if (key == SDLK_CLEAR) return VK_CLEAR;
+	if (key == SDLK_RETURN) return VK_RETURN;
+	if (key == SDLK_PAUSE) return VK_PAUSE;
+	if (key == SDLK_CAPSLOCK) return VK_CAPITAL;
+	if (key == SDLK_ESCAPE) return VK_ESCAPE;
+	if (key == SDLK_SPACE) return VK_SPACE;
+	if (key == SDLK_PAGEUP) return VK_PRIOR;
+	if (key == SDLK_PAGEDOWN) return VK_NEXT;
+	if (key == SDLK_END) return VK_END;
+	if (key == SDLK_HOME) return VK_HOME;
+	if (key == SDLK_LEFT) return VK_LEFT;
+	if (key == SDLK_UP) return VK_UP;
+	if (key == SDLK_RIGHT) return VK_RIGHT;
+	if (key == SDLK_DOWN) return VK_DOWN;
+	if (key == SDLK_SELECT) return VK_SELECT;
+	if (key == SDLK_EXECUTE) return VK_EXECUTE;
+	if (key == SDLK_PRINTSCREEN) return VK_SNAPSHOT;
+	if (key == SDLK_INSERT) return VK_INSERT;
+	if (key == SDLK_DELETE) return VK_DELETE;
+	if (key == SDLK_HELP) return VK_HELP;
+	if (key == SDLK_0) return VK_0;
+	if (key == SDLK_1) return VK_1;
+	if (key == SDLK_2) return VK_2;
+	if (key == SDLK_3) return VK_3;
+	if (key == SDLK_4) return VK_4;
+	if (key == SDLK_5) return VK_5;
+	if (key == SDLK_6) return VK_6;
+	if (key == SDLK_7) return VK_7;
+	if (key == SDLK_8) return VK_8;
+	if (key == SDLK_9) return VK_9;
+	if (key == SDLK_a) return VK_A;
+	if (key == SDLK_b) return VK_B;
+	if (key == SDLK_c) return VK_C;
+	if (key == SDLK_d) return VK_D;
+	if (key == SDLK_e) return VK_E;
+	if (key == SDLK_f) return VK_F;
+	if (key == SDLK_g) return VK_G;
+	if (key == SDLK_h) return VK_H;
+	if (key == SDLK_i) return VK_I;
+	if (key == SDLK_j) return VK_J;
+	if (key == SDLK_k) return VK_K;
+	if (key == SDLK_l) return VK_L;
+	if (key == SDLK_m) return VK_M;
+	if (key == SDLK_n) return VK_N;
+	if (key == SDLK_o) return VK_O;
+	if (key == SDLK_p) return VK_P;
+	if (key == SDLK_q) return VK_Q;
+	if (key == SDLK_r) return VK_R;
+	if (key == SDLK_s) return VK_S;
+	if (key == SDLK_t) return VK_T;
+	if (key == SDLK_u) return VK_U;
+	if (key == SDLK_v) return VK_V;
+	if (key == SDLK_w) return VK_W;
+	if (key == SDLK_x) return VK_X;
+	if (key == SDLK_y) return VK_Y;
+	if (key == SDLK_z) return VK_Z;
+	if (key == SDLK_LGUI) return VK_LWIN;
+	if (key == SDLK_RGUI) return VK_RWIN;
+	if (key == SDLK_SLEEP) return VK_SLEEP;
+	if (key == SDLK_KP_0) return VK_NUMPAD0;
+	if (key == SDLK_KP_1) return VK_NUMPAD1;
+	if (key == SDLK_KP_2) return VK_NUMPAD2;
+	if (key == SDLK_KP_3) return VK_NUMPAD3;
+	if (key == SDLK_KP_4) return VK_NUMPAD4;
+	if (key == SDLK_KP_5) return VK_NUMPAD5;
+	if (key == SDLK_KP_6) return VK_NUMPAD6;
+	if (key == SDLK_KP_7) return VK_NUMPAD7;
+	if (key == SDLK_KP_8) return VK_NUMPAD8;
+	if (key == SDLK_KP_9) return VK_NUMPAD9;
+	if (key == SDLK_KP_MULTIPLY) return VK_MULTIPLY;
+	if (key == SDLK_KP_PLUS) return VK_ADD;
+	if (key == SDLK_KP_MINUS) return VK_SUBTRACT;
+	if (key == SDLK_KP_PERIOD) return VK_DECIMAL;
+	if (key == SDLK_KP_DIVIDE) return VK_DIVIDE;
+	if (key == SDLK_F1) return VK_F1;
+	if (key == SDLK_F2) return VK_F2;
+	if (key == SDLK_F3) return VK_F3;
+	if (key == SDLK_F4) return VK_F4;
+	if (key == SDLK_F5) return VK_F5;
+	if (key == SDLK_F6) return VK_F6;
+	if (key == SDLK_F7) return VK_F7;
+	if (key == SDLK_F8) return VK_F8;
+	if (key == SDLK_F9) return VK_F9;
+	if (key == SDLK_F10) return VK_F10;
+	if (key == SDLK_F11) return VK_F11;
+	if (key == SDLK_F12) return VK_F12;
+	if (key == SDLK_F13) return VK_F13;
+	if (key == SDLK_F14) return VK_F14;
+	if (key == SDLK_F15) return VK_F15;
+	if (key == SDLK_F16) return VK_F16;
+	if (key == SDLK_F17) return VK_F17;
+	if (key == SDLK_F18) return VK_F18;
+	if (key == SDLK_F19) return VK_F19;
+	if (key == SDLK_F20) return VK_F20;
+	if (key == SDLK_F21) return VK_F21;
+	if (key == SDLK_F22) return VK_F22;
+	if (key == SDLK_F23) return VK_F23;
+	if (key == SDLK_F24) return VK_F24;
+	if (key == SDLK_NUMLOCKCLEAR) return VK_NUMLOCK;
+	if (key == SDLK_SCROLLLOCK) return VK_SCROLL;
+	if (key == SDLK_LSHIFT) return VK_LSHIFT;
+	if (key == SDLK_RSHIFT) return VK_RSHIFT;
+	if (key == SDLK_LCTRL) return VK_LCONTROL;
+	if (key == SDLK_RCTRL) return VK_RCONTROL;
+	if (key == SDLK_MENU) return VK_LMENU;
+	if (key == SDLK_MENU) return VK_RMENU;
+	if (key == SDLK_AC_BACK) return VK_BROWSER_BACK;
+	if (key == SDLK_AC_FORWARD) return VK_BROWSER_FORWARD;
+	if (key == SDLK_AC_REFRESH) return VK_BROWSER_REFRESH;
+	if (key == SDLK_AC_STOP) return VK_BROWSER_STOP;
+	if (key == SDLK_AC_SEARCH) return VK_BROWSER_SEARCH;
+	if (key == SDLK_AC_BOOKMARKS) return VK_BROWSER_FAVORITES;
+	if (key == SDLK_AC_HOME) return VK_BROWSER_HOME;
+	if (key == SDLK_MUTE) return VK_VOLUME_MUTE;
+	if (key == SDLK_VOLUMEDOWN) return VK_VOLUME_DOWN;
+	if (key == SDLK_VOLUMEUP) return VK_VOLUME_UP;
+	if (key == SDLK_AUDIONEXT) return VK_MEDIA_NEXT_TRACK;
+	if (key == SDLK_AUDIOPREV) return VK_MEDIA_PREV_TRACK;
+	if (key == SDLK_AUDIOSTOP) return VK_MEDIA_STOP;
+	if (key == SDLK_AUDIOPLAY) return VK_MEDIA_PLAY_PAUSE;
+	if (key == SDLK_MAIL) return VK_LAUNCH_MAIL;
+	if (key == SDLK_MEDIASELECT) return VK_LAUNCH_MEDIA_SELECT;
+	return 0;
+}
 
 static int GetShiftState() {
 	int s = 0;
@@ -54,10 +314,23 @@ protected:
 	tTJSNI_Window *TJSNativeInstance;
 	bool hasDrawn = false;
 	bool isBeingDeleted = false;
+	char* ime_composition;
+	size_t ime_composition_cursor;
+	size_t ime_composition_len;
+	size_t ime_composition_selection;
+	SDL_Rect attention_point_rect;
 
 public:
 	TVPWindowLayer(tTJSNI_Window *w)
 	{
+		ime_composition = nullptr;
+		ime_composition_cursor = 0;
+		ime_composition_len = 0;
+		ime_composition_selection = 0;
+		attention_point_rect.x = 0;
+		attention_point_rect.y = 0;
+		attention_point_rect.w = 0;
+		attention_point_rect.h = 0;
 		_nextWindow = nullptr;
 		_prevWindow = _lastWindowLayer;
 		_lastWindowLayer = this;
@@ -127,6 +400,11 @@ public:
 	virtual void SetHintText(const ttstr &text) override {
 	}
 	virtual void SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont * font) override {
+		attention_point_rect.x = left;
+		attention_point_rect.y = top;
+		attention_point_rect.w = 0;
+		attention_point_rect.h = font->Height;
+		SDL_SetTextInputRect(&attention_point_rect);
 	}
 	virtual void ZoomRectangle(
 		tjs_int & left, tjs_int & top,
@@ -436,8 +714,33 @@ public:
 		return ::imDisable;
 	}
 	virtual void SetImeMode(tTVPImeMode mode) override {
+		if (mode == ::imDisable || mode == ::imClose)
+		{
+			ResetImeMode();
+		}
+		else
+		{
+			if (!SDL_IsTextInputActive())
+			{
+				SDL_SetTextInputRect(&attention_point_rect);
+				SDL_StartTextInput();
+			}
+		}
 	}
 	virtual void ResetImeMode() override {
+		if (SDL_IsTextInputActive())
+		{
+			ime_composition = nullptr;
+			ime_composition_len = 0;
+			ime_composition_cursor = 0;
+			ime_composition_selection = 0;
+			attention_point_rect.x = 0;
+			attention_point_rect.y = 0;
+			attention_point_rect.w = 0;
+			attention_point_rect.h = 0;
+			SDL_SetTextInputRect(&attention_point_rect);
+			SDL_StopTextInput();
+		}
 	}
 	virtual void UpdateWindow(tTVPUpdateType type) override {
 		if (TJSNativeInstance) {
@@ -520,6 +823,10 @@ public:
 					}
 					case SDL_MOUSEBUTTONDOWN:
 					case SDL_MOUSEBUTTONUP: {
+						if (SDL_IsTextInputActive() && ime_composition != nullptr)
+						{
+							return;
+						}
 						tTVPMouseButton btn;
 						bool hasbtn = true;
 						switch(event.button.button) {
@@ -556,13 +863,125 @@ public:
 						break;
 					}
 					case SDL_KEYDOWN: {
+						if (SDL_IsTextInputActive())
+						{
+							if (ime_composition != nullptr)
+							{
+								return;
+							}
+						}
 						if (event.key.repeat) s |= TVP_SS_REPEAT;
-						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, event.key.keysym.sym, s));
+						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym), s));
+						SDL_SetTextInputRect(&attention_point_rect);
 						break;
 					}
 					case SDL_KEYUP: {
-						TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, event.key.keysym.sym));
-						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, event.key.keysym.sym, s));
+						if (SDL_IsTextInputActive())
+						{
+							if (ime_composition != nullptr)
+							{
+								return;
+							}
+						}
+						if (!SDL_IsTextInputActive())
+						{
+							TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym)));
+						}
+						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym), s));
+						SDL_SetTextInputRect(&attention_point_rect);
+						break;
+					}
+					case SDL_TEXTINPUT:
+					case SDL_TEXTEDITING: {
+						if (!SDL_IsTextInputActive())
+						{
+							return;
+						}
+						// TODO: figure out vertical edit
+						for (size_t i = 0; i < ime_composition_selection; i += 1)
+						{
+							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_LEFT, TVP_SS_SHIFT));
+							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_LEFT, TVP_SS_SHIFT));
+#if 0
+							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_DOWN, TVP_SS_SHIFT));
+							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_DOWN, TVP_SS_SHIFT));
+#endif
+						}
+						for (size_t i = 0; i < ime_composition_len - ime_composition_cursor; i += 1)
+						{
+							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_RIGHT, 0));
+							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_RIGHT, 0));
+#if 0
+							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_DOWN, 0));
+							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_DOWN, 0));
+#endif
+						}
+						for (size_t i = 0; i < ime_composition_len; i += 1)
+						{
+							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_BACK, 0));
+							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_BACK, 0));
+						}
+						switch (event.type) {
+							case SDL_TEXTINPUT:
+								ime_composition = event.text.text;
+								ime_composition_cursor = 0;
+								ime_composition_selection = 0;
+								break;
+							case SDL_TEXTEDITING:
+								ime_composition = event.edit.text;
+								ime_composition_cursor = event.edit.start;
+								ime_composition_selection = event.edit.length;
+								break;
+						}
+						size_t buffer_len = TVPUtf8ToWideCharString((const char*)(ime_composition), NULL);
+						if (buffer_len == (size_t)-1)
+						{
+							return;
+						}
+						if (buffer_len != 0)
+						{
+							ime_composition_len = buffer_len;
+							tjs_char *buffer = new tjs_char[buffer_len + 1];
+							TVPUtf8ToWideCharString((const char*)(ime_composition), buffer);
+							for (size_t i = 0; i < buffer_len; i += 1)
+							{
+								TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, buffer[i]));
+							}
+							delete[] buffer;
+						}
+						else
+						{
+							ime_composition = nullptr;
+							ime_composition_len = 0;
+							ime_composition_cursor = 0;
+							ime_composition_selection = 0;
+						}
+						if (event.type == SDL_TEXTEDITING)
+						{
+							for (size_t i = 0; i < ime_composition_len - ime_composition_cursor; i += 1)
+							{
+								TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_LEFT, 0));
+								TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_LEFT, 0));
+#if 0
+								TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_UP, 0));
+								TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_UP, 0));
+#endif
+							}
+							for (size_t i = 0; i < ime_composition_selection; i += 1)
+							{
+								TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_RIGHT, TVP_SS_SHIFT));
+								TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_RIGHT, TVP_SS_SHIFT));
+#if 0
+								TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_DOWN, TVP_SS_SHIFT));
+								TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_DOWN, TVP_SS_SHIFT));
+#endif
+							}
+						}
+						if (event.type == SDL_TEXTINPUT)
+						{
+							ime_composition = nullptr;
+							ime_composition_len = 0;
+						}
 						break;
 					}
 					case SDL_MOUSEWHEEL: {
@@ -633,15 +1052,15 @@ bool TVPGetKeyMouseAsyncState(tjs_uint keycode, bool getcurrent)
 		Uint32 state = SDL_GetMouseState(NULL, NULL);
 		switch (keycode) {
 			case VK_LBUTTON:
-				return state & SDL_BUTTON(SDL_BUTTON_LEFT);
+				return !!(state & SDL_BUTTON(SDL_BUTTON_LEFT));
 			case VK_RBUTTON:
-				return state & SDL_BUTTON(SDL_BUTTON_RIGHT);
+				return !!(state & SDL_BUTTON(SDL_BUTTON_RIGHT));
 			case VK_MBUTTON:
-				return state & SDL_BUTTON(SDL_BUTTON_MIDDLE);
+				return !!(state & SDL_BUTTON(SDL_BUTTON_MIDDLE));
 			case VK_XBUTTON1:
-				return state & SDL_BUTTON(SDL_BUTTON_X1);
+				return !!(state & SDL_BUTTON(SDL_BUTTON_X1));
 			case VK_XBUTTON2:
-				return state & SDL_BUTTON(SDL_BUTTON_X2);
+				return !!(state & SDL_BUTTON(SDL_BUTTON_X2));
 			default:
 				return false;
 		}
@@ -651,17 +1070,17 @@ bool TVPGetKeyMouseAsyncState(tjs_uint keycode, bool getcurrent)
 		Uint32 state = SDL_GetModState();
 		switch (keycode) {
 			case VK_SHIFT:
-				return state & KMOD_SHIFT;
+				return !!(state & KMOD_SHIFT);
 			case VK_MENU:
-				return state & KMOD_ALT;
+				return !!(state & KMOD_ALT);
 			case VK_CONTROL:
-				return state & KMOD_CTRL;
+				return !!(state & KMOD_CTRL);
 			default:
 				return false;
 		}
 	}
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
-	return state[SDL_GetScancodeFromKey(keycode)];
+	return !!(state[SDL_GetScancodeFromKey(vk_key_to_sdl_key(keycode))]);
 }
 
 bool TVPGetJoyPadAsyncState(tjs_uint keycode, bool getcurrent)
