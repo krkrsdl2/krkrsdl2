@@ -9,6 +9,8 @@
 #include "TVPWindow.h"
 #include "SysInitIntf.h"
 #include "CharacterSet.h"
+#include "WaveImpl.h"
+#include "TimerThread.h"
 #include <SDL.h>
 
 #include <unistd.h>
@@ -21,7 +23,7 @@
 class TVPWindowLayer;
 static TVPWindowLayer *_lastWindowLayer, *_currentWindowLayer;
 
-void sdlProcessEvents();
+extern void sdlProcessEvents();
 
 #define MK_SHIFT 4
 #define MK_CONTROL 8
@@ -1008,6 +1010,10 @@ void sdlProcessEvents()
 			_currentWindowLayer->sdlRecvEvent(event);
 		}
 	}
+#ifdef __EMSCRIPTEN__
+	tTJSNI_WaveSoundBuffer::Trigger();
+	tTVPTimerThread::Trigger();
+#endif
 	::Application->Run();
 }
 

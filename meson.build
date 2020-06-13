@@ -516,7 +516,6 @@ krkrsdl2_cflags += [
 ]
 if target_machine.system() == 'emscripten'
 	krkrsdl2_cflags += [
-		'-pthread',
 		'-s', 'DISABLE_EXCEPTION_CATCHING=0',
 		'-s', 'EXIT_RUNTIME=1',
 	]
@@ -533,7 +532,6 @@ if target_machine.system() == 'linux'
 endif
 if target_machine.system() == 'emscripten'
 	krkrsdl2_ldflags += [
-		'-pthread', '-s', 'USE_PTHREADS=1', 
 		'-s', 'DISABLE_EXCEPTION_CATCHING=0',
 		'-s', 'EXIT_RUNTIME=1',
 		'-s', 'ALLOW_MEMORY_GROWTH=1',
