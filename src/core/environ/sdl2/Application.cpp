@@ -583,9 +583,9 @@ void tTVPApplication::PrintConsole( const tjs_char* mes, unsigned long len, bool
 	tjs_int u8len = TVPWideCharToUtf8String( mes, &(console_cache_[0]) );
 	console_cache_[u8len] = '\0';
 	if( iserror ) {
-		fprintf(stderr, "%s\n", &(console_cache_[0]) );
+		fprintf(stdout, "%s\n", &(console_cache_[0]) );
 	} else {
-		fprintf(stderr, "%s\n", &(console_cache_[0]) );
+		fprintf(stdout, "%s\n", &(console_cache_[0]) );
 	}
 #if 0
 #ifdef _DEBUG
