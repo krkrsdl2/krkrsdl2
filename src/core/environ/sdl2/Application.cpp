@@ -290,7 +290,9 @@ tTVPApplication::~tTVPApplication() {
 	}
 	windows_list_.clear();
 #endif
+#if 0
 	delete image_load_thread_;
+#endif
 }
 #if 0
 struct SEHException {
@@ -412,7 +414,9 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 		if(TVPExecuteUserConfig()) return true;
 #endif
 		
+#if 0
 		image_load_thread_ = new tTVPAsyncImageLoader();
+#endif
 
 		TVPSystemInit();
 
@@ -428,8 +432,10 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 		// Check digitizer
 		CheckDigitizer();
 
+#if 0
 		// start image load thread
 		image_load_thread_->StartTread();
+#endif
 
 		if(TVPProjectDirSelected) TVPInitializeStartupScript();
 
@@ -944,9 +950,11 @@ void tTVPApplication::ModalFinished() {
 }
 #endif
 void tTVPApplication::LoadImageRequest( class iTJSDispatch2 *owner, class tTJSNI_Bitmap* bmp, const ttstr &name ) {
+#if 0
 	if( image_load_thread_ ) {
 		image_load_thread_->LoadRequest( owner, bmp, name );
 	}
+#endif
 }
 
 void tTVPApplication::RegisterActiveEvent(void *host, const std::function<void(void*, eTVPActiveEvent)>& func/*empty = unregister*/)

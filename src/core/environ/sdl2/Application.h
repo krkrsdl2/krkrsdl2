@@ -93,7 +93,11 @@ class tTVPApplication {
 	bool application_activating_;
 	bool has_map_report_process_;
 
+#if 0
 	class tTVPAsyncImageLoader* image_load_thread_;
+#else
+	void * image_load_thread_;
+#endif
 
 #if 0
 	std::stack<class tTVPWindow*> modal_window_stack_;
