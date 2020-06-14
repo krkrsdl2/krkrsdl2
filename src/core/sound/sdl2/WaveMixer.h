@@ -1,6 +1,8 @@
 #pragma once
 #include "WaveIntf.h"
 
+#define TVPAL_BUFFER_COUNT 4
+
 struct ALSoundImpl;
 void TVPInitDirectSound(int freq = 48000);
 void TVPUninitDirectSound();
