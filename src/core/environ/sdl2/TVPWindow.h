@@ -345,8 +345,9 @@ public:
 	virtual void ShowWindowAsModal() = 0;
 	virtual bool GetVisible() = 0;
 	virtual void SetVisible(bool bVisible) = 0;
-	virtual const char *GetCaption() = 0;
-	virtual void SetCaption(const tjs_string &) = 0;
+	virtual tjs_string GetCaption() = 0;
+	virtual void GetCaption(tjs_string & v) const = 0;
+	virtual void SetCaption(const tjs_string & v) = 0;
 	virtual void SetWidth(tjs_int w) = 0;
 	virtual void SetHeight(tjs_int h) = 0;
 	virtual void SetSize(tjs_int w, tjs_int h) = 0;

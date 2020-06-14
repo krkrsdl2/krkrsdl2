@@ -467,13 +467,23 @@ public:
 			}
 		}
 	}
-	virtual const char *GetCaption() override {
-		return SDL_GetWindowTitle(window);
+	virtual tjs_string GetCaption() override {
+		std::string v_utf8 = SDL_GetWindowTitle(window);
+		tjs_string v_utf16;
+		TVPUtf8ToUtf16( v_utf16, v_utf8 );
+		return v_utf16;
 	}
-	virtual void SetCaption(const tjs_string & ws) override {
-#if 0
-		SDL_SetWindowTitle(window, ttstr(ws).AsNarrowStdString().c_str());
-#endif
+	virtual void GetCaption(tjs_string & v) const override {
+		v.clear();
+		std::string v_utf8 = SDL_GetWindowTitle(window);
+		TVPUtf8ToUtf16( v, v_utf8 );
+	}
+	virtual void SetCaption(const tjs_string & v) override {
+		std::string v_utf8;
+		if (TVPUtf16ToUtf8(v_utf8, v))
+		{
+			SDL_SetWindowTitle(window, v_utf8.c_str());
+		}
 	}
 	virtual void SetWidth(tjs_int w) override {
 		int h;
