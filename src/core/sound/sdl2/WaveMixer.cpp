@@ -1,27 +1,9 @@
 #include "tjsCommHead.h"
 #include "WaveMixer.h"
-// #ifdef __APPLE__
-// #include <OpenAL/al.h>
-// #include <OpenAL/alc.h>
-// #else
-// #include "AL/alc.h"
-// #include "AL/alext.h"
-// #endif
-// #ifdef __ANDROID__
-// #include "oboe/Oboe.h"
-// #endif
-#include <string.h>
-#include <math.h>
 #include "WaveImpl.h"
-#include <assert.h>
-#include "SysInitIntf.h"
-#include "TickCount.h"
-#include <sstream>
-#include <iomanip>
 #include "DebugIntf.h"
-#include "SDL.h"
+#include <SDL.h>
 #include <unordered_set>
-#include <algorithm>
 
 class iTVPAudioRenderer;
 static iTVPAudioRenderer *TVPAudioRenderer;
@@ -92,8 +74,6 @@ static FAudioMix *_AudioMixF32[8] = { // 7.1 max
 	&MixAudioF32CPP<7>,
 	&MixAudioF32CPP<8>
 };
-
-// extern "C" void TVPWaveMixer_ASM_Init(FAudioMix **func16, FAudioMix **func32);
 
 class tTVPSoundBuffer : public iTVPSoundBuffer {
 public:
@@ -199,13 +179,9 @@ public:
 		}
 	}
 	virtual bool IsBufferValid() override {
-		return true; // unlimited buffer size
-		//return !_buffers.empty(); // thread safe if read only
+		return true;
 	}
 	virtual tjs_uint GetLatencySamples() override;
-// 	virtual void SetSampleOffset(tjs_uint n) override {
-// 		_sendedSamples = n;
-// 	}
 	virtual int GetRemainBuffers() override {
 		return _buffers.size();
 	}
@@ -242,14 +218,13 @@ public:
 	}
 	void InitMixer() {
 		if (SDL_Init(SDL_INIT_AUDIO) < 0) { // for format converter
-			SDL_Log("Fail to initialize audio.");
+			TVPAddLog(ttstr("Failed to initialize SDL audio."));
 			return;
 		}
 	}
 
 	FAudioMix *DoMixAudio;
 	void SetupMixer() {
-		// TVPWaveMixer_ASM_Init(_AudioMixS16, _AudioMixF32);
 		if (_spec.format == AUDIO_S16LSB) {
 			DoMixAudio = _AudioMixS16[_spec.channels - 1];
 		} else if (_spec.format == AUDIO_F32LSB) {
@@ -303,7 +278,6 @@ public:
 	}
 
 	void FillBuffer(Uint8 *buf, int len) {
-		// memset(buf, 0, len);
 		SDL_LockMutex(_streams_mtx);
 		for (tTVPSoundBuffer* s : _streams) {
 			s->FillBuffer(buf, len);
@@ -381,372 +355,19 @@ public:
 		InitMixer();
 		_playback_id = SDL_OpenAudioDevice(nullptr, false, &_spec, &_spec, SDL_AUDIO_ALLOW_ANY_CHANGE);
 		if (_playback_id <= 0) {
-			SDL_Log("Fail to open audio @%dHz.", _spec.freq);
+			TVPAddLog(ttstr("Failed to open audio at ") + ttstr(_spec.freq) + ttstr("Hz."));
 			return false;
 		}
 		_frame_size = SDL_AUDIO_BITSIZE(_spec.format) / 8 * _spec.channels;
-		SDL_Log("Audio Device: %s", SDL_GetCurrentAudioDriver());
+		TVPAddLog(ttstr("Audio Device: ") + ttstr(SDL_GetCurrentAudioDriver()));
 		SDL_PauseAudioDevice(_playback_id, false);
 		SetupMixer();
 		return true;
 	}
 };
 
-#if 0
-#ifdef __ANDROID__
-class tTVPAudioRendererOboe : public iTVPAudioRenderer, public oboe::AudioStreamCallback {
-	oboe::AudioStream *_oboeAudioStream = nullptr;
-
-public:
-	virtual ~tTVPAudioRendererOboe() {
-		if (_oboeAudioStream) delete _oboeAudioStream;
-	}
-
-	bool Init() override {
-		InitMixer();
-		// Create a builder
-		oboe::AudioStreamBuilder builder;
-		//builder.setFormat(oboe::AudioFormat::I16);
-		builder.setChannelCount(2);
-		//builder.setSampleRate(oboe::kUnspecified);
-		builder.setCallback(this);
-		// 	builder.setPerformanceMode(PerformanceMode::None);
-		// 	builder.setSharingMode(SharingMode::Shared);
-		oboe::Result result = builder.openStream(&_oboeAudioStream);
-// 		if (result != oboe::Result::OK) {
-// 			// try down sample rate
-// 			_spec.freq = 44100;
-// 			builder.setSampleRate(_spec.freq);
-// 			result = builder.openStream(&_oboeAudioStream);
-// 		}
-		if (result == oboe::Result::OK) {
-			_spec.freq = _oboeAudioStream->getSampleRate();
-			switch (_oboeAudioStream->getFormat()) {
-			case oboe::AudioFormat::I16: _spec.format = AUDIO_S16LSB; break;
-			case oboe::AudioFormat::Float: _spec.format = AUDIO_F32LSB; break;
-			}
-			_frame_size = SDL_AUDIO_BITSIZE(_spec.format) / 8 * _spec.channels;
-			_oboeAudioStream->requestStart();
-			SDL_Log("Audio Device: Oboe @%dHz", _spec.freq);
-			SetupMixer();
-			return true;
-		}
-		SDL_Log("Fail to open Oboe audio");
-		// SetupSDL();
-		return false;
-	}
-
-	virtual oboe::DataCallbackResult onAudioReady(
-		oboe::AudioStream *oboeStream,
-		void *audioData,
-		int32_t numFrames) override {
-		int len = _frame_size * numFrames;
-		memset(audioData, 0, _frame_size * numFrames);
-		//if (oboeStream == _oboeAudioStream)
-			FillBuffer((uint8_t*)audioData, len);
-// 		else
-// 			fillCaptureBuffer((uint8_t*)audioData, /*Mono*/2 * numFrames);
-		return oboe::DataCallbackResult::Continue;
-	}
-
-	virtual int32_t GetUnprocessedSamples() {
-		int64_t hardwareFrameIndex;
-		int64_t timeNanoseconds;
-		oboe::Result result = _oboeAudioStream->getTimestamp(CLOCK_MONOTONIC, &hardwareFrameIndex, &timeNanoseconds);
-		if (result != oboe::Result::OK) { // OpenSL TODO accumulate calc
-			return 0;
-		}
-		int64_t appFrameIndex = _oboeAudioStream->getFramesWritten();
-		return appFrameIndex - hardwareFrameIndex;
-	}
-};
-#endif
-
-class tTVPSoundBufferAL : public tTVPSoundBuffer {
-	typedef tTVPSoundBuffer inherit;
-
-	ALuint _alSource;
-	ALenum _alFormat;
-	ALuint *_bufferIds, *_bufferIds2;
-	tjs_uint *_bufferSize;
-	tjs_uint _bufferCount;
-	int _bufferIdx = -1;
-	tTVPWaveFormat _format;
-public:
-	tTVPSoundBufferAL(tTVPWaveFormat &desired, int bufcount)
-		: tTVPSoundBuffer(desired.BytesPerSample * desired.Channels, nullptr), _bufferCount(bufcount)
-	{
-		_bufferIds = new ALuint[bufcount];
-		_bufferIds2 = new ALuint[bufcount];
-		_bufferSize = new tjs_uint[bufcount];
-		_format = desired;
-		alGenSources(1, &_alSource);
-		alGenBuffers(_bufferCount, _bufferIds);
-		alSourcef(_alSource, AL_GAIN, 1.0f);
-		if (desired.Channels == 1) {
-			switch (desired.BitsPerSample) {
-			case 8:
-				_alFormat = AL_FORMAT_MONO8;
-				break;
-			case 16:
-				_alFormat = AL_FORMAT_MONO16;
-				break;
-			default:
-				assert(false);
-			}
-		} else if (desired.Channels == 2) {
-			switch (desired.BitsPerSample) {
-			case 8:
-				_alFormat = AL_FORMAT_STEREO8;
-				break;
-			case 16:
-				_alFormat = AL_FORMAT_STEREO16;
-				break;
-			default:
-				assert(false);
-			}
-		} else {
-			assert(false);
-		}
-	}
-
-	virtual ~tTVPSoundBufferAL() {
-		alDeleteBuffers(_bufferCount, _bufferIds);
-		alDeleteSources(1, &_alSource);
-		delete[]_bufferIds;
-		delete[]_bufferIds2;
-		delete[]_bufferSize;
-	}
-
-	bool IsBufferValid() override {
-		ALint processed = 0;
-		alGetSourcei(_alSource, AL_BUFFERS_PROCESSED, &processed);
-		if (processed > 0) return true;
-		ALint queued = 0;
-		alGetSourcei(_alSource, AL_BUFFERS_QUEUED, &queued);
-		return queued < _bufferCount;
-	}
-
-	virtual void AppendBuffer(const void *buf, unsigned int len/*, int tag = 0*/) override {
-		if (len <= 0) return;
-		std::lock_guard<std::mutex> lk(_buffer_mtx);
-
-		/* First remove any processed buffers. */
-		ALint processed = 0;
-		alGetSourcei(_alSource, AL_BUFFERS_PROCESSED, &processed);
-		if (processed > 0) {
-			alSourceUnqueueBuffers(_alSource, processed, _bufferIds2);
-            checkerr("alSourceUnqueueBuffers");
-			for (int i = 0; i < processed; ++i) {
-				for (int j = 0; j < _bufferCount; ++j) {
-					if (_bufferIds[j] == _bufferIds2[i])
-					{
-						_sendedSamples += _bufferSize[j] / _frame_size;
-						break;
-					}
-				}
-			}
-		}
-
-		/* Refill the buffer queue. */
-		ALint queued = 0;
-		alGetSourcei(_alSource, AL_BUFFERS_QUEUED, &queued);
-
-		if (queued >= _bufferCount)
-			return;
-		++_bufferIdx;
-		if (_bufferIdx >= _bufferCount) _bufferIdx = 0;
-		ALuint bufid = _bufferIds[_bufferIdx];
-		alBufferData(bufid, _alFormat, buf, len, _format.SamplesPerSec);
-        checkerr("alBufferData");
-		alSourceQueueBuffers(_alSource, 1, &bufid);
-        checkerr("alSourceQueueBuffers");
-		//_tags[_bufferIdx] = tag;
-		_bufferSize[_bufferIdx] = len;
-	}
-
-	void Reset() override {
-		inherit::Reset();
-		std::lock_guard<std::mutex> lk(_buffer_mtx);
-		alSourceRewind(_alSource);
-		alSourcei(_alSource, AL_BUFFER, 0);
-	}
-
-	void Pause() override {
-		alSourcePause(_alSource);
-        checkerr("Pause");
-		_playing = false;
-	}
-    
-    static void checkerr(const char *funcname);
-
-	void Play() override {
-		ALenum state;
-		alGetSourcei(_alSource, AL_SOURCE_STATE, &state);
-        checkerr("Play");
-		if (state != AL_PLAYING) {
-			alSourcePlay(_alSource);
-            checkerr("Play");
-		}
-
-		_playing = true;
-	}
-
-	void Stop() override {
-		alSourceStop(_alSource);
-        checkerr("Stop");
-		Reset();
-		_bufferIdx = -1;
-		_playing = false;
-	}
-
-	void SetVolume(float volume) override {
-		alSourcef(_alSource, AL_GAIN, volume);
-        checkerr("SetVolume");
-	}
-
-	float GetVolume() override {
-		float volume = 0;
-		alGetSourcef(_alSource, AL_GAIN, &volume);
-		return volume;
-	}
-
-	void SetPan(float pan) override {
-		float sourcePosAL[] = { pan, 0.0f, 0.0f };
-		alSourcefv(_alSource, AL_POSITION, sourcePosAL);
-	}
-
-	float GetPan() override {
-		float sourcePosAL[3];
-		alGetSourcefv(_alSource, AL_POSITION, sourcePosAL);
-		return sourcePosAL[0];
-	}
-
-	bool IsPlaying() override {
-		ALenum state;
-		alGetSourcei(_alSource, AL_SOURCE_STATE, &state);
-		return state == AL_PLAYING;
-	}
-
-	void SetPosition(float x, float y, float z) override {
-		float sourcePosAL[] = { x, y, z };
-		alSourcefv(_alSource, AL_POSITION, sourcePosAL);
-        checkerr("SetPosition");
-	}
-
-	int GetRemainBuffers() override {
-		ALint processed, queued = 0;
-		alGetSourcei(_alSource, AL_BUFFERS_PROCESSED, &processed);
-		alGetSourcei(_alSource, AL_BUFFERS_QUEUED, &queued);
-		return queued - processed;
-	}
-
-	tjs_uint GetLatencySamples() override {
-		std::lock_guard<std::mutex> lk(_buffer_mtx);
-		ALint offset = 0, queued = 0;
-		alGetSourcei(_alSource, AL_BYTE_OFFSET, &offset);
-		alGetSourcei(_alSource, AL_BUFFERS_QUEUED, &queued);
-		int remainBuffers = queued;
-		if (remainBuffers == 0) return 0;
-		tjs_int total = -offset;
-		for (int i = 0; i < remainBuffers; ++i) {
-			int idx = _bufferIdx + 1 - remainBuffers + i;
-			if (idx >= _bufferCount) idx -= _bufferCount;
-			else if (idx < 0) idx += _bufferCount;
-			total += _bufferSize[idx];
-		}
-		return total / _frame_size;
-	}
-
-	virtual float GetLatencySeconds() override {
-		return (float)GetLatencySamples() / _format.SamplesPerSec;
-	}
-
-	virtual tjs_uint GetCurrentPlaySamples() override {
-		ALint offset = 0;
-		alGetSourcei(_alSource, AL_SAMPLE_OFFSET, &offset);
-		return _sendedSamples + offset;
-	}
-};
-
-class tTVPAudioRendererAL : public iTVPAudioRenderer {
-	ALCdevice *_device = nullptr;
-	ALCcontext *_context = nullptr;
-public:
-	virtual ~tTVPAudioRendererAL() {
-		if (_context) {
-			//alDeleteSources(TVP_MAX_AUDIO_COUNT, _alSources);
-			alcMakeContextCurrent(nullptr);
-			alcDestroyContext(_context);
-		}
-		if (_device)
-			alcCloseDevice(_device);
-	}
-	bool Init() override {
-		ALboolean enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
-		if (enumeration == AL_FALSE) {
-			// enumeration not supported
-			_device = alcOpenDevice(NULL);
-		} else {
-			// enumeration supported
-			const ALCchar *devices = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
-			std::vector<std::string> alldev;
-			ttstr log(TJS_W("(info) Sound Driver/Device found : "));
-			while (*devices) {
-				TVPAddImportantLog(log + devices);
-				alldev.emplace_back(devices);
-				devices += alldev.back().length();
-			}
-			_device = alcOpenDevice(alldev[0].c_str());
-		}
-		if (!_device) return false;
-
-		_context = alcCreateContext(_device, NULL);
-		alcMakeContextCurrent(_context);
-
-		return true;
-	}
-
-	virtual tTVPSoundBuffer* CreateStream(tTVPWaveFormat &fmt, int bufcount) override {
-		tTVPSoundBuffer* s = new tTVPSoundBufferAL(fmt, bufcount);
-		_streams.emplace(s);
-		return s;
-	}
-    
-    ALCcontext *GetContext() {
-        return _context;
-    }
-};
-
-void tTVPSoundBufferAL::checkerr(const char *funcname) {
-#if _DEBUG
-    ALCcontext *ctx = static_cast<tTVPAudioRendererAL*> (TVPAudioRenderer)->GetContext();
-    if (alcGetCurrentContext() != ctx) {
-        alcMakeContextCurrent(ctx);
-    }
-    ALenum err = alGetError();
-    if (AL_NO_ERROR == err) return;
-    SDL_Log("%s OpenAL Error %X", funcname, err);
-#endif
-}
-#endif
-
 static iTVPAudioRenderer *CreateAudioRenderer() {
 	iTVPAudioRenderer *renderer = nullptr;
-#if 0
-#ifdef __ANDROID__
-	renderer = new tTVPAudioRendererOboe;
-	if (renderer->Init()) return renderer;
-	delete renderer;
-#elif defined(_MSC_VER) && 0
-	renderer = new tTVPAudioRendererSDL;
-	renderer->Init();
-	return renderer;
-#endif
-	renderer = new tTVPAudioRendererAL;
-	renderer->Init();
-	return renderer;
-#endif
 	renderer = new tTVPAudioRendererSDL;
 	renderer->Init();
 	return renderer;
@@ -757,26 +378,13 @@ void TVPInitDirectSound(int freq)
 	if (!TVPAudioRenderer) {
 		TVPAudioRenderer = CreateAudioRenderer();
 	}
-	//TVPInitSoundOptions();
 }
 
 void TVPUninitDirectSound()
 {
-	// nothing to do
 }
 
 iTVPSoundBuffer* TVPCreateSoundBuffer(tTVPWaveFormat &fmt, int bufcount)
 {
 	return TVPAudioRenderer->CreateStream(fmt, bufcount);
 }
-#if 0
-int TVPALSoundWrap::GetNextBufferIndex() {
-	int n = _bufferIdx + 1;
-	if (n >= TVPAL_BUFFER_COUNT) n = 0;
-	return n;
-}
-
-void TVPALSoundWrap::SetSampleOffset(tjs_uint n /*= 0*/) {
-	_samplesProcessed = n;
-}
-#endif
