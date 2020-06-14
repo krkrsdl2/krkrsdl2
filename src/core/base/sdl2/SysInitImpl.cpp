@@ -53,6 +53,7 @@
 #include "TVPScreen.h"
 #endif
 #include "TickCount.h"
+#include <SDL.h>
 
 //---------------------------------------------------------------------------
 // global data
@@ -1008,7 +1009,7 @@ void TVPBeforeSystemInit()
 	TVPInitRandomGenerator();
 
 	// memory usage
-	TVPTotalPhysMemory = 128 * 1024 * 1024;
+	TVPTotalPhysMemory = SDL_GetSystemRAM() * 1024 * 1024;
 #if 0
 	{
 		MEMORYSTATUSEX status = { sizeof(MEMORYSTATUSEX) };
