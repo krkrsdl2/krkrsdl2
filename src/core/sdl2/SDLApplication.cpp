@@ -11,6 +11,7 @@
 #include "CharacterSet.h"
 #include "WaveImpl.h"
 #include "TimerThread.h"
+#include "MsgIntf.h"
 #include <SDL.h>
 
 #include <unistd.h>
@@ -349,8 +350,20 @@ public:
 			TJSNativeInstance = nullptr;
 		}
 		
+		if (SDL_Init(SDL_INIT_VIDEO) < 0)
+		{
+			TVPThrowExceptionMessage(TJS_W("Cannot initialize SDL video subsystem."));
+		}
 		window = SDL_CreateWindow("krkrsdl2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+		if (window == nullptr)
+		{
+			TVPThrowExceptionMessage(TJS_W("Cannot create SDL window."));
+		}
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+		if (renderer == nullptr)
+		{
+			TVPThrowExceptionMessage(TJS_W("Cannot create SDL renderer."));
+		}
 		framebuffer = NULL;
 		SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0x00, 0xFF );
 	}
@@ -376,6 +389,10 @@ public:
 			framebuffer = NULL;
 		}
 		framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, w, h);
+		if (framebuffer == nullptr)
+		{
+			TVPThrowExceptionMessage(TJS_W("Cannot create framebuffer texture."));
+		}
 		if( TJSNativeInstance )
 		{
 			tTVPRect r;
@@ -1004,10 +1021,13 @@ public:
 
 void sdlProcessEvents()
 {
-	SDL_Event event;
-	while (SDL_PollEvent(&event)) {
-		if (_currentWindowLayer) {
-			_currentWindowLayer->sdlRecvEvent(event);
+	if (SDL_WasInit(SDL_INIT_EVENTS) != 0)
+	{
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) {
+			if (_currentWindowLayer) {
+				_currentWindowLayer->sdlRecvEvent(event);
+			}
 		}
 	}
 #ifdef __EMSCRIPTEN__
@@ -1018,8 +1038,6 @@ void sdlProcessEvents()
 }
 
 int main(int argc, char **argv) {
-	SDL_Init(SDL_INIT_EVERYTHING);
-
 	_argc = argc;
 	_wargv = new tjs_char*[argc];
 
