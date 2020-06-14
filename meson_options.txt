@@ -1,0 +1,6 @@
+
+option(
+	'krkrsdl2_data_path',
+	type: 'string',
+	description: 'Path to project directory that will be integrated into the build.'
+)

@@ -1433,16 +1433,24 @@ function intArrayToString(array) {
           document.body.appendChild(script);
 
           }
+          function loadDataJs() {
+
+          var script = document.createElement('script');
+          script.src = "@data_name@.js";
+          script.onload = loadMainJs;
+          document.body.appendChild(script);
+
+          }
           if (!window.WebAssembly) {
             // Current browser does not support WebAssembly, load the .wasm.js JavaScript fallback
             // before the main JS runtime.
             var wasm2js = document.createElement('script');
             wasm2js.src = '@exe_name@.wasm.js';
-            wasm2js.onload = loadMainJs;
+            wasm2js.onload = loadDataJs;
             document.body.appendChild(wasm2js);
           } else {
             // Current browser supports Wasm, proceed with loading the main JS runtime.
-            loadMainJs();
+            loadDataJs();
           }
 
 </script>
