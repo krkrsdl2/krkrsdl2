@@ -560,3 +560,12 @@ krkrsdl2 = executable(
 	install: true,
 	override_options: krkrsdl2_override_options
 )
+if target_machine.system() == 'emscripten'
+	conf_data = configuration_data()
+	conf_data.set('exe_name', krkrsdl2.name())
+	krkrsdl2_html = configure_file(input: 'src/config/index.html.in',
+		output: 'index.html',
+		configuration: conf_data
+	)
+	krkrsdl2_dependson += krkrsdl2_html
+endif
