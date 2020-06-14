@@ -450,12 +450,10 @@ krkrsdl2_src = [
 	'src/core/sound/sdl2/WaveMixer.cpp',
 	'src/plugins/KAGParser.cpp',
 	'src/plugins/csvParser.cpp',
-	'src/plugins/fftgraph.cpp',
 	'src/plugins/getSample.cpp',
 	'src/plugins/ncbind/ncbind.cpp',
 	'src/plugins/saveStruct.cpp',
 	'src/plugins/varfile.cpp',
-	'src/plugins/win32dialog.cpp',
 	'src/plugins/wutcwf.cpp',
 ]
 krkrsdl2_includes = [
