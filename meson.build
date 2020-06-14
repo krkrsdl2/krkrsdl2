@@ -535,6 +535,7 @@ if target_machine.system() == 'emscripten'
 		'-s', 'DISABLE_EXCEPTION_CATCHING=0',
 		'-s', 'EXIT_RUNTIME=1',
 		'-s', 'ALLOW_MEMORY_GROWTH=1',
+		'-s', 'WASM=2',
 		'--no-heap-copy',
 		'--preload-file', join_paths(meson.source_root(), 'data') + '@/data',
 	]
@@ -542,4 +543,22 @@ endif
 krkrsdl2_dependson = [
 	sdl2_dep,
 ]
-krkrsdl2 = executable('krkrsdl2', sources: krkrsdl2_src, c_args: krkrsdl2_cflags, cpp_args: krkrsdl2_cppflags, link_args: krkrsdl2_ldflags, include_directories: include_directories(krkrsdl2_includes), dependencies: krkrsdl2_dependson, install: true)
+krkrsdl2_override_options = []
+if target_machine.system() == 'emscripten'
+	krkrsdl2_override_options += [
+		'optimization=s',
+		'debug=false',
+		'b_lto=true'
+	]
+endif
+krkrsdl2 = executable(
+	'krkrsdl2',
+	sources: krkrsdl2_src,
+	c_args: krkrsdl2_cflags,
+	cpp_args: krkrsdl2_cppflags,
+	link_args: krkrsdl2_ldflags,
+	include_directories: include_directories(krkrsdl2_includes),
+	dependencies: krkrsdl2_dependson,
+	install: true,
+	override_options: krkrsdl2_override_options
+)
