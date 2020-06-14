@@ -447,12 +447,9 @@ tTVPAtExit TVPDestroyPluginVectorAtExit
 	(TVP_ATEXIT_PRI_RELEASE, TVPDestroyPluginVector);
 #endif
 //---------------------------------------------------------------------------
-bool TVPLoadInternalPlugin(const ttstr &_name);
-extern std::set<ttstr> TVPRegisteredPlugins;
 static bool TVPPluginLoading = false;
 void TVPLoadPlugin(const ttstr & name)
 {
-	TVPLoadInternalPlugin(name);
 #if 0
 	// load plugin
 	if(TVPPluginLoading)
@@ -548,10 +545,8 @@ static void TVPSearchPluginsAt(std::vector<tTVPFoundPlugin> &list, tjs_string fo
 }
 #endif
 
-void TVPLoadInternalPlugins();
 void TVPLoadPluigins(void)
 {
-	TVPLoadInternalPlugins();
 #if 0
 	// This function searches plugins which have an extension of ".tpm"
 	// in the default path: 
@@ -1011,11 +1006,6 @@ TJS_BEGIN_NATIVE_METHOD_DECL(getList)
 	iTJSDispatch2 * array = TJSCreateArrayObject();
 	try
 	{
-		tjs_int idx = 0;
-		for (ttstr name : TVPRegisteredPlugins) {
-			tTJSVariant val(name);
-			array->PropSetByNum(TJS_MEMBERENSURE, idx++, &val, array);
-		}
 #if 0
 		tTVPPluginVectorType::iterator i;
 		tjs_int idx = 0;

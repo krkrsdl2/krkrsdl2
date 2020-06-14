@@ -1,6 +1,5 @@
 #include "ncbind/ncbind.hpp"
 #include "PluginIntf.h"
-#define NCB_MODULE_NAME TJS_W("saveStruct.dll")
 
 class tTVPStringStream
 {

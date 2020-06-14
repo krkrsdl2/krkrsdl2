@@ -2,7 +2,6 @@
 #include <string>
 #include "ncbind/ncbind.hpp"
 
-#define NCB_MODULE_NAME TJS_W("csvParser.dll")
 using namespace std;
 
 //---------------------------------------------------------------------------

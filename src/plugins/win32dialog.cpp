@@ -1,8 +1,6 @@
 
 #include "ncbind/ncbind.hpp"
 
-#define NCB_MODULE_NAME TJS_W("win32dialog.dll")
-
 static void InitPlugin_WIN32Dialog()
 {
 	TVPExecuteScript(

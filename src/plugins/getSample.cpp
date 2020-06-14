@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <cstdlib>
 
-#define NCB_MODULE_NAME TJS_W("getSample.dll")
 //------------------------------------------------------------------------------------------------
 // 旧方式（互換のために残されています）
 

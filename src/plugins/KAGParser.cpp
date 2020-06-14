@@ -10,7 +10,6 @@
 //---------------------------------------------------------------------------
 
 #include "ncbind/ncbind.hpp"
-#define NCB_MODULE_NAME TJS_W("KAGParser.dll")
 
 #ifndef USING_TP_STUB
 #include "tjsCommHead.h"

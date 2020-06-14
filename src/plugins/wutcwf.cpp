@@ -6,8 +6,6 @@
 #define LONG int32_t
 #define ULONG uint32_t
 
-#define NCB_MODULE_NAME TJS_W("wutcwf.dll")
-
 #pragma pack(push,1)
 struct TTCWFHeader
 {

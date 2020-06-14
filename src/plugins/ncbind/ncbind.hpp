@@ -1,10 +1,12 @@
 #ifndef _ncbind_hpp_
 #define _ncbind_hpp_
 
+#if 0
+#include <windows.h>
+#include "tp_stub.h"
+#endif
 #include "PluginStub.h"
 #include "ncb_invoke.hpp"
-#include <map>
-#include <list>
 
 ////////////////////////////////////////
 // ログ出力用マクロ
@@ -395,12 +397,12 @@ struct ncbStrictResultConvertor {};
 /// 数値はキャストで変換する
 NCB_TYPECONV_CAST_INTEGER(   signed char);
 NCB_TYPECONV_CAST_INTEGER( unsigned char);
-NCB_TYPECONV_CAST_INTEGER(signed int);
-NCB_TYPECONV_CAST_INTEGER(unsigned int);
+NCB_TYPECONV_CAST_INTEGER(    signed int);
+NCB_TYPECONV_CAST_INTEGER(  unsigned int);
 NCB_TYPECONV_CAST_INTEGER(  signed short);
 NCB_TYPECONV_CAST_INTEGER(unsigned short);
-NCB_TYPECONV_CAST_INTEGER(signed long);
-NCB_TYPECONV_CAST_INTEGER(unsigned long);
+NCB_TYPECONV_CAST_INTEGER(   signed long);
+NCB_TYPECONV_CAST_INTEGER( unsigned long);
 NCB_TYPECONV_CAST_REAL(            float);
 NCB_TYPECONV_CAST_REAL(           double);
 NCB_TYPECONV_CAST(            bool, bool);
@@ -457,7 +459,8 @@ struct ncbWideCharConvertor {
 	struct ToWChar {
 		template <typename DST>
 		inline void operator()(DST &dst, tTJSVariant const &src) {
-			dst = static_cast<DST>(src.GetString());
+			const tjs_char *str = src.GetString();
+			dst = static_cast<DST>(str ? str : TJS_W(""));
 		}
 	};
 };
@@ -531,10 +534,10 @@ struct ncbNativeObjectBoxing {
 		}
 
 		// for reference
-		template <typename SRC>
-		inline void operator ()(VarT &dst, SRC &src, ncbTypedefs::Tag<SRC&> const &tag) const {
-			operator()<SRC&> (dst, src, tag);
-		}
+		// template <typename SRC>
+		// inline void operator ()(VarT &dst, SRC &src, ncbTypedefs::Tag<SRC&> const &tag) const {
+		// 	operator()<SRC&> (dst, src, tag);
+		// }
 	};
 
 	/// Unboxing
@@ -1707,9 +1710,9 @@ private:
 		/**/typename _DefsT::CallerT::tMethodTraits<METHOD>::ArgsType>::Type Type;
 	};
 
-public:
 	template <typename T>
 	struct TypeWrap { typedef T Type; };
+public:
 	_NameT   GetName() const			{ return _impl.GetName(); }
 	_NameT   GetName(_NameT  n) const	{ return n; }
 	template <typename OTHER>
@@ -2126,30 +2129,14 @@ struct ncbAutoRegister {
 		PostRegist,
 		LINE_COUNT };
 #define NCB_INNER_AUTOREGISTER_LINES_INSTANCE { 0, 0, 0 }
-	NameT modulename;
-	ncbAutoRegister(NameT name, LineT line) : modulename(name), _next(_top[line]) { _top[line] = this; }
 
-	static void AllRegist(  LineT line) {
-#ifdef _DEBUG
-		NCB_LOG_2(TJS_W("AllRegist:"), line);
-#endif
-		for (ThisClassT const* p = _top[line]; p; p = p->_next) {
-			ttstr name = p->modulename;
-			name.ToLowerCase();
-			_internal_plugins[name].lists[line].push_back(p);//p->Regist();
-		}
-	}
-	static void AllUnregist(LineT line) {
-#ifdef _DEBUG
-		NCB_LOG_2(TJS_W("AllUnregist:"), line);
-#endif
-		for (ThisClassT const* p = _top[line]; p; p = p->_next)
-			p->Unregist();
-	}
+	ncbAutoRegister(LineT line) : _next(_top[line]) { _top[line] = this; }
+
+	static void AllRegist(  LineT line) { NCB_LOG_2(TJS_W("AllRegist:"),   line); for (ThisClassT const* p = _top[line]; p; p = p->_next) p->Regist();   }
+	static void AllUnregist(LineT line) { NCB_LOG_2(TJS_W("AllUnregist:"), line); for (ThisClassT const* p = _top[line]; p; p = p->_next) p->Unregist(); }
 
 	static void AllRegist()   { for (int line = 0; line < LINE_COUNT; line++) AllRegist(  static_cast<LineT>(line)); }
 	static void AllUnregist() { for (int line = 0; line < LINE_COUNT; line++) AllUnregist(static_cast<LineT>(line)); }
-	static bool LoadModule(const ttstr &_name);
 protected:
 	virtual void Regist()   const = 0;
 	virtual void Unregist() const = 0;
@@ -2157,18 +2144,12 @@ private:
 	ncbAutoRegister();
 	/****/ ThisClassT const* _next;
 	static ThisClassT const* _top[LINE_COUNT];
-
-    struct INTERNAL_PLUGIN_LISTS {
-        std::list<ThisClassT const*> lists[LINE_COUNT];
-    };
-
-	static std::map<ttstr, INTERNAL_PLUGIN_LISTS > _internal_plugins;
 };
 
 ////////////////////////////////////////
 template <class T>
 struct  ncbNativeClassAutoRegister : public ncbAutoRegister {
-	/**/ncbNativeClassAutoRegister(NameT modulename, NameT n) : ncbAutoRegister(modulename, ClassRegist), _name(n) {}
+	/**/ncbNativeClassAutoRegister(NameT n) : ncbAutoRegister(ClassRegist), _name(n) {}
 
 	typedef ncbRegistNativeClass<T> DelegateT;
 	typedef ncbRegistClass<DelegateT> RegistT;
@@ -2186,12 +2167,12 @@ protected:
 	template <> void   tmpl<cls>::RegistT::Regist()
 
 #define NCB_REGISTER_CLASS_DELAY(name, cls) \
-	NCB_REGISTER_CLASS_COMMON(cls, ncbNativeClassAutoRegister, (NCB_MODULE_NAME, TJS_W(# name)))
+	NCB_REGISTER_CLASS_COMMON(cls, ncbNativeClassAutoRegister, (TJS_W(# name)))
 
 #define NCB_REGISTER_CLASS(cls) NCB_REGISTER_CLASS_DIFFER(cls, cls)
 #define NCB_REGISTER_CLASS_DIFFER(name, cls) \
 	NCB_TYPECONV_BOXING(cls); \
-	NCB_REGISTER_CLASS_COMMON(cls, ncbNativeClassAutoRegister, (NCB_MODULE_NAME, TJS_W(# name)))
+	NCB_REGISTER_CLASS_COMMON(cls, ncbNativeClassAutoRegister, (TJS_W(# name)))
 
 #define NCB_REGISTER_SUBCLASS_DELAY(cls) \
 	template <> struct ncbSubClassCheck<cls> { enum { IsSubClass = true }; }; \
@@ -2206,7 +2187,7 @@ protected:
 ////////////////////////////////////////
 template <class T>
 struct  ncbAttachTJS2ClassAutoRegister : public ncbAutoRegister {
-	/**/ncbAttachTJS2ClassAutoRegister(NameT modulename, NameT ncn, NameT tjscn) : ncbAutoRegister(modulename, ClassRegist), _nativeClassName(ncn), _tjs2ClassName(tjscn) {}
+	/**/ncbAttachTJS2ClassAutoRegister(NameT ncn, NameT tjscn) : ncbAutoRegister(ClassRegist), _nativeClassName(ncn), _tjs2ClassName(tjscn) {}
 
 	typedef ncbAttachTJS2Class<T>     DelegateT;
 	typedef ncbRegistClass<DelegateT> RegistT;
@@ -2221,7 +2202,7 @@ private:
 ////////////////////////////////////////
 template <class T>
 struct  ncbRequireClassAutoRegister : public ncbAutoRegister {
-	/**/ncbRequireClassAutoRegister(NameT modulename, NameT name, NameT sub = 0) : ncbAutoRegister(modulename, ClassRegist), _className(name), _expName(sub) {}
+	/**/ncbRequireClassAutoRegister(NameT name, NameT sub = 0) : ncbAutoRegister(ClassRegist), _className(name), _expName(sub) {}
 
 	typedef ncbClassInfo<T> ClassInfoT;
 protected:
@@ -2261,7 +2242,7 @@ private:
 
 #define NCB_ATTACH_CLASS_WITH_HOOK(cls, attach) \
 	template <> struct ncbNativeClassMethodBase::nativeInstanceGetter<cls>; \
-	NCB_REGISTER_CLASS_COMMON(cls, ncbAttachTJS2ClassAutoRegister, (NCB_MODULE_NAME, TJS_W(# cls), TJS_W(# attach)))
+	NCB_REGISTER_CLASS_COMMON(cls, ncbAttachTJS2ClassAutoRegister, (TJS_W(# cls), TJS_W(# attach)))
 
 #define NCB_ATTACH_CLASS(cls, attach) \
 	NCB_ATTACHED_INSTANCE_DELAY_CREATE(cls); \
@@ -2311,7 +2292,7 @@ private:
 /// TJSファンクション自動レジストクラス
 
 struct  ncbNativeFunctionAutoRegister : public ncbAutoRegister {
-	ncbNativeFunctionAutoRegister(NameT name) : ncbAutoRegister(name, ClassRegist) {}
+	ncbNativeFunctionAutoRegister() : ncbAutoRegister(ClassRegist) {}
 protected:
 	template <typename MethodT>
 	static void RegistFunction(NameT name, NameT attach, MethodT m) {
@@ -2373,8 +2354,7 @@ struct ncbNativeFunctionAutoRegisterTempl;
 #define NCB_REGISTER_FUNCTION_COMMON(name, tag, attach, function) \
 	struct ncbFunctionTag_ ## tag {}; \
 	template <> struct ncbNativeFunctionAutoRegisterTempl<ncbFunctionTag_ ## tag> : public ncbNativeFunctionAutoRegister \
-	{	ncbNativeFunctionAutoRegisterTempl() : ncbNativeFunctionAutoRegister(NCB_MODULE_NAME){} \
-		void Regist()   const { RegistFunction(TJS_W(# name), attach, &function); } \
+	{	void Regist()   const { RegistFunction(TJS_W(# name), attach, &function); } \
 		void Unregist() const { UnregistFunction(TJS_W(# name), attach); } }; \
 	static ncbNativeFunctionAutoRegisterTempl<ncbFunctionTag_ ## tag> ncbFunctionAutoRegister_ ## tag
 
@@ -2390,8 +2370,8 @@ struct ncbNativeFunctionAutoRegisterTempl;
 struct ncbCallbackAutoRegister : public ncbAutoRegister {
 	typedef void (*CallbackT)();
 
-	ncbCallbackAutoRegister(NameT name, LineT line, CallbackT init, CallbackT term)
-		: ncbAutoRegister(name, line), _init(init), _term(term) {}
+	ncbCallbackAutoRegister(LineT line, CallbackT init, CallbackT term)
+		: ncbAutoRegister(line), _init(init), _term(term) {}
 protected:
 	void Regist()   const { if (_init) _init(); }
 	void Unregist() const { if (_term) _term(); }
@@ -2399,7 +2379,7 @@ private:
 	CallbackT _init, _term;
 };
 
-#define NCB_REGISTER_CALLBACK(pos, init, term, tag) static ncbCallbackAutoRegister ncbCallbackAutoRegister_ ## pos ## _ ## tag (NCB_MODULE_NAME, ncbAutoRegister::pos, init, term)
+#define NCB_REGISTER_CALLBACK(pos, init, term, tag) static ncbCallbackAutoRegister ncbCallbackAutoRegister_ ## pos ## _ ## tag (ncbAutoRegister::pos, init, term)
 #define NCB_PRE_REGIST_CALLBACK(cb)    NCB_REGISTER_CALLBACK(PreRegist,  &cb, 0, cb ## _0)
 #define NCB_POST_REGIST_CALLBACK(cb)   NCB_REGISTER_CALLBACK(PostRegist, &cb, 0, cb ## _0)
 #define NCB_PRE_UNREGIST_CALLBACK(cb)  NCB_REGISTER_CALLBACK(PreRegist,  0, &cb, 0_ ## cb)

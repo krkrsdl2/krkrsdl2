@@ -3,7 +3,6 @@
 #include "ncbind/ncbind.hpp"
 #include <map>
 
-#define NCB_MODULE_NAME TJS_W("varfile.dll")
 #define BASENAME TJS_W("var")
 
 // 辞書かどうかの判定
