@@ -1,0 +1,3 @@
+﻿{
+	Debug.message("Hello world!");
+}
