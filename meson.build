@@ -533,6 +533,7 @@ if target_machine.system() == 'emscripten'
 		'-s', 'EXIT_RUNTIME=1',
 		'-s', 'ALLOW_MEMORY_GROWTH=1',
 		'-s', 'WASM=2',
+		'-s', 'INITIAL_MEMORY=134217728',
 		'--no-heap-copy',
 		'--preload-file', join_paths(meson.source_root(), 'data') + '@/data',
 	]
