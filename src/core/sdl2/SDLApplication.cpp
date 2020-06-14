@@ -157,6 +157,7 @@ static SDL_Keycode vk_key_to_sdl_key(tjs_uint key)
 	if (key == VK_MEDIA_PLAY_PAUSE) return SDLK_AUDIOPLAY;
 	if (key == VK_LAUNCH_MAIL) return SDLK_MAIL;
 	if (key == VK_LAUNCH_MEDIA_SELECT) return SDLK_MEDIASELECT;
+	return 0;
 }
 
 static tjs_uint sdl_key_to_vk_key(SDL_Keycode key)
