@@ -12,6 +12,7 @@
 #include "WaveImpl.h"
 #include "TimerThread.h"
 #include "MsgIntf.h"
+#include "DebugIntf.h"
 #include <SDL.h>
 
 #include <unistd.h>
@@ -315,6 +316,7 @@ protected:
 	TVPWindowLayer *_prevWindow, *_nextWindow;
 	SDL_Texture* framebuffer;
 	SDL_Renderer* renderer;
+	SDL_Surface* surface;
 	tTJSNI_Window *TJSNativeInstance;
 	bool hasDrawn = false;
 	bool isBeingDeleted = false;
@@ -363,7 +365,12 @@ public:
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 		if (renderer == nullptr)
 		{
-			TVPThrowExceptionMessage(TJS_W("Cannot create SDL renderer: %1"), ttstr(SDL_GetError()));
+			TVPAddLog(ttstr("Cannot create SDL renderer: ") + ttstr(SDL_GetError()));
+			surface = SDL_GetWindowSurface(window);
+			if (surface == nullptr)
+			{
+				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
+			}
 		}
 		framebuffer = NULL;
 		if (renderer)
@@ -506,14 +513,38 @@ public:
 		int h;
 		SDL_GetWindowSize(window, NULL, &h);
 		SDL_SetWindowSize(window, w, h);
+		if (surface)
+		{
+			surface = SDL_GetWindowSurface(window);
+			if (surface == nullptr)
+			{
+				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
+			}
+		}
 	}
 	virtual void SetHeight(tjs_int h) override {
 		int w;
 		SDL_GetWindowSize(window, &w, NULL);
 		SDL_SetWindowSize(window, w, h);
+		if (surface)
+		{
+			surface = SDL_GetWindowSurface(window);
+			if (surface == nullptr)
+			{
+				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
+			}
+		}
 	}
 	virtual void SetSize(tjs_int w, tjs_int h) override {
 		SDL_SetWindowSize(window, w, h);
+		if (surface)
+		{
+			surface = SDL_GetWindowSurface(window);
+			if (surface == nullptr)
+			{
+				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
+			}
+		}
 	}
 	virtual void GetSize(tjs_int &w, tjs_int &h) override {
 		SDL_GetWindowSize(window, &w, &h);
@@ -545,7 +576,7 @@ public:
 			w = 0;
 			h = 0;
 		}
-		if( framebuffer &&
+		if(
 			!(x < 0 || y < 0 ||
 				x + cliprect.get_width() > w ||
 				y + cliprect.get_height() > h) &&
@@ -586,14 +617,39 @@ public:
 			dstrect.w = cliprect.get_width();
 			dstrect.h = cliprect.get_height();
 
-			SDL_LockTexture(framebuffer, &dstrect, &TextureBuffer, &TexturePitch);
-			for(; src_y < src_y_limit; src_y ++, dest_y ++)
+			if (framebuffer)
 			{
-				const void *srcp = src_p + src_pitch * src_y + src_x * 4;
-				void *destp = (tjs_uint8*)TextureBuffer + TexturePitch * dest_y + dest_x * 4;
-				memcpy(destp, srcp, width_bytes);
+				SDL_LockTexture(framebuffer, &dstrect, &TextureBuffer, &TexturePitch);
+				for(; src_y < src_y_limit; src_y ++, dest_y ++)
+				{
+					const void *srcp = src_p + src_pitch * src_y + src_x * 4;
+					void *destp = (tjs_uint8*)TextureBuffer + TexturePitch * dest_y + dest_x * 4;
+					memcpy(destp, srcp, width_bytes);
+				}
+				SDL_UnlockTexture(framebuffer);
 			}
-			SDL_UnlockTexture(framebuffer);
+			else if (surface)
+			{
+				dstrect.h = 1;
+				for(; src_y < src_y_limit; src_y ++, dest_y ++)
+				{
+					const void *srcp = src_p + src_pitch * src_y + src_x * 4;
+					SDL_Surface* clip_surface = SDL_CreateRGBSurfaceFrom((void *)srcp, cliprect.get_width(), 1, 32, cliprect.get_width() * 4, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+					if (clip_surface == nullptr)
+					{
+						TVPAddLog(ttstr("Cannot create clip surface: ") + ttstr(SDL_GetError()));
+						return;
+					}
+					int blit_result = SDL_BlitSurface(clip_surface, nullptr, surface, &dstrect);
+					if (blit_result < 0)
+					{
+						TVPAddLog(ttstr("Cannot blit onto window surface: ") + ttstr(SDL_GetError()));
+					}
+					SDL_FreeSurface(clip_surface);
+					dstrect.y += 1;
+				}
+			}
+
 		}
 	}
 	virtual void Show() override {
@@ -606,6 +662,10 @@ public:
 			}
 			SDL_RenderPresent(renderer);
 			hasDrawn = true;
+		}
+		else if (window && surface)
+		{
+			SDL_UpdateWindowSurface(window);
 		}
 	}
 	virtual void InvalidateClose() override {
