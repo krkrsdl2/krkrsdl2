@@ -631,7 +631,7 @@ public:
 			else if (surface)
 			{
 				dstrect.h = 1;
-				SDL_Surface* clip_surface = SDL_CreateRGBSurfaceFrom((void *)src_p, cliprect.get_width(), 1, 32, cliprect.get_width() * 4, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+				SDL_Surface* clip_surface = SDL_CreateRGBSurfaceFrom((void *)src_p, cliprect.get_width(), 1, 32, cliprect.get_width() * 4, 0x00ff0000, 0x0000ff00, 0x000000ff, 0);
 				if (clip_surface == nullptr)
 				{
 					TVPAddLog(ttstr("Cannot create clip surface: ") + ttstr(SDL_GetError()));
