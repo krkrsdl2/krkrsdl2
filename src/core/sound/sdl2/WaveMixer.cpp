@@ -218,7 +218,7 @@ public:
 	}
 	void InitMixer() {
 		if (SDL_Init(SDL_INIT_AUDIO) < 0) { // for format converter
-			TVPAddLog(ttstr("Failed to initialize SDL audio."));
+			TVPAddLog(ttstr("Failed to initialize SDL audio: ") + ttstr(SDL_GetError()));
 			return;
 		}
 	}
@@ -355,7 +355,7 @@ public:
 		InitMixer();
 		_playback_id = SDL_OpenAudioDevice(nullptr, false, &_spec, &_spec, SDL_AUDIO_ALLOW_ANY_CHANGE);
 		if (_playback_id <= 0) {
-			TVPAddLog(ttstr("Failed to open audio at ") + ttstr(_spec.freq) + ttstr("Hz."));
+			TVPAddLog(ttstr("Failed to open audio at ") + ttstr(_spec.freq) + ttstr("Hz: ") + ttstr(SDL_GetError()));
 			return false;
 		}
 		_frame_size = SDL_AUDIO_BITSIZE(_spec.format) / 8 * _spec.channels;

@@ -353,17 +353,17 @@ public:
 		
 		if (SDL_Init(SDL_INIT_VIDEO) < 0)
 		{
-			TVPThrowExceptionMessage(TJS_W("Cannot initialize SDL video subsystem."));
+			TVPThrowExceptionMessage(TJS_W("Cannot initialize SDL video subsystem: %1"), ttstr(SDL_GetError()));
 		}
 		window = SDL_CreateWindow("krkrsdl2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
 		if (window == nullptr)
 		{
-			TVPThrowExceptionMessage(TJS_W("Cannot create SDL window."));
+			TVPThrowExceptionMessage(TJS_W("Cannot create SDL window: %1"), ttstr(SDL_GetError()));
 		}
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 		if (renderer == nullptr)
 		{
-			TVPThrowExceptionMessage(TJS_W("Cannot create SDL renderer."));
+			TVPThrowExceptionMessage(TJS_W("Cannot create SDL renderer: %1"), ttstr(SDL_GetError()));
 		}
 		framebuffer = NULL;
 		SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0x00, 0xFF );
@@ -392,7 +392,7 @@ public:
 		framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, w, h);
 		if (framebuffer == nullptr)
 		{
-			TVPThrowExceptionMessage(TJS_W("Cannot create framebuffer texture."));
+			TVPThrowExceptionMessage(TJS_W("Cannot create framebuffer texture: %1"), ttstr(SDL_GetError()));
 		}
 		if( TJSNativeInstance )
 		{
