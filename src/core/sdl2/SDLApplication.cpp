@@ -666,6 +666,7 @@ public:
 		else if (window && surface)
 		{
 			SDL_UpdateWindowSurface(window);
+			hasDrawn = true;
 		}
 	}
 	virtual void InvalidateClose() override {
