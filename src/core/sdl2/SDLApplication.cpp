@@ -372,6 +372,10 @@ public:
 				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
 			}
 		}
+		else
+		{
+			surface = nullptr;
+		}
 		framebuffer = NULL;
 		if (renderer)
 		{
