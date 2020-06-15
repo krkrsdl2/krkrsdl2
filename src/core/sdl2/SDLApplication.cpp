@@ -366,7 +366,10 @@ public:
 			TVPThrowExceptionMessage(TJS_W("Cannot create SDL renderer: %1"), ttstr(SDL_GetError()));
 		}
 		framebuffer = NULL;
-		SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0x00, 0xFF );
+		if (renderer)
+		{
+			SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0x00, 0xFF );
+		}
 	}
 
 	virtual ~TVPWindowLayer() {
@@ -376,23 +379,36 @@ public:
 		if (_currentWindowLayer == this) {
 			_currentWindowLayer = _lastWindowLayer;
 		}
-		SDL_DestroyTexture(framebuffer);
-		framebuffer = NULL;
-		SDL_DestroyRenderer(renderer);
-		renderer = NULL;
-		SDL_DestroyWindow(window);
-		window = NULL;
-	}
-
-	virtual void SetPaintBoxSize(tjs_int w, tjs_int h) override {
-		if (framebuffer) {
+		if (framebuffer)
+		{
 			SDL_DestroyTexture(framebuffer);
 			framebuffer = NULL;
 		}
-		framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, w, h);
-		if (framebuffer == nullptr)
+		if (renderer)
 		{
-			TVPThrowExceptionMessage(TJS_W("Cannot create framebuffer texture: %1"), ttstr(SDL_GetError()));
+			SDL_DestroyRenderer(renderer);
+			renderer = NULL;
+		}
+		if (window)
+		{
+			SDL_DestroyWindow(window);
+			window = NULL;
+		}
+	}
+
+	virtual void SetPaintBoxSize(tjs_int w, tjs_int h) override {
+		if (renderer)
+		{
+			if (framebuffer)
+			{
+				SDL_DestroyTexture(framebuffer);
+				framebuffer = NULL;
+			}
+			framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, w, h);
+			if (framebuffer == nullptr)
+			{
+				TVPThrowExceptionMessage(TJS_W("Cannot create framebuffer texture: %1"), ttstr(SDL_GetError()));
+			}
 		}
 		if( TJSNativeInstance )
 		{
@@ -581,13 +597,16 @@ public:
 		}
 	}
 	virtual void Show() override {
-		SDL_RenderFillRect(renderer, NULL);
-		if (framebuffer)
+		if (renderer)
 		{
-			SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
+			SDL_RenderFillRect(renderer, NULL);
+			if (framebuffer)
+			{
+				SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
+			}
+			SDL_RenderPresent(renderer);
+			hasDrawn = true;
 		}
-		SDL_RenderPresent(renderer);
-		hasDrawn = true;
 	}
 	virtual void InvalidateClose() override {
 		isBeingDeleted = true;
