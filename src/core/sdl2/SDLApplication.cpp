@@ -463,6 +463,9 @@ public:
 		SDL_RaiseWindow(window);
 	}
 	virtual void ShowWindowAsModal() override {
+#ifdef __EMSCRIPTEN__
+		TVPThrowExceptionMessage(TJS_W("Showing window as modal is not supported"));
+#else
 		in_mode_ = true;
 		BringToFront();
 		modal_result_ = 0;
@@ -475,6 +478,7 @@ public:
 			}
 		}
 		in_mode_ = false;
+#endif
 	}
 	virtual bool GetVisible() override {
 		return SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN;
