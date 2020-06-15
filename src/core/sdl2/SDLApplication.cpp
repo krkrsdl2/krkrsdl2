@@ -631,23 +631,26 @@ public:
 			else if (surface)
 			{
 				dstrect.h = 1;
+				SDL_Surface* clip_surface = SDL_CreateRGBSurfaceFrom((void *)src_p, cliprect.get_width(), 1, 32, cliprect.get_width() * 4, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+				if (clip_surface == nullptr)
+				{
+					TVPAddLog(ttstr("Cannot create clip surface: ") + ttstr(SDL_GetError()));
+					return;
+				}
 				for(; src_y < src_y_limit; src_y ++, dest_y ++)
 				{
 					const void *srcp = src_p + src_pitch * src_y + src_x * 4;
-					SDL_Surface* clip_surface = SDL_CreateRGBSurfaceFrom((void *)srcp, cliprect.get_width(), 1, 32, cliprect.get_width() * 4, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
-					if (clip_surface == nullptr)
-					{
-						TVPAddLog(ttstr("Cannot create clip surface: ") + ttstr(SDL_GetError()));
-						return;
-					}
+					SDL_LockSurface(clip_surface);
+					clip_surface->pixels = (void *)srcp;
+					SDL_UnlockSurface(clip_surface);
 					int blit_result = SDL_BlitSurface(clip_surface, nullptr, surface, &dstrect);
 					if (blit_result < 0)
 					{
 						TVPAddLog(ttstr("Cannot blit onto window surface: ") + ttstr(SDL_GetError()));
 					}
-					SDL_FreeSurface(clip_surface);
 					dstrect.y += 1;
 				}
+				SDL_FreeSurface(clip_surface);
 			}
 
 		}
