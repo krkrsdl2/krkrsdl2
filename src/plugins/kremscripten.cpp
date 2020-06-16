@@ -33,13 +33,17 @@ std::string evalTJSFromJS(std::string v)
 	tjs_string v_utf16;
 	if (TVPUtf8ToUtf16(v_utf16, v))
 	{
-        tTJSVariant r_variant;
-        (TVPGetScriptEngine())->EvalExpression(ttstr(v_utf16), &r_variant, NULL);
-        std::string r_utf8;
-        if (TVPUtf16ToUtf8(r_utf8, ttstr(r_variant).AsStdString()))
-        {
-        	return r_utf8;
-        }
+		tTJSVariant r_variant;
+		tTJS *script_engine_object = TVPGetScriptEngine();
+		if (script_engine_object)
+		{
+			script_engine_object->EvalExpression(ttstr(v_utf16), &r_variant, NULL);
+			std::string r_utf8;
+			if (TVPUtf16ToUtf8(r_utf8, ttstr(r_variant).AsStdString()))
+			{
+				return r_utf8;
+			}
+		}
 	}
 	return "";
 }
