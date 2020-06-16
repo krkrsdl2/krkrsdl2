@@ -451,6 +451,7 @@ krkrsdl2_src = [
 	'src/plugins/KAGParser.cpp',
 	'src/plugins/csvParser.cpp',
 	'src/plugins/getSample.cpp',
+	'src/plugins/kremscripten.cpp',
 	'src/plugins/ncbind/ncbind.cpp',
 	'src/plugins/saveStruct.cpp',
 	'src/plugins/varfile.cpp',
@@ -535,6 +536,7 @@ if target_machine.system() == 'emscripten'
 		'-s', 'WASM=2',
 		'-s', 'INITIAL_MEMORY=134217728',
 		'-s', 'FORCE_FILESYSTEM=1',
+		'--bind',
 		'--no-heap-copy',
 	]
 endif
