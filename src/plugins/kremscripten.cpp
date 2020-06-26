@@ -5,19 +5,50 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
+tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v)
+{
+	std::string type = v.typeof().as<std::string>();
+	if (type == "boolean" || type == "bigint")
+	{
+		return tTJSVariant(v.as<tjs_int32>());
+	}
+	else if (type == "number")
+	{
+		return tTJSVariant(v.as<tjs_real>());
+	}
+	else if (type == "string")
+	{
+		return tTJSVariant(v.as<tjs_string>());
+	}
+	return tTJSVariant();
+}
+
+emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v)
+{
+	tTJSVariantType type = v.Type();
+	if (type == tvtInteger)
+	{
+		return emscripten::val((tjs_int32)v.AsInteger());
+	}
+	else if (type == tvtReal)
+	{
+		return emscripten::val(v.AsReal());
+	}
+	else if (type == tvtString)
+	{
+		return emscripten::val(tTJSString(v).AsStdString());
+	}
+	return emscripten::val::undefined();
+}
+
 class KirikiriEmscriptenInterface
 {
 	public: static tTJSVariant evalJS(ttstr v)
 	{
-		std::string v_utf8;
-		if (TVPUtf16ToUtf8(v_utf8, v.AsStdString()))
+		emscripten::val js_eval = emscripten::val::global("eval");
+		if (js_eval.typeof().as<std::string>() == "function")
 		{
-			tjs_string r_utf16;
-			char *result = emscripten_run_script_string(v_utf8.c_str());
-			if (TVPUtf8ToUtf16(r_utf16, result))
-			{
-				return ttstr(r_utf16);
-			}
+			return emscripten_val_to_tjs_variant(js_eval(v.AsStdString()));
 		}
 		return tTJSVariant();
 	}
@@ -28,16 +59,16 @@ NCB_REGISTER_CLASS(KirikiriEmscriptenInterface)
 	NCB_METHOD(evalJS);
 };
 
-tjs_string evalTJSFromJS(tjs_string v)
+emscripten::val evalTJSFromJS(tjs_string v)
 {
 	tTJSVariant r_variant;
 	tTJS *script_engine_object = TVPGetScriptEngine();
 	if (script_engine_object)
 	{
 		script_engine_object->EvalExpression(ttstr(v), &r_variant, NULL);
-		return ttstr(r_variant).AsStdString();
+		return tjs_variant_to_emscripten_val(r_variant);
 	}
-	return TJS_W("");
+	return emscripten::val(tjs_string(TJS_W("")));
 }
 
 EMSCRIPTEN_BINDINGS(KirikiriEmscriptenInterface)
