@@ -38,6 +38,10 @@ emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v)
 	{
 		return emscripten::val(tTJSString(v).AsStdString());
 	}
+	else if (type == tvtOctet)
+	{
+		return emscripten::val(emscripten::typed_memory_view(v.AsOctet()->GetLength(), v.AsOctet()->GetData()));
+	}
 	return emscripten::val::undefined();
 }
 
