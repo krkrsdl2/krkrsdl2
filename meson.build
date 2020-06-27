@@ -577,7 +577,7 @@ if target_machine.system() == 'emscripten'
 			'python3 $EM_CACHE/../tools/file_packager.py $@',
 			'', 
 			krkrsdl2_data_output_basename + '.data',
-			'--preload', krkrsdl2_input_folder_path + '@/data',
+			'--preload', krkrsdl2_input_folder_path + '@/',
 			'--js-output=' + krkrsdl2_data_output_basename + '.js'
 		],
 		build_by_default: true

@@ -1154,9 +1154,6 @@ int main(int argc, char **argv) {
 		memcpy(warg_copy, warg, sizeof(tjs_char) * (strlen(argv[i]) + 1));
 		_wargv[i] = warg_copy;
 	}
-#ifdef __EMSCRIPTEN__
-	chdir("/data");
-#endif
 
 	::Application = new tTVPApplication();
 	::Application->StartApplication( _argc, _wargv );
