@@ -1252,8 +1252,12 @@ void TVPBeforeSystemInit()
 	}
 #endif
 	char* cwd = realpath(".", NULL);
-	if (cwd != NULL) {
-		TVPProjectDirSelected = true;
+	if (cwd != NULL)
+	{
+		if (!TVPGetCommandLine(TJS_W("-nosel")))
+		{
+			TVPProjectDirSelected = true;
+		}
 		ttstr buf(cwd);
 		free(cwd);
 		buf += "/";
