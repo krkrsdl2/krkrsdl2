@@ -10,6 +10,7 @@ static emscripten::val js_throw_error = emscripten::val::undefined();
 static emscripten::val js_delete = emscripten::val::undefined();
 static emscripten::val js_set = emscripten::val::undefined();
 static emscripten::val js_call_spread = emscripten::val::undefined();
+static emscripten::val js_curry_function = emscripten::val::undefined();
 
 static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v);
 static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v);
@@ -161,7 +162,7 @@ static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v)
 		}
 		if (TJS_SUCCEEDED(obj->IsInstanceOf(0, nullptr, nullptr, TJS_W("Function"), nullptr)))
 		{
-			// TODO: wrap function
+			return js_curry_function((tjs_uint32)obj);
 		}
 		else if (TJS_SUCCEEDED(obj->IsInstanceOf(0, nullptr, nullptr, TJS_W("Property"), nullptr)))
 		{
@@ -191,6 +192,7 @@ static void init_js_callbacks()
 	js_delete = js_eval(std::string("(function(a,b){delete a[b];})"));
 	js_set = js_eval(std::string("(function(a,b,c){a[b]=c;})"));
 	js_call_spread = js_eval(std::string("(function(a,b){return a(...b);})"));
+	js_curry_function = js_eval(std::string("(function(a){return function(...b){return Module.internal_TJS2JS_call_function(a,[...b]);};})"));
 }
 
 NCB_PRE_REGIST_CALLBACK(init_js_callbacks);
@@ -207,9 +209,34 @@ emscripten::val evalTJSFromJS(tjs_string v)
 	return emscripten::val(tjs_string(TJS_W("")));
 }
 
+emscripten::val internal_TJS2JS_call_function(tjs_uint32 ptr_function, emscripten::val args_array)
+{
+	iTJSDispatch2 *func = (iTJSDispatch2 *)ptr_function;
+	if (func == nullptr)
+	{
+		return emscripten::val::undefined();
+	}
+	tjs_uint32 argc = args_array["length"].as<tjs_uint32>();
+	tTJSVariant **argv = new tTJSVariant*[(size_t)argc];
+	for (tjs_int i = 0; i < argc; i += 1)
+	{
+		argv[i] = new tTJSVariant();
+		*argv[i] = emscripten_val_to_tjs_variant(args_array[i]);
+	}
+	tTJSVariant r;
+	if (TJS_SUCCEEDED(func->FuncCall(0, nullptr, nullptr, &r, argc, argv, nullptr)))
+	{
+		delete[] argv;
+		return tjs_variant_to_emscripten_val(r);
+	}
+	delete[] argv;
+	return emscripten::val::undefined();
+}
+
 EMSCRIPTEN_BINDINGS(KirikiriEmscriptenInterface)
 {
 	emscripten::function("evalTJS", &evalTJSFromJS);
+	emscripten::function("internal_TJS2JS_call_function", &internal_TJS2JS_call_function);
 }
 
 #endif
