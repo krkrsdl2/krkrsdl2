@@ -152,6 +152,22 @@ static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v)
 	{
 		return emscripten::val(emscripten::typed_memory_view(v.AsOctet()->GetLength(), v.AsOctet()->GetData()));
 	}
+	else if (type == tvtObject)
+	{
+		iTJSDispatch2 *obj = v.AsObjectNoAddRef();
+		if (obj == nullptr)
+		{
+			return emscripten::val::null();
+		}
+		if (TJS_SUCCEEDED(obj->IsInstanceOf(0, nullptr, nullptr, TJS_W("Function"), nullptr)))
+		{
+			// TODO: wrap function
+		}
+		else if (TJS_SUCCEEDED(obj->IsInstanceOf(0, nullptr, nullptr, TJS_W("Property"), nullptr)))
+		{
+			// TODO: wrap property using Proxy object
+		}
+	}
 	return emscripten::val::undefined();
 }
 
