@@ -1,4 +1,5 @@
 #include "ncbind/ncbind.hpp"
+#include "istream_compat.h"
 #include <string>
 #include <vector>
 using namespace std;
@@ -74,11 +75,11 @@ public:
 		ttstr filename = TVPGetPlacedPath(*param[0]);
 		if (filename.length() > 0) {
 			// アーカイブ内ファイル
-			tTJSBinaryStream *in = NULL;
-			try
-			{
-				in = TVPCreateStream(filename);
-				tTJSVariant size((tjs_int64)in->GetSize());
+			IStream *in = TVPCreateIStream(filename, TJS_BS_READ);
+			if (in) {
+				STATSTG stat;
+				in->Stat(&stat, STATFLAG_NONAME);
+				tTJSVariant size((tjs_int64)stat.cbSize.QuadPart);
 				if (result) {
 					iTJSDispatch2 *dict;
 					if ((dict = TJSCreateDictionaryObject()) != NULL) {
@@ -87,16 +88,8 @@ public:
 						dict->Release();
 					}
 				}
-				if (in)
-				{
-					delete in;
-				}
+				in->Release();
 				return TJS_S_OK;
-			}
-			catch(...) {}
-			if (in)
-			{
-				delete in;
 			}
 		}
 		TVPThrowExceptionMessage((ttstr(TJS_W("cannot open : ")) + filename).c_str());
@@ -109,19 +102,19 @@ public:
 	 * @param dest 保存先ファイル
 	 */
 	static void exportFile(ttstr filename, ttstr storename) {
-		tTJSBinaryStream *in = TVPCreateStream(filename, TJS_BS_READ);
+		IStream *in = TVPCreateIStream(filename, TJS_BS_READ);
 		if (in) {
-			tTJSBinaryStream *out = TVPCreateStream(storename, TJS_BS_WRITE);
+			IStream *out = TVPCreateIStream(storename, TJS_BS_WRITE);
 			if (out) {
-				tjs_uint8 buffer[1024*16];
-				tjs_uint size;
-				while ((size = in->Read(buffer, sizeof(buffer)))) {			
-					out->Write(buffer, size);
+				BYTE buffer[1024*16];
+				DWORD size;
+				while (in->Read(buffer, sizeof buffer, &size) == S_OK && size > 0) {			
+					out->Write(buffer, size, &size);
 				}
-				out->Destruct();
-				in->Destruct();
+				out->Release();
+				in->Release();
 			} else {
-				in->Destruct();
+				in->Release();
 				TVPThrowExceptionMessage((ttstr(TJS_W("cannot open storefile: ")) + storename).c_str());
 			}
 		} else {
