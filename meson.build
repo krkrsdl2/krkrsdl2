@@ -450,6 +450,7 @@ krkrsdl2_src = [
 	'src/core/sound/sdl2/WaveMixer.cpp',
 	'src/plugins/KAGParser.cpp',
 	'src/plugins/csvParser.cpp',
+	'src/plugins/fstat.cpp',
 	'src/plugins/getSample.cpp',
 	'src/plugins/kremscripten.cpp',
 	'src/plugins/ncbind/ncbind.cpp',
