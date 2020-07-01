@@ -6,6 +6,14 @@ host_system = host_machine.system()
 sdl2_dep = dependency('sdl2', method: 'auto')
 
 krkrsdl2_src = [
+	'external/SamplePlugin/extrans/Main.cpp',
+	'external/SamplePlugin/extrans/mosaic.cpp',
+	'external/SamplePlugin/extrans/ripple.cpp',
+	'external/SamplePlugin/extrans/rotatebase.cpp',
+	'external/SamplePlugin/extrans/rotatetrans.cpp',
+	'external/SamplePlugin/extrans/turn.cpp',
+	'external/SamplePlugin/extrans/turntrans_table.cpp',
+	'external/SamplePlugin/extrans/wave.cpp',
 	'external/SamplePlugin/wutcwf/WUMainUnit.cpp',
 	'external/krkrz/base/BinaryStream.cpp',
 	'external/krkrz/base/CharacterSet.cpp',
