@@ -16,6 +16,7 @@ krkrsdl2_src = [
 	'external/SamplePlugin/extrans/turntrans_table.cpp',
 	'external/SamplePlugin/extrans/wave.cpp',
 	'external/SamplePlugin/wutcwf/WUMainUnit.cpp',
+	'external/getSample/main.cpp',
 	'external/krkrz/base/BinaryStream.cpp',
 	'external/krkrz/base/CharacterSet.cpp',
 	'external/krkrz/base/EventIntf.cpp',
@@ -462,7 +463,6 @@ krkrsdl2_src = [
 	'src/core/sound/sdl2/WaveMixer.cpp',
 	'src/plugins/csvParser.cpp',
 	'src/plugins/fstat.cpp',
-	'src/plugins/getSample.cpp',
 	'src/plugins/kremscripten.cpp',
 	'src/plugins/saveStruct.cpp',
 ]

@@ -13,3 +13,6 @@
 [submodule "external/varfile"]
 	path = external/varfile
 	url = ../varfile
+[submodule "external/getSample"]
+	path = external/getSample
+	url = ../getSample
