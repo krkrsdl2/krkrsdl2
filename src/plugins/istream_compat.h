@@ -19,12 +19,14 @@
 #define DWORD tjs_uint32
 #define REFIID void*
 #define E_FAIL TJS_E_FAIL
+#define E_NOTIMPL TJS_E_FAIL
 #define E_INVALIDARG TJS_E_FAIL
 #define S_OK TJS_S_OK
 #define STREAM_SEEK_SET TJS_BS_SEEK_SET
 #define STREAM_SEEK_CUR TJS_BS_SEEK_CUR
 #define STREAM_SEEK_END TJS_BS_SEEK_END
 #define STATFLAG_NONAME 0
+#define STGC_DEFAULT 0
 
 typedef union _ULARGE_INTEGER {
 	ULONGLONG QuadPart;
@@ -154,6 +156,10 @@ public:
 			return E_FAIL;
 		}
 		return S_OK;
+	}
+	HRESULT STDMETHODCALLTYPE Commit(DWORD grfCommitFlags)
+	{
+		return E_NOTIMPL;
 	}
 	HRESULT STDMETHODCALLTYPE Stat(STATSTG *pstatstg, DWORD grfStatFlag)
 	{
