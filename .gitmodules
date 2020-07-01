@@ -22,3 +22,6 @@
 [submodule "external/saveStruct"]
 	path = external/saveStruct
 	url = ../saveStruct
+[submodule "external/csvParser"]
+	path = external/csvParser
+	url = ../csvParser
