@@ -17,6 +17,7 @@ krkrsdl2_src = [
 	'external/SamplePlugin/extrans/wave.cpp',
 	'external/SamplePlugin/wutcwf/WUMainUnit.cpp',
 	'external/getSample/main.cpp',
+	'external/json/Main.cpp',
 	'external/krkrz/base/BinaryStream.cpp',
 	'external/krkrz/base/CharacterSet.cpp',
 	'external/krkrz/base/EventIntf.cpp',
@@ -451,6 +452,7 @@ krkrsdl2_src = [
 	'external/krkrz/external/zlib/uncompr.c',
 	'external/krkrz/external/zlib/zutil.c',
 	'external/ncbind/ncbind.cpp',
+	'external/saveStruct/Main.cpp',
 	'external/varfile/Main.cpp',
 	'src/core/base/sdl2/NativeEventQueue.cpp',
 	'src/core/base/sdl2/PluginImpl.cpp',
@@ -464,7 +466,6 @@ krkrsdl2_src = [
 	'src/plugins/csvParser.cpp',
 	'src/plugins/fstat.cpp',
 	'src/plugins/kremscripten.cpp',
-	'src/plugins/saveStruct.cpp',
 ]
 krkrsdl2_includes = [
 	'src/core/base/sdl2',
