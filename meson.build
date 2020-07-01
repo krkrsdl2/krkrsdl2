@@ -17,6 +17,7 @@ krkrsdl2_src = [
 	'external/SamplePlugin/extrans/wave.cpp',
 	'external/SamplePlugin/wutcwf/WUMainUnit.cpp',
 	'external/csvParser/Main.cpp',
+	'external/fstat/Main.cpp',
 	'external/getSample/main.cpp',
 	'external/json/Main.cpp',
 	'external/krkrz/base/BinaryStream.cpp',
@@ -464,7 +465,6 @@ krkrsdl2_src = [
 	'src/core/environ/sdl2/SystemControl.cpp',
 	'src/core/sdl2/SDLApplication.cpp',
 	'src/core/sound/sdl2/WaveMixer.cpp',
-	'src/plugins/fstat.cpp',
 	'src/plugins/kremscripten.cpp',
 ]
 krkrsdl2_includes = [
