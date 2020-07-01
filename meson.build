@@ -450,6 +450,7 @@ krkrsdl2_src = [
 	'external/krkrz/external/zlib/uncompr.c',
 	'external/krkrz/external/zlib/zutil.c',
 	'external/ncbind/ncbind.cpp',
+	'external/varfile/Main.cpp',
 	'src/core/base/sdl2/NativeEventQueue.cpp',
 	'src/core/base/sdl2/PluginImpl.cpp',
 	'src/core/base/sdl2/StorageImpl.cpp',
@@ -464,7 +465,6 @@ krkrsdl2_src = [
 	'src/plugins/getSample.cpp',
 	'src/plugins/kremscripten.cpp',
 	'src/plugins/saveStruct.cpp',
-	'src/plugins/varfile.cpp',
 ]
 krkrsdl2_includes = [
 	'src/core/base/sdl2',

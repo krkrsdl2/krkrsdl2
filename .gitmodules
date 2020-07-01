@@ -10,3 +10,6 @@
 [submodule "external/ncbind"]
 	path = external/ncbind
 	url = ../ncbind
+[submodule "external/varfile"]
+	path = external/varfile
+	url = ../varfile
