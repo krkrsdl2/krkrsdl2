@@ -1,3 +1,6 @@
 [submodule "external/krkrz"]
 	path = external/krkrz
 	url = ../krkrz
+[submodule "external/SamplePlugin"]
+	path = external/SamplePlugin
+	url = ../SamplePlugin

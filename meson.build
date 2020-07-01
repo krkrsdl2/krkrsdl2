@@ -6,6 +6,7 @@ host_system = host_machine.system()
 sdl2_dep = dependency('sdl2', method: 'auto')
 
 krkrsdl2_src = [
+	'external/SamplePlugin/wutcwf/WUMainUnit.cpp',
 	'external/krkrz/base/BinaryStream.cpp',
 	'external/krkrz/base/CharacterSet.cpp',
 	'external/krkrz/base/EventIntf.cpp',
@@ -456,7 +457,6 @@ krkrsdl2_src = [
 	'src/plugins/ncbind/ncbind.cpp',
 	'src/plugins/saveStruct.cpp',
 	'src/plugins/varfile.cpp',
-	'src/plugins/wutcwf.cpp',
 ]
 krkrsdl2_includes = [
 	'src/core/base/sdl2',
