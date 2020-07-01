@@ -4,3 +4,6 @@
 [submodule "external/SamplePlugin"]
 	path = external/SamplePlugin
 	url = ../SamplePlugin
+[submodule "external/KAGParser"]
+	path = external/KAGParser
+	url = ../KAGParser

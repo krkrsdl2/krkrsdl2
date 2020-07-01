@@ -6,6 +6,7 @@ host_system = host_machine.system()
 sdl2_dep = dependency('sdl2', method: 'auto')
 
 krkrsdl2_src = [
+	'external/KAGParser/KAGParser.cpp',
 	'external/SamplePlugin/extrans/Main.cpp',
 	'external/SamplePlugin/extrans/mosaic.cpp',
 	'external/SamplePlugin/extrans/ripple.cpp',
@@ -457,7 +458,6 @@ krkrsdl2_src = [
 	'src/core/environ/sdl2/SystemControl.cpp',
 	'src/core/sdl2/SDLApplication.cpp',
 	'src/core/sound/sdl2/WaveMixer.cpp',
-	'src/plugins/KAGParser.cpp',
 	'src/plugins/csvParser.cpp',
 	'src/plugins/fstat.cpp',
 	'src/plugins/getSample.cpp',
