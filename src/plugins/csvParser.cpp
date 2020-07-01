@@ -1,4 +1,3 @@
-#include "PluginStub.h"
 #include <string>
 #include "ncbind/ncbind.hpp"
 

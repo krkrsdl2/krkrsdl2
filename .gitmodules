@@ -7,3 +7,6 @@
 [submodule "external/KAGParser"]
 	path = external/KAGParser
 	url = ../KAGParser
+[submodule "external/ncbind"]
+	path = external/ncbind
+	url = ../ncbind

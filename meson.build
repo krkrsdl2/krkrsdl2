@@ -449,6 +449,7 @@ krkrsdl2_src = [
 	'external/krkrz/external/zlib/trees.c',
 	'external/krkrz/external/zlib/uncompr.c',
 	'external/krkrz/external/zlib/zutil.c',
+	'external/ncbind/ncbind.cpp',
 	'src/core/base/sdl2/NativeEventQueue.cpp',
 	'src/core/base/sdl2/PluginImpl.cpp',
 	'src/core/base/sdl2/StorageImpl.cpp',
@@ -462,7 +463,6 @@ krkrsdl2_src = [
 	'src/plugins/fstat.cpp',
 	'src/plugins/getSample.cpp',
 	'src/plugins/kremscripten.cpp',
-	'src/plugins/ncbind/ncbind.cpp',
 	'src/plugins/saveStruct.cpp',
 	'src/plugins/varfile.cpp',
 ]
@@ -470,6 +470,7 @@ krkrsdl2_includes = [
 	'src/core/base/sdl2',
 	'src/core/environ/sdl2',
 	'src/core/sound/sdl2',
+	'external',
 	'external/krkrz',
 	'external/krkrz/base',
 	'external/krkrz/base/android',
