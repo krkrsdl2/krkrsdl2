@@ -18,7 +18,6 @@
 
 #include "PluginIntf.h"
 
-#if 0
 #ifdef TVP_SUPPORT_KPI
 	#include "kmp_pi.h"
 #endif
@@ -44,6 +43,7 @@ struct iTVPFunctionExporter
 
 
 //---------------------------------------------------------------------------
+#if 0
 struct ITSSModule;
 struct IWaveUnpacker;
 struct ITSSStorageProvider;
@@ -69,11 +69,14 @@ extern "C"
 		char *name,IWaveUnpacker **out); // old WaveUnpacker stuff
 #endif
 }
+#endif
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
+#if 0
 struct ITSSWaveDecoder;
 extern ITSSWaveDecoder * TVPSearchAvailTSSWaveDecoder(const ttstr & storage, const ttstr & extension);
+#endif
 #ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
 class IWaveUnpacker;
 extern IWaveUnpacker * TVPSearchAvailWaveUnpacker(const ttstr & storage, IStream **stream);
@@ -116,9 +119,11 @@ TJS_EXP_FUNC_DEF(void, TVP_md5_init, (TVP_md5_state_t *pms));
 TJS_EXP_FUNC_DEF(void, TVP_md5_append, (TVP_md5_state_t *pms, const tjs_uint8 *data, int nbytes));
 TJS_EXP_FUNC_DEF(void, TVP_md5_finish, (TVP_md5_state_t *pms, tjs_uint8 *digest));
 
+#if 0
 TJS_EXP_FUNC_DEF(HWND, TVPGetApplicationWindowHandle, ());
 TJS_EXP_FUNC_DEF(void, TVPProcessApplicationMessages, ());
 TJS_EXP_FUNC_DEF(void, TVPHandleApplicationMessage, ());
+#endif
 
 TJS_EXP_FUNC_DEF(bool, TVPRegisterGlobalObject, (const tjs_char *name, iTJSDispatch2 * dsp));
 TJS_EXP_FUNC_DEF(bool, TVPRemoveGlobalObject, (const tjs_char *name));
@@ -155,12 +160,13 @@ typedef void (TJS_USERENTRY *tTVPFinallyBlockFunction)(void *data);
 TJS_EXP_FUNC_DEF(void, TVPDoTryBlock, (tTVPTryBlockFunction tryblock, tTVPCatchBlockFunction catchblock, tTVPFinallyBlockFunction finallyblock, void *data));
 
 
+#if 0
 TJS_EXP_FUNC_DEF(bool, TVPGetFileVersionOf, (const tjs_char* module_filename, tjs_int &major, tjs_int &minor, tjs_int &release, tjs_int &build));
+#endif
 
 
 //---------------------------------------------------------------------------
 extern bool TVPPluginUnloadedAtSystemExit;
-#endif
 extern void TVPLoadPluigins(void);
 //---------------------------------------------------------------------------
 

@@ -763,6 +763,7 @@ void * TVPSearchAvailKMPWaveDecoder(const ttstr & storage, KMPMODULE ** module,
 }
 #endif
 //---------------------------------------------------------------------------
+#endif
 
 
 
@@ -811,6 +812,7 @@ void TVP_md5_finish(TVP_md5_state_t *pms, tjs_uint8 *digest)
 	md5_finish((md5_state_t*)pms, digest);
 }
 //---------------------------------------------------------------------------
+#if 0
 HWND TVPGetApplicationWindowHandle()
 {
 	return Application->GetHandle();
@@ -825,6 +827,7 @@ void TVPHandleApplicationMessage()
 {
 	Application->HandleMessage();
 }
+#endif
 //---------------------------------------------------------------------------
 bool TVPRegisterGlobalObject(const tjs_char *name, iTJSDispatch2 * dsp)
 {
@@ -900,6 +903,7 @@ void TVPDoTryBlock(
 //---------------------------------------------------------------------------
 // TVPGetFileVersionOf
 //---------------------------------------------------------------------------
+#if 0
 bool TVPGetFileVersionOf(const tjs_char* module_filename, tjs_int &major, tjs_int &minor, tjs_int &release, tjs_int &build)
 {
 	// retrieve file version
