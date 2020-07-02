@@ -9,7 +9,7 @@ static emscripten::val js_eval = emscripten::val::undefined();
 static emscripten::val js_throw_error = emscripten::val::undefined();
 static emscripten::val js_delete = emscripten::val::undefined();
 static emscripten::val js_set = emscripten::val::undefined();
-static emscripten::val js_call_spread = emscripten::val::undefined();
+static emscripten::val js_call_apply = emscripten::val::undefined();
 static emscripten::val js_curry_function = emscripten::val::undefined();
 
 static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::val vthis = emscripten::val::null());
@@ -47,7 +47,7 @@ class iTJSDispatch2WrapperForEmscripten : public tTJSDispatch
 			iTJSDispatch2WrapperForEmscripten *objthis_wrap = (iTJSDispatch2WrapperForEmscripten *)objthis;
 			vthis = objthis_wrap->get_val();
 		}
-		*result = emscripten_val_to_tjs_variant(js_call_spread(func_to_call, temp_array, vthis));
+		*result = emscripten_val_to_tjs_variant(js_call_apply(func_to_call, temp_array, vthis));
 		return TJS_S_OK;
 	}
 
@@ -65,7 +65,7 @@ class iTJSDispatch2WrapperForEmscripten : public tTJSDispatch
 			iTJSDispatch2WrapperForEmscripten *objthis_wrap = (iTJSDispatch2WrapperForEmscripten *)objthis;
 			vthis = objthis_wrap->get_val();
 		}
-		*result = emscripten_val_to_tjs_variant(js_call_spread(func_to_call, temp_array, vthis));
+		*result = emscripten_val_to_tjs_variant(js_call_apply(func_to_call, temp_array, vthis));
 		return TJS_S_OK;
 	}
 
@@ -254,7 +254,7 @@ static void init_js_callbacks()
 	js_throw_error = js_eval(std::string("(function(e){throw e;})"));
 	js_delete = js_eval(std::string("(function(a,b){delete a[b];})"));
 	js_set = js_eval(std::string("(function(a,b,c){a[b]=c;})"));
-	js_call_spread = js_eval(std::string("(function(a,b,c){return a.call(c,...b);})"));
+	js_call_apply = js_eval(std::string("(function(a,b,c){return a.apply(c,b);})"));
 	js_curry_function = js_eval(std::string("(function(a,b){return function(...c){return Module.internal_TJS2JS_call_function.call(b,a,[...c]);};})"));
 }
 
