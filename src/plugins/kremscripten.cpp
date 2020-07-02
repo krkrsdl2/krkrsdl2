@@ -6,11 +6,18 @@
 #include <emscripten/bind.h>
 
 static emscripten::val js_eval = emscripten::val::undefined();
+static emscripten::val js_object = emscripten::val::undefined();
+static emscripten::val js_get_own_property_descriptor = emscripten::val::undefined();
 static emscripten::val js_throw_error = emscripten::val::undefined();
+static emscripten::val js_pcall = emscripten::val::undefined();
 static emscripten::val js_delete = emscripten::val::undefined();
 static emscripten::val js_set = emscripten::val::undefined();
 static emscripten::val js_call_apply = emscripten::val::undefined();
 static emscripten::val js_curry_function = emscripten::val::undefined();
+static emscripten::val js_curry_get_property = emscripten::val::undefined();
+static emscripten::val js_curry_set_property = emscripten::val::undefined();
+static emscripten::val js_curry_get_own_property_descriptor = emscripten::val::undefined();
+static emscripten::val js_new_proxy = emscripten::val::undefined();
 
 static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::val vthis = emscripten::val::null());
 static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v, iTJSDispatch2 *objthis = nullptr);
@@ -158,6 +165,20 @@ static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::
 	}
 	else if (type == "function" || type == "object")
 	{
+		emscripten::val pd = js_pcall(js_get_own_property_descriptor, v, std::string("__internal_JS2TJS_wrapper"));
+		if (pd.typeof().as<std::string>() == "object")
+		{
+			if (pd["__internal_JS2TJS_wrapper"].as<bool>())
+			{
+				iTJSDispatch2 *tjsobj = (iTJSDispatch2 *)pd["obj"].as<tjs_uint32>();
+				iTJSDispatch2 *tjsobjthis = (iTJSDispatch2 *)pd["objthis"].as<tjs_uint32>();
+				if (tjsobjthis == nullptr)
+				{
+					tjsobjthis = tjsobj;
+				}
+				return tTJSVariant(tjsobj, tjsobjthis);
+			}
+		}
 		tTJSVariant result;
 		iTJSDispatch2 *tjsobj = new iTJSDispatch2WrapperForEmscripten(v);
 		iTJSDispatch2 *tjsobjthis = nullptr;
@@ -216,7 +237,7 @@ static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v, iTJSDispatch
 			obj->Release();
 			return ret;
 		}
-		else if (TJS_SUCCEEDED(obj->IsInstanceOf(0, nullptr, nullptr, TJS_W("Function"), nullptr)))
+		else if (obj->IsInstanceOf(0, nullptr, nullptr, TJS_W("Function"), nullptr) == TJS_S_TRUE)
 		{
 			emscripten::val jsvthis = emscripten::val::null();
 			if (objthis != nullptr && objthis->IsInstanceOf(0, nullptr, nullptr, TJS_W("__internal_TJS2JS_wrapper"), nullptr) == TJS_S_TRUE)
@@ -224,13 +245,21 @@ static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v, iTJSDispatch
 				iTJSDispatch2WrapperForEmscripten *objthis_wrap = (iTJSDispatch2WrapperForEmscripten *)objthis;
 				jsvthis = objthis_wrap->get_val();
 			}
-			return js_curry_function((tjs_uint32)obj, jsvthis);
+			emscripten::val proxy_traps = emscripten::val::object();
+			proxy_traps.set(std::string("getOwnPropertyDescriptor"), js_curry_get_own_property_descriptor((tjs_uint32)obj, (tjs_uint32)objthis));
+			return js_new_proxy(js_curry_function((tjs_uint32)obj, jsvthis), proxy_traps);
 		}
-		else if (TJS_SUCCEEDED(obj->IsInstanceOf(0, nullptr, nullptr, TJS_W("Property"), nullptr)))
+		else
 		{
-			// TODO: wrap property using Proxy object
+			emscripten::val proxy_traps = emscripten::val::object();
+			proxy_traps.set(std::string("get"), js_curry_get_property((tjs_uint32)obj, (tjs_uint32)objthis));
+			proxy_traps.set(std::string("set"), js_curry_set_property((tjs_uint32)obj, (tjs_uint32)objthis));
+			proxy_traps.set(std::string("getOwnPropertyDescriptor"), js_curry_get_own_property_descriptor((tjs_uint32)obj, (tjs_uint32)objthis));
+			return js_new_proxy(emscripten::val::object(), proxy_traps);
 		}
+#if 0
 		obj->Release();
+#endif
 	}
 	return emscripten::val::undefined();
 }
@@ -251,11 +280,17 @@ NCB_REGISTER_CLASS(KirikiriEmscriptenInterface)
 static void init_js_callbacks()
 {
 	js_eval = emscripten::val::global("eval");
+	js_get_own_property_descriptor = js_eval(std::string("(Object.getOwnPropertyDescriptor)"));
 	js_throw_error = js_eval(std::string("(function(e){throw e;})"));
+	js_pcall = js_eval(std::string("(function(a,...b){try{return a(...b);}catch{return undefined;};})"));
 	js_delete = js_eval(std::string("(function(a,b){delete a[b];})"));
 	js_set = js_eval(std::string("(function(a,b,c){a[b]=c;})"));
 	js_call_apply = js_eval(std::string("(function(a,b,c){return a.apply(c,b);})"));
 	js_curry_function = js_eval(std::string("(function(a,b){return function(...c){return Module.internal_TJS2JS_call_function.call(b,a,[...c]);};})"));
+	js_curry_get_property = js_eval(std::string("(function(a,b){return function(c,d){return Module.internal_TJS2JS_get_object_property(a,b,d);};})"));
+	js_curry_set_property = js_eval(std::string("(function(a,b){return function(c,d,e){return Module.internal_TJS2JS_set_object_property(a,b,d,e);};})"));
+	js_curry_get_own_property_descriptor = js_eval(std::string("(function(a,b){return function(c,d){return (d == '__internal_JS2TJS_wrapper') ? {__internal_JS2TJS_wrapper:true,obj:a,objthis:b} : undefined;};})"));
+	js_new_proxy = js_eval(std::string("(function(f,g){return new Proxy(f,g);})"));
 }
 
 NCB_PRE_REGIST_CALLBACK(init_js_callbacks);
@@ -296,10 +331,69 @@ emscripten::val internal_TJS2JS_call_function(tjs_uint32 ptr_function, emscripte
 	return emscripten::val::undefined();
 }
 
+emscripten::val internal_TJS2JS_get_object_property(tjs_uint32 ptr_object, tjs_uint32 ptr_objectthis, emscripten::val v)
+{
+	iTJSDispatch2 *obj = (iTJSDispatch2 *)ptr_object;
+	if (obj == nullptr)
+	{
+		return emscripten::val::undefined();
+	}
+	iTJSDispatch2 *objthis = (iTJSDispatch2 *)ptr_objectthis;
+	std::string type = v.typeof().as<std::string>();
+	emscripten::val r = emscripten::val::undefined();
+	if (type == "number" || type == "bigint")
+	{
+		tTJSVariant rv;
+		if (TJS_SUCCEEDED(obj->PropGetByNum(0, v.as<tjs_int32>(), &rv, objthis)))
+		{
+			r = tjs_variant_to_emscripten_val(rv);
+		}
+	}
+	else if (type == "string")
+	{
+		tTJSVariant rv;
+		if (TJS_SUCCEEDED(obj->PropGet(0, v.as<tjs_string>().c_str(), nullptr, &rv, objthis)))
+		{
+			r = tjs_variant_to_emscripten_val(rv);
+		}
+	}
+	return r;
+}
+
+bool internal_TJS2JS_set_object_property(tjs_uint32 ptr_object, tjs_uint32 ptr_objectthis, emscripten::val v, emscripten::val property_value)
+{
+	iTJSDispatch2 *obj = (iTJSDispatch2 *)ptr_object;
+	if (obj == nullptr)
+	{
+		return false;
+	}
+	iTJSDispatch2 *objthis = (iTJSDispatch2 *)ptr_objectthis;
+	std::string type = v.typeof().as<std::string>();
+	if (type == "number" || type == "bigint")
+	{
+		tTJSVariant rv = emscripten_val_to_tjs_variant(property_value);
+		if (TJS_SUCCEEDED(obj->PropSetByNum(0, v.as<tjs_int32>(), &rv, objthis)))
+		{
+			return true;
+		}
+	}
+	else if (type == "string")
+	{
+		tTJSVariant rv = emscripten_val_to_tjs_variant(property_value);
+		if (TJS_SUCCEEDED(obj->PropSet(0, v.as<tjs_string>().c_str(), nullptr, &rv, objthis)))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 EMSCRIPTEN_BINDINGS(KirikiriEmscriptenInterface)
 {
 	emscripten::function("evalTJS", &evalTJSFromJS);
 	emscripten::function("internal_TJS2JS_call_function", &internal_TJS2JS_call_function);
+	emscripten::function("internal_TJS2JS_get_object_property", &internal_TJS2JS_get_object_property);
+	emscripten::function("internal_TJS2JS_set_object_property", &internal_TJS2JS_set_object_property);
 }
 
 #endif
