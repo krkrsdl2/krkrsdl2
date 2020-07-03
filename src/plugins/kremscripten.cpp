@@ -329,6 +329,21 @@ NCB_PRE_REGIST_CALLBACK(init_js_callbacks);
 				{ \
 					emscripten::val(tTJSString(exception_handler_exception_object).AsStdString()).throw_(); \
 				} \
+				else if (exception_handler_exception_object_type == tvtObject) \
+				{ \
+					iTJSDispatch2 *exception_handler_exception_object_dispatch = exception_handler_exception_object.AsObject(); \
+					if (exception_handler_exception_object_dispatch) \
+					{ \
+						if (exception_handler_exception_object_dispatch->IsInstanceOf(0, nullptr, nullptr, TJS_W("__internal_TJS2JS_wrapper"), nullptr) == TJS_S_TRUE) \
+						{ \
+							iTJSDispatch2WrapperForEmscripten *exception_handler_exception_object_dispatch_wrap = (iTJSDispatch2WrapperForEmscripten *)exception_handler_exception_object_dispatch; \
+							emscripten::val ret = exception_handler_exception_object_dispatch_wrap->get_val(); \
+							exception_handler_exception_object_dispatch->Release(); \
+							ret.throw_(); \
+						} \
+						exception_handler_exception_object_dispatch->Release(); \
+					} \
+				} \
 				emscripten::val(e.GetMessage().AsStdString()).throw_(); \
 			} \
 			catch(eTJSScriptError &e) \
