@@ -9,10 +9,12 @@ static emscripten::val js_eval = emscripten::val::undefined();
 static emscripten::val js_wrap_exception = emscripten::val::undefined();
 static emscripten::val js_get_own_property_descriptor = emscripten::val::undefined();
 static emscripten::val js_is_integer = emscripten::val::undefined();
+static emscripten::val js_function_prototype_bind = emscripten::val::undefined();
 static emscripten::val js_throw_error = emscripten::val::undefined();
 static emscripten::val js_pcall = emscripten::val::undefined();
 static emscripten::val js_delete = emscripten::val::undefined();
 static emscripten::val js_set = emscripten::val::undefined();
+static emscripten::val js_new_apply = emscripten::val::undefined();
 static emscripten::val js_call_apply = emscripten::val::undefined();
 static emscripten::val js_curry_function = emscripten::val::undefined();
 static emscripten::val js_curry_get_property = emscripten::val::undefined();
@@ -34,7 +36,17 @@ class iTJSDispatch2WrapperForEmscripten : public tTJSDispatch
 
 	public: tjs_error TJS_INTF_METHOD CreateNew(tjs_uint32 flag, const tjs_char * membername, tjs_uint32 *hint, iTJSDispatch2 **result, tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *objthis)
 	{
-		return TJS_E_NOTIMPL;
+		if (membername)
+		{
+			return TJS_E_NOTIMPL;
+		}
+		emscripten::val temp_array = emscripten::val::array();
+		for (tjs_int i = 0; i < numparams; i += 1)
+		{
+			temp_array.call<void>("push", tjs_variant_to_emscripten_val(*param[i]));
+		}
+		*result = emscripten_val_to_tjs_variant(js_new_apply(temp_array, v));
+		return TJS_S_OK;
 	}
 
 	public: tjs_error TJS_INTF_METHOD FuncCall(tjs_uint32 flag, const tjs_char * membername, tjs_uint32 *hint, tTJSVariant *result, tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *objthis)
@@ -289,10 +301,12 @@ static void init_js_callbacks()
 	js_eval = js_wrap_exception(js_eval);
 	js_get_own_property_descriptor = js_wrap_exception(js_eval(std::string("(Object.getOwnPropertyDescriptor)")));
 	js_is_integer = js_wrap_exception(js_eval(std::string("(Number.isInteger)")));
+	js_function_prototype_bind = js_wrap_exception(js_eval(std::string("(Function.prototype.bind)")));
 	js_throw_error = js_wrap_exception(js_eval(std::string("(function(e){throw e;})")));
 	js_pcall = js_wrap_exception(js_eval(std::string("(function(a,...b){try{return a(...b);}catch{return undefined;};})")));
 	js_delete = js_wrap_exception(js_eval(std::string("(function(a,b){delete a[b];})")));
 	js_set = js_wrap_exception(js_eval(std::string("(function(a,b,c){a[b]=c;})")));
+	js_new_apply = js_wrap_exception(js_eval(std::string("(function(a,b){return new (Function.prototype.bind.apply(b,[null].concat(a)));})")));
 	js_call_apply = js_wrap_exception(js_eval(std::string("(function(a,b,c){return a.apply(c,b);})")));
 	js_curry_function = js_wrap_exception(js_eval(std::string("(function(a,b){return function(...c){return Module.internal_TJS2JS_call_function.call(b,a,[...c]);};})")));
 	js_curry_get_property = js_wrap_exception(js_eval(std::string("(function(a,b){return function(c,d){return Module.internal_TJS2JS_get_object_property(a,b,d);};})")));
