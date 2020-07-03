@@ -7,8 +7,8 @@
 
 static emscripten::val js_eval = emscripten::val::undefined();
 static emscripten::val js_wrap_exception = emscripten::val::undefined();
-static emscripten::val js_object = emscripten::val::undefined();
 static emscripten::val js_get_own_property_descriptor = emscripten::val::undefined();
+static emscripten::val js_is_integer = emscripten::val::undefined();
 static emscripten::val js_throw_error = emscripten::val::undefined();
 static emscripten::val js_pcall = emscripten::val::undefined();
 static emscripten::val js_delete = emscripten::val::undefined();
@@ -158,6 +158,10 @@ static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::
 	}
 	else if (type == "number")
 	{
+		if (js_is_integer(v).as<bool>())
+		{
+			return tTJSVariant(v.as<tjs_int32>());
+		}
 		return tTJSVariant(v.as<tjs_real>());
 	}
 	else if (type == "string")
@@ -284,6 +288,7 @@ static void init_js_callbacks()
 	js_wrap_exception = js_eval(std::string("(function(a){return function(...b){try{return a(...b);}catch(e){Module.internal_TJS2JS_throw_val_as_TJS_exception(e);}};})"));
 	js_eval = js_wrap_exception(js_eval);
 	js_get_own_property_descriptor = js_wrap_exception(js_eval(std::string("(Object.getOwnPropertyDescriptor)")));
+	js_is_integer = js_wrap_exception(js_eval(std::string("(Number.isInteger)")));
 	js_throw_error = js_wrap_exception(js_eval(std::string("(function(e){throw e;})")));
 	js_pcall = js_wrap_exception(js_eval(std::string("(function(a,...b){try{return a(...b);}catch{return undefined;};})")));
 	js_delete = js_wrap_exception(js_eval(std::string("(function(a,b){delete a[b];})")));
