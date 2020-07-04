@@ -301,7 +301,7 @@ tjs_int TVPGetOSBits()
 			return 32;
 	}
 #endif
-	return 32;
+	return 8 * sizeof(void*);
 }
 //---------------------------------------------------------------------------
 
