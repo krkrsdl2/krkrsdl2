@@ -40,3 +40,6 @@
 [submodule "external/wuvorbis"]
 	path = external/wuvorbis
 	url = ../wuvorbis
+[submodule "external/kri18n"]
+	path = external/kri18n
+	url = ../kri18n
