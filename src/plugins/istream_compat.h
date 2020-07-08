@@ -27,6 +27,7 @@
 #define STREAM_SEEK_END TJS_BS_SEEK_END
 #define STATFLAG_NONAME 0
 #define STGC_DEFAULT 0
+#define FAILED(x) (x != S_OK)
 
 typedef union _ULARGE_INTEGER {
 	ULONGLONG QuadPart;
