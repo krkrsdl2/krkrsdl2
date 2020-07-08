@@ -37,3 +37,6 @@
 [submodule "external/layerExImage"]
 	path = external/layerExImage
 	url = ../layerExImage
+[submodule "external/wuvorbis"]
+	path = external/wuvorbis
+	url = ../wuvorbis
