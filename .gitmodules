@@ -28,3 +28,12 @@
 [submodule "external/fstat"]
 	path = external/fstat
 	url = ../fstat
+[submodule "external/layerEx"]
+	path = external/layerEx
+	url = ../layerEx
+[submodule "external/layerExDraw"]
+	path = external/layerExDraw
+	url = ../layerExDraw
+[submodule "external/layerExImage"]
+	path = external/layerExImage
+	url = ../layerExImage

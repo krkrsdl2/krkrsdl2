@@ -20,6 +20,8 @@ krkrsdl2_src = [
 	'external/fstat/Main.cpp',
 	'external/getSample/main.cpp',
 	'external/json/Main.cpp',
+	'external/layerExImage/LayerExImage.cpp',
+	'external/layerExImage/Main.cpp',
 	'external/krkrz/base/BinaryStream.cpp',
 	'external/krkrz/base/CharacterSet.cpp',
 	'external/krkrz/base/EventIntf.cpp',
