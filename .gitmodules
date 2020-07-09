@@ -43,3 +43,6 @@
 [submodule "external/kri18n"]
 	path = external/kri18n
 	url = ../kri18n
+[submodule "external/kratrac9"]
+	path = external/kratrac9
+	url = ../kratrac9
