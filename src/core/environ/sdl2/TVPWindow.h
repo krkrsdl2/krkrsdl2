@@ -350,6 +350,8 @@ public:
 	virtual void SetVisible(bool bVisible) = 0;
 	virtual void SetFullScreenMode(bool fullscreen) = 0;
 	virtual bool GetFullScreenMode() = 0;
+	virtual void SetBorderStyle(tTVPBorderStyle) = 0;
+	virtual tTVPBorderStyle GetBorderStyle() const = 0;
 	virtual tjs_string GetCaption() = 0;
 	virtual void GetCaption(tjs_string & v) const = 0;
 	virtual void SetCaption(const tjs_string & v) = 0;
@@ -412,12 +414,10 @@ public:
 	void SetInnerWidth(tjs_int v) { SetWidth(v); }
 	void SetInnerHeight(tjs_int v) { SetHeight(v); }
 	void SetInnerSize(tjs_int w, tjs_int h) { SetSize(w, h); }
-	void SetBorderStyle(tTVPBorderStyle) {}
 	void SetStayOnTop(bool) {}
 	tjs_int GetInnerWidth() { return GetWidth(); }
 	tjs_int GetInnerHeight() { return GetHeight(); }
 	bool GetStayOnTop() { return false; }
-	tTVPBorderStyle GetBorderStyle() const { return bsNone; }
 	void SetTrapKey(bool b) {}
 	bool GetTrapKey() const { return false; }
 	void RemoveMaskRegion() {}

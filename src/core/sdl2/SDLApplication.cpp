@@ -370,7 +370,7 @@ public:
 		{
 			TVPThrowExceptionMessage(TJS_W("Cannot initialize SDL video subsystem: %1"), ttstr(SDL_GetError()));
 		}
-		window = SDL_CreateWindow("krkrsdl2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+		window = SDL_CreateWindow("krkrsdl2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_RESIZABLE);
 		if (window == nullptr)
 		{
 			TVPThrowExceptionMessage(TJS_W("Cannot create SDL window: %1"), ttstr(SDL_GetError()));
@@ -610,6 +610,22 @@ public:
 	virtual bool GetFullScreenMode() override {
 		return SDL_GetWindowFlags(window) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP);
 	}
+	virtual void SetBorderStyle(tTVPBorderStyle bs) override {
+		SDL_SetWindowBordered(window, (bs == bsNone) ? SDL_FALSE : SDL_TRUE);
+		SDL_SetWindowResizable(window, (bs == bsSizeable || bs == bsSizeToolWin) ? SDL_TRUE : SDL_FALSE);
+	}
+	virtual tTVPBorderStyle GetBorderStyle() const override {
+		Uint32 flags = SDL_GetWindowFlags(window);
+		if (flags & SDL_WINDOW_BORDERLESS)
+		{
+			return bsNone;
+		}
+		else if (flags & SDL_WINDOW_RESIZABLE)
+		{
+			return bsSizeable;
+		}
+		return bsSingle;
+	}
 	virtual tjs_string GetCaption() override {
 		std::string v_utf8 = SDL_GetWindowTitle(window);
 		tjs_string v_utf16;
@@ -692,15 +708,9 @@ public:
 	}
 	virtual void SetMinSize(tjs_int w, tjs_int h) override {
 		SDL_SetWindowMinimumSize(window, w, h);
-		int wc, hc;
-		SDL_GetWindowMaximumSize(window, &wc, &hc);
-		SDL_SetWindowResizable(window, (w == wc && h == hc) ? SDL_FALSE : SDL_TRUE);
 	}
 	virtual void SetMaxSize(tjs_int w, tjs_int h) override {
 		SDL_SetWindowMaximumSize(window, w, h);
-		int wc, hc;
-		SDL_GetWindowMinimumSize(window, &wc, &hc);
-		SDL_SetWindowResizable(window, (w == wc && h == hc) ? SDL_FALSE : SDL_TRUE);
 	}
 	virtual tjs_int GetMinWidth() override {
 		int w;
