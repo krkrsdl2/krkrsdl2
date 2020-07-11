@@ -604,6 +604,12 @@ public:
 			}
 		}
 	}
+	virtual void SetFullScreenMode(bool fullscreen) override {
+		SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+	}
+	virtual bool GetFullScreenMode() override {
+		return SDL_GetWindowFlags(window) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP);
+	}
 	virtual tjs_string GetCaption() override {
 		std::string v_utf8 = SDL_GetWindowTitle(window);
 		tjs_string v_utf16;

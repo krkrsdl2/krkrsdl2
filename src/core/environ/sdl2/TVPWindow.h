@@ -348,6 +348,8 @@ public:
 	virtual void ShowWindowAsModal() = 0;
 	virtual bool GetVisible() = 0;
 	virtual void SetVisible(bool bVisible) = 0;
+	virtual void SetFullScreenMode(bool fullscreen) = 0;
+	virtual bool GetFullScreenMode() = 0;
 	virtual tjs_string GetCaption() = 0;
 	virtual void GetCaption(tjs_string & v) const = 0;
 	virtual void SetCaption(const tjs_string & v) = 0;
@@ -412,11 +414,9 @@ public:
 	void SetInnerSize(tjs_int w, tjs_int h) { SetSize(w, h); }
 	void SetBorderStyle(tTVPBorderStyle) {}
 	void SetStayOnTop(bool) {}
-	void SetFullScreenMode(bool) {}
 	tjs_int GetInnerWidth() { return GetWidth(); }
 	tjs_int GetInnerHeight() { return GetHeight(); }
 	bool GetStayOnTop() { return false; }
-	bool GetFullScreenMode() { return false; }
 	tTVPBorderStyle GetBorderStyle() const { return bsNone; }
 	void SetTrapKey(bool b) {}
 	bool GetTrapKey() const { return false; }
