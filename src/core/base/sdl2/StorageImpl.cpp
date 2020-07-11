@@ -288,6 +288,15 @@ void TVPPreNormalizeStorageName(ttstr &name)
 
 	tjs_char lastchar = name.GetLastChar();
 
+#ifdef __SWITCH__
+	// HACK for Switch and Vita: colon in filesystem causes a conflict
+	if( TJS_strstr(name.c_str(), TJS_W("file:")) == nullptr ) {
+		ttstr newname(TJS_W("file://./"));
+		newname += name;
+		name = newname;
+	}
+#endif
+
 	if( TJS_strstr(name.c_str(), TJS_W(":")) == nullptr && TJS_strstr(name.c_str(), TJS_W("file:")) == nullptr ) {
 		char* tmppath = realpath(name.AsNarrowStdString().c_str(), NULL);
 		if (tmppath) {
@@ -303,7 +312,7 @@ void TVPPreNormalizeStorageName(ttstr &name)
 
 	if(namelen >= 1) {
 		if( name[0] == TJS_W('.') ) {
-			ttstr newname(TJS_W("file:"));
+			ttstr newname(TJS_W("file://./"));
 			char* cwd = realpath(".", NULL);
 			if (cwd != NULL) {
 				newname += ttstr(cwd);
@@ -314,7 +323,7 @@ void TVPPreNormalizeStorageName(ttstr &name)
 			return;
 		}
 		if( name[0] == TJS_W('/') ) {
-			ttstr newname(TJS_W("file:"));
+			ttstr newname(TJS_W("file://./"));
 			newname += name;
 			name = newname;
 			return;
@@ -325,7 +334,7 @@ void TVPPreNormalizeStorageName(ttstr &name)
 	{
 		if( (name[0] == TJS_W('\\') || name[0] == TJS_W('/')) &&
 			(name[1] != TJS_W('\\') && name[1] != TJS_W('/'))) {
-			ttstr newname(TJS_W("file:/"));
+			ttstr newname(TJS_W("file://./"));
 			newname += name;
 			name = newname;
 			return;
@@ -338,7 +347,7 @@ void TVPPreNormalizeStorageName(ttstr &name)
 			(name[0] == TJS_W('/') && name[1] == TJS_W('/')) )
 		{
 			// unc expression
-			name = ttstr(TJS_W("file:")) + name;
+			name = ttstr(TJS_W("file://./")) + name;
 			return;
 		}
 	}
@@ -370,7 +379,11 @@ ttstr TVPGetTemporaryName()
 #if 0
 			TVPTempPath = ttstr( Application->GetCachePath()->c_str() );
 #endif
+#ifdef __SWITCH__
+			TVPTempPath = ttstr( "sdmc:/tmp/" );
+#else
 			TVPTempPath = ttstr( "/tmp/" );
+#endif
 
 			if(TVPTempPath.GetLastChar() != TJS_W('/')) TVPTempPath += TJS_W("/");
 			TVPProcessID = static_cast<tjs_int>( getpid() );
