@@ -434,6 +434,15 @@ public:
 				TVPThrowExceptionMessage(TJS_W("Cannot create framebuffer texture: %1"), ttstr(SDL_GetError()));
 			}
 		}
+		SDL_Rect cliprect;
+		cliprect.x = 0;
+		cliprect.y = 0;
+		cliprect.w = w;
+		cliprect.h = h;
+		if (renderer)
+		{
+			SDL_RenderSetLogicalSize(renderer, w, h);
+		}
 		if( TJSNativeInstance )
 		{
 			tTVPRect r;
@@ -677,9 +686,15 @@ public:
 	}
 	virtual void SetMinSize(tjs_int w, tjs_int h) override {
 		SDL_SetWindowMinimumSize(window, w, h);
+		int wc, hc;
+		SDL_GetWindowMaximumSize(window, &wc, &hc);
+		SDL_SetWindowResizable(window, (w == wc && h == hc) ? SDL_FALSE : SDL_TRUE);
 	}
 	virtual void SetMaxSize(tjs_int w, tjs_int h) override {
 		SDL_SetWindowMaximumSize(window, w, h);
+		int wc, hc;
+		SDL_GetWindowMinimumSize(window, &wc, &hc);
+		SDL_SetWindowResizable(window, (w == wc && h == hc) ? SDL_FALSE : SDL_TRUE);
 	}
 	virtual tjs_int GetMinWidth() override {
 		int w;
@@ -1016,9 +1031,15 @@ public:
 	virtual void UpdateWindow(tTVPUpdateType type) override {
 		if (TJSNativeInstance) {
 			tTVPRect r;
-			r.left = 0;
-			r.top = 0;
-			SDL_GetWindowSize(window, &r.right, &r.bottom);
+			r.clear();
+			if (renderer)
+			{
+				SDL_RenderGetLogicalSize(renderer, &(r.right), &(r.bottom));
+			}
+			else if (window)
+			{
+				SDL_GetWindowSize(window, &(r.right), &(r.bottom));
+			}
 			TJSNativeInstance->NotifyWindowExposureToLayer(r);
 			TVPDeliverWindowUpdateEvents();
 		}
