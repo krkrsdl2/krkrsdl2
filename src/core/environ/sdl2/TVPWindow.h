@@ -357,7 +357,6 @@ public:
 	virtual void GetSize(tjs_int &w, tjs_int &h) = 0;
 	virtual tjs_int GetWidth() const = 0;
 	virtual tjs_int GetHeight() const = 0;
-	virtual void GetWinSize(tjs_int &w, tjs_int &h) = 0;
 	virtual void SetMinWidth(tjs_int w) = 0;
 	virtual void SetMaxWidth(tjs_int w) = 0;
 	virtual void SetMinHeight(tjs_int h) = 0;

@@ -663,9 +663,6 @@ public:
 		SDL_GetWindowSize(window, NULL, &h);
 		return h;
 	}
-	virtual void GetWinSize(tjs_int &w, tjs_int &h) override {
-		SDL_GetWindowSize(window, &w, &h);
-	}
 	virtual void SetMinWidth(tjs_int w) override {
 		SetMinSize(w, GetMinHeight());
 	}
