@@ -358,6 +358,11 @@ public:
 	virtual tjs_int GetWidth() const = 0;
 	virtual tjs_int GetHeight() const = 0;
 	virtual void GetWinSize(tjs_int &w, tjs_int &h) = 0;
+	virtual tjs_int GetLeft() = 0;
+	virtual void SetLeft(tjs_int l) = 0;
+	virtual tjs_int GetTop() = 0;
+	virtual void SetTop(tjs_int l) = 0;
+	virtual void SetPosition(tjs_int l, tjs_int t) = 0;
 	virtual void SetZoom(tjs_int numer, tjs_int denom) = 0;
 #if 0
 	virtual void AddOverlay(tTJSNI_BaseVideoOverlay *ovl) = 0;
@@ -393,8 +398,6 @@ public:
 	tjs_int GetZoomDenom() const { return ZoomDenom; }
 
 	// dummy function
-	void SetLeft(tjs_int) {}
-	void SetTop(tjs_int) {}
 	void SetMinWidth(tjs_int) {}
 	void SetMaxWidth(tjs_int) {}
 	void SetMinHeight(tjs_int) {}
@@ -404,12 +407,9 @@ public:
 	void SetInnerSize(tjs_int w, tjs_int h) { SetSize(w, h); }
 	void SetMinSize(tjs_int, tjs_int) {}
 	void SetMaxSize(tjs_int, tjs_int) {}
-	void SetPosition(tjs_int, tjs_int) {}
 	void SetBorderStyle(tTVPBorderStyle) {}
 	void SetStayOnTop(bool) {}
 	void SetFullScreenMode(bool) {}
-	tjs_int GetLeft() { return 0; }
-	tjs_int GetTop() { return 0; }
 	tjs_int GetMinWidth() { return GetWidth(); }
 	tjs_int GetMaxWidth() { return GetWidth(); }
 	tjs_int GetMinHeight() { return GetHeight(); }

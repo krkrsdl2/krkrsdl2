@@ -662,6 +662,25 @@ public:
 	}
 	virtual void SetZoom(tjs_int numer, tjs_int denom) override {
 	}
+	virtual tjs_int GetLeft() override {
+		int x;
+		SDL_GetWindowPosition(window, &x, nullptr);
+		return x;
+	}
+	virtual void SetLeft(tjs_int l) override {
+		SetPosition(l, GetTop());
+	}
+	virtual tjs_int GetTop() override {
+		int y;
+		SDL_GetWindowPosition(window, nullptr, &y);
+		return y;
+	}
+	virtual void SetTop(tjs_int t) override {
+		SetPosition(GetLeft(), t);
+	}
+	virtual void SetPosition(tjs_int l, tjs_int t) override {
+		SDL_SetWindowPosition(window, l, t);
+	}
 	virtual void NotifyBitmapCompleted(iTVPLayerManager * manager,
 		tjs_int x, tjs_int y, const void * bits, const class BitmapInfomation * bmpinfo,
 		const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity) override {
