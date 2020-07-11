@@ -1139,19 +1139,39 @@ void sdlProcessEvents()
 	::Application->Run();
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 	_argc = argc;
 	_wargv = new tjs_char*[argc];
 
-	for (int i = 0; i < argc; i += 1) {
-		const tjs_char* warg;
+	for (int i = 0; i < argc; i += 1)
+	{
+		const char* narg;
 		if (!i)
-			warg = ttstr(realpath(argv[i], NULL)).c_str();
+		{
+			narg = realpath(argv[i], NULL);
+		}
 		else
-			warg = ttstr(argv[i]).c_str();
-
-		tjs_char* warg_copy = new tjs_char[strlen(argv[i]) + 1];
-		memcpy(warg_copy, warg, sizeof(tjs_char) * (strlen(argv[i]) + 1));
+		{
+			narg = argv[i];
+		}
+		if (!narg)
+		{
+			tjs_char* warg_copy = new tjs_char[1];
+			warg_copy[0] = '\0';
+			_wargv[i] = warg_copy;
+			continue;
+		}
+		std::string v_utf8 = narg;
+		tjs_string v_utf16;
+		TVPUtf8ToUtf16( v_utf16, v_utf8 );
+		if (!i)
+		{
+			free((void*)narg);
+		}
+		tjs_char* warg_copy = new tjs_char[v_utf16.length() + 1];
+		memcpy(warg_copy, v_utf16.c_str(), sizeof(tjs_char) * (v_utf16.length()));
+		warg_copy[v_utf16.length()] = '\0';
 		_wargv[i] = warg_copy;
 	}
 
