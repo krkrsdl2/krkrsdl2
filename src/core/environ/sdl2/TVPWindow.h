@@ -358,6 +358,16 @@ public:
 	virtual tjs_int GetWidth() const = 0;
 	virtual tjs_int GetHeight() const = 0;
 	virtual void GetWinSize(tjs_int &w, tjs_int &h) = 0;
+	virtual void SetMinWidth(tjs_int w) = 0;
+	virtual void SetMaxWidth(tjs_int w) = 0;
+	virtual void SetMinHeight(tjs_int h) = 0;
+	virtual void SetMaxHeight(tjs_int h) = 0;
+	virtual void SetMinSize(tjs_int w, tjs_int h) = 0;
+	virtual void SetMaxSize(tjs_int w, tjs_int h) = 0;
+	virtual tjs_int GetMinWidth() = 0;
+	virtual tjs_int GetMaxWidth() = 0;
+	virtual tjs_int GetMinHeight() = 0;
+	virtual tjs_int GetMaxHeight() = 0;
 	virtual tjs_int GetLeft() = 0;
 	virtual void SetLeft(tjs_int l) = 0;
 	virtual tjs_int GetTop() = 0;
@@ -398,22 +408,12 @@ public:
 	tjs_int GetZoomDenom() const { return ZoomDenom; }
 
 	// dummy function
-	void SetMinWidth(tjs_int) {}
-	void SetMaxWidth(tjs_int) {}
-	void SetMinHeight(tjs_int) {}
-	void SetMaxHeight(tjs_int) {}
 	void SetInnerWidth(tjs_int v) { SetWidth(v); }
 	void SetInnerHeight(tjs_int v) { SetHeight(v); }
 	void SetInnerSize(tjs_int w, tjs_int h) { SetSize(w, h); }
-	void SetMinSize(tjs_int, tjs_int) {}
-	void SetMaxSize(tjs_int, tjs_int) {}
 	void SetBorderStyle(tTVPBorderStyle) {}
 	void SetStayOnTop(bool) {}
 	void SetFullScreenMode(bool) {}
-	tjs_int GetMinWidth() { return GetWidth(); }
-	tjs_int GetMaxWidth() { return GetWidth(); }
-	tjs_int GetMinHeight() { return GetHeight(); }
-	tjs_int GetMaxHeight() { return GetHeight(); }
 	tjs_int GetInnerWidth() { return GetWidth(); }
 	tjs_int GetInnerHeight() { return GetHeight(); }
 	bool GetStayOnTop() { return false; }

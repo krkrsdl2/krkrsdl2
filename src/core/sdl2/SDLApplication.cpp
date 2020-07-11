@@ -666,6 +666,44 @@ public:
 	virtual void GetWinSize(tjs_int &w, tjs_int &h) override {
 		SDL_GetWindowSize(window, &w, &h);
 	}
+	virtual void SetMinWidth(tjs_int w) override {
+		SetMinSize(w, GetMinHeight());
+	}
+	virtual void SetMaxWidth(tjs_int w) override {
+		SetMaxSize(w, GetMaxHeight());
+	}
+	virtual void SetMinHeight(tjs_int h) override {
+		SetMinSize(GetMinWidth(), h);
+	}
+	virtual void SetMaxHeight(tjs_int h) override {
+		SetMaxSize(GetMaxWidth(), h);
+	}
+	virtual void SetMinSize(tjs_int w, tjs_int h) override {
+		SDL_SetWindowMinimumSize(window, w, h);
+	}
+	virtual void SetMaxSize(tjs_int w, tjs_int h) override {
+		SDL_SetWindowMaximumSize(window, w, h);
+	}
+	virtual tjs_int GetMinWidth() override {
+		int w;
+		SDL_GetWindowMinimumSize(window, &w, nullptr);
+		return w;
+	}
+	virtual tjs_int GetMaxWidth() override {
+		int w;
+		SDL_GetWindowMaximumSize(window, &w, nullptr);
+		return w;
+	}
+	virtual tjs_int GetMinHeight() override {
+		int h;
+		SDL_GetWindowMinimumSize(window, &h, nullptr);
+		return h;
+	}
+	virtual tjs_int GetMaxHeight() override {
+		int h;
+		SDL_GetWindowMaximumSize(window, &h, nullptr);
+		return h;
+	}
 	virtual void SetZoom(tjs_int numer, tjs_int denom) override {
 	}
 	virtual tjs_int GetLeft() override {
