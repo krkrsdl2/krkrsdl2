@@ -626,11 +626,6 @@ void tTVPApplication::ShowException( const tjs_char* e ) {
 	::MessageBox( NULL, e, TVPFatalError, MB_OK );
 #endif
 	TVPAddLog(ttstr(TVPScriptExceptionRaised) + TJS_W("\n") + e);
-#ifdef __EMSCRIPTEN__
-	emscripten_cancel_main_loop();
-#else
-	exit(1);
-#endif
 }
 void tTVPApplication::Run() {
 #if 0
