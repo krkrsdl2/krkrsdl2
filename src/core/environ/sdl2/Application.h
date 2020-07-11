@@ -4,6 +4,7 @@
 
 #include "tjsVariant.h"
 #include "tjsString.h"
+#include "CharacterSet.h"
 #include <vector>
 #include <functional>
 #include <tuple>
@@ -23,13 +24,7 @@ enum {
 	mrCancel,
 };
 
-#define MB_ICONWARNING 0x00000030L
-#define MB_ICONERROR 0x00000010L
-#define MB_ICONINFORMATION 0x00000040L
-#define MB_ICONQUESTION 0x00000020L
-#define MB_ICONSTOP 0x00000010L
-#define MB_OK 0x00000000L
-
+#if 0
 enum {
   mtWarning = MB_ICONWARNING,
   mtError = MB_ICONERROR,
@@ -40,6 +35,19 @@ enum {
 };
 enum {
 	mbOK = MB_OK,
+};
+#endif
+
+enum {
+  mtWarning = SDL_MESSAGEBOX_WARNING,
+  mtError = SDL_MESSAGEBOX_ERROR,
+  mtInformation = SDL_MESSAGEBOX_INFORMATION,
+  mtConfirmation = SDL_MESSAGEBOX_INFORMATION,
+  mtStop = SDL_MESSAGEBOX_ERROR,
+  mtCustom = 0
+};
+enum {
+	mbOK = 0,
 };
 
 enum class eTVPActiveEvent {
@@ -159,11 +167,20 @@ public:
 	tjs_string GetTitle() const { return title_; }
 	void SetTitle( const tjs_string& caption );
 
-#if 0
 	static inline int MessageDlg( const tjs_string& string, const tjs_string& caption, int type, int button ) {
+#if 0
 		return ::MessageBox( nullptr, string.c_str(), caption.c_str(), type|button  );
-	}
 #endif
+		tjs_string s_utf16 = string;
+		std::string s_utf8;
+		tjs_string c_utf16 = caption;
+		std::string c_utf8;
+		if (TVPUtf16ToUtf8(s_utf8, s_utf16) && TVPUtf16ToUtf8(c_utf8, c_utf16))
+		{
+			return SDL_ShowSimpleMessageBox(type, c_utf8.c_str(), s_utf8.c_str(), nullptr);
+		}
+		return 0;
+	}
 	void Terminate() {
 #if 0
 		::PostQuitMessage(0);

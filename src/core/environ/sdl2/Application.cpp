@@ -51,6 +51,7 @@
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
+#include <SDL.h>
 
 #if 0
 #include "resource.h"
@@ -626,7 +627,15 @@ void tTVPApplication::ShowException( const tjs_char* e ) {
 #if 0
 	::MessageBox( NULL, e, TVPFatalError, MB_OK );
 #endif
-	TVPAddLog(ttstr(TVPScriptExceptionRaised) + TJS_W("\n") + e);
+	TVPAddLog(ttstr(TVPFatalError) + TJS_W(": ") + e);
+	tjs_string e_utf16 = e;
+	std::string e_utf8;
+	tjs_string v_utf16 = (const tjs_char *)TVPFatalError;
+	std::string v_utf8;
+	if (TVPUtf16ToUtf8(v_utf8, v_utf16) && TVPUtf16ToUtf8(e_utf8, e_utf16))
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, v_utf8.c_str(), e_utf8.c_str(), nullptr);
+	}
 }
 void tTVPApplication::Run() {
 #if 0
