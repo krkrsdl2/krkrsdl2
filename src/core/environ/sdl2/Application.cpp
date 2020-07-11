@@ -114,11 +114,6 @@ tjs_string ExePath() {
 	static tjs_string exepath(TJS_W(""));
 	if (exepath.empty()) {
 		exepath = tjs_string(_wargv[0]);
-		if (exepath.empty())
-		{
-			static char buf[4096];
-			exepath = ttstr(getcwd(buf, 4096)).AsStdString();
-		}
 	}
 	return exepath;
 }
