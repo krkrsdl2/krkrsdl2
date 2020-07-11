@@ -35,6 +35,8 @@ static bool process_events();
 #define MK_CONTROL 8
 #define MK_ALT (0x20)
 
+static SDL_Cursor* sdl_system_cursors[SDL_NUM_SYSTEM_CURSORS] = {0};
+
 static SDL_Keycode vk_key_to_sdl_key(tjs_uint key)
 {
 	// This is generated using regex find replace
@@ -324,6 +326,7 @@ protected:
 	tTJSNI_Window *TJSNativeInstance;
 	bool hasDrawn = false;
 	bool isBeingDeleted = false;
+	bool cursor_temporary_hidden = false;
 	char* ime_composition;
 	size_t ime_composition_cursor;
 	size_t ime_composition_len;
@@ -441,11 +444,94 @@ public:
 		return SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN;
 	}
 	virtual void SetDefaultMouseCursor() override {
+		if (!sdl_system_cursors[0])
+		{
+			for (int i = 0; i < SDL_NUM_SYSTEM_CURSORS; i += 1)
+			{
+				sdl_system_cursors[i] = SDL_CreateSystemCursor((SDL_SystemCursor)i);
+			}
+		}
+		SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_ARROW]);
+	}
+	virtual void SetMouseCursor(tjs_int handle) override {
+		if (!sdl_system_cursors[0])
+		{
+			for (int i = 0; i < SDL_NUM_SYSTEM_CURSORS; i += 1)
+			{
+				sdl_system_cursors[i] = SDL_CreateSystemCursor((SDL_SystemCursor)i);
+			}
+		}
+		switch (handle)
+		{
+			case -2: // crArrow
+				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_ARROW]);
+				break;
+			case -3: // crCross
+				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_CROSSHAIR]);
+				break;
+			case -4: // crIBeam
+				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_IBEAM]);
+				break;
+			case -5: // crSize
+				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZEALL]);
+				break;
+			case -6: // crSizeNESW
+				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZENESW]);
+				break;
+			case -7: // crSizeNS
+				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZENS]);
+				break;
+			case -8: // crSizeNWSE
+				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZENWSE]);
+				break;
+			case -9: // crSizeWE
+				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZEWE]);
+				break;
+			case -11: // crHourGlass
+				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_WAIT]);
+				break;
+			case -18: // crNo
+				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_NO]);
+				break;
+			case -19: // crAppStart
+				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_WAITARROW]);
+				break;
+			case -21: // crHandPoint
+				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_HAND]);
+				break;
+			case -22: // crSizeAll
+				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZEALL]);
+				break;
+			default:
+				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_ARROW]);
+				break;
+		}
+	}
+	virtual void SetMouseCursorState(tTVPMouseCursorState mcs) override {
+		cursor_temporary_hidden = (mcs == mcsTempHidden);
+		SDL_ShowCursor((mcs == mcsVisible) ? SDL_ENABLE : SDL_DISABLE);
+	}
+	virtual tTVPMouseCursorState GetMouseCursorState() const override {
+		if (cursor_temporary_hidden)
+		{
+			return mcsTempHidden;
+		}
+		return (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) ? mcsVisible : mcsHidden;
+	}
+	virtual void HideMouseCursor() override {
+		SetMouseCursorState(mcsTempHidden);
+	}
+	void RestoreMouseCursor() {
+		if (cursor_temporary_hidden)
+		{
+			SetMouseCursorState(mcsVisible);
+		}
 	}
 	virtual void GetCursorPos(tjs_int &x, tjs_int &y) override {
 		SDL_GetMouseState(&x, &y);
 	}
 	virtual void SetCursorPos(tjs_int x, tjs_int y) override {
+		RestoreMouseCursor();
 		SDL_WarpMouseInWindow(window, x, y);
 	}
 	virtual void SetHintText(const ttstr &text) override {
@@ -943,6 +1029,7 @@ public:
 			if (TJSNativeInstance->CanDeliverEvents()) {
 				switch (event.type) { 
 					case SDL_MOUSEMOTION: {
+						RestoreMouseCursor();
 						TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, event.motion.x, event.motion.y, s));
 						break;
 					}

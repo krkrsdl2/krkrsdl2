@@ -324,7 +324,6 @@ public:
 
 class TTVPWindowForm {
 protected:
-	tTVPMouseCursorState MouseCursorState = mcsVisible;
 	tjs_int HintDelay = 500;
 	tjs_int ZoomDenom = 1; // Zooming factor denominator (setting)
 	tjs_int ZoomNumer = 1; // Zooming factor numerator (setting)
@@ -334,6 +333,10 @@ public:
 	virtual void SetPaintBoxSize(tjs_int w, tjs_int h) = 0;
 	virtual bool GetFormEnabled() = 0;
 	virtual void SetDefaultMouseCursor() = 0;
+	virtual void SetMouseCursor(tjs_int handle) = 0;
+	virtual void SetMouseCursorState(tTVPMouseCursorState mcs) = 0;
+	virtual tTVPMouseCursorState GetMouseCursorState() const = 0;
+	virtual void HideMouseCursor() = 0;
 	virtual void GetCursorPos(tjs_int &x, tjs_int &y) = 0;
 	virtual void SetCursorPos(tjs_int x, tjs_int y) = 0;
 	virtual void SetHintText(const ttstr &text) = 0;
@@ -419,9 +422,6 @@ public:
 	void SetTrapKey(bool b) {}
 	bool GetTrapKey() const { return false; }
 	void RemoveMaskRegion() {}
-	void SetMouseCursorState(tTVPMouseCursorState mcs) { MouseCursorState = mcs; }
-	tTVPMouseCursorState GetMouseCursorState() const { return MouseCursorState; }
-	void HideMouseCursor() { }
 	void SetFocusable(bool b) {}
 	bool GetFocusable() const { return true; }
 	int GetDisplayRotate() { return 0; }
@@ -432,7 +432,6 @@ public:
 	tjs_int GetHintDelay() const { return HintDelay; }
 
 	// TODO
-	void SetMouseCursor(tjs_int handle) {}
 	void SetHintText(iTJSDispatch2* sender, const ttstr &text) {}
 	void DisableAttentionPoint() {}
 	void GetVideoOffset(tjs_int &ofsx, tjs_int &ofsy) { ofsx = 0; ofsy = 0; }
