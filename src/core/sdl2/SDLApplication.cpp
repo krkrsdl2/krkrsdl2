@@ -13,6 +13,8 @@
 #include "TimerThread.h"
 #include "MsgIntf.h"
 #include "DebugIntf.h"
+#include "tjsArray.h"
+#include "StorageIntf.h"
 #include <SDL.h>
 
 #include <unistd.h>
@@ -332,6 +334,8 @@ protected:
 	size_t ime_composition_len;
 	size_t ime_composition_selection;
 	SDL_Rect attention_point_rect;
+	iTJSDispatch2 * file_drop_array;
+	tjs_int file_drop_array_count;
 
 public:
 	TVPWindowLayer(tTJSNI_Window *w)
@@ -344,6 +348,8 @@ public:
 		attention_point_rect.y = 0;
 		attention_point_rect.w = 0;
 		attention_point_rect.h = 0;
+		file_drop_array = nullptr;
+		file_drop_array_count = 0;
 		_nextWindow = nullptr;
 		_prevWindow = _lastWindowLayer;
 		_lastWindowLayer = this;
@@ -1034,6 +1040,9 @@ public:
 				case SDL_TEXTINPUT:
 					tryParentWindow = event.text.windowID != windowID;
 					break;
+				case SDL_WINDOWEVENT:
+					tryParentWindow = event.window.windowID != windowID;
+					break;
 			}
 			if (tryParentWindow) {
 				if (!in_mode_) {
@@ -1050,7 +1059,7 @@ public:
 					case SDL_MOUSEMOTION: {
 						RestoreMouseCursor();
 						TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, event.motion.x, event.motion.y, s));
-						break;
+						return;
 					}
 					case SDL_MOUSEBUTTONDOWN:
 					case SDL_MOUSEBUTTONUP: {
@@ -1091,7 +1100,7 @@ public:
 									break;
 							}
 						}
-						break;
+						return;
 					}
 					case SDL_KEYDOWN: {
 						if (SDL_IsTextInputActive())
@@ -1104,7 +1113,7 @@ public:
 						if (event.key.repeat) s |= TVP_SS_REPEAT;
 						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym), s));
 						SDL_SetTextInputRect(&attention_point_rect);
-						break;
+						return;
 					}
 					case SDL_KEYUP: {
 						if (SDL_IsTextInputActive())
@@ -1120,7 +1129,7 @@ public:
 						}
 						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym), s));
 						SDL_SetTextInputRect(&attention_point_rect);
-						break;
+						return;
 					}
 					case SDL_TEXTINPUT:
 					case SDL_TEXTEDITING: {
@@ -1213,17 +1222,90 @@ public:
 							ime_composition = nullptr;
 							ime_composition_len = 0;
 						}
-						break;
+						return;
 					}
 					case SDL_MOUSEWHEEL: {
 						int x, y;
 						SDL_GetMouseState(&x, &y);
 						TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(TJSNativeInstance, event.wheel.x, event.wheel.y, x, y));
-						break;
+						return;
 					}
-					case SDL_WINDOWEVENT_CLOSE:
+					case SDL_DROPBEGIN: {
+						if (!file_drop_array)
+						{
+							file_drop_array = TJSCreateArrayObject();
+						}
+						return;
+					}
+					case SDL_DROPCOMPLETE: {
+						if (file_drop_array)
+						{
+							tTJSVariant arg(file_drop_array, file_drop_array);
+							TVPPostInputEvent(new tTVPOnFileDropInputEvent(TJSNativeInstance, arg));
+							file_drop_array->Release();
+							file_drop_array = nullptr;
+							file_drop_array_count = 0;
+						}
+						return;
+					}
+					case SDL_DROPFILE:
+					case SDL_DROPTEXT: {
+						if (file_drop_array && event.drop.file)
+						{
+							std::string f_utf8 = event.drop.file;
+							tjs_string f_utf16;
+							TVPUtf8ToUtf16( f_utf16, f_utf8 );
+							SDL_free(event.drop.file);
+							if (TVPIsExistentStorageNoSearch(f_utf16))
+							{
+								tTJSVariant val = TVPNormalizeStorageName(ttstr(f_utf16));
+								file_drop_array->PropSetByNum(TJS_MEMBERENSURE|TJS_IGNOREPROP, file_drop_array_count, &val, file_drop_array);
+								file_drop_array_count += 1;
+							}
+						}
+						return;
+					}
+					case SDL_WINDOWEVENT: {
+						switch (event.window.event)
+						{
+							case SDL_WINDOWEVENT_EXPOSED: {
+								UpdateWindow(utNormal);
+								return;
+							}
+							case SDL_WINDOWEVENT_RESIZED:
+							case SDL_WINDOWEVENT_SIZE_CHANGED: {
+								TVPPostInputEvent(new tTVPOnResizeInputEvent(TJSNativeInstance), TVP_EPT_REMOVE_POST);
+								return;
+							}
+							case SDL_WINDOWEVENT_ENTER: {
+								TVPPostInputEvent(new tTVPOnMouseEnterInputEvent(TJSNativeInstance));
+								return;
+							}
+							case SDL_WINDOWEVENT_LEAVE: {
+								TVPPostInputEvent(new tTVPOnMouseOutOfWindowInputEvent(TJSNativeInstance));
+								TVPPostInputEvent(new tTVPOnMouseLeaveInputEvent(TJSNativeInstance));
+								return;
+							}
+							case SDL_WINDOWEVENT_FOCUS_GAINED:
+							case SDL_WINDOWEVENT_FOCUS_LOST: {
+								TVPPostInputEvent(new tTVPOnWindowActivateEvent(TJSNativeInstance, event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED), TVP_EPT_REMOVE_POST);
+								return;
+							}
+							case SDL_WINDOWEVENT_CLOSE: {
+								TVPPostInputEvent(new tTVPOnCloseInputEvent(TJSNativeInstance));
+								return;
+							}
+							default: {
+								return;
+							}
+						}
+					}
 					case SDL_QUIT: {
 						TVPPostInputEvent(new tTVPOnCloseInputEvent(TJSNativeInstance));
+						return;
+					}
+					default: {
+						return;
 					}
 				}
 			}
