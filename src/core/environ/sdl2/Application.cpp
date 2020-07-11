@@ -452,6 +452,7 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 			// ignore errors
 		}
 #endif
+		return false;
 	} catch( const EAbort & ) {
 		// nothing to do
 	} catch( const Exception &exception ) {
@@ -495,7 +496,7 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 	CloseConsole();
 #endif
 
-	return false;
+	return true;
 }
 /**
  * コンソールからの起動か確認し、コンソールからの起動の場合は、標準出力を割り当てる
@@ -639,12 +640,7 @@ void tTVPApplication::Run() {
 #endif
 	try {
 		if (tarminate_) {
-			TVPSystemUninit();
-#ifdef __EMSCRIPTEN__
-			emscripten_cancel_main_loop();
-#else
-			exit(1);
-#endif
+			return;
 		}
 		ProcessMessages();
 		if (TVPSystemControl) TVPSystemControl->SystemWatchTimerTimer();

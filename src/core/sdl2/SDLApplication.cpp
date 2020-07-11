@@ -25,7 +25,11 @@
 class TVPWindowLayer;
 static TVPWindowLayer *_lastWindowLayer, *_currentWindowLayer;
 
-extern void sdlProcessEvents();
+#ifdef __EMSCRIPTEN__
+static void process_events();
+#else
+static bool process_events();
+#endif
 
 #define MK_SHIFT 4
 #define MK_CONTROL 8
@@ -474,7 +478,7 @@ public:
 		BringToFront();
 		modal_result_ = 0;
 		while (this == _currentWindowLayer && !modal_result_) {
-			sdlProcessEvents();
+			process_events();
 			if (::Application->IsTarminate()) {
 				modal_result_ = mrCancel;
 			} else if (modal_result_ != 0) {
@@ -749,7 +753,7 @@ public:
 				} else {
 					CanCloseWork = true;
 					TVPPostEvent(obj, obj, eventname, 0, TVP_EPT_IMMEDIATE, 1, arg);
-					sdlProcessEvents(); // for post event
+					process_events(); // for post event
 					// this event happens immediately
 					// and does not return until done
 					return CanCloseWork; // CanCloseWork is set by the event handler
@@ -1121,13 +1125,19 @@ public:
 	}
 };
 
-void sdlProcessEvents()
+#ifdef __EMSCRIPTEN__
+static void process_events()
+#else
+static bool process_events()
+#endif
 {
 	if (SDL_WasInit(SDL_INIT_EVENTS) != 0)
 	{
 		SDL_Event event;
-		while (SDL_PollEvent(&event)) {
-			if (_currentWindowLayer) {
+		while (SDL_PollEvent(&event))
+		{
+			if (_currentWindowLayer)
+			{
 				_currentWindowLayer->sdlRecvEvent(event);
 			}
 		}
@@ -1137,6 +1147,18 @@ void sdlProcessEvents()
 	tTVPTimerThread::Trigger();
 #endif
 	::Application->Run();
+	if (::Application->IsTarminate())
+	{
+		TVPSystemUninit();
+#ifdef __EMSCRIPTEN__
+		emscripten_cancel_main_loop();
+#else
+		return false;
+#endif
+	}
+#ifndef __EMSCRIPTEN__
+	return true;
+#endif
 }
 
 int main(int argc, char **argv)
@@ -1176,14 +1198,15 @@ int main(int argc, char **argv)
 	}
 
 	::Application = new tTVPApplication();
-	::Application->StartApplication( _argc, _wargv );
+	if (::Application->StartApplication( _argc, _wargv ))
+	{
+		return 0;
+	}
 
 #ifdef __EMSCRIPTEN__
-	emscripten_set_main_loop(sdlProcessEvents, 0, 0);
+	emscripten_set_main_loop(process_events, 0, 0);
 #else
-	while (1) {
-		sdlProcessEvents();
-	}
+	while (process_events());
 #endif
 	return 0;
 }
