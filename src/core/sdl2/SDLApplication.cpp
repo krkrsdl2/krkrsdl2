@@ -954,7 +954,7 @@ public:
 					SetVisible(false);
 					break;
 				case caMinimize:
-					//::ShowWindow(GetHandle(), SW_MINIMIZE);
+					SDL_MinimizeWindow(window);
 					break;
 				case caFree:
 				default:
