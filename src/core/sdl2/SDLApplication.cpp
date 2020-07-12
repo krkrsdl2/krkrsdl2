@@ -370,7 +370,7 @@ public:
 		{
 			TVPThrowExceptionMessage(TJS_W("Cannot initialize SDL video subsystem: %1"), ttstr(SDL_GetError()));
 		}
-		window = SDL_CreateWindow("krkrsdl2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_RESIZABLE);
+		window = SDL_CreateWindow("krkrsdl2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
 		if (window == nullptr)
 		{
 			TVPThrowExceptionMessage(TJS_W("Cannot create SDL window: %1"), ttstr(SDL_GetError()));
@@ -1051,6 +1051,7 @@ public:
 			if (renderer)
 			{
 				SDL_RenderGetLogicalSize(renderer, &(r.right), &(r.bottom));
+				SDL_RenderSetLogicalSize(renderer, r.right, r.bottom);
 			}
 			else if (window)
 			{
@@ -1344,8 +1345,12 @@ public:
 								UpdateWindow(utNormal);
 								return;
 							}
+							case SDL_WINDOWEVENT_MINIMIZED:
+							case SDL_WINDOWEVENT_MAXIMIZED:
+							case SDL_WINDOWEVENT_RESTORED:
 							case SDL_WINDOWEVENT_RESIZED:
 							case SDL_WINDOWEVENT_SIZE_CHANGED: {
+								UpdateWindow(utNormal);
 								TVPPostInputEvent(new tTVPOnResizeInputEvent(TJSNativeInstance), TVP_EPT_REMOVE_POST);
 								return;
 							}
