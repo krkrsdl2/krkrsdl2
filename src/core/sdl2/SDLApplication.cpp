@@ -1044,7 +1044,7 @@ public:
 			TVPDeliverWindowUpdateEvents();
 		}
 	}
-	void sdlRecvEvent(SDL_Event event) {
+	void window_receive_event(SDL_Event event) {
 		if (isBeingDeleted) {
 			delete this;
 			return;
@@ -1085,7 +1085,7 @@ public:
 			}
 			if (tryParentWindow) {
 				if (!in_mode_) {
-					_prevWindow->sdlRecvEvent(event);
+					_prevWindow->window_receive_event(event);
 				}
 				return;
 			}
@@ -1369,7 +1369,7 @@ static bool process_events()
 		{
 			if (_currentWindowLayer)
 			{
-				_currentWindowLayer->sdlRecvEvent(event);
+				_currentWindowLayer->window_receive_event(event);
 			}
 		}
 	}
