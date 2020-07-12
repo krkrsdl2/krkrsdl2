@@ -549,18 +549,12 @@ public:
 		RestoreMouseCursor();
 		SDL_WarpMouseInWindow(window, x, y);
 	}
-	virtual void SetHintText(const ttstr &text) override {
-	}
 	virtual void SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont * font) override {
 		attention_point_rect.x = left;
 		attention_point_rect.y = top;
 		attention_point_rect.w = 0;
 		attention_point_rect.h = font->Height;
 		SDL_SetTextInputRect(&attention_point_rect);
-	}
-	virtual void ZoomRectangle(
-		tjs_int & left, tjs_int & top,
-		tjs_int & right, tjs_int & bottom) override {
 	}
 	virtual void BringToFront() override {
 		if (_currentWindowLayer != this) {
@@ -731,8 +725,6 @@ public:
 		int h;
 		SDL_GetWindowMaximumSize(window, &h, nullptr);
 		return h;
-	}
-	virtual void SetZoom(tjs_int numer, tjs_int denom) override {
 	}
 	virtual tjs_int GetLeft() override {
 		int x;
@@ -1006,15 +998,6 @@ public:
 			CanCloseWork = b;
 		}
 	}
-	virtual void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) override {
-	}
-	virtual void OnKeyUp(tjs_uint16 vk, int shift) override {
-	}
-	virtual void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) override {
-	}
-	virtual tTVPImeMode GetDefaultImeMode() const override {
-		return ::imDisable;
-	}
 	virtual void SetImeMode(tTVPImeMode mode) override {
 		if (mode == ::imDisable || mode == ::imClose)
 		{
@@ -1060,23 +1043,6 @@ public:
 			TJSNativeInstance->NotifyWindowExposureToLayer(r);
 			TVPDeliverWindowUpdateEvents();
 		}
-	}
-	virtual void SetVisibleFromScript(bool b) override {
-		SetVisible(b);
-	}
-	virtual void SetUseMouseKey(bool b) override {
-	}
-	virtual bool GetUseMouseKey() const override {
-		return false;
-	}
-	virtual void ResetMouseVelocity() override {
-	}
-	virtual void ResetTouchVelocity(tjs_int id) override {
-	}
-	virtual bool GetMouseVelocity(float& x, float& y, float& speed) const override {
-		return false;
-	}
-	virtual void TickBeat() override {
 	}
 	void sdlRecvEvent(SDL_Event event) {
 		if (isBeingDeleted) {

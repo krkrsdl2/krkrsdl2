@@ -323,12 +323,6 @@ public:
 #endif
 
 class TTVPWindowForm {
-protected:
-	tjs_int HintDelay = 500;
-	tjs_int ZoomDenom = 1; // Zooming factor denominator (setting)
-	tjs_int ZoomNumer = 1; // Zooming factor numerator (setting)
-	double TouchScaleThreshold = 5, TouchRotateThreshold = 5;
-
 public:
 	virtual void SetPaintBoxSize(tjs_int w, tjs_int h) = 0;
 	virtual bool GetFormEnabled() = 0;
@@ -339,11 +333,7 @@ public:
 	virtual void HideMouseCursor() = 0;
 	virtual void GetCursorPos(tjs_int &x, tjs_int &y) = 0;
 	virtual void SetCursorPos(tjs_int x, tjs_int y) = 0;
-	virtual void SetHintText(const ttstr &text) = 0;
 	virtual void SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont * font) = 0;
-	virtual void ZoomRectangle(
-		tjs_int & left, tjs_int & top,
-		tjs_int & right, tjs_int & bottom) = 0;
 	virtual void BringToFront() = 0;
 	virtual void ShowWindowAsModal() = 0;
 	virtual bool GetVisible() = 0;
@@ -376,7 +366,6 @@ public:
 	virtual tjs_int GetTop() = 0;
 	virtual void SetTop(tjs_int l) = 0;
 	virtual void SetPosition(tjs_int l, tjs_int t) = 0;
-	virtual void SetZoom(tjs_int numer, tjs_int denom) = 0;
 #if 0
 	virtual void AddOverlay(tTJSNI_BaseVideoOverlay *ovl) = 0;
 	virtual void RemoveOverlay(tTJSNI_BaseVideoOverlay *ovl) = 0;
@@ -390,25 +379,9 @@ public:
 	virtual bool GetWindowActive() = 0;
 	virtual void Close() = 0;
 	virtual void OnCloseQueryCalled(bool b) = 0;
-	virtual void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) = 0;
-	virtual void OnKeyUp(tjs_uint16 vk, int shift) = 0;
-	virtual void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) = 0;
-	virtual tTVPImeMode GetDefaultImeMode() const = 0;
 	virtual void SetImeMode(tTVPImeMode mode) = 0;
 	virtual void ResetImeMode() = 0;
 	virtual void UpdateWindow(tTVPUpdateType type) = 0;
-	virtual void SetVisibleFromScript(bool b) = 0;
-	virtual void SetUseMouseKey(bool b) = 0;
-	virtual bool GetUseMouseKey() const = 0;
-	virtual void ResetMouseVelocity() = 0;
-	virtual void ResetTouchVelocity(tjs_int id) = 0;
-	virtual bool GetMouseVelocity(float& x, float& y, float& speed) const = 0;
-	virtual void TickBeat() = 0;
-
-	void SetZoomNumer(tjs_int n) { SetZoom(n, ZoomDenom); }
-	tjs_int GetZoomNumer() const { return ZoomNumer; }
-	void SetZoomDenom(tjs_int d) { SetZoom(ZoomNumer, d); }
-	tjs_int GetZoomDenom() const { return ZoomDenom; }
 
 	// dummy function
 	void SetInnerWidth(tjs_int v) { SetWidth(v); }
@@ -417,6 +390,7 @@ public:
 	void SetStayOnTop(bool) {}
 	tjs_int GetInnerWidth() { return GetWidth(); }
 	tjs_int GetInnerHeight() { return GetHeight(); }
+	void SetVisibleFromScript(bool b) { SetVisible(b); };
 	bool GetStayOnTop() { return false; }
 	void SetTrapKey(bool b) {}
 	bool GetTrapKey() const { return false; }
@@ -427,17 +401,33 @@ public:
 	int GetDisplayOrientation() { return orientLandscape; }
 	void SetEnableTouch(bool b) {}
 	bool GetEnableTouch() const { return false; }
-	void SetHintDelay(tjs_int delay) { HintDelay = delay; }
-	tjs_int GetHintDelay() const { return HintDelay; }
+	void SetHintDelay(tjs_int delay) {}
+	tjs_int GetHintDelay() const { return 500; }
 
 	// TODO
+	tTVPImeMode GetDefaultImeMode() const { return ::imDisable; };
+	void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) {};
+	void OnKeyUp(tjs_uint16 vk, int shift) {};
+	void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) {};
+	void SetUseMouseKey(bool b) {};
+	bool GetUseMouseKey() const { return false; };
+	void ResetMouseVelocity() {};
+	void ResetTouchVelocity(tjs_int id) {};
+	bool GetMouseVelocity(float& x, float& y, float& speed) const { return false; };
+	void TickBeat() {};
+	void SetZoom(tjs_int numer, tjs_int denom) {};
+	void SetZoomNumer(tjs_int n) {}
+	tjs_int GetZoomNumer() const { return 1; }
+	void SetZoomDenom(tjs_int d) {}
+	tjs_int GetZoomDenom() const { return 1; }
+	void ZoomRectangle(tjs_int & left, tjs_int & top, tjs_int & right, tjs_int & bottom) {};
 	void SetHintText(iTJSDispatch2* sender, const ttstr &text) {}
 	void DisableAttentionPoint() {}
 	void GetVideoOffset(tjs_int &ofsx, tjs_int &ofsy) { ofsx = 0; ofsy = 0; }
-	void SetTouchScaleThreshold(double threshold) { TouchScaleThreshold = threshold; }
-	double GetTouchScaleThreshold() { return TouchScaleThreshold; }
-	void SetTouchRotateThreshold(double threshold) { TouchRotateThreshold = threshold; }
-	double GetTouchRotateThreshold() { return TouchRotateThreshold; }
+	void SetTouchScaleThreshold(double threshold) {}
+	double GetTouchScaleThreshold() { return 0; }
+	void SetTouchRotateThreshold(double threshold) {}
+	double GetTouchRotateThreshold() { return 0; }
 	tjs_real GetTouchPointStartX(tjs_int index) const { return 0; }
 	tjs_real GetTouchPointStartY(tjs_int index) const { return 0; }
 	tjs_real GetTouchPointX(tjs_int index) const { return 0; }
