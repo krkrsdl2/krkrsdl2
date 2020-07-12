@@ -1082,6 +1082,9 @@ public:
 				case SDL_WINDOWEVENT:
 					tryParentWindow = event.window.windowID != windowID;
 					break;
+				default:
+					tryParentWindow = false;
+					break;
 			}
 			if (tryParentWindow) {
 				if (!in_mode_) {
