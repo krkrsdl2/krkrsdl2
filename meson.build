@@ -533,7 +533,6 @@ krkrsdl2_includes = [
 	'external/krkrz/external/libjpeg-turbo',
 	'external/krkrz/external/libogg/include',
 	'external/krkrz/external/lpng',
-	'external/krkrz/external/onig',
 	'external/krkrz/external/onig/src',
 	'external/krkrz/external/libogg/include',
 	'external/krkrz/external/opus/celt',
