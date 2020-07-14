@@ -151,7 +151,6 @@ krkrsdl2_src = [
 	'external/krkrz/visual/gl/WeightFunctor.cpp',
 	'external/krkrz/visual/gl/blend_function.cpp',
 	'external/krkrz/visual/tvpgl.c',
-	'external/krkrz/external/freetype/builds/windows/ftdebug.c',
 	'external/krkrz/external/freetype/src/autofit/autofit.c',
 	'external/krkrz/external/freetype/src/base/ftbase.c',
 	'external/krkrz/external/freetype/src/base/ftbbox.c',
