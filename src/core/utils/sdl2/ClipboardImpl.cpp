@@ -12,141 +12,44 @@
 #include "MsgIntf.h"
 #include "Exception.h"
 #include "ClipboardIntf.h"
+#include "CharacterSet.h"
+#include <SDL.h>
 
 //---------------------------------------------------------------------------
 // clipboard related functions
 //---------------------------------------------------------------------------
 bool TVPClipboardHasFormat(tTVPClipboardFormat format)
 {
-	switch(format) {
-		case cbfText: {
-		bool result = false;
-#if 0
-		if( ::OpenClipboard(0) ) {
-			result = 0 != ::IsClipboardFormatAvailable(CF_TEXT);
-			if( result == false ) {
-				result = 0 != ::IsClipboardFormatAvailable(CF_UNICODETEXT);
-			}
-			::CloseClipboard();
-		}
-#endif
-		return result; // ANSI text or UNICODE text
-		}
-	default:
-		return false;
+	if (format == cbfText)
+	{
+		return SDL_HasClipboardText() == SDL_TRUE;
 	}
+	return false;
 }
 //---------------------------------------------------------------------------
 void TVPClipboardSetText(const ttstr & text)
 {
-#if 0
-	if( ::OpenClipboard(0) ) {
-		HGLOBAL ansihandle = NULL;
-		HGLOBAL unicodehandle = NULL;
-		try {
-			// store ANSI string
-			std::string ansistr = text.AsNarrowStdString();
-			int ansistrlen = (int)((ansistr.length() + 1)*sizeof(char));
-			ansihandle = ::GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, ansistrlen);
-			if( !ansihandle ) TVPThrowExceptionMessage( TVPFaildClipboardCopy );
-
-			char *mem = (char*)::GlobalLock(ansihandle);
-			if(mem) strncpy_s(mem, ansistrlen, ansistr.c_str(),ansistrlen);
-			::GlobalUnlock(ansihandle);
-
-			::SetClipboardData( CF_TEXT, ansihandle );
-			ansihandle = NULL;
-
-			// store UNICODE string
-			unicodehandle = ::GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, (text.GetLen() + 1) * sizeof(tjs_char));
-			if(!unicodehandle) TVPThrowExceptionMessage( TVPFaildClipboardCopy );;
-
-			tjs_char *unimem = (tjs_char*)::GlobalLock(unicodehandle);
-			if(unimem) TJS_strcpy(unimem, text.c_str());
-			::GlobalUnlock(unicodehandle);
-
-			::SetClipboardData( CF_UNICODETEXT, unicodehandle );
-			unicodehandle = NULL;
-		} catch(...) {
-			if(ansihandle) ::GlobalFree(ansihandle);
-			if(unicodehandle) ::GlobalFree(unicodehandle);
-			::CloseClipboard();
-			throw;
-		}
-		::CloseClipboard();
+	tjs_string v_utf16 = text.AsStdString();
+	std::string v_utf8;
+	if (TVPUtf16ToUtf8(v_utf8, v_utf16))
+	{
+		SDL_SetClipboardText(v_utf8.c_str());
 	}
-#endif
 }
 //---------------------------------------------------------------------------
 bool TVPClipboardGetText(ttstr & text)
 {
-#if 0
-	if(!::OpenClipboard(NULL)) return false;
-
-	bool result = false;
-	try
+	char* src_text = SDL_GetClipboardText();
+	if (src_text == nullptr)
 	{
-		// select CF_UNICODETEXT or CF_TEXT
-		UINT formats[2] = { CF_UNICODETEXT, CF_TEXT};
-		int format = ::GetPriorityClipboardFormat(formats, 2);
-
-		if(format == CF_UNICODETEXT)
-		{
-			// try to read unicode text
-			HGLOBAL hglb = (HGLOBAL)::GetClipboardData(CF_UNICODETEXT);
-			if(hglb != NULL)
-			{
-				const tjs_char *p = (const tjs_char *)::GlobalLock(hglb);
-				if(p)
-				{
-					try
-					{
-						text = ttstr(p);
-						result = true;
-					}
-					catch(...)
-					{
-						::GlobalUnlock(hglb);
-						throw;
-					}
-					::GlobalUnlock(hglb);
-				}
-			}
-		}
-		else if(format == CF_TEXT)
-		{
-			// try to read ansi text
-			HGLOBAL hglb = (HGLOBAL)::GetClipboardData(CF_TEXT);
-			if(hglb != NULL)
-			{
-				const char *p = (const char *)::GlobalLock(hglb);
-				if(p)
-				{
-					try
-					{
-						text = ttstr(p);
-						result = true;
-					}
-					catch(...)
-					{
-						::GlobalUnlock(hglb);
-						throw;
-					}
-					::GlobalUnlock(hglb);
-				}
-			}
-		}
+		return false;
 	}
-	catch(...)
-	{
-		::CloseClipboard();
-		throw;
-	}
-	::CloseClipboard();
-
-	return result;
-#endif
-	return false;
+	tjs_string v_utf16;
+	std::string v_utf8 = src_text;
+	TVPUtf8ToUtf16( v_utf16, v_utf8 );
+	text = ttstr(v_utf16);
+	SDL_free(src_text);
+	return true;
 }
 //---------------------------------------------------------------------------
 
