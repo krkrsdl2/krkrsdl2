@@ -456,7 +456,11 @@ public:
 		}
 	}
 	virtual bool GetFormEnabled() override {
-		return SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN;
+		if (window)
+		{
+			return SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN;
+		}
+		return false;
 	}
 	virtual void SetDefaultMouseCursor() override {
 		if (!sdl_system_cursors[0])
@@ -547,7 +551,10 @@ public:
 	}
 	virtual void SetCursorPos(tjs_int x, tjs_int y) override {
 		RestoreMouseCursor();
-		SDL_WarpMouseInWindow(window, x, y);
+		if (window)
+		{
+			SDL_WarpMouseInWindow(window, x, y);
+		}
 	}
 	virtual void SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont * font) override {
 		attention_point_rect.x = left;
@@ -563,7 +570,10 @@ public:
 			}
 			_currentWindowLayer = this;
 		}
-		SDL_RaiseWindow(window);
+		if (window)
+		{
+			SDL_RaiseWindow(window);
+		}
 	}
 	virtual void ShowWindowAsModal() override {
 #ifdef __EMSCRIPTEN__
@@ -584,109 +594,174 @@ public:
 #endif
 	}
 	virtual bool GetVisible() override {
-		return SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN;
+		if (window)
+		{
+			return SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN;
+		}
+		return false;
 	}
-	virtual void SetVisible(bool bVisible) override {
-		if (bVisible) {
-			SDL_ShowWindow(window);
+	virtual void SetVisible(bool visible) override {
+		if (window)
+		{
+			if (visible)
+			{
+				SDL_ShowWindow(window);
+			}
+			else
+			{
+				SDL_HideWindow(window);
+			}
+		}
+		if (visible)
+		{
 			BringToFront();
 		}
-		else {
-			SDL_HideWindow(window);
-			if (_currentWindowLayer == this) {
-				_currentWindowLayer = _prevWindow ? _prevWindow : _nextWindow;
-			}
+		else if (!visible && _currentWindowLayer == this)
+		{
+			_currentWindowLayer = _prevWindow ? _prevWindow : _nextWindow;
 		}
 	}
 	virtual void SetFullScreenMode(bool fullscreen) override {
-		SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+		if (window)
+		{
+			SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+		}
 	}
 	virtual bool GetFullScreenMode() override {
-		return SDL_GetWindowFlags(window) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP);
+		if (window)
+		{
+			return SDL_GetWindowFlags(window) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP);
+		}
+		return false;
 	}
 	virtual void SetBorderStyle(tTVPBorderStyle bs) override {
-		SDL_SetWindowBordered(window, (bs == bsNone) ? SDL_FALSE : SDL_TRUE);
-		SDL_SetWindowResizable(window, (bs == bsSizeable || bs == bsSizeToolWin) ? SDL_TRUE : SDL_FALSE);
+		if (window)
+		{
+			SDL_SetWindowBordered(window, (bs == bsNone) ? SDL_FALSE : SDL_TRUE);
+			SDL_SetWindowResizable(window, (bs == bsSizeable || bs == bsSizeToolWin) ? SDL_TRUE : SDL_FALSE);
+		}
 	}
 	virtual tTVPBorderStyle GetBorderStyle() const override {
-		Uint32 flags = SDL_GetWindowFlags(window);
-		if (flags & SDL_WINDOW_BORDERLESS)
+		if (window)
 		{
-			return bsNone;
-		}
-		else if (flags & SDL_WINDOW_RESIZABLE)
-		{
-			return bsSizeable;
+			Uint32 flags = SDL_GetWindowFlags(window);
+			if (flags & SDL_WINDOW_BORDERLESS)
+			{
+				return bsNone;
+			}
+			else if (flags & SDL_WINDOW_RESIZABLE)
+			{
+				return bsSizeable;
+			}
 		}
 		return bsSingle;
 	}
 	virtual tjs_string GetCaption() override {
-		std::string v_utf8 = SDL_GetWindowTitle(window);
-		tjs_string v_utf16;
-		TVPUtf8ToUtf16( v_utf16, v_utf8 );
-		return v_utf16;
+		if (window)
+		{
+			std::string v_utf8 = SDL_GetWindowTitle(window);
+			tjs_string v_utf16;
+			TVPUtf8ToUtf16( v_utf16, v_utf8 );
+			return v_utf16;
+		}
+		else
+		{
+			tjs_string empty = TJS_W("");
+			return empty;
+		}
 	}
 	virtual void GetCaption(tjs_string & v) const override {
 		v.clear();
-		std::string v_utf8 = SDL_GetWindowTitle(window);
-		TVPUtf8ToUtf16( v, v_utf8 );
+		if (window)
+		{
+			std::string v_utf8 = SDL_GetWindowTitle(window);
+			TVPUtf8ToUtf16( v, v_utf8 );
+		}
 	}
 	virtual void SetCaption(const tjs_string & v) override {
-		std::string v_utf8;
-		if (TVPUtf16ToUtf8(v_utf8, v))
+		if (window)
 		{
-			SDL_SetWindowTitle(window, v_utf8.c_str());
+			std::string v_utf8;
+			if (TVPUtf16ToUtf8(v_utf8, v))
+			{
+				SDL_SetWindowTitle(window, v_utf8.c_str());
+			}
 		}
 	}
 	virtual void SetWidth(tjs_int w) override {
-		int h;
-		SDL_GetWindowSize(window, NULL, &h);
-		SDL_SetWindowSize(window, w, h);
-		if (surface)
+		if (window)
 		{
-			surface = SDL_GetWindowSurface(window);
-			if (surface == nullptr)
+			int h;
+			SDL_GetWindowSize(window, NULL, &h);
+			SDL_SetWindowSize(window, w, h);
+			if (surface)
 			{
-				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
+				surface = SDL_GetWindowSurface(window);
+				if (surface == nullptr)
+				{
+					TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
+				}
 			}
 		}
 	}
 	virtual void SetHeight(tjs_int h) override {
-		int w;
-		SDL_GetWindowSize(window, &w, NULL);
-		SDL_SetWindowSize(window, w, h);
-		if (surface)
+		if (window)
 		{
-			surface = SDL_GetWindowSurface(window);
-			if (surface == nullptr)
+			int w;
+			SDL_GetWindowSize(window, &w, NULL);
+			SDL_SetWindowSize(window, w, h);
+			if (surface)
 			{
-				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
+				surface = SDL_GetWindowSurface(window);
+				if (surface == nullptr)
+				{
+					TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
+				}
 			}
 		}
 	}
 	virtual void SetSize(tjs_int w, tjs_int h) override {
-		SDL_SetWindowSize(window, w, h);
-		if (surface)
+		if (window)
 		{
-			surface = SDL_GetWindowSurface(window);
-			if (surface == nullptr)
+			SDL_SetWindowSize(window, w, h);
+			if (surface)
 			{
-				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
+				surface = SDL_GetWindowSurface(window);
+				if (surface == nullptr)
+				{
+					TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
+				}
 			}
 		}
 	}
 	virtual void GetSize(tjs_int &w, tjs_int &h) override {
-		SDL_GetWindowSize(window, &w, &h);
+		if (window)
+		{
+			SDL_GetWindowSize(window, &w, &h);
+		}
+		else
+		{
+			w = 0;
+			h = 0;
+		}
 	}
 	virtual tjs_int GetWidth() const override {
-		int w;
-		SDL_GetWindowSize(window, &w, NULL);
-		return w;
+		if (window)
+		{
+			int w;
+			SDL_GetWindowSize(window, &w, NULL);
+			return w;
+		}
+		return 0;
 	}
 	virtual tjs_int GetHeight() const override {
-		int h;
-		SDL_GetWindowSize(window, NULL, &h);
-		return h;
+		if (window)
+		{
+			int h;
+			SDL_GetWindowSize(window, NULL, &h);
+			return h;
+		}
+		return 0;
 	}
 	virtual void SetMinWidth(tjs_int w) override {
 		SetMinSize(w, GetMinHeight());
@@ -701,49 +776,82 @@ public:
 		SetMaxSize(GetMaxWidth(), h);
 	}
 	virtual void SetMinSize(tjs_int w, tjs_int h) override {
-		SDL_SetWindowMinimumSize(window, w, h);
+		if (window)
+		{
+			SDL_SetWindowMinimumSize(window, w, h);
+		}
 	}
 	virtual void SetMaxSize(tjs_int w, tjs_int h) override {
-		SDL_SetWindowMaximumSize(window, w, h);
+		if (window)
+		{
+			SDL_SetWindowMaximumSize(window, w, h);
+		}
 	}
 	virtual tjs_int GetMinWidth() override {
-		int w;
-		SDL_GetWindowMinimumSize(window, &w, nullptr);
-		return w;
+		if (window)
+		{
+			int w;
+			SDL_GetWindowMinimumSize(window, &w, nullptr);
+			return w;
+		}
+		return 0;
 	}
 	virtual tjs_int GetMaxWidth() override {
-		int w;
-		SDL_GetWindowMaximumSize(window, &w, nullptr);
-		return w;
+		if (window)
+		{
+			int w;
+			SDL_GetWindowMaximumSize(window, &w, nullptr);
+			return w;
+		}
+		return 0;
 	}
 	virtual tjs_int GetMinHeight() override {
-		int h;
-		SDL_GetWindowMinimumSize(window, &h, nullptr);
-		return h;
+		if (window)
+		{
+			int h;
+			SDL_GetWindowMinimumSize(window, &h, nullptr);
+			return h;
+		}
+		return 0;
 	}
 	virtual tjs_int GetMaxHeight() override {
-		int h;
-		SDL_GetWindowMaximumSize(window, &h, nullptr);
-		return h;
+		if (window)
+		{
+			int h;
+			SDL_GetWindowMaximumSize(window, &h, nullptr);
+			return h;
+		}
+		return 0;
 	}
 	virtual tjs_int GetLeft() override {
-		int x;
-		SDL_GetWindowPosition(window, &x, nullptr);
-		return x;
+		if (window)
+		{
+			int x;
+			SDL_GetWindowPosition(window, &x, nullptr);
+			return x;
+		}
+		return 0;
 	}
 	virtual void SetLeft(tjs_int l) override {
 		SetPosition(l, GetTop());
 	}
 	virtual tjs_int GetTop() override {
-		int y;
-		SDL_GetWindowPosition(window, nullptr, &y);
-		return y;
+		if (window)
+		{
+			int y;
+			SDL_GetWindowPosition(window, nullptr, &y);
+			return y;
+		}
+		return 0;
 	}
 	virtual void SetTop(tjs_int t) override {
 		SetPosition(GetLeft(), t);
 	}
 	virtual void SetPosition(tjs_int l, tjs_int t) override {
-		SDL_SetWindowPosition(window, l, t);
+		if (window)
+		{
+			SDL_SetWindowPosition(window, l, t);
+		}
 	}
 	virtual void NotifyBitmapCompleted(iTVPLayerManager * manager,
 		tjs_int x, tjs_int y, const void * bits, const class BitmapInfomation * bmpinfo,
@@ -954,7 +1062,10 @@ public:
 					SetVisible(false);
 					break;
 				case caMinimize:
-					SDL_MinimizeWindow(window);
+					if (window)
+					{
+						SDL_MinimizeWindow(window);
+					}
 					break;
 				case caFree:
 				default:
@@ -999,7 +1110,7 @@ public:
 		}
 	}
 	virtual void SetImeMode(tTVPImeMode mode) override {
-		if (mode == ::imDisable || mode == ::imClose)
+		if (!window || mode == ::imDisable || mode == ::imClose)
 		{
 			ResetImeMode();
 		}
@@ -1013,16 +1124,16 @@ public:
 		}
 	}
 	virtual void ResetImeMode() override {
-		if (SDL_IsTextInputActive())
+		ime_composition = nullptr;
+		ime_composition_len = 0;
+		ime_composition_cursor = 0;
+		ime_composition_selection = 0;
+		attention_point_rect.x = 0;
+		attention_point_rect.y = 0;
+		attention_point_rect.w = 0;
+		attention_point_rect.h = 0;
+		if (window && SDL_IsTextInputActive())
 		{
-			ime_composition = nullptr;
-			ime_composition_len = 0;
-			ime_composition_cursor = 0;
-			ime_composition_selection = 0;
-			attention_point_rect.x = 0;
-			attention_point_rect.y = 0;
-			attention_point_rect.w = 0;
-			attention_point_rect.h = 0;
 			SDL_SetTextInputRect(&attention_point_rect);
 			SDL_StopTextInput();
 		}

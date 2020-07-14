@@ -337,7 +337,7 @@ public:
 	virtual void BringToFront() = 0;
 	virtual void ShowWindowAsModal() = 0;
 	virtual bool GetVisible() = 0;
-	virtual void SetVisible(bool bVisible) = 0;
+	virtual void SetVisible(bool visible) = 0;
 	virtual void SetFullScreenMode(bool fullscreen) = 0;
 	virtual bool GetFullScreenMode() = 0;
 	virtual void SetBorderStyle(tTVPBorderStyle) = 0;
