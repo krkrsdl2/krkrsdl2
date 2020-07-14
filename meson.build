@@ -530,7 +530,6 @@ krkrsdl2_includes = [
 	'external/krkrz/external',
 	'external/krkrz/external/freetype/include',
 	'external/krkrz/external/freetype/src',
-	'external/krkrz/external/freetype/devel',
 	'external/krkrz/external/libjpeg-turbo',
 	'external/krkrz/external/libogg/include',
 	'external/krkrz/external/lpng',
