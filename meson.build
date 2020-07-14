@@ -22,7 +22,7 @@ krkrsdl2_src = [
 	'external/json/Main.cpp',
 	'external/layerExImage/LayerExImage.cpp',
 	'external/layerExImage/Main.cpp',
-	'external/wuvorbis/WUVorbisMainUnit.cpp',
+	'external/wuvorbis/WuVorbisMainUnit.cpp',
 	'external/kratrac9/kratrac9/at9wave.cpp',
 	'external/kratrac9/kratrac9/Atrac9MainUnit.cpp',
 	'external/kratrac9/libatrac9/src/band_extension.c',
