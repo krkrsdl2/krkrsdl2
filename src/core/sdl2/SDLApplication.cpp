@@ -1654,6 +1654,7 @@ void TVPSetDefaultFontName( const tjs_char * name ) {
 	TVPDefaultFontNameX = name;
 }
 const ttstr &TVPGetDefaultFaceNames() {
+	static ttstr default_facenames = "Noto Sans,MotoyaLMaru,Roboto";
 #if 0
 	if( !TVPDefaultFaceNames.IsEmpty() ) {
 		return TVPDefaultFaceNames;
@@ -1662,7 +1663,7 @@ const ttstr &TVPGetDefaultFaceNames() {
 		return TVPDefaultFaceNames;
 	}
 #endif
-	return ttstr(TJS_W("Noto Sans,MotoyaLMaru,Roboto"));
+	return default_facenames;
 }
 
 
