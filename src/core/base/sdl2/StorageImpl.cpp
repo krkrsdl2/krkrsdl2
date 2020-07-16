@@ -222,17 +222,20 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
     	while(*ptr_end && *ptr_end != TJS_W('/')) ++ptr_end;
     	if(ptr_end == ptr) break;
         const tjs_char *ptr_cur = ptr;
-    	tTJSNarrowStringHolder walker(ttstr(ptr, ptr_end - ptr).c_str());
+		tjs_string wwalker(ttstr(ptr, ptr_end - ptr).AsStdString());
+		std::string nwalker;
     	while(*ptr_end && *ptr_end == TJS_W('/')) ++ptr_end;
     	ptr = ptr_end;
 
         DIR *dirp;
         struct dirent *direntp;
 		newname += "/";
-        if ((dirp = opendir( tTJSNarrowStringHolder(newname.c_str()) ))) {
+		tjs_string wnewname(newname.AsStdString());
+		std::string nnewname;
+        if (TVPUtf16ToUtf8(nwalker, wwalker) && TVPUtf16ToUtf8(nnewname, wnewname) && (dirp = opendir( nnewname.c_str() ))) {
         	bool found = false;
             while ((direntp = readdir( dirp)) != NULL) {
-            	if(!strcasecmp(walker, direntp->d_name)) {
+            	if(!strcasecmp(nwalker.c_str(), direntp->d_name)) {
             		newname += direntp->d_name;
             		found = true;
             		break;
