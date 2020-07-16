@@ -167,8 +167,6 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 		}
 	}
 	name = newname;
-
-	ttstr newname = realpath(name.AsNarrowStdString().c_str(), NULL);
 #endif
 
 	const tjs_char *ptr = name.c_str();
@@ -252,63 +250,19 @@ void TVPPreNormalizeStorageName(ttstr &name)
 
 #ifdef __SWITCH__
 	// HACK for Switch and Vita: colon in filesystem causes a conflict
-	if( TJS_strstr(name.c_str(), TJS_W("file:")) == nullptr ) {
+	if ((TJS_strstr(name.c_str(), TJS_W("file:")) == nullptr) && (TJS_strchr(name.c_str(), TJS_W(':')) != nullptr))
+	{
 		ttstr newname(TJS_W("file://./"));
 		newname += name;
 		name = newname;
 	}
 #endif
 
-	if( TJS_strstr(name.c_str(), TJS_W(":")) == nullptr && TJS_strstr(name.c_str(), TJS_W("file:")) == nullptr ) {
-		char* tmppath = realpath(name.AsNarrowStdString().c_str(), NULL);
-		if (tmppath) {
-			ttstr newname(TJS_W("file://./"));
-			newname += tmppath;
-			if (lastchar == TJS_W('/'))
-				newname += TJS_W("/");
-			name = newname;
-			free(tmppath);
-			return;
-		}
-	}
-
-	if(namelen >= 1) {
-		if( name[0] == TJS_W('.') ) {
-			ttstr newname(TJS_W("file://./"));
-			char* cwd = realpath(".", NULL);
-			if (cwd != NULL) {
-				newname += ttstr(cwd);
-				free(cwd);
-			}
-			newname += (name.c_str()+1);
-			name = newname;
-			return;
-		}
-		if( name[0] == TJS_W('/') ) {
-			ttstr newname(TJS_W("file://./"));
-			newname += name;
-			name = newname;
-			return;
-		}
-	}
-
-	if(namelen >= 2)
+	if (namelen >= 1)
 	{
-		if( (name[0] == TJS_W('\\') || name[0] == TJS_W('/')) &&
-			(name[1] != TJS_W('\\') && name[1] != TJS_W('/'))) {
-			ttstr newname(TJS_W("file://./"));
-			newname += name;
-			name = newname;
-			return;
-		}
-	}
-
-	if(namelen>=2)
-	{
-		if( (name[0] == TJS_W('\\') && name[1] == TJS_W('\\')) ||
-			(name[0] == TJS_W('/') && name[1] == TJS_W('/')) )
+		if (name[0] == TJS_W('/'))
 		{
-			// unc expression
+			// POSIX absolute path
 			name = ttstr(TJS_W("file://./")) + name;
 			return;
 		}
