@@ -54,6 +54,7 @@
 #endif
 #include "TickCount.h"
 #include <SDL.h>
+#include <errno.h>
 
 //---------------------------------------------------------------------------
 // global data
@@ -1251,19 +1252,41 @@ void TVPBeforeSystemInit()
 		TVPAddImportantLog( TVPFormatMessage(TVPInfoSelectedProjectDirectory, TVPProjectDir) );
 	}
 #endif
-	char* cwd = realpath(".", NULL);
-	if (cwd != NULL)
+	size_t size = 512;
+	char *buf = (char *)malloc(size);
+	char *dir = getcwd(buf, size);
+	while (dir == nullptr && buf != nullptr && errno == ERANGE)
+	{
+		size *= 2;
+		buf = (char *)realloc(buf, size);
+		dir = getcwd(buf, size);
+	}
+	std::string dir_utf8;
+	if (dir)
+	{
+		dir_utf8 = dir;
+	}
+	tjs_string dir_utf16;
+	TVPUtf8ToUtf16( dir_utf16, dir_utf8 );
+	if (buf)
+	{
+		free(buf);
+	}
+	if (dir_utf16.length() != 0)
 	{
 		if (!TVPGetCommandLine(TJS_W("-nosel")))
 		{
 			TVPProjectDirSelected = true;
 		}
-		ttstr buf(cwd);
-		free(cwd);
-		buf += "/";
-		TVPProjectDir = TVPNormalizeStorageName(buf.AsStdString());
+		dir_utf16 += TJS_W("/");
+		TVPProjectDir = TVPNormalizeStorageName(dir_utf16);
 		TVPSetCurrentDirectory(TVPProjectDir);
-		TVPNativeProjectDir = buf.AsStdString();
+		TVPNativeProjectDir = dir_utf16;
+	}
+
+	if (TVPProjectDirSelected)
+	{
+		TVPAddImportantLog( TVPFormatMessage(TVPInfoSelectedProjectDirectory, TVPProjectDir) );
 	}
 }
 //---------------------------------------------------------------------------
