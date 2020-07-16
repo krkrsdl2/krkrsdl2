@@ -106,6 +106,9 @@ static MemoryLeaksDebugBreakPoint gMemoryLeaksDebugBreakPoint;
 #endif
 
 #include <unistd.h>
+#if defined(__APPLE__) && defined(__MACH__)
+#include <libproc.h>
+#endif
 tjs_string ExePath() {
 #if 0
 	tjs_char szFull[_MAX_PATH];
@@ -113,6 +116,18 @@ tjs_string ExePath() {
 	return tjs_string(szFull);
 #endif
 	static tjs_string exepath(TJS_W(""));
+#if defined(__APPLE__) && defined(__MACH__)
+	if (exepath.empty())
+	{
+		char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+		int ret = proc_pidpath(getpid(), pathbuf, sizeof(pathbuf));
+		if (ret > 0)
+		{
+			std::string npathbuf = pathbuf;
+			TVPUtf8ToUtf16(exepath, npathbuf);
+		}
+	}
+#endif
 	if (exepath.empty()) {
 		exepath = tjs_string(_wargv[0]);
 	}
