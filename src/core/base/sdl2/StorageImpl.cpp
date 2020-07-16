@@ -150,9 +150,17 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 {
-	ttstr newname;
+	tjs_string wname(name.AsStdString());
+	std::string nname;
+	if (!TVPUtf16ToUtf8(nname, wname))
+	{
+		name.Clear();
+		return;
+	}
 
 #if 0
+	ttstr newname;
+
 	const tjs_char *ptr = name.c_str();
 	if( *ptr == TJS_W('.') ) ptr++;
 	while( (*ptr == TJS_W('/') || *ptr == TJS_W('\\')) && (ptr[1] == TJS_W('/') || ptr[1] == TJS_W('\\')) ) ptr++;
@@ -169,49 +177,75 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 	name = newname;
 #endif
 
-	const tjs_char *ptr = name.c_str();
+	std::string nnewname;
+	const char *ptr = nname.c_str();
 
-	if(!TJS_strncmp(ptr, TJS_W("./"), 2)) {
-		ptr += 2;  // skip "./"
-		newname.Clear();
-	}
-
-	while(*ptr) {
-		const tjs_char *ptr_end = ptr;
-		while(*ptr_end && *ptr_end != TJS_W('/')) ++ptr_end;
-		if(ptr_end == ptr) break;
-		const tjs_char *ptr_cur = ptr;
-		tjs_string wwalker(ttstr(ptr, ptr_end - ptr).AsStdString());
-		std::string nwalker;
-		while(*ptr_end && *ptr_end == TJS_W('/')) ++ptr_end;
+	while (*ptr)
+	{
+		const char *ptr_end = ptr;
+		while (*ptr_end && (*ptr_end != '/' && *ptr_end != '\\'))
+		{
+			ptr_end += 1;
+		}
+		if (ptr_end == ptr)
+		{
+			break;
+		}
+		const char *ptr_cur = ptr;
+		std::string nwalker(ptr, ptr_end - ptr);
+		while (*ptr_end && (*ptr_end == '/' || *ptr_end == '\\'))
+		{
+			ptr_end += 1;
+		}
 		ptr = ptr_end;
+		if (nwalker == ".")
+		{
+			continue;
+		}
 
 		DIR *dirp;
 		struct dirent *direntp;
-		newname += "/";
-		tjs_string wnewname(newname.AsStdString());
-		std::string nnewname;
-		if (TVPUtf16ToUtf8(nwalker, wwalker) && TVPUtf16ToUtf8(nnewname, wnewname) && (dirp = opendir( nnewname.c_str() ))) {
+		nnewname += "/";
+
+		if ((dirp = opendir(nnewname.c_str())))
+		{
 			bool found = false;
-			while ((direntp = readdir( dirp)) != NULL) {
-				if(!strcasecmp(nwalker.c_str(), direntp->d_name)) {
-					newname += direntp->d_name;
+			bool is_directory = false;
+			while (found == false && (direntp = readdir(dirp)) != nullptr)
+			{
+				if (!strcasecmp(nwalker.c_str(), direntp->d_name))
+				{
+					nnewname += direntp->d_name;
 					found = true;
-					break;
+					is_directory = direntp->d_type == DT_DIR;
 				}
 			}
 			closedir(dirp);
-			if(!found) {
-			    newname += ptr_cur;
+			if (!found)
+			{
+			    nnewname += ptr_cur;
 				break;
 			}
-		} else {
-			newname += ptr_cur;
+			if (!is_directory)
+			{
+				break;
+			}
+		}
+		else
+		{
+			nnewname += ptr_cur;
 			break;
 		}
 	}
-	
-	name = newname;
+
+	tjs_string wnewname;
+	if (!TVPUtf8ToUtf16(wnewname, nnewname))
+	{
+		name.Clear();
+		return;
+	}
+
+	name = ttstr(wnewname);
 }
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPFileMedia::GetLocalName(ttstr &name)
