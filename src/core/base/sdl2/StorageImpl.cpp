@@ -173,87 +173,46 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 
 	const tjs_char *ptr = name.c_str();
 
-#ifdef WIN32
-	if(TJS_strncmp(ptr, TJS_W("./"), 2))
-	{
-		// differs from "./",
-		// this may be a UNC file name.
-		// UNC first two chars must be "\\\\" ?
-		// AFAIK 32-bit version of Windows assumes that '/' can be used as a path
-		// delimiter. Can UNC "\\\\" be replaced by "//" though ?
-
-		newname = ttstr(TJS_W("\\\\")) + ptr;
-	}
-	else
-	{
+	if(!TJS_strncmp(ptr, TJS_W("./"), 2)) {
 		ptr += 2;  // skip "./"
-		if(!*ptr) {
-			newname = TJS_W("");
-		} else {
-			tjs_char dch = *ptr;
-			if(*ptr < TJS_W('a') || *ptr > TJS_W('z')) {
-				newname = TJS_W("");
-			} else {
-				ptr++;
-				if(*ptr != TJS_W('/')) {
-					newname = TJS_W("");
-				} else {
-					newname = ttstr(dch) + TJS_W(":") + ptr;
-				}
-			}
-		}
+		newname.Clear();
 	}
 
-	// change path delimiter to '\\'
-	tjs_char *pp = newname.Independ();
-	while(*pp)
-	{
-		if(*pp == TJS_W('/')) *pp = TJS_W('\\');
-		pp++;
-	}
-#else // posix
-    if(!TJS_strncmp(ptr, TJS_W("./"), 2)) {
-        ptr += 2;  // skip "./"
-        newname.Clear();
-    }
-
-    while(*ptr) {
-    	const tjs_char *ptr_end = ptr;
-    	while(*ptr_end && *ptr_end != TJS_W('/')) ++ptr_end;
-    	if(ptr_end == ptr) break;
-        const tjs_char *ptr_cur = ptr;
+	while(*ptr) {
+		const tjs_char *ptr_end = ptr;
+		while(*ptr_end && *ptr_end != TJS_W('/')) ++ptr_end;
+		if(ptr_end == ptr) break;
+		const tjs_char *ptr_cur = ptr;
 		tjs_string wwalker(ttstr(ptr, ptr_end - ptr).AsStdString());
 		std::string nwalker;
-    	while(*ptr_end && *ptr_end == TJS_W('/')) ++ptr_end;
-    	ptr = ptr_end;
+		while(*ptr_end && *ptr_end == TJS_W('/')) ++ptr_end;
+		ptr = ptr_end;
 
-        DIR *dirp;
-        struct dirent *direntp;
+		DIR *dirp;
+		struct dirent *direntp;
 		newname += "/";
 		tjs_string wnewname(newname.AsStdString());
 		std::string nnewname;
-        if (TVPUtf16ToUtf8(nwalker, wwalker) && TVPUtf16ToUtf8(nnewname, wnewname) && (dirp = opendir( nnewname.c_str() ))) {
-        	bool found = false;
-            while ((direntp = readdir( dirp)) != NULL) {
-            	if(!strcasecmp(nwalker.c_str(), direntp->d_name)) {
-            		newname += direntp->d_name;
-            		found = true;
-            		break;
-            	}
-            }
-            closedir(dirp);
-            if(!found) {
-                newname += ptr_cur;
-            	break;
-            }
-        } else {
-            newname += ptr_cur;
-            break;
-        }
-    }
+		if (TVPUtf16ToUtf8(nwalker, wwalker) && TVPUtf16ToUtf8(nnewname, wnewname) && (dirp = opendir( nnewname.c_str() ))) {
+			bool found = false;
+			while ((direntp = readdir( dirp)) != NULL) {
+				if(!strcasecmp(nwalker.c_str(), direntp->d_name)) {
+					newname += direntp->d_name;
+					found = true;
+					break;
+				}
+			}
+			closedir(dirp);
+			if(!found) {
+			    newname += ptr_cur;
+				break;
+			}
+		} else {
+			newname += ptr_cur;
+			break;
+		}
+	}
 	
-
-#endif
 	name = newname;
 }
 //---------------------------------------------------------------------------
