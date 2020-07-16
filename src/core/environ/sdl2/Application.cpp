@@ -128,6 +128,27 @@ tjs_string ExePath() {
 		}
 	}
 #endif
+#ifdef __linux__
+	if (exepath.empty())
+	{
+		size_t size = 256;
+		char *buf = (char *)malloc(size);
+		ssize_t retsize = readlink("/proc/self/exe", buf, size);
+		while (retsize != -1 && retsize == size && buf != nullptr)
+		{
+			size *= 2;
+			buf = (char *)realloc(buf, size);
+			retsize = readlink("/proc/self/exe", buf, size);
+		}
+		if (buf)
+		{
+			buf[retsize] = 0;
+			std::string nbuf = buf;
+			TVPUtf8ToUtf16(exepath, nbuf);
+			free(buf);
+		}
+	}
+#endif
 	if (exepath.empty()) {
 		exepath = tjs_string(_wargv[0]);
 	}
