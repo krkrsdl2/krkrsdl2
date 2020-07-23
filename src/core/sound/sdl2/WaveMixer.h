@@ -1,10 +1,14 @@
 #pragma once
 #include "WaveIntf.h"
 
+#ifdef __EMSCRIPTEN__
+#define TVPAL_BUFFER_COUNT 16
+#else
 #define TVPAL_BUFFER_COUNT 4
+#endif
 
 struct ALSoundImpl;
-void TVPInitDirectSound(int freq = 48000);
+void TVPInitDirectSound();
 void TVPUninitDirectSound();
 
 class iTVPSoundBuffer {

@@ -2,6 +2,7 @@
 #include "WaveMixer.h"
 #include "WaveImpl.h"
 #include "DebugIntf.h"
+#include "SysInitIntf.h"
 #include <SDL.h>
 #include <unordered_set>
 
@@ -85,6 +86,7 @@ public:
 	SDL_AudioCVT *_cvt = nullptr;
 	std::vector<uint8_t> _cvtbuf;
 	int _frame_size = 0;
+	int _buffer_size = 0;
 
 	void RecalcVolume() {
 		if (_pan > 0) {
@@ -105,11 +107,11 @@ public:
 	tjs_uint _sendedFrontBuffer = 0;
 	tjs_uint _sendedSamples = 0, _inCachedSamples = 0;
 
-	tTVPSoundBuffer(int framesize, SDL_AudioCVT *cvt) : _frame_size(framesize), _cvt(cvt) {
+	tTVPSoundBuffer(int framesize, int buffersize, SDL_AudioCVT *cvt) : _frame_size(framesize), _buffer_size(buffersize), _cvt(cvt) {
 		_buffer_mtx = SDL_CreateMutex();
 		RecalcVolume();
 		if (cvt) {
-			_cvtbuf.resize(/*2352*/ 2400 * 2 * 4 * _cvt->len_mult); // IEEE f.32 stereo 48000kHz
+			_cvtbuf.resize(_buffer_size * 2 * 4 * _cvt->len_mult); // IEEE f.32 stereo 48000kHz
 			_cvt->buf = &_cvtbuf.front();
 		}
 	}
@@ -150,9 +152,9 @@ public:
 		if (_cvt) {
 			std::vector<uint8_t> buffer;
 			uint8_t* inbuf = (uint8_t*)_inbuf;
-			int buflen = _frame_size * 2352;
+			int buflen = _frame_size * _buffer_size;
 			_cvt->len = buflen;
-			while (inlen > buflen) { // fill 2352 samples to fit 48k/44.1k
+			while (inlen > buflen) { // fill _buffer_size samples to fit 48k/44.1k
 				memcpy(_cvt->buf, inbuf, buflen);
 				SDL_ConvertAudio(_cvt);
 				buffer.insert(buffer.end(), _cvt->buf, _cvt->buf + _cvt->len_cvt);
@@ -197,21 +199,67 @@ protected:
 	SDL_mutex *_streams_mtx;
 	std::unordered_set<tTVPSoundBuffer*> _streams;
 	int _frame_size = 0;
+	int _buffer_size = 0;
 
 public:
 	iTVPAudioRenderer() {
 		_streams_mtx = SDL_CreateMutex();
 		memset(&_spec, 0, sizeof(_spec));
-		_spec.freq = 48000;
+		tTJSVariant val;
+		_spec.freq = 44100;
+		if (TVPGetCommandLine(TJS_W("-wsfreq"), &val))
+		{
+			_spec.freq = val;
+		}
+		_buffer_size = _spec.freq / 20;
+#ifdef __EMSCRIPTEN__
+		_spec.samples = 16384;
+#else
+		_spec.samples = 4096;
+#endif
 		_spec.format = AUDIO_S16;
+		_spec.size = 4;
+		_frame_size = 4;
+		if (TVPGetCommandLine(TJS_W("-wsbits"), &val))
+		{
+			ttstr sval(val);
+			if (sval == TJS_W("f32"))
+			{
+				_spec.format = AUDIO_F32;
+				_spec.size = 8;
+			}
+			else if (sval == TJS_W("i8") || sval == TJS_W("s8"))
+			{
+				_spec.format = AUDIO_S8;
+				_spec.size = 2;
+			}
+			else if (sval == TJS_W("u8"))
+			{
+				_spec.format = AUDIO_U8;
+				_spec.size = 2;
+			}
+			else if (sval == TJS_W("i16") || sval == TJS_W("s16"))
+			{
+				_spec.format = AUDIO_S16;
+				_spec.size = 4;
+			}
+			else if (sval == TJS_W("u16"))
+			{
+				_spec.format = AUDIO_U16;
+				_spec.size = 4;
+			}
+			else if (sval == TJS_W("i32") || sval == TJS_W("s32"))
+			{
+				_spec.format = AUDIO_S32;
+				_spec.size = 8;
+			}
+		}
 		_spec.channels = 2;
 		_spec.callback = [](void *p, Uint8 *s, int l) {
 			memset(s, 0, l);
 			((iTVPAudioRenderer*)p)->FillBuffer(s, l);
 		};
 		_spec.userdata = this;
-		_spec.size = 4;
-		_frame_size = 4;
 	}
 	virtual ~iTVPAudioRenderer() {
 		SDL_DestroyMutex(_streams_mtx);
@@ -264,7 +312,7 @@ public:
 			}
 		}
 
-		tTVPSoundBuffer* s = new tTVPSoundBuffer(fmt.BytesPerSample * fmt.Channels, cvt);
+		tTVPSoundBuffer* s = new tTVPSoundBuffer(fmt.BytesPerSample * fmt.Channels, _buffer_size, cvt);
 		SDL_LockMutex(_streams_mtx);
 		_streams.emplace(s);
 		SDL_UnlockMutex(_streams_mtx);
@@ -373,7 +421,7 @@ static iTVPAudioRenderer *CreateAudioRenderer() {
 	return renderer;
 }
 
-void TVPInitDirectSound(int freq)
+void TVPInitDirectSound()
 {
 	if (!TVPAudioRenderer) {
 		TVPAudioRenderer = CreateAudioRenderer();
