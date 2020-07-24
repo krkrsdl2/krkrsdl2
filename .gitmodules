@@ -46,3 +46,6 @@
 [submodule "external/kratrac9"]
 	path = external/kratrac9
 	url = ../kratrac9
+[submodule "external/ksupport"]
+	path = external/ksupport
+	url = ../ksupport
