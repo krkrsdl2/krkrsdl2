@@ -513,6 +513,7 @@ krkrsdl2_src = [
 	'src/core/visual/sdl2/VideoOvlImpl.cpp',
 	'src/core/visual/sdl2/WindowImpl.cpp',
 	'src/plugins/kremscripten.cpp',
+	'src/plugins/scripts.cc'
 ]
 krkrsdl2_includes = [
 	'src/core/base/sdl2',
