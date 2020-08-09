@@ -681,7 +681,6 @@ krkrsdl2_dependson = [
 
 if target_machine.system() == 'darwin'
 	cocoa = dependency('appleframeworks', modules: 'Cocoa')
-	add_languages('objcpp')
 	krkrsdl2_dependson += cocoa
 	krkrsdl2_src += 'src/plugins/menu/cocoa.mm'
 endif
