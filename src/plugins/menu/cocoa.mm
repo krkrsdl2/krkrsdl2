@@ -33,7 +33,7 @@ public:
       : m_refCount(1), m_interface(interface), m_menu(nullptr), m_item(nullptr),
         m_parent(nullptr), m_children(), m_caption(caption), m_modifier(""),
         m_checked(false), m_enabled(true), m_visible(true), m_radio(false),
-        m_radioGroup(true), m_delegate(nullptr), m_activated(false) {
+        m_activated(false), m_radioGroup(true), m_delegate(nullptr) {
     // create an empty menu stub
   }
 
@@ -154,7 +154,7 @@ public:
       m_item    = [NSMenuItem separatorItem];
       m_caption = caption;
       if (m_parent) {
-        [(m_parent->m_menu) remove:m_item];
+        [(m_parent->m_menu) removeItem:m_item];
         [(m_parent->m_menu) insertItem:m_item
                                atIndex:static_cast<NSInteger>(at)];
       }
@@ -165,7 +165,7 @@ public:
       m_caption = caption;
       ensureMenuItem();
       if (m_parent) {
-        [(m_parent->m_menu) remove:m_item];
+        [(m_parent->m_menu) removeItem:m_item];
         [(m_parent->m_menu) insertItem:m_item
                                atIndex:static_cast<NSInteger>(at)];
       }
@@ -307,7 +307,7 @@ private:
   size_t                              m_refCount;
   NativeMenuItem *                    m_interface;
   NSMenu *                            m_menu;
-  KrkrMenuItem *                      m_item;
+  NSMenuItem *                        m_item;
   _NativeMenuItem_Impl *              m_parent;
   std::vector<_NativeMenuItem_Impl *> m_children;
   std::string                         m_caption;

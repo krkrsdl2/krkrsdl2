@@ -20,6 +20,7 @@ class NativeMenuItem;
 class INativeMenuItemDelegate {
 public:
   virtual void handleClick(NativeMenuItem *sender);
+  virtual ~INativeMenuItemDelegate();
 };
 
 class NativeMenuItem {
