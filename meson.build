@@ -1,5 +1,9 @@
 project('krkrsdl2', ['c', 'cpp'], default_options: ['optimization=3', 'debug=true', 'warning_level=1'], version: 'unknown')
 
+if target_machine.system() == 'darwin'
+	add_languages('objcpp')
+endif
+
 cxx = meson.get_compiler('cpp')
 host_system = host_machine.system()
 
@@ -695,6 +699,7 @@ krkrsdl2 = executable(
 	sources: krkrsdl2_src,
 	c_args: krkrsdl2_cflags,
 	cpp_args: krkrsdl2_cppflags,
+	objcpp_args: krkrsdl2_cppflags,
 	link_args: krkrsdl2_ldflags,
 	include_directories: include_directories(krkrsdl2_includes),
 	dependencies: krkrsdl2_dependson,
