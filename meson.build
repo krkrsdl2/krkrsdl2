@@ -6,44 +6,6 @@ host_system = host_machine.system()
 sdl2_dep = dependency('sdl2', method: 'auto')
 
 krkrsdl2_src = [
-	'external/KAGParser/KAGParser.cpp',
-	'external/SamplePlugin/extrans/Main.cpp',
-	'external/SamplePlugin/extrans/mosaic.cpp',
-	'external/SamplePlugin/extrans/ripple.cpp',
-	'external/SamplePlugin/extrans/rotatebase.cpp',
-	'external/SamplePlugin/extrans/rotatetrans.cpp',
-	'external/SamplePlugin/extrans/turn.cpp',
-	'external/SamplePlugin/extrans/turntrans_table.cpp',
-	'external/SamplePlugin/extrans/wave.cpp',
-	'external/SamplePlugin/wutcwf/WUMainUnit.cpp',
-	'external/csvParser/Main.cpp',
-	'external/fstat/Main.cpp',
-	'external/getSample/main.cpp',
-	'external/json/Main.cpp',
-	'external/layerExImage/LayerExImage.cpp',
-	'external/layerExImage/Main.cpp',
-	'external/wuvorbis/WuVorbisMainUnit.cpp',
-	'external/kratrac9/kratrac9/at9wave.cpp',
-	'external/kratrac9/kratrac9/Atrac9MainUnit.cpp',
-	'external/kratrac9/libatrac9/src/band_extension.c',
-	'external/kratrac9/libatrac9/src/bit_allocation.c',
-	'external/kratrac9/libatrac9/src/bit_reader.c',
-	'external/kratrac9/libatrac9/src/decinit.c',
-	'external/kratrac9/libatrac9/src/decoder.c',
-	'external/kratrac9/libatrac9/src/huffCodes.c',
-	'external/kratrac9/libatrac9/src/imdct.c',
-	'external/kratrac9/libatrac9/src/libatrac9.c',
-	'external/kratrac9/libatrac9/src/quantization.c',
-	'external/kratrac9/libatrac9/src/scale_factors.c',
-	'external/kratrac9/libatrac9/src/tables.c',
-	'external/kratrac9/libatrac9/src/unpack.c',
-	'external/kratrac9/libatrac9/src/utility.c',
-	'external/kri18n/main.cpp',
-	'external/kri18n/i18n/Entry.cpp',
-	'external/kri18n/i18n/I18nUtils.cpp',
-	'external/kri18n/i18n/MO.cpp',
-	'external/kri18n/i18n/plural-exp.c',
-	'external/kri18n/i18n/plural.c',
 	'external/krkrz/base/BinaryStream.cpp',
 	'external/krkrz/base/CharacterSet.cpp',
 	'external/krkrz/base/EventIntf.cpp',
@@ -462,33 +424,7 @@ krkrsdl2_src = [
 	'external/krkrz/external/zlib/trees.c',
 	'external/krkrz/external/zlib/uncompr.c',
 	'external/krkrz/external/zlib/zutil.c',
-	'external/ksupport/layer.cpp',
-	'external/ksupport/rect.cpp',
-	'external/ksupport/table.cpp',
-	'external/ksupport/timeline.cpp',
-	'external/ksupport/utils.cpp',
 	'external/ncbind/ncbind.cpp',
-	'external/saveStruct/Main.cpp',
-	'external/varfile/Main.cpp',
-	'external/wuvorbis/libvorbis-1.3.7/lib/bitrate.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/block.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/codebook.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/envelope.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/floor0.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/floor1.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/info.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/lpc.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/lsp.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/mapping0.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/mdct.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/psy.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/registry.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/res0.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/sharedbook.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/smallft.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/synthesis.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/vorbisfile.c',
-	'external/wuvorbis/libvorbis-1.3.7/lib/window.c',
 	'src/core/base/sdl2/EventImpl.cpp',
 	'src/core/base/sdl2/FileSelector.cpp',
 	'src/core/base/sdl2/NativeEventQueue.cpp',
@@ -512,8 +448,6 @@ krkrsdl2_src = [
 	'src/core/visual/sdl2/TVPScreen.cpp',
 	'src/core/visual/sdl2/VideoOvlImpl.cpp',
 	'src/core/visual/sdl2/WindowImpl.cpp',
-	'src/plugins/kremscripten.cpp',
-	'src/plugins/scripts.cc'
 ]
 krkrsdl2_includes = [
 	'src/core/base/sdl2',
@@ -549,10 +483,142 @@ krkrsdl2_includes = [
 	'external/krkrz/external/opusfile/include',
 	'external/krkrz/external/opusfile/src',
 	'external/krkrz/external/zlib',
-	'external/wuvorbis/libvorbis-1.3.7/include',
 	'src/config',
 	'src/plugins',
 ]
+if get_option('builtin_plugin_enable_kagparser') == true
+	krkrsdl2_src += [
+		'external/KAGParser/KAGParser.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_extrans') == true
+	krkrsdl2_src += [
+		'external/SamplePlugin/extrans/Main.cpp',
+		'external/SamplePlugin/extrans/mosaic.cpp',
+		'external/SamplePlugin/extrans/ripple.cpp',
+		'external/SamplePlugin/extrans/rotatebase.cpp',
+		'external/SamplePlugin/extrans/rotatetrans.cpp',
+		'external/SamplePlugin/extrans/turn.cpp',
+		'external/SamplePlugin/extrans/turntrans_table.cpp',
+		'external/SamplePlugin/extrans/wave.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_extrans') == true
+	krkrsdl2_src += [
+		'external/SamplePlugin/wutcwf/WUMainUnit.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_csvparser') == true
+	krkrsdl2_src += [
+		'external/csvParser/Main.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_fstat') == true
+	krkrsdl2_src += [
+		'external/fstat/Main.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_getsample') == true
+	krkrsdl2_src += [
+		'external/getSample/main.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_json') == true
+	krkrsdl2_src += [
+		'external/json/Main.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_layereximage') == true
+	krkrsdl2_src += [
+		'external/layerExImage/LayerExImage.cpp',
+		'external/layerExImage/Main.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_wuvorbis') == true
+	krkrsdl2_src += [
+		'external/wuvorbis/WuVorbisMainUnit.cpp',
+		'external/wuvorbis/libvorbis-1.3.7/lib/bitrate.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/block.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/codebook.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/envelope.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/floor0.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/floor1.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/info.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/lpc.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/lsp.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/mapping0.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/mdct.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/psy.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/registry.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/res0.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/sharedbook.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/smallft.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/synthesis.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/vorbisfile.c',
+		'external/wuvorbis/libvorbis-1.3.7/lib/window.c',
+	]
+	krkrsdl2_includes += [
+		'external/wuvorbis/libvorbis-1.3.7/include',
+	]
+endif
+if get_option('builtin_plugin_enable_kratrac9') == true
+	krkrsdl2_src += [
+		'external/kratrac9/kratrac9/at9wave.cpp',
+		'external/kratrac9/kratrac9/Atrac9MainUnit.cpp',
+		'external/kratrac9/libatrac9/src/band_extension.c',
+		'external/kratrac9/libatrac9/src/bit_allocation.c',
+		'external/kratrac9/libatrac9/src/bit_reader.c',
+		'external/kratrac9/libatrac9/src/decinit.c',
+		'external/kratrac9/libatrac9/src/decoder.c',
+		'external/kratrac9/libatrac9/src/huffCodes.c',
+		'external/kratrac9/libatrac9/src/imdct.c',
+		'external/kratrac9/libatrac9/src/libatrac9.c',
+		'external/kratrac9/libatrac9/src/quantization.c',
+		'external/kratrac9/libatrac9/src/scale_factors.c',
+		'external/kratrac9/libatrac9/src/tables.c',
+		'external/kratrac9/libatrac9/src/unpack.c',
+		'external/kratrac9/libatrac9/src/utility.c',
+	]
+endif
+if get_option('builtin_plugin_enable_kri18n') == true
+	krkrsdl2_src += [
+		'external/kri18n/main.cpp',
+		'external/kri18n/i18n/Entry.cpp',
+		'external/kri18n/i18n/I18nUtils.cpp',
+		'external/kri18n/i18n/MO.cpp',
+		'external/kri18n/i18n/plural-exp.c',
+		'external/kri18n/i18n/plural.c',
+	]
+endif
+if get_option('builtin_plugin_enable_ksupport') == true
+	krkrsdl2_src += [
+		'external/ksupport/layer.cpp',
+		'external/ksupport/rect.cpp',
+		'external/ksupport/table.cpp',
+		'external/ksupport/timeline.cpp',
+		'external/ksupport/utils.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_savestruct') == true
+	krkrsdl2_src += [
+		'external/saveStruct/Main.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_varfile') == true
+	krkrsdl2_src += [
+		'external/varfile/Main.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_scriptsex') == true
+	krkrsdl2_src += [
+		'src/plugins/scripts.cc',
+	]
+endif
+if target_machine.system() == 'emscripten'
+	krkrsdl2_src += [
+		'src/plugins/kremscripten.cpp',
+	]
+endif
 krkrsdl2_cflags = []
 krkrsdl2_cflags += [
 	'-DTVP_OPUS_DECODER_IMPLEMENT',
@@ -585,12 +651,20 @@ if target_machine.system() == 'emscripten'
 		'-s', 'DISABLE_EXCEPTION_CATCHING=0',
 		'-s', 'EXIT_RUNTIME=1',
 		'-s', 'ALLOW_MEMORY_GROWTH=1',
-		'-s', 'WASM=2',
-		'-s', 'INITIAL_MEMORY=134217728',
+		'-s', 'INITIAL_MEMORY=' + get_option('emscripten_initial_memory').to_string(),
 		'-s', 'FORCE_FILESYSTEM=1',
 		'--bind',
 		'--no-heap-copy',
 	]
+	if get_option('emscripten_enable_js_fallback') == true
+		krkrsdl2_ldflags += [
+			'-s', 'WASM=2',
+		]
+	else
+		krkrsdl2_ldflags += [
+			'-s', 'WASM=1',
+		]
+	endif
 endif
 krkrsdl2_dependson = [
 	sdl2_dep,

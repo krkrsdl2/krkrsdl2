@@ -1,6 +1,132 @@
 
 option(
+	'builtin_plugin_enable_kagparser',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the KAGParser plugin.'
+)
+
+option(
+	'builtin_plugin_enable_extrans',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the extrans plugin.'
+)
+
+option(
+	'builtin_plugin_enable_wutcwf',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the wutcwf plugin.'
+)
+
+option(
+	'builtin_plugin_enable_csvparser',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the csvparser plugin.'
+)
+
+option(
+	'builtin_plugin_enable_fstat',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the fstat plugin.'
+)
+
+option(
+	'builtin_plugin_enable_getsample',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the getsample plugin.'
+)
+
+option(
+	'builtin_plugin_enable_json',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the json plugin.'
+)
+
+option(
+	'builtin_plugin_enable_layereximage',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the layerExImage plugin.'
+)
+
+option(
+	'builtin_plugin_enable_wuvorbis',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the wuvorbis plugin.'
+)
+
+option(
+	'builtin_plugin_enable_kratrac9',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the kratrac9 plugin.'
+)
+
+option(
+	'builtin_plugin_enable_kratrac9',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the kratrac9 plugin.'
+)
+
+option(
+	'builtin_plugin_enable_kri18n',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the kri18n plugin.'
+)
+
+option(
+	'builtin_plugin_enable_ksupport',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the ksupport plugin.'
+)
+
+option(
+	'builtin_plugin_enable_savestruct',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the saveStruct plugin.'
+)
+
+option(
+	'builtin_plugin_enable_varfile',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the varfile plugin.'
+)
+
+option(
+	'builtin_plugin_enable_scriptsex',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the scriptsEx plugin.'
+)
+
+option(
 	'krkrsdl2_data_path',
 	type: 'string',
-	description: 'Path to project directory that will be integrated into the build.'
+	description: 'Path to project directory that will be integrated into the Emscripten build.'
+)
+
+option(
+	'emscripten_enable_js_fallback',
+	type: 'boolean',
+	value: false,
+	description: 'Enable JavaScript fallback for the Emscripten build.'
+)
+
+option(
+	'emscripten_initial_memory',
+	type: 'integer',
+	value: 134217728,
+	description: 'Initial memory usage for the Emscripten build.'
 )
