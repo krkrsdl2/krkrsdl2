@@ -259,6 +259,7 @@ NCB_REGISTER_CLASS(MenuItemBase) {
   NCB_PROPERTY(enabled, getEnabled, setEnabled);
   NCB_PROPERTY(visible, getVisible, setVisible);
   NCB_PROPERTY(index, getIndex, setIndex);
+  NCB_PROPERTY(checked, getChecked, setChecked);
   NCB_PROPERTY(radio, getRadio, setRadio);
   NCB_PROPERTY(group, getGroup, setGroup);
 

@@ -12,12 +12,69 @@
 #ifdef __APPLE__
 
 #include <Cocoa/Cocoa.h>
+#include <locale>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include <assert.h>
 
 #include "common.h"
+
+struct ShortcutKey {
+  NSUInteger  keyMask;
+  std::string keyEquivalent;
+};
+
+static void parseShortcutKey(std::string const &keyComb, ShortcutKey &out) {
+  const std::string delimeter{"+"};
+
+  std::string            tstr = keyComb + delimeter;
+  long                   l = tstr.length(), sl = delimeter.length();
+  std::string::size_type pos = 0, prev = 0;
+
+  bool shift = false;
+
+  for (; pos < l && (pos = tstr.find(delimeter, pos)) != std::string::npos;
+       prev = (pos += sl)) {
+    std::string_view sub = tstr.substr(prev, pos - prev);
+
+    if (sub == "Alt") {
+      out.keyMask |= NSEventModifierFlagOption;
+    } else if (sub == "Ctrl") {
+      out.keyMask |= NSEventModifierFlagCommand;
+      // NSEventModifierFlagControl
+    } else if (sub == "Shift") {
+      shift = true;
+    } else if (sub == "Enter") {
+      out.keyEquivalent += '\r';
+    } else if (sub.size() == 1) {
+      if (shift)
+        out.keyEquivalent += toupper(sub[0]);
+      else
+        out.keyEquivalent += tolower(sub[0]);
+    } else if (sub.size() > 1 && sub[0] == 'F') {
+      auto const fnum_str = std::string(sub).substr(1);
+      int        fnum     = 0;
+
+      try {
+        fnum = std::stoi(fnum_str);
+      } catch (std::invalid_argument arg) {
+        // std::cerr << "[krkrcocoa] invalid function key: " << fnum_str
+        //           << std::endl;
+        continue;
+      }
+
+      // force-encode NSF*FunctionKey into UTF-8
+      out.keyEquivalent += char(0xEF);
+      out.keyEquivalent += char(0x9C);
+      out.keyEquivalent += char(0x80 | (3 + fnum));
+    } else {
+      // unsupported key
+      // std::cerr << "[krkrcocoa] unsupported key: " << sub << std::endl;
+    }
+  }
+}
 
 @interface KrkrMenuItem : NSMenuItem {
   _NativeMenuItem_Impl *m_menuItem;
@@ -182,8 +239,7 @@ public:
   void setChecked(bool flag) {
     m_checked = flag;
 
-    if (!m_item)
-      return;
+    ensureMenuItem();
 
     [m_item
         setState:m_checked ? NSControlStateValueOn : NSControlStateValueOff];
@@ -191,7 +247,8 @@ public:
     // if the item is a radio button, uncheck other elements in the group.
     if (m_radio && flag) {
       for (auto &i : m_parent->m_children) {
-        if (i == this || i->m_radioGroup != this->m_radioGroup) {
+        if (i == this || i->getRadio() ||
+            i->m_radioGroup != this->m_radioGroup) {
           continue;
         }
 
@@ -205,8 +262,19 @@ public:
   void setKeyEquivalent(std::string const &key) {
     m_key = key;
 
-    // TODO: implement key setter
-    NSLog(@"key received: %s", m_key.c_str());
+    // treat special key combinations (e.g. Alt+F4 -> Cmd+Q)
+    if (key == "Alt+F4") {
+      [m_item setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
+      [m_item setKeyEquivalent:@"q"];
+      return;
+    }
+
+    ShortcutKey parsed{0};
+    parseShortcutKey(key, parsed);
+
+    [m_item setKeyEquivalentModifierMask:parsed.keyMask];
+    [m_item setKeyEquivalent:[NSString stringWithUTF8String:parsed.keyEquivalent
+                                                                .c_str()]];
   }
 
   std::string const &getKeyEquivalent() const { return m_key; }
