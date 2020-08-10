@@ -42,8 +42,8 @@ public:
   void setChecked(bool flag);
   bool getChecked() const;
 
-  void               setKeyModifier(std::string const &modifier);
-  std::string const &getKeyModifier();
+  void               setKeyEquivalent(std::string const &key);
+  std::string const &getKeyEquivalent();
 
   void setEnabled(bool flag);
   bool getEnabled() const;

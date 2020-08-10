@@ -31,17 +31,13 @@ class _NativeMenuItem_Impl {
 public:
   _NativeMenuItem_Impl(NativeMenuItem *interface, std::string caption = "")
       : m_refCount(1), m_interface(interface), m_menu(nullptr), m_item(nullptr),
-        m_parent(nullptr), m_children(), m_caption(caption), m_modifier(""),
+        m_parent(nullptr), m_children(), m_caption(caption), m_key(""),
         m_checked(false), m_enabled(true), m_visible(true), m_radio(false),
         m_activated(false), m_radioGroup(true), m_delegate(nullptr) {
     // create an empty menu stub
   }
 
   virtual ~_NativeMenuItem_Impl() {
-    if (m_activated) {
-      NSLog(@"activated menu released");
-    }
-
     for (auto &v : m_children) {
       v->m_parent = nullptr;
       v->release();
@@ -74,10 +70,6 @@ public:
     item->m_parent = this;
     m_children.push_back(item);
 
-    if (m_activated) {
-      NSLog(@"activated menu item added: %s", item->m_caption.c_str());
-    }
-
     [m_menu addItem:item->m_item];
   }
 
@@ -92,11 +84,6 @@ public:
 
     item->m_parent = this;
     m_children.insert(m_children.begin() + at, item);
-
-    if (m_activated) {
-      NSLog(@"activated menu item inserted: %s, at: %d",
-            item->m_caption.c_str(), at);
-    }
 
     [m_menu insertItem:item->m_item atIndex:static_cast<NSInteger>(at)];
   }
@@ -215,13 +202,14 @@ public:
 
   bool getChecked() const { return m_checked; }
 
-  void setKeyModifier(std::string const &modifier) {
-    m_modifier = modifier;
+  void setKeyEquivalent(std::string const &key) {
+    m_key = key;
 
-    // TODO: implement key modifier setter
+    // TODO: implement key setter
+    NSLog(@"key received: %s", m_key.c_str());
   }
 
-  std::string const &getKeyModifier() const { return m_modifier; }
+  std::string const &getKeyEquivalent() const { return m_key; }
 
   _NativeMenuItem_Impl const *getRoot() const {
     if (m_parent)
@@ -311,7 +299,7 @@ private:
   _NativeMenuItem_Impl *              m_parent;
   std::vector<_NativeMenuItem_Impl *> m_children;
   std::string                         m_caption;
-  std::string                         m_modifier;
+  std::string                         m_key;
   bool                                m_checked;
   bool                                m_enabled;
   bool                                m_visible;
@@ -416,12 +404,12 @@ void NativeMenuItem::setChecked(bool flag) { m_impl->setChecked(flag); }
 
 bool NativeMenuItem::getChecked() const { return m_impl->getChecked(); }
 
-void NativeMenuItem::setKeyModifier(std::string const &modifier) {
-  return m_impl->setKeyModifier(modifier);
+void NativeMenuItem::setKeyEquivalent(std::string const &key) {
+  return m_impl->setKeyEquivalent(key);
 }
 
-std::string const &NativeMenuItem::getKeyModifier() {
-  return m_impl->getKeyModifier();
+std::string const &NativeMenuItem::getKeyEquivalent() {
+  return m_impl->getKeyEquivalent();
 }
 
 void NativeMenuItem::setEnabled(bool flag) { m_impl->setEnabled(flag); }

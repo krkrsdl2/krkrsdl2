@@ -58,6 +58,26 @@ public:
       NativeMenuItem::setCaption(caption_);
     }
   }
+
+  tTJSVariant getKeyEquivalent() {
+    tjs_string output;
+    auto       key = NativeMenuItem::getKeyEquivalent();
+    TVPEncodeUTF8ToUTF16(output, key);
+    return ttstr(output);
+  }
+
+  void setKeyEquivalent(tTJSVariant key) {
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> converter;
+
+    auto str = key.AsStringNoAddRef();
+
+    if (str) {
+      auto key_ = converter.to_bytes(
+          tjs_string(str->LongString ? str->LongString : str->ShortString,
+                     str->GetLength()));
+      NativeMenuItem::setKeyEquivalent(key_);
+    }
+  }
 };
 
 void PostRegistMenu() {
@@ -234,7 +254,7 @@ NCB_REGISTER_CLASS(MenuItemBase) {
   NCB_METHOD(popup);
 
   NCB_PROPERTY(caption, getCaption, setCaption);
-  // NCB_PROPERTY(shortcut, getKeyModifier, setKeyModifier);
+  NCB_PROPERTY(shortcut, getKeyEquivalent, setKeyEquivalent);
 
   NCB_PROPERTY(enabled, getEnabled, setEnabled);
   NCB_PROPERTY(visible, getVisible, setVisible);
