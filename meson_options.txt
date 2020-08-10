@@ -112,6 +112,13 @@ option(
 )
 
 option(
+	'builtin_plugin_enable_menu',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the menu plugin. At the moment, only the Cocoa backend is supported.'
+)
+
+option(
 	'krkrsdl2_data_path',
 	type: 'string',
 	description: 'Path to project directory that will be integrated into the Emscripten build.'

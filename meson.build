@@ -452,11 +452,6 @@ krkrsdl2_src = [
 	'src/core/visual/sdl2/TVPScreen.cpp',
 	'src/core/visual/sdl2/VideoOvlImpl.cpp',
 	'src/core/visual/sdl2/WindowImpl.cpp',
-	'src/plugins/kremscripten.cpp',
-	'src/plugins/scripts.cc',
-	# menu extension
-	'src/plugins/menu/menu.cc',
-	'src/plugins/menu/win32.cc',
 ]
 krkrsdl2_includes = [
 	'src/core/base/sdl2',
@@ -679,10 +674,19 @@ krkrsdl2_dependson = [
 	sdl2_dep,
 ]
 
-if target_machine.system() == 'darwin'
-	cocoa = dependency('appleframeworks', modules: 'Cocoa')
-	krkrsdl2_dependson += cocoa
-	krkrsdl2_src += 'src/plugins/menu/cocoa.mm'
+if get_option('builtin_plugin_enable_menu') == true
+	krkrsdl2_src += [
+		'src/plugins/menu/menu.cc',
+	]
+	if target_machine.system() == 'darwin'
+		cocoa_dep = dependency('appleframeworks', modules: 'Cocoa')
+		krkrsdl2_dependson += [
+			cocoa_dep
+		]
+		krkrsdl2_src += [
+			'src/plugins/menu/cocoa.mm',
+		]
+	endif
 endif
 
 krkrsdl2_override_options = []
