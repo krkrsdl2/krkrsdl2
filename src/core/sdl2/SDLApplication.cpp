@@ -619,6 +619,10 @@ public:
 		else if (!visible && _currentWindowLayer == this)
 		{
 			_currentWindowLayer = _prevWindow ? _prevWindow : _nextWindow;
+			if (_currentWindowLayer)
+			{
+				_currentWindowLayer->BringToFront();
+			}
 		}
 	}
 	virtual void SetFullScreenMode(bool fullscreen) override {
@@ -967,6 +971,7 @@ public:
 	}
 	virtual void InvalidateClose() override {
 		isBeingDeleted = true;
+		SetVisible(false);
 	}
 	virtual bool GetWindowActive() override {
 		return _currentWindowLayer == this;
