@@ -970,8 +970,9 @@ public:
 		}
 	}
 	virtual void InvalidateClose() override {
-		isBeingDeleted = true;
+		TJSNativeInstance = NULL;
 		SetVisible(false);
+		delete this;
 	}
 	virtual bool GetWindowActive() override {
 		return _currentWindowLayer == this;
@@ -1004,7 +1005,6 @@ public:
 				obj->Invalidate(0, NULL, NULL, obj);
 				TJSNativeInstance = NULL;
 				SetVisible(false);
-				isBeingDeleted = true;
 			}
 		}
 	}
