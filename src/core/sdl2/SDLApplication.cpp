@@ -626,6 +626,7 @@ public:
 		{
 			SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 		}
+		UpdateWindow(utNormal);
 	}
 	virtual bool GetFullScreenMode() override {
 		if (window)
@@ -703,6 +704,7 @@ public:
 				}
 			}
 		}
+		UpdateWindow(utNormal);
 	}
 	virtual void SetHeight(tjs_int h) override {
 		if (window)
@@ -719,6 +721,7 @@ public:
 				}
 			}
 		}
+		UpdateWindow(utNormal);
 	}
 	virtual void SetSize(tjs_int w, tjs_int h) override {
 		if (window)
@@ -733,6 +736,7 @@ public:
 				}
 			}
 		}
+		UpdateWindow(utNormal);
 	}
 	virtual void GetSize(tjs_int &w, tjs_int &h) override {
 		if (window)
