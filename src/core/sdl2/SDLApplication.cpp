@@ -1539,11 +1539,7 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 	}
 }
 
-#ifdef __EMSCRIPTEN__
-static void process_events()
-#else
-static bool process_events()
-#endif
+void sdl_process_events()
 {
 	if (SDL_WasInit(SDL_INIT_EVENTS) != 0)
 	{
@@ -1556,6 +1552,14 @@ static bool process_events()
 			}
 		}
 	}
+}
+
+#ifdef __EMSCRIPTEN__
+static void process_events()
+#else
+static bool process_events()
+#endif
+{
 #ifdef __EMSCRIPTEN__
 	tTJSNI_WaveSoundBuffer::Trigger();
 	tTVPTimerThread::Trigger();

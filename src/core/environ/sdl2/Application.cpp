@@ -47,6 +47,11 @@
 #include "EventIntf.h"
 #include "StorageIntf.h"
 #include "TVPColor.h"
+#include "WindowImpl.h"
+#ifndef _WIN32
+#include "VirtualKey.h"
+#endif
+#include "TVPWindow.h"
 #include <unistd.h>
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -684,6 +689,7 @@ void tTVPApplication::Run() {
 	tarminate_ = true;
 #endif
 	try {
+		sdl_process_events();
 		if (tarminate_) {
 			return;
 		}

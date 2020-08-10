@@ -322,6 +322,8 @@ public:
 };
 #endif
 
+extern void sdl_process_events();
+
 class TTVPWindowForm {
 public:
 	virtual void SetPaintBoxSize(tjs_int w, tjs_int h) = 0;
