@@ -19,8 +19,8 @@ class NativeMenuItem;
 
 class INativeMenuItemDelegate {
 public:
-  virtual void handleClick(NativeMenuItem *sender);
-  virtual ~INativeMenuItemDelegate();
+  virtual void handleClick(NativeMenuItem *sender) = 0;
+  virtual ~INativeMenuItemDelegate() {};
 };
 
 class NativeMenuItem {

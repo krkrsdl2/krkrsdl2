@@ -19,9 +19,15 @@ extern bool TVPEncodeUTF8ToUTF16(tjs_string &output, const std::string &source);
 // extern bool TVPEncodeUTF16ToUTF8(std::string &output, const tjs_string
 // &source);
 
-class MenuItemBase : public NativeMenuItem {
+class MenuItemBase : public NativeMenuItem, INativeMenuItemDelegate {
+private:
+  tTJSVariant m_instance;
+
 public:
-  MenuItemBase() : NativeMenuItem() {}
+  MenuItemBase() : NativeMenuItem() {
+    setDelegate(this);
+  }
+
   virtual ~MenuItemBase() {}
 
   void add(MenuItemBase *item) {
@@ -78,6 +84,14 @@ public:
       NativeMenuItem::setKeyEquivalent(key_);
     }
   }
+
+  void setTjsInstance(tTJSVariant instance) { m_instance = instance; }
+
+  void handleClick(NativeMenuItem *_sender) override {
+    // インスタンスのonClick()を呼び出す
+    auto self = m_instance.AsObjectNoAddRef();
+    self->FuncCall(0, TJS_W("onClick"), nullptr, nullptr, 0, nullptr, self);
+  }
 };
 
 void PostRegistMenu() {
@@ -114,6 +128,7 @@ class MenuItem extends MenuItemBase {
     m_listener = listener;
 
     this.caption = caption;
+    this.instance = this;
   }
   
   function finalize {
@@ -262,6 +277,8 @@ NCB_REGISTER_CLASS(MenuItemBase) {
   NCB_PROPERTY(checked, getChecked, setChecked);
   NCB_PROPERTY(radio, getRadio, setRadio);
   NCB_PROPERTY(group, getGroup, setGroup);
+
+  NCB_PROPERTY_WO(instance, setTjsInstance);
 
   // NCB_PROPERTY_RO(root, getRoot);
   // NCB_PROPERTY_RO(parent, getParent);
