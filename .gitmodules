@@ -49,3 +49,6 @@
 [submodule "external/ksupport"]
 	path = external/ksupport
 	url = ../ksupport
+[submodule "external/scriptsEx"]
+	path = external/scriptsEx
+	url = ../scriptsEx

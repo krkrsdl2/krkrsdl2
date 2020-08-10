@@ -615,7 +615,7 @@ if get_option('builtin_plugin_enable_varfile') == true
 endif
 if get_option('builtin_plugin_enable_scriptsex') == true
 	krkrsdl2_src += [
-		'src/plugins/scripts.cc',
+		'external/scriptsEx/Main.cpp',
 	]
 endif
 if target_machine.system() == 'emscripten'
