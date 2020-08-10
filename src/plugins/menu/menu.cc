@@ -109,9 +109,9 @@ void PostRegistMenu() {
  */
 
 class MenuListener {
-	function updateMenuItem(item: MenuItem) {}
-	function updateMenuList(parent: MenuItem ) {}
-	function selectMenuItem(item: MenuItem) {}
+  function updateMenuItem(item: MenuItem) {}
+  function updateMenuList(parent: MenuItem ) {}
+  function selectMenuItem(item: MenuItem) {}
 };
 
 class MenuItem extends MenuItemBase {
@@ -132,107 +132,107 @@ class MenuItem extends MenuItemBase {
   }
   
   function finalize {
-		super.finalize(...);
-	}
+    super.finalize(...);
+  }
 
   function updateItem() {
-		if( m_listener != null ) {
-			m_listener.updateMenuItem( this );
-		}
-	}
+    if( m_listener != null ) {
+      m_listener.updateMenuItem( this );
+    }
+  }
 
-	function updateList() {
-		if( m_listener != null ) {
-			m_listener.updateMenuList( this );
-		}
-	}
+  function updateList() {
+    if( m_listener != null ) {
+      m_listener.updateMenuList( this );
+    }
+  }
 
-	function selectItem() {
-		if( m_listener != null ) {
-			listener.selectMenuItem( this );
-		}
-	}
+  function selectItem() {
+    if( m_listener != null ) {
+      listener.selectMenuItem( this );
+    }
+  }
 
   function add(item: MenuItem) {
-		m_children.add(item);
+    m_children.add(item);
 
     item.m_parent = this;
     super.add(item);
 
-		updateList();
-	}
+    updateList();
+  }
 
   function insert(index, item) {
     // swap arguments
-		if (typeof index === "Object") {
-			if (typeof item !== "Object")
+    if (typeof index === "Object") {
+      if (typeof item !== "Object")
         insert(item, index);
-			return;
-		}
+      return;
+    }
 
-		m_children.remove(item);
-		m_children.insert(index, item);
+    m_children.remove(item);
+    m_children.insert(index, item);
 
     item.m_parent = this;
 
     super.insert(item, index);
 
-		updateList();
-	}
+    updateList();
+  }
 
-	function remove(item: MenuItem) {
-		m_children.remove(item);
-		item.m_parent = null;
-		updateList();
-	}
+  function remove(item: MenuItem) {
+    m_children.remove(item);
+    item.m_parent = null;
+    updateList();
+  }
 
   property parent { getter{ return m_parent; } }
 
-	property children { getter{ return m_children; } }
+  property children { getter{ return m_children; } }
 
   property index {
-		setter(c) {
-			if (m_parent) {
+    setter(c) {
+      if (m_parent) {
         m_parent.insert(c, this); 
       }
-		}
-		getter {
-			return super.index;
-		}
-	}
+    }
+    getter {
+      return super.index;
+    }
+  }
 
   property root {
-		getter {
-			var r = this;
-			while( r.m_parent != null ) {
-				r = r.m_parent;
-			}
-			return r;
-		}
-	}
+    getter {
+      var r = this;
+      while( r.m_parent != null ) {
+        r = r.m_parent;
+      }
+      return r;
+    }
+  }
 
   function onClick() {
-		selectItem();
-	}
+    selectItem();
+  }
 
-	function dump() {
-		var mes: string = "";
-		var par: MenuItem = parent_;
-		while( par != null ) {
-			mes += "    ";
-			par = par.parent_;
-		}
-		if( caption_ == "-" ) {
-			mes += "-------------------------------";
-		} else {
-			mes += caption_;
-		}
-		Debug.message( mes );
-		var count:int = children_.count;
-		for( var i:int = 0; i < count; i++ ) {
-			children_[i].dump();
-		}
-	}
+  function dump() {
+    var mes: string = "";
+    var par: MenuItem = parent_;
+    while( par != null ) {
+      mes += "    ";
+      par = par.parent_;
+    }
+    if( caption_ == "-" ) {
+      mes += "-------------------------------";
+    } else {
+      mes += caption_;
+    }
+    Debug.message( mes );
+    var count:int = children_.count;
+    for( var i:int = 0; i < count; i++ ) {
+      children_[i].dump();
+    }
+  }
 }
 
 class _WindowMenuPropHook {
