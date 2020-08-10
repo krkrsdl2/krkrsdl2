@@ -338,645 +338,57 @@ protected:
 	tjs_int file_drop_array_count;
 
 public:
-	TVPWindowLayer(tTJSNI_Window *w)
-	{
-		ime_composition = nullptr;
-		ime_composition_cursor = 0;
-		ime_composition_len = 0;
-		ime_composition_selection = 0;
-		attention_point_rect.x = 0;
-		attention_point_rect.y = 0;
-		attention_point_rect.w = 0;
-		attention_point_rect.h = 0;
-		file_drop_array = nullptr;
-		file_drop_array_count = 0;
-		_nextWindow = nullptr;
-		_prevWindow = _lastWindowLayer;
-		_lastWindowLayer = this;
-		if (_prevWindow) {
-			_prevWindow->_nextWindow = this;
-		}
-		if (!_currentWindowLayer) {
-			_currentWindowLayer = this;
-		}
-		if (w) {
-			TJSNativeInstance = w;
-		}
-		else {
-			TJSNativeInstance = nullptr;
-		}
-		
-		if (SDL_Init(SDL_INIT_VIDEO) < 0)
-		{
-			TVPThrowExceptionMessage(TJS_W("Cannot initialize SDL video subsystem: %1"), ttstr(SDL_GetError()));
-		}
-		window = SDL_CreateWindow("krkrsdl2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
-		if (window == nullptr)
-		{
-			TVPThrowExceptionMessage(TJS_W("Cannot create SDL window: %1"), ttstr(SDL_GetError()));
-		}
-		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-		if (renderer == nullptr)
-		{
-			TVPAddLog(ttstr("Cannot create SDL renderer: ") + ttstr(SDL_GetError()));
-			surface = SDL_GetWindowSurface(window);
-			if (surface == nullptr)
-			{
-				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
-			}
-		}
-		else
-		{
-			surface = nullptr;
-		}
-		framebuffer = NULL;
-		if (renderer)
-		{
-			SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0x00, 0xFF );
-		}
-	}
-
-	virtual ~TVPWindowLayer() {
-		if (_lastWindowLayer == this) _lastWindowLayer = _prevWindow;
-		if (_nextWindow) _nextWindow->_prevWindow = _prevWindow;
-		if (_prevWindow) _prevWindow->_nextWindow = _nextWindow;
-		if (_currentWindowLayer == this) {
-			_currentWindowLayer = _lastWindowLayer;
-		}
-		if (framebuffer)
-		{
-			SDL_DestroyTexture(framebuffer);
-			framebuffer = NULL;
-		}
-		if (renderer)
-		{
-			SDL_DestroyRenderer(renderer);
-			renderer = NULL;
-		}
-		if (window)
-		{
-			SDL_DestroyWindow(window);
-			window = NULL;
-		}
-	}
-
-	virtual void SetPaintBoxSize(tjs_int w, tjs_int h) override {
-		if (renderer)
-		{
-			if (framebuffer)
-			{
-				SDL_DestroyTexture(framebuffer);
-				framebuffer = NULL;
-			}
-			framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, w, h);
-			if (framebuffer == nullptr)
-			{
-				TVPThrowExceptionMessage(TJS_W("Cannot create framebuffer texture: %1"), ttstr(SDL_GetError()));
-			}
-		}
-		SDL_Rect cliprect;
-		cliprect.x = 0;
-		cliprect.y = 0;
-		cliprect.w = w;
-		cliprect.h = h;
-		if (renderer)
-		{
-			SDL_RenderSetLogicalSize(renderer, w, h);
-		}
-		if( TJSNativeInstance )
-		{
-			tTVPRect r;
-			r.left = 0;
-			r.top = 0;
-			r.right = w;
-			r.bottom = h;
-			TJSNativeInstance->NotifyWindowExposureToLayer(r);
-			TJSNativeInstance->GetDrawDevice()->SetClipRectangle(r);
-			TJSNativeInstance->GetDrawDevice()->SetDestRectangle(r);
-		}
-	}
-	virtual bool GetFormEnabled() override {
-		if (window)
-		{
-			return SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN;
-		}
-		return false;
-	}
-	virtual void SetDefaultMouseCursor() override {
-		if (!sdl_system_cursors[0])
-		{
-			for (int i = 0; i < SDL_NUM_SYSTEM_CURSORS; i += 1)
-			{
-				sdl_system_cursors[i] = SDL_CreateSystemCursor((SDL_SystemCursor)i);
-			}
-		}
-		SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_ARROW]);
-	}
-	virtual void SetMouseCursor(tjs_int handle) override {
-		if (!sdl_system_cursors[0])
-		{
-			for (int i = 0; i < SDL_NUM_SYSTEM_CURSORS; i += 1)
-			{
-				sdl_system_cursors[i] = SDL_CreateSystemCursor((SDL_SystemCursor)i);
-			}
-		}
-		switch (handle)
-		{
-			case -2: // crArrow
-				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_ARROW]);
-				break;
-			case -3: // crCross
-				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_CROSSHAIR]);
-				break;
-			case -4: // crIBeam
-				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_IBEAM]);
-				break;
-			case -5: // crSize
-				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZEALL]);
-				break;
-			case -6: // crSizeNESW
-				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZENESW]);
-				break;
-			case -7: // crSizeNS
-				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZENS]);
-				break;
-			case -8: // crSizeNWSE
-				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZENWSE]);
-				break;
-			case -9: // crSizeWE
-				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZEWE]);
-				break;
-			case -11: // crHourGlass
-				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_WAIT]);
-				break;
-			case -18: // crNo
-				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_NO]);
-				break;
-			case -19: // crAppStart
-				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_WAITARROW]);
-				break;
-			case -21: // crHandPoint
-				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_HAND]);
-				break;
-			case -22: // crSizeAll
-				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZEALL]);
-				break;
-			default:
-				SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_ARROW]);
-				break;
-		}
-	}
-	virtual void SetMouseCursorState(tTVPMouseCursorState mcs) override {
-		cursor_temporary_hidden = (mcs == mcsTempHidden);
-		SDL_ShowCursor((mcs == mcsVisible) ? SDL_ENABLE : SDL_DISABLE);
-	}
-	virtual tTVPMouseCursorState GetMouseCursorState() const override {
-		if (cursor_temporary_hidden)
-		{
-			return mcsTempHidden;
-		}
-		return (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) ? mcsVisible : mcsHidden;
-	}
-	virtual void HideMouseCursor() override {
-		SetMouseCursorState(mcsTempHidden);
-	}
-	void RestoreMouseCursor() {
-		if (cursor_temporary_hidden)
-		{
-			SetMouseCursorState(mcsVisible);
-		}
-	}
-	virtual void GetCursorPos(tjs_int &x, tjs_int &y) override {
-		SDL_GetMouseState(&x, &y);
-	}
-	virtual void SetCursorPos(tjs_int x, tjs_int y) override {
-		RestoreMouseCursor();
-		if (window)
-		{
-			SDL_WarpMouseInWindow(window, x, y);
-		}
-	}
-	virtual void SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont * font) override {
-		attention_point_rect.x = left;
-		attention_point_rect.y = top;
-		attention_point_rect.w = 0;
-		attention_point_rect.h = font->Height;
-		SDL_SetTextInputRect(&attention_point_rect);
-	}
-	virtual void BringToFront() override {
-		if (_currentWindowLayer != this) {
-			if (_currentWindowLayer) {
-				_currentWindowLayer->TJSNativeInstance->OnReleaseCapture();
-			}
-			_currentWindowLayer = this;
-		}
-		if (window)
-		{
-			SDL_RaiseWindow(window);
-		}
-	}
-	virtual void ShowWindowAsModal() override {
-#ifdef __EMSCRIPTEN__
-		TVPThrowExceptionMessage(TJS_W("Showing window as modal is not supported"));
-#else
-		in_mode_ = true;
-		BringToFront();
-		modal_result_ = 0;
-		while (this == _currentWindowLayer && !modal_result_) {
-			process_events();
-			if (::Application->IsTarminate()) {
-				modal_result_ = mrCancel;
-			} else if (modal_result_ != 0) {
-				break;
-			}
-		}
-		in_mode_ = false;
-#endif
-	}
-	virtual bool GetVisible() override {
-		if (window)
-		{
-			return SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN;
-		}
-		return false;
-	}
-	virtual void SetVisible(bool visible) override {
-		if (window)
-		{
-			if (visible)
-			{
-				SDL_ShowWindow(window);
-			}
-			else
-			{
-				SDL_HideWindow(window);
-			}
-		}
-		if (visible)
-		{
-			BringToFront();
-		}
-		else if (!visible && _currentWindowLayer == this)
-		{
-			_currentWindowLayer = _prevWindow ? _prevWindow : _nextWindow;
-			if (_currentWindowLayer)
-			{
-				_currentWindowLayer->BringToFront();
-			}
-		}
-	}
-	virtual void SetFullScreenMode(bool fullscreen) override {
-		if (window)
-		{
-			SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
-		}
-		UpdateWindow(utNormal);
-	}
-	virtual bool GetFullScreenMode() override {
-		if (window)
-		{
-			return SDL_GetWindowFlags(window) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP);
-		}
-		return false;
-	}
-	virtual void SetBorderStyle(tTVPBorderStyle bs) override {
-		if (window)
-		{
-			SDL_SetWindowBordered(window, (bs == bsNone) ? SDL_FALSE : SDL_TRUE);
-			SDL_SetWindowResizable(window, (bs == bsSizeable || bs == bsSizeToolWin) ? SDL_TRUE : SDL_FALSE);
-		}
-	}
-	virtual tTVPBorderStyle GetBorderStyle() const override {
-		if (window)
-		{
-			Uint32 flags = SDL_GetWindowFlags(window);
-			if (flags & SDL_WINDOW_BORDERLESS)
-			{
-				return bsNone;
-			}
-			else if (flags & SDL_WINDOW_RESIZABLE)
-			{
-				return bsSizeable;
-			}
-		}
-		return bsSingle;
-	}
-	virtual tjs_string GetCaption() override {
-		if (window)
-		{
-			std::string v_utf8 = SDL_GetWindowTitle(window);
-			tjs_string v_utf16;
-			TVPUtf8ToUtf16( v_utf16, v_utf8 );
-			return v_utf16;
-		}
-		else
-		{
-			tjs_string empty = TJS_W("");
-			return empty;
-		}
-	}
-	virtual void GetCaption(tjs_string & v) const override {
-		v.clear();
-		if (window)
-		{
-			std::string v_utf8 = SDL_GetWindowTitle(window);
-			TVPUtf8ToUtf16( v, v_utf8 );
-		}
-	}
-	virtual void SetCaption(const tjs_string & v) override {
-		if (window)
-		{
-			std::string v_utf8;
-			if (TVPUtf16ToUtf8(v_utf8, v))
-			{
-				SDL_SetWindowTitle(window, v_utf8.c_str());
-			}
-		}
-	}
-	virtual void SetWidth(tjs_int w) override {
-		if (window)
-		{
-			int h;
-			SDL_GetWindowSize(window, NULL, &h);
-			SDL_SetWindowSize(window, w, h);
-			if (surface)
-			{
-				surface = SDL_GetWindowSurface(window);
-				if (surface == nullptr)
-				{
-					TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
-				}
-			}
-		}
-		UpdateWindow(utNormal);
-	}
-	virtual void SetHeight(tjs_int h) override {
-		if (window)
-		{
-			int w;
-			SDL_GetWindowSize(window, &w, NULL);
-			SDL_SetWindowSize(window, w, h);
-			if (surface)
-			{
-				surface = SDL_GetWindowSurface(window);
-				if (surface == nullptr)
-				{
-					TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
-				}
-			}
-		}
-		UpdateWindow(utNormal);
-	}
-	virtual void SetSize(tjs_int w, tjs_int h) override {
-		if (window)
-		{
-			SDL_SetWindowSize(window, w, h);
-			if (surface)
-			{
-				surface = SDL_GetWindowSurface(window);
-				if (surface == nullptr)
-				{
-					TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
-				}
-			}
-		}
-		UpdateWindow(utNormal);
-	}
-	virtual void GetSize(tjs_int &w, tjs_int &h) override {
-		if (window)
-		{
-			SDL_GetWindowSize(window, &w, &h);
-		}
-		else
-		{
-			w = 0;
-			h = 0;
-		}
-	}
-	virtual tjs_int GetWidth() const override {
-		if (window)
-		{
-			int w;
-			SDL_GetWindowSize(window, &w, NULL);
-			return w;
-		}
-		return 0;
-	}
-	virtual tjs_int GetHeight() const override {
-		if (window)
-		{
-			int h;
-			SDL_GetWindowSize(window, NULL, &h);
-			return h;
-		}
-		return 0;
-	}
-	virtual void SetMinWidth(tjs_int w) override {
-		SetMinSize(w, GetMinHeight());
-	}
-	virtual void SetMaxWidth(tjs_int w) override {
-		SetMaxSize(w, GetMaxHeight());
-	}
-	virtual void SetMinHeight(tjs_int h) override {
-		SetMinSize(GetMinWidth(), h);
-	}
-	virtual void SetMaxHeight(tjs_int h) override {
-		SetMaxSize(GetMaxWidth(), h);
-	}
-	virtual void SetMinSize(tjs_int w, tjs_int h) override {
-		if (window)
-		{
-			SDL_SetWindowMinimumSize(window, w, h);
-		}
-	}
-	virtual void SetMaxSize(tjs_int w, tjs_int h) override {
-		if (window)
-		{
-			SDL_SetWindowMaximumSize(window, w, h);
-		}
-	}
-	virtual tjs_int GetMinWidth() override {
-		if (window)
-		{
-			int w;
-			SDL_GetWindowMinimumSize(window, &w, nullptr);
-			return w;
-		}
-		return 0;
-	}
-	virtual tjs_int GetMaxWidth() override {
-		if (window)
-		{
-			int w;
-			SDL_GetWindowMaximumSize(window, &w, nullptr);
-			return w;
-		}
-		return 0;
-	}
-	virtual tjs_int GetMinHeight() override {
-		if (window)
-		{
-			int h;
-			SDL_GetWindowMinimumSize(window, &h, nullptr);
-			return h;
-		}
-		return 0;
-	}
-	virtual tjs_int GetMaxHeight() override {
-		if (window)
-		{
-			int h;
-			SDL_GetWindowMaximumSize(window, &h, nullptr);
-			return h;
-		}
-		return 0;
-	}
-	virtual tjs_int GetLeft() override {
-		if (window)
-		{
-			int x;
-			SDL_GetWindowPosition(window, &x, nullptr);
-			return x;
-		}
-		return 0;
-	}
-	virtual void SetLeft(tjs_int l) override {
-		SetPosition(l, GetTop());
-	}
-	virtual tjs_int GetTop() override {
-		if (window)
-		{
-			int y;
-			SDL_GetWindowPosition(window, nullptr, &y);
-			return y;
-		}
-		return 0;
-	}
-	virtual void SetTop(tjs_int t) override {
-		SetPosition(GetLeft(), t);
-	}
-	virtual void SetPosition(tjs_int l, tjs_int t) override {
-		if (window)
-		{
-			SDL_SetWindowPosition(window, l, t);
-		}
-	}
+	TVPWindowLayer(tTJSNI_Window *w);
+	virtual ~TVPWindowLayer();
+	virtual void SetPaintBoxSize(tjs_int w, tjs_int h) override;
+	virtual bool GetFormEnabled() override;
+	virtual void SetDefaultMouseCursor() override;
+	virtual void SetMouseCursor(tjs_int handle) override;
+	virtual void SetMouseCursorState(tTVPMouseCursorState mcs) override;
+	virtual tTVPMouseCursorState GetMouseCursorState() const override;
+	void RestoreMouseCursor();
+	virtual void HideMouseCursor() override;
+	virtual void GetCursorPos(tjs_int &x, tjs_int &y) override;
+	virtual void SetCursorPos(tjs_int x, tjs_int y) override;
+	virtual void SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont * font) override;
+	virtual void BringToFront() override;
+	virtual void ShowWindowAsModal() override;
+	virtual bool GetVisible() override;
+	virtual void SetVisible(bool visible) override;
+	virtual void SetFullScreenMode(bool fullscreen) override;
+	virtual bool GetFullScreenMode() override;
+	virtual void SetBorderStyle(tTVPBorderStyle bs) override;
+	virtual tTVPBorderStyle GetBorderStyle() const override;
+	virtual tjs_string GetCaption() override;
+	virtual void GetCaption(tjs_string & v) const override;
+	virtual void SetCaption(const tjs_string & v) override;
+	virtual void SetWidth(tjs_int w) override;
+	virtual void SetHeight(tjs_int h) override;
+	virtual void SetSize(tjs_int w, tjs_int h) override;
+	virtual void GetSize(tjs_int &w, tjs_int &h) override;
+	virtual tjs_int GetWidth() const override;
+	virtual tjs_int GetHeight() const override;
+	virtual void SetMinWidth(tjs_int w) override;
+	virtual void SetMaxWidth(tjs_int w) override;
+	virtual void SetMinHeight(tjs_int h) override;
+	virtual void SetMaxHeight(tjs_int h) override;
+	virtual void SetMinSize(tjs_int w, tjs_int h) override;
+	virtual void SetMaxSize(tjs_int w, tjs_int h) override;
+	virtual tjs_int GetMinWidth() override;
+	virtual tjs_int GetMaxWidth() override;
+	virtual tjs_int GetMinHeight() override;
+	virtual tjs_int GetMaxHeight() override;
+	virtual tjs_int GetLeft() override;
+	virtual void SetLeft(tjs_int l) override;
+	virtual tjs_int GetTop() override;
+	virtual void SetTop(tjs_int t) override;
+	virtual void SetPosition(tjs_int l, tjs_int t) override;
 	virtual void NotifyBitmapCompleted(iTVPLayerManager * manager,
 		tjs_int x, tjs_int y, const void * bits, const class BitmapInfomation * bmpinfo,
-		const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity) override {
-		const TVPBITMAPINFO *bitmapinfo = bmpinfo->GetBITMAPINFO();
-		tjs_int w = 0;
-		tjs_int h = 0;
-		if(!manager) return;
-		if(!manager->GetPrimaryLayerSize(w, h))
-		{
-			w = 0;
-			h = 0;
-		}
-		if(
-			!(x < 0 || y < 0 ||
-				x + cliprect.get_width() > w ||
-				y + cliprect.get_height() > h) &&
-			!(cliprect.left < 0 || cliprect.top < 0 ||
-				cliprect.right > bitmapinfo->bmiHeader.biWidth ||
-				cliprect.bottom > bitmapinfo->bmiHeader.biHeight))
-		{
-			// bitmapinfo で表された cliprect の領域を x,y にコピーする
-			long src_y       = cliprect.top;
-			long src_y_limit = cliprect.bottom;
-			long src_x       = cliprect.left;
-			long width_bytes   = cliprect.get_width() * 4; // 32bit
-			long dest_y      = 0;
-			long dest_x      = 0;
-			const tjs_uint8 * src_p = (const tjs_uint8 *)bits;
-			long src_pitch;
-
-			if(bitmapinfo->bmiHeader.biHeight < 0)
-			{
-				// bottom-down
-				src_pitch = bitmapinfo->bmiHeader.biWidth * 4;
-				//src_pitch = -bitmapinfo->bmiHeader.biWidth * 4;
-				//src_p += bitmapinfo->bmiHeader.biWidth * 4 * (bitmapinfo->bmiHeader.biHeight - 1);
-			}
-			else
-			{
-				// bottom-up
-				src_pitch = -bitmapinfo->bmiHeader.biWidth * 4;
-				src_p += bitmapinfo->bmiHeader.biWidth * 4 * (bitmapinfo->bmiHeader.biHeight - 1);
-				//src_pitch = bitmapinfo->bmiHeader.biWidth * 4;
-			}
-
-			void* TextureBuffer;
-			int TexturePitch;
-			SDL_Rect dstrect;
-			dstrect.x = x;
-			dstrect.y = y;
-			dstrect.w = cliprect.get_width();
-			dstrect.h = cliprect.get_height();
-
-			if (framebuffer)
-			{
-				SDL_LockTexture(framebuffer, &dstrect, &TextureBuffer, &TexturePitch);
-				for(; src_y < src_y_limit; src_y ++, dest_y ++)
-				{
-					const void *srcp = src_p + src_pitch * src_y + src_x * 4;
-					void *destp = (tjs_uint8*)TextureBuffer + TexturePitch * dest_y + dest_x * 4;
-					memcpy(destp, srcp, width_bytes);
-				}
-				SDL_UnlockTexture(framebuffer);
-			}
-			else if (surface)
-			{
-				dstrect.h = 1;
-				SDL_Surface* clip_surface = SDL_CreateRGBSurfaceFrom((void *)src_p, cliprect.get_width(), 1, 32, cliprect.get_width() * 4, 0x00ff0000, 0x0000ff00, 0x000000ff, 0);
-				if (clip_surface == nullptr)
-				{
-					TVPAddLog(ttstr("Cannot create clip surface: ") + ttstr(SDL_GetError()));
-					return;
-				}
-				for(; src_y < src_y_limit; src_y ++, dest_y ++)
-				{
-					const void *srcp = src_p + src_pitch * src_y + src_x * 4;
-					SDL_LockSurface(clip_surface);
-					clip_surface->pixels = (void *)srcp;
-					SDL_UnlockSurface(clip_surface);
-					int blit_result = SDL_BlitSurface(clip_surface, nullptr, surface, &dstrect);
-					if (blit_result < 0)
-					{
-						TVPAddLog(ttstr("Cannot blit onto window surface: ") + ttstr(SDL_GetError()));
-					}
-					dstrect.y += 1;
-				}
-				SDL_FreeSurface(clip_surface);
-			}
-
-		}
-	}
-	virtual void Show() override {
-		if (renderer)
-		{
-			SDL_RenderFillRect(renderer, NULL);
-			if (framebuffer)
-			{
-				SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
-			}
-			SDL_RenderPresent(renderer);
-			hasDrawn = true;
-		}
-		else if (window && surface)
-		{
-			SDL_UpdateWindowSurface(window);
-			hasDrawn = true;
-		}
-	}
-	virtual void InvalidateClose() override {
-		TJSNativeInstance = NULL;
-		SetVisible(false);
-		delete this;
-	}
-	virtual bool GetWindowActive() override {
-		return _currentWindowLayer == this;
-	}
+		const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity) override;
+	virtual void Show() override;
+	virtual void InvalidateClose() override;
+	virtual bool GetWindowActive() override;
 	bool Closing = false, ProgramClosing = false, CanCloseWork = false;
 	bool in_mode_ = false; // is modal
 	int modal_result_ = 0;
@@ -986,498 +398,1146 @@ public:
 		caFree,
 		caMinimize
 	};
-	void OnClose(CloseAction& action) {
-		if (modal_result_ == 0)
-			action = caNone;
-		else
-			action = caHide;
+	void OnClose(CloseAction& action);
+	bool OnCloseQuery();
+	virtual void Close() override;
+	virtual void OnCloseQueryCalled(bool b) override;
+	virtual void SetImeMode(tTVPImeMode mode) override;
+	virtual void ResetImeMode() override;
+	virtual void UpdateWindow(tTVPUpdateType type) override;
+	void window_receive_event(SDL_Event event);
+};
 
-		if (ProgramClosing) {
-			if (TJSNativeInstance) {
-				if (TJSNativeInstance->IsMainWindow()) {
-					// this is the main window
-				} else 			{
-					// not the main window
-					action = caFree;
-				}
-				iTJSDispatch2 * obj = TJSNativeInstance->GetOwnerNoAddRef();
-				TJSNativeInstance->NotifyWindowClose();
-				obj->Invalidate(0, NULL, NULL, obj);
-				TJSNativeInstance = NULL;
-				SetVisible(false);
+TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
+{
+	ime_composition = nullptr;
+	ime_composition_cursor = 0;
+	ime_composition_len = 0;
+	ime_composition_selection = 0;
+	attention_point_rect.x = 0;
+	attention_point_rect.y = 0;
+	attention_point_rect.w = 0;
+	attention_point_rect.h = 0;
+	file_drop_array = nullptr;
+	file_drop_array_count = 0;
+	_nextWindow = nullptr;
+	_prevWindow = _lastWindowLayer;
+	_lastWindowLayer = this;
+	if (_prevWindow) {
+		_prevWindow->_nextWindow = this;
+	}
+	if (!_currentWindowLayer) {
+		_currentWindowLayer = this;
+	}
+	if (w) {
+		TJSNativeInstance = w;
+	}
+	else {
+		TJSNativeInstance = nullptr;
+	}
+	
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	{
+		TVPThrowExceptionMessage(TJS_W("Cannot initialize SDL video subsystem: %1"), ttstr(SDL_GetError()));
+	}
+	window = SDL_CreateWindow("krkrsdl2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+	if (window == nullptr)
+	{
+		TVPThrowExceptionMessage(TJS_W("Cannot create SDL window: %1"), ttstr(SDL_GetError()));
+	}
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (renderer == nullptr)
+	{
+		TVPAddLog(ttstr("Cannot create SDL renderer: ") + ttstr(SDL_GetError()));
+		surface = SDL_GetWindowSurface(window);
+		if (surface == nullptr)
+		{
+			TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
+		}
+	}
+	else
+	{
+		surface = nullptr;
+	}
+	framebuffer = NULL;
+	if (renderer)
+	{
+		SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0x00, 0xFF );
+	}
+}
+
+TVPWindowLayer::~TVPWindowLayer() {
+	if (_lastWindowLayer == this) _lastWindowLayer = _prevWindow;
+	if (_nextWindow) _nextWindow->_prevWindow = _prevWindow;
+	if (_prevWindow) _prevWindow->_nextWindow = _nextWindow;
+	if (_currentWindowLayer == this) {
+		_currentWindowLayer = _lastWindowLayer;
+	}
+	if (framebuffer)
+	{
+		SDL_DestroyTexture(framebuffer);
+		framebuffer = NULL;
+	}
+	if (renderer)
+	{
+		SDL_DestroyRenderer(renderer);
+		renderer = NULL;
+	}
+	if (window)
+	{
+		SDL_DestroyWindow(window);
+		window = NULL;
+	}
+}
+
+void TVPWindowLayer::SetPaintBoxSize(tjs_int w, tjs_int h) {
+	if (renderer)
+	{
+		if (framebuffer)
+		{
+			SDL_DestroyTexture(framebuffer);
+			framebuffer = NULL;
+		}
+		framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, w, h);
+		if (framebuffer == nullptr)
+		{
+			TVPThrowExceptionMessage(TJS_W("Cannot create framebuffer texture: %1"), ttstr(SDL_GetError()));
+		}
+	}
+	SDL_Rect cliprect;
+	cliprect.x = 0;
+	cliprect.y = 0;
+	cliprect.w = w;
+	cliprect.h = h;
+	if (renderer)
+	{
+		SDL_RenderSetLogicalSize(renderer, w, h);
+	}
+	if( TJSNativeInstance )
+	{
+		tTVPRect r;
+		r.left = 0;
+		r.top = 0;
+		r.right = w;
+		r.bottom = h;
+		TJSNativeInstance->NotifyWindowExposureToLayer(r);
+		TJSNativeInstance->GetDrawDevice()->SetClipRectangle(r);
+		TJSNativeInstance->GetDrawDevice()->SetDestRectangle(r);
+	}
+}
+bool TVPWindowLayer::GetFormEnabled() {
+	if (window)
+	{
+		return SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN;
+	}
+	return false;
+}
+void TVPWindowLayer::SetDefaultMouseCursor() {
+	if (!sdl_system_cursors[0])
+	{
+		for (int i = 0; i < SDL_NUM_SYSTEM_CURSORS; i += 1)
+		{
+			sdl_system_cursors[i] = SDL_CreateSystemCursor((SDL_SystemCursor)i);
+		}
+	}
+	SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_ARROW]);
+}
+void TVPWindowLayer::SetMouseCursor(tjs_int handle) {
+	if (!sdl_system_cursors[0])
+	{
+		for (int i = 0; i < SDL_NUM_SYSTEM_CURSORS; i += 1)
+		{
+			sdl_system_cursors[i] = SDL_CreateSystemCursor((SDL_SystemCursor)i);
+		}
+	}
+	switch (handle)
+	{
+		case -2: // crArrow
+			SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_ARROW]);
+			break;
+		case -3: // crCross
+			SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_CROSSHAIR]);
+			break;
+		case -4: // crIBeam
+			SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_IBEAM]);
+			break;
+		case -5: // crSize
+			SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZEALL]);
+			break;
+		case -6: // crSizeNESW
+			SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZENESW]);
+			break;
+		case -7: // crSizeNS
+			SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZENS]);
+			break;
+		case -8: // crSizeNWSE
+			SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZENWSE]);
+			break;
+		case -9: // crSizeWE
+			SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZEWE]);
+			break;
+		case -11: // crHourGlass
+			SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_WAIT]);
+			break;
+		case -18: // crNo
+			SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_NO]);
+			break;
+		case -19: // crAppStart
+			SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_WAITARROW]);
+			break;
+		case -21: // crHandPoint
+			SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_HAND]);
+			break;
+		case -22: // crSizeAll
+			SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_SIZEALL]);
+			break;
+		default:
+			SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_ARROW]);
+			break;
+	}
+}
+void TVPWindowLayer::SetMouseCursorState(tTVPMouseCursorState mcs) {
+	cursor_temporary_hidden = (mcs == mcsTempHidden);
+	SDL_ShowCursor((mcs == mcsVisible) ? SDL_ENABLE : SDL_DISABLE);
+}
+tTVPMouseCursorState TVPWindowLayer::GetMouseCursorState() const {
+	if (cursor_temporary_hidden)
+	{
+		return mcsTempHidden;
+	}
+	return (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) ? mcsVisible : mcsHidden;
+}
+void TVPWindowLayer::HideMouseCursor() {
+	SetMouseCursorState(mcsTempHidden);
+}
+void TVPWindowLayer::RestoreMouseCursor() {
+	if (cursor_temporary_hidden)
+	{
+		SetMouseCursorState(mcsVisible);
+	}
+}
+void TVPWindowLayer::GetCursorPos(tjs_int &x, tjs_int &y) {
+	SDL_GetMouseState(&x, &y);
+}
+void TVPWindowLayer::SetCursorPos(tjs_int x, tjs_int y) {
+	RestoreMouseCursor();
+	if (window)
+	{
+		SDL_WarpMouseInWindow(window, x, y);
+	}
+}
+void TVPWindowLayer::SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont * font) {
+	attention_point_rect.x = left;
+	attention_point_rect.y = top;
+	attention_point_rect.w = 0;
+	attention_point_rect.h = font->Height;
+	SDL_SetTextInputRect(&attention_point_rect);
+}
+void TVPWindowLayer::BringToFront() {
+	if (_currentWindowLayer != this) {
+		if (_currentWindowLayer) {
+			_currentWindowLayer->TJSNativeInstance->OnReleaseCapture();
+		}
+		_currentWindowLayer = this;
+	}
+	if (window)
+	{
+		SDL_RaiseWindow(window);
+	}
+}
+void TVPWindowLayer::ShowWindowAsModal() {
+#ifdef __EMSCRIPTEN__
+	TVPThrowExceptionMessage(TJS_W("Showing window as modal is not supported"));
+#else
+	in_mode_ = true;
+	BringToFront();
+	modal_result_ = 0;
+	while (this == _currentWindowLayer && !modal_result_) {
+		process_events();
+		if (::Application->IsTarminate()) {
+			modal_result_ = mrCancel;
+		} else if (modal_result_ != 0) {
+			break;
+		}
+	}
+	in_mode_ = false;
+#endif
+}
+bool TVPWindowLayer::GetVisible() {
+	if (window)
+	{
+		return SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN;
+	}
+	return false;
+}
+void TVPWindowLayer::SetVisible(bool visible) {
+	if (window)
+	{
+		if (visible)
+		{
+			SDL_ShowWindow(window);
+		}
+		else
+		{
+			SDL_HideWindow(window);
+		}
+	}
+	if (visible)
+	{
+		BringToFront();
+	}
+	else if (!visible && _currentWindowLayer == this)
+	{
+		_currentWindowLayer = _prevWindow ? _prevWindow : _nextWindow;
+		if (_currentWindowLayer)
+		{
+			_currentWindowLayer->BringToFront();
+		}
+	}
+}
+void TVPWindowLayer::SetFullScreenMode(bool fullscreen) {
+	if (window)
+	{
+		SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+	}
+	UpdateWindow(utNormal);
+}
+bool TVPWindowLayer::GetFullScreenMode() {
+	if (window)
+	{
+		return SDL_GetWindowFlags(window) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP);
+	}
+	return false;
+}
+void TVPWindowLayer::SetBorderStyle(tTVPBorderStyle bs) {
+	if (window)
+	{
+		SDL_SetWindowBordered(window, (bs == bsNone) ? SDL_FALSE : SDL_TRUE);
+		SDL_SetWindowResizable(window, (bs == bsSizeable || bs == bsSizeToolWin) ? SDL_TRUE : SDL_FALSE);
+	}
+}
+tTVPBorderStyle TVPWindowLayer::GetBorderStyle() const {
+	if (window)
+	{
+		Uint32 flags = SDL_GetWindowFlags(window);
+		if (flags & SDL_WINDOW_BORDERLESS)
+		{
+			return bsNone;
+		}
+		else if (flags & SDL_WINDOW_RESIZABLE)
+		{
+			return bsSizeable;
+		}
+	}
+	return bsSingle;
+}
+tjs_string TVPWindowLayer::GetCaption() {
+	if (window)
+	{
+		std::string v_utf8 = SDL_GetWindowTitle(window);
+		tjs_string v_utf16;
+		TVPUtf8ToUtf16( v_utf16, v_utf8 );
+		return v_utf16;
+	}
+	else
+	{
+		tjs_string empty = TJS_W("");
+		return empty;
+	}
+}
+void TVPWindowLayer::GetCaption(tjs_string & v) const {
+	v.clear();
+	if (window)
+	{
+		std::string v_utf8 = SDL_GetWindowTitle(window);
+		TVPUtf8ToUtf16( v, v_utf8 );
+	}
+}
+void TVPWindowLayer::SetCaption(const tjs_string & v) {
+	if (window)
+	{
+		std::string v_utf8;
+		if (TVPUtf16ToUtf8(v_utf8, v))
+		{
+			SDL_SetWindowTitle(window, v_utf8.c_str());
+		}
+	}
+}
+void TVPWindowLayer::SetWidth(tjs_int w) {
+	if (window)
+	{
+		int h;
+		SDL_GetWindowSize(window, NULL, &h);
+		SDL_SetWindowSize(window, w, h);
+		if (surface)
+		{
+			surface = SDL_GetWindowSurface(window);
+			if (surface == nullptr)
+			{
+				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
 			}
 		}
 	}
-	bool OnCloseQuery() {
-		// closing actions are 3 patterns;
-		// 1. closing action by the user
-		// 2. "close" method
-		// 3. object invalidation
+	UpdateWindow(utNormal);
+}
+void TVPWindowLayer::SetHeight(tjs_int h) {
+	if (window)
+	{
+		int w;
+		SDL_GetWindowSize(window, &w, NULL);
+		SDL_SetWindowSize(window, w, h);
+		if (surface)
+		{
+			surface = SDL_GetWindowSurface(window);
+			if (surface == nullptr)
+			{
+				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
+			}
+		}
+	}
+	UpdateWindow(utNormal);
+}
+void TVPWindowLayer::SetSize(tjs_int w, tjs_int h) {
+	if (window)
+	{
+		SDL_SetWindowSize(window, w, h);
+		if (surface)
+		{
+			surface = SDL_GetWindowSurface(window);
+			if (surface == nullptr)
+			{
+				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
+			}
+		}
+	}
+	UpdateWindow(utNormal);
+}
+void TVPWindowLayer::GetSize(tjs_int &w, tjs_int &h) {
+	if (window)
+	{
+		SDL_GetWindowSize(window, &w, &h);
+	}
+	else
+	{
+		w = 0;
+		h = 0;
+	}
+}
+tjs_int TVPWindowLayer::GetWidth() const {
+	if (window)
+	{
+		int w;
+		SDL_GetWindowSize(window, &w, NULL);
+		return w;
+	}
+	return 0;
+}
+tjs_int TVPWindowLayer::GetHeight() const {
+	if (window)
+	{
+		int h;
+		SDL_GetWindowSize(window, NULL, &h);
+		return h;
+	}
+	return 0;
+}
+void TVPWindowLayer::SetMinWidth(tjs_int w) {
+	SetMinSize(w, GetMinHeight());
+}
+void TVPWindowLayer::SetMaxWidth(tjs_int w) {
+	SetMaxSize(w, GetMaxHeight());
+}
+void TVPWindowLayer::SetMinHeight(tjs_int h) {
+	SetMinSize(GetMinWidth(), h);
+}
+void TVPWindowLayer::SetMaxHeight(tjs_int h) {
+	SetMaxSize(GetMaxWidth(), h);
+}
+void TVPWindowLayer::SetMinSize(tjs_int w, tjs_int h) {
+	if (window)
+	{
+		SDL_SetWindowMinimumSize(window, w, h);
+	}
+}
+void TVPWindowLayer::SetMaxSize(tjs_int w, tjs_int h) {
+	if (window)
+	{
+		SDL_SetWindowMaximumSize(window, w, h);
+	}
+}
+tjs_int TVPWindowLayer::GetMinWidth() {
+	if (window)
+	{
+		int w;
+		SDL_GetWindowMinimumSize(window, &w, nullptr);
+		return w;
+	}
+	return 0;
+}
+tjs_int TVPWindowLayer::GetMaxWidth() {
+	if (window)
+	{
+		int w;
+		SDL_GetWindowMaximumSize(window, &w, nullptr);
+		return w;
+	}
+	return 0;
+}
+tjs_int TVPWindowLayer::GetMinHeight() {
+	if (window)
+	{
+		int h;
+		SDL_GetWindowMinimumSize(window, &h, nullptr);
+		return h;
+	}
+	return 0;
+}
+tjs_int TVPWindowLayer::GetMaxHeight() {
+	if (window)
+	{
+		int h;
+		SDL_GetWindowMaximumSize(window, &h, nullptr);
+		return h;
+	}
+	return 0;
+}
+tjs_int TVPWindowLayer::GetLeft() {
+	if (window)
+	{
+		int x;
+		SDL_GetWindowPosition(window, &x, nullptr);
+		return x;
+	}
+	return 0;
+}
+void TVPWindowLayer::SetLeft(tjs_int l) {
+	SetPosition(l, GetTop());
+}
+tjs_int TVPWindowLayer::GetTop() {
+	if (window)
+	{
+		int y;
+		SDL_GetWindowPosition(window, nullptr, &y);
+		return y;
+	}
+	return 0;
+}
+void TVPWindowLayer::SetTop(tjs_int t) {
+	SetPosition(GetLeft(), t);
+}
+void TVPWindowLayer::SetPosition(tjs_int l, tjs_int t) {
+	if (window)
+	{
+		SDL_SetWindowPosition(window, l, t);
+	}
+}
+void TVPWindowLayer::NotifyBitmapCompleted(iTVPLayerManager * manager,
+	tjs_int x, tjs_int y, const void * bits, const class BitmapInfomation * bmpinfo,
+	const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity) {
+	const TVPBITMAPINFO *bitmapinfo = bmpinfo->GetBITMAPINFO();
+	tjs_int w = 0;
+	tjs_int h = 0;
+	if(!manager) return;
+	if(!manager->GetPrimaryLayerSize(w, h))
+	{
+		w = 0;
+		h = 0;
+	}
+	if(
+		!(x < 0 || y < 0 ||
+			x + cliprect.get_width() > w ||
+			y + cliprect.get_height() > h) &&
+		!(cliprect.left < 0 || cliprect.top < 0 ||
+			cliprect.right > bitmapinfo->bmiHeader.biWidth ||
+			cliprect.bottom > bitmapinfo->bmiHeader.biHeight))
+	{
+		// bitmapinfo で表された cliprect の領域を x,y にコピーする
+		long src_y       = cliprect.top;
+		long src_y_limit = cliprect.bottom;
+		long src_x       = cliprect.left;
+		long width_bytes   = cliprect.get_width() * 4; // 32bit
+		long dest_y      = 0;
+		long dest_x      = 0;
+		const tjs_uint8 * src_p = (const tjs_uint8 *)bits;
+		long src_pitch;
 
-		if (TVPGetBreathing()) {
-			return false;
+		if(bitmapinfo->bmiHeader.biHeight < 0)
+		{
+			// bottom-down
+			src_pitch = bitmapinfo->bmiHeader.biWidth * 4;
+			//src_pitch = -bitmapinfo->bmiHeader.biWidth * 4;
+			//src_p += bitmapinfo->bmiHeader.biWidth * 4 * (bitmapinfo->bmiHeader.biHeight - 1);
+		}
+		else
+		{
+			// bottom-up
+			src_pitch = -bitmapinfo->bmiHeader.biWidth * 4;
+			src_p += bitmapinfo->bmiHeader.biWidth * 4 * (bitmapinfo->bmiHeader.biHeight - 1);
+			//src_pitch = bitmapinfo->bmiHeader.biWidth * 4;
 		}
 
-		// the default event handler will invalidate this object when an onCloseQuery
-		// event reaches the handler.
-		if (TJSNativeInstance && (modal_result_ == 0 ||
-			modal_result_ == mrCancel/* mrCancel=when close button is pushed in modal window */)) {
-			iTJSDispatch2 * obj = TJSNativeInstance->GetOwnerNoAddRef();
-			if (obj) {
-				tTJSVariant arg[1] = { true };
-				static ttstr eventname(TJS_W("onCloseQuery"));
+		void* TextureBuffer;
+		int TexturePitch;
+		SDL_Rect dstrect;
+		dstrect.x = x;
+		dstrect.y = y;
+		dstrect.w = cliprect.get_width();
+		dstrect.h = cliprect.get_height();
 
-				if (!ProgramClosing) {
-					// close action does not happen immediately
-					if (TJSNativeInstance) {
-						TVPPostInputEvent(new tTVPOnCloseInputEvent(TJSNativeInstance));
-					}
-
-					Closing = true; // waiting closing...
-				//	TVPSystemControl->NotifyCloseClicked();
-					return false;
-				} else {
-					CanCloseWork = true;
-					TVPPostEvent(obj, obj, eventname, 0, TVP_EPT_IMMEDIATE, 1, arg);
-					process_events(); // for post event
-					// this event happens immediately
-					// and does not return until done
-					return CanCloseWork; // CanCloseWork is set by the event handler
+		if (framebuffer)
+		{
+			SDL_LockTexture(framebuffer, &dstrect, &TextureBuffer, &TexturePitch);
+			for(; src_y < src_y_limit; src_y ++, dest_y ++)
+			{
+				const void *srcp = src_p + src_pitch * src_y + src_x * 4;
+				void *destp = (tjs_uint8*)TextureBuffer + TexturePitch * dest_y + dest_x * 4;
+				memcpy(destp, srcp, width_bytes);
+			}
+			SDL_UnlockTexture(framebuffer);
+		}
+		else if (surface)
+		{
+			dstrect.h = 1;
+			SDL_Surface* clip_surface = SDL_CreateRGBSurfaceFrom((void *)src_p, cliprect.get_width(), 1, 32, cliprect.get_width() * 4, 0x00ff0000, 0x0000ff00, 0x000000ff, 0);
+			if (clip_surface == nullptr)
+			{
+				TVPAddLog(ttstr("Cannot create clip surface: ") + ttstr(SDL_GetError()));
+				return;
+			}
+			for(; src_y < src_y_limit; src_y ++, dest_y ++)
+			{
+				const void *srcp = src_p + src_pitch * src_y + src_x * 4;
+				SDL_LockSurface(clip_surface);
+				clip_surface->pixels = (void *)srcp;
+				SDL_UnlockSurface(clip_surface);
+				int blit_result = SDL_BlitSurface(clip_surface, nullptr, surface, &dstrect);
+				if (blit_result < 0)
+				{
+					TVPAddLog(ttstr("Cannot blit onto window surface: ") + ttstr(SDL_GetError()));
 				}
+				dstrect.y += 1;
+			}
+			SDL_FreeSurface(clip_surface);
+		}
+
+	}
+}
+void TVPWindowLayer::Show() {
+	if (renderer)
+	{
+		SDL_RenderFillRect(renderer, NULL);
+		if (framebuffer)
+		{
+			SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
+		}
+		SDL_RenderPresent(renderer);
+		hasDrawn = true;
+	}
+	else if (window && surface)
+	{
+		SDL_UpdateWindowSurface(window);
+		hasDrawn = true;
+	}
+}
+void TVPWindowLayer::InvalidateClose() {
+	TJSNativeInstance = NULL;
+	SetVisible(false);
+	delete this;
+}
+bool TVPWindowLayer::GetWindowActive() {
+	return _currentWindowLayer == this;
+}
+void TVPWindowLayer::OnClose(CloseAction& action) {
+	if (modal_result_ == 0)
+		action = caNone;
+	else
+		action = caHide;
+
+	if (ProgramClosing) {
+		if (TJSNativeInstance) {
+			if (TJSNativeInstance->IsMainWindow()) {
+				// this is the main window
+			} else 			{
+				// not the main window
+				action = caFree;
+			}
+			iTJSDispatch2 * obj = TJSNativeInstance->GetOwnerNoAddRef();
+			TJSNativeInstance->NotifyWindowClose();
+			obj->Invalidate(0, NULL, NULL, obj);
+			TJSNativeInstance = NULL;
+			SetVisible(false);
+		}
+	}
+}
+bool TVPWindowLayer::OnCloseQuery() {
+	// closing actions are 3 patterns;
+	// 1. closing action by the user
+	// 2. "close" method
+	// 3. object invalidation
+
+	if (TVPGetBreathing()) {
+		return false;
+	}
+
+	// the default event handler will invalidate this object when an onCloseQuery
+	// event reaches the handler.
+	if (TJSNativeInstance && (modal_result_ == 0 ||
+		modal_result_ == mrCancel/* mrCancel=when close button is pushed in modal window */)) {
+		iTJSDispatch2 * obj = TJSNativeInstance->GetOwnerNoAddRef();
+		if (obj) {
+			tTJSVariant arg[1] = { true };
+			static ttstr eventname(TJS_W("onCloseQuery"));
+
+			if (!ProgramClosing) {
+				// close action does not happen immediately
+				if (TJSNativeInstance) {
+					TVPPostInputEvent(new tTVPOnCloseInputEvent(TJSNativeInstance));
+				}
+
+				Closing = true; // waiting closing...
+			//	TVPSystemControl->NotifyCloseClicked();
+				return false;
 			} else {
-				return true;
+				CanCloseWork = true;
+				TVPPostEvent(obj, obj, eventname, 0, TVP_EPT_IMMEDIATE, 1, arg);
+				process_events(); // for post event
+				// this event happens immediately
+				// and does not return until done
+				return CanCloseWork; // CanCloseWork is set by the event handler
 			}
 		} else {
 			return true;
 		}
+	} else {
+		return true;
 	}
-	virtual void Close() override {
-		// closing action by "close" method
-		if (Closing) return; // already waiting closing...
+}
+void TVPWindowLayer::Close() {
+	// closing action by "close" method
+	if (Closing) return; // already waiting closing...
 
-		ProgramClosing = true;
-		try {
-			//tTVPWindow::Close();
-			if (in_mode_) {
-				modal_result_ = mrCancel;
-			} 
-			else if (OnCloseQuery()) {
-				CloseAction action = caFree;
-				OnClose(action);
-				switch (action) {
-				case caNone:
-					break;
-				case caHide:
-					SetVisible(false);
-					break;
-				case caMinimize:
-					if (window)
-					{
-						SDL_MinimizeWindow(window);
-					}
-					break;
-				case caFree:
-				default:
-					isBeingDeleted = true;
-					//::PostMessage(GetHandle(), TVP_EV_WINDOW_RELEASE, 0, 0);
-					break;
+	ProgramClosing = true;
+	try {
+		//tTVPWindow::Close();
+		if (in_mode_) {
+			modal_result_ = mrCancel;
+		} 
+		else if (OnCloseQuery()) {
+			CloseAction action = caFree;
+			OnClose(action);
+			switch (action) {
+			case caNone:
+				break;
+			case caHide:
+				SetVisible(false);
+				break;
+			case caMinimize:
+				if (window)
+				{
+					SDL_MinimizeWindow(window);
 				}
+				break;
+			case caFree:
+			default:
+				isBeingDeleted = true;
+				//::PostMessage(GetHandle(), TVP_EV_WINDOW_RELEASE, 0, 0);
+				break;
 			}
 		}
-		catch (...) {
-			ProgramClosing = false;
-			throw;
-		}
-		ProgramClosing = false;
 	}
-	virtual void OnCloseQueryCalled(bool b) override {
-		// closing is allowed by onCloseQuery event handler
-		if (!ProgramClosing) {
-			// closing action by the user
-			if (b) {
-				if (in_mode_)
-					modal_result_ = 1; // when modal
-				else
-					SetVisible(false);  // just hide
+	catch (...) {
+		ProgramClosing = false;
+		throw;
+	}
+	ProgramClosing = false;
+}
+void TVPWindowLayer::OnCloseQueryCalled(bool b) {
+	// closing is allowed by onCloseQuery event handler
+	if (!ProgramClosing) {
+		// closing action by the user
+		if (b) {
+			if (in_mode_)
+				modal_result_ = 1; // when modal
+			else
+				SetVisible(false);  // just hide
 
-				Closing = false;
-				if (TJSNativeInstance) {
-					if (TJSNativeInstance->IsMainWindow()) {
-						// this is the main window
-						iTJSDispatch2 * obj = TJSNativeInstance->GetOwnerNoAddRef();
-						obj->Invalidate(0, NULL, NULL, obj);
-					}
-				} else {
-					delete this;
+			Closing = false;
+			if (TJSNativeInstance) {
+				if (TJSNativeInstance->IsMainWindow()) {
+					// this is the main window
+					iTJSDispatch2 * obj = TJSNativeInstance->GetOwnerNoAddRef();
+					obj->Invalidate(0, NULL, NULL, obj);
 				}
 			} else {
-				Closing = false;
+				delete this;
 			}
 		} else {
-			// closing action by the program
-			CanCloseWork = b;
+			Closing = false;
 		}
+	} else {
+		// closing action by the program
+		CanCloseWork = b;
 	}
-	virtual void SetImeMode(tTVPImeMode mode) override {
-		if (!window || mode == ::imDisable || mode == ::imClose)
-		{
-			ResetImeMode();
-		}
-		else
-		{
-			if (!SDL_IsTextInputActive())
-			{
-				SDL_SetTextInputRect(&attention_point_rect);
-				SDL_StartTextInput();
-			}
-		}
+}
+void TVPWindowLayer::SetImeMode(tTVPImeMode mode) {
+	if (!window || mode == ::imDisable || mode == ::imClose)
+	{
+		ResetImeMode();
 	}
-	virtual void ResetImeMode() override {
-		ime_composition = nullptr;
-		ime_composition_len = 0;
-		ime_composition_cursor = 0;
-		ime_composition_selection = 0;
-		attention_point_rect.x = 0;
-		attention_point_rect.y = 0;
-		attention_point_rect.w = 0;
-		attention_point_rect.h = 0;
-		if (window && SDL_IsTextInputActive())
+	else
+	{
+		if (!SDL_IsTextInputActive())
 		{
 			SDL_SetTextInputRect(&attention_point_rect);
-			SDL_StopTextInput();
+			SDL_StartTextInput();
 		}
 	}
-	virtual void UpdateWindow(tTVPUpdateType type) override {
-		if (TJSNativeInstance) {
-			tTVPRect r;
-			r.clear();
-			if (renderer)
-			{
-				SDL_RenderGetLogicalSize(renderer, &(r.right), &(r.bottom));
-				SDL_RenderSetLogicalSize(renderer, r.right, r.bottom);
-			}
-			else if (window)
-			{
-				SDL_GetWindowSize(window, &(r.right), &(r.bottom));
-			}
-			TJSNativeInstance->NotifyWindowExposureToLayer(r);
-			TVPDeliverWindowUpdateEvents();
-		}
+}
+void TVPWindowLayer::ResetImeMode() {
+	ime_composition = nullptr;
+	ime_composition_len = 0;
+	ime_composition_cursor = 0;
+	ime_composition_selection = 0;
+	attention_point_rect.x = 0;
+	attention_point_rect.y = 0;
+	attention_point_rect.w = 0;
+	attention_point_rect.h = 0;
+	if (window && SDL_IsTextInputActive())
+	{
+		SDL_SetTextInputRect(&attention_point_rect);
+		SDL_StopTextInput();
 	}
-	void window_receive_event(SDL_Event event) {
-		if (isBeingDeleted) {
-			delete this;
+}
+void TVPWindowLayer::UpdateWindow(tTVPUpdateType type) {
+	if (TJSNativeInstance) {
+		tTVPRect r;
+		r.clear();
+		if (renderer)
+		{
+			SDL_RenderGetLogicalSize(renderer, &(r.right), &(r.bottom));
+			SDL_RenderSetLogicalSize(renderer, r.right, r.bottom);
+		}
+		else if (window)
+		{
+			SDL_GetWindowSize(window, &(r.right), &(r.bottom));
+		}
+		TJSNativeInstance->NotifyWindowExposureToLayer(r);
+		TVPDeliverWindowUpdateEvents();
+	}
+}
+void TVPWindowLayer::window_receive_event(SDL_Event event) {
+	if (isBeingDeleted) {
+		delete this;
+		return;
+	}
+	if (window && _prevWindow) {
+		uint32_t windowID = SDL_GetWindowID(window);
+		bool tryParentWindow = false;
+		switch (event.type) {
+			case SDL_DROPFILE:
+			case SDL_DROPTEXT:
+			case SDL_DROPBEGIN:
+			case SDL_DROPCOMPLETE:
+				tryParentWindow = event.drop.windowID != windowID;
+				break;
+			case SDL_KEYDOWN:
+			case SDL_KEYUP:
+				tryParentWindow = event.key.windowID != windowID;
+				break;
+			case SDL_MOUSEMOTION:
+				tryParentWindow = event.motion.windowID != windowID;
+				break;
+			case SDL_MOUSEBUTTONDOWN:
+			case SDL_MOUSEBUTTONUP:
+				tryParentWindow = event.button.windowID != windowID;
+				break;
+			case SDL_MOUSEWHEEL:
+				tryParentWindow = event.wheel.windowID != windowID;
+				break;
+			case SDL_TEXTEDITING:
+				tryParentWindow = event.edit.windowID != windowID;
+				break;
+			case SDL_TEXTINPUT:
+				tryParentWindow = event.text.windowID != windowID;
+				break;
+			case SDL_WINDOWEVENT:
+				tryParentWindow = event.window.windowID != windowID;
+				break;
+			default:
+				tryParentWindow = false;
+				break;
+		}
+		if (tryParentWindow) {
+			if (!in_mode_) {
+				_prevWindow->window_receive_event(event);
+			}
 			return;
 		}
-		if (window && _prevWindow) {
-			uint32_t windowID = SDL_GetWindowID(window);
-			bool tryParentWindow = false;
-			switch (event.type) {
-				case SDL_DROPFILE:
-				case SDL_DROPTEXT:
-				case SDL_DROPBEGIN:
-				case SDL_DROPCOMPLETE:
-					tryParentWindow = event.drop.windowID != windowID;
-					break;
-				case SDL_KEYDOWN:
-				case SDL_KEYUP:
-					tryParentWindow = event.key.windowID != windowID;
-					break;
-				case SDL_MOUSEMOTION:
-					tryParentWindow = event.motion.windowID != windowID;
-					break;
-				case SDL_MOUSEBUTTONDOWN:
-				case SDL_MOUSEBUTTONUP:
-					tryParentWindow = event.button.windowID != windowID;
-					break;
-				case SDL_MOUSEWHEEL:
-					tryParentWindow = event.wheel.windowID != windowID;
-					break;
-				case SDL_TEXTEDITING:
-					tryParentWindow = event.edit.windowID != windowID;
-					break;
-				case SDL_TEXTINPUT:
-					tryParentWindow = event.text.windowID != windowID;
-					break;
-				case SDL_WINDOWEVENT:
-					tryParentWindow = event.window.windowID != windowID;
-					break;
-				default:
-					tryParentWindow = false;
-					break;
-			}
-			if (tryParentWindow) {
-				if (!in_mode_) {
-					_prevWindow->window_receive_event(event);
+	}
+	if (window && hasDrawn) {
+		tjs_uint32 s = TVP_TShiftState_To_uint32(GetShiftState());
+		s |= GetMouseButtonState();
+		if (TJSNativeInstance->CanDeliverEvents()) {
+			switch (event.type) { 
+				case SDL_MOUSEMOTION: {
+					RestoreMouseCursor();
+					TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, event.motion.x, event.motion.y, s));
+					return;
 				}
-				return;
-			}
-		}
-		if (window && hasDrawn) {
-			tjs_uint32 s = TVP_TShiftState_To_uint32(GetShiftState());
-			s |= GetMouseButtonState();
-			if (TJSNativeInstance->CanDeliverEvents()) {
-				switch (event.type) { 
-					case SDL_MOUSEMOTION: {
-						RestoreMouseCursor();
-						TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, event.motion.x, event.motion.y, s));
+				case SDL_MOUSEBUTTONDOWN:
+				case SDL_MOUSEBUTTONUP: {
+					if (SDL_IsTextInputActive() && ime_composition != nullptr)
+					{
 						return;
 					}
-					case SDL_MOUSEBUTTONDOWN:
-					case SDL_MOUSEBUTTONUP: {
-						if (SDL_IsTextInputActive() && ime_composition != nullptr)
+					tTVPMouseButton btn;
+					bool hasbtn = true;
+					switch(event.button.button) {
+						case SDL_BUTTON_RIGHT:
+							btn = tTVPMouseButton::mbRight;
+							break;
+						case SDL_BUTTON_MIDDLE:
+							btn = tTVPMouseButton::mbMiddle;
+							break;
+						case SDL_BUTTON_LEFT:
+							btn = tTVPMouseButton::mbLeft;
+							break;
+						case SDL_BUTTON_X1:
+							btn = tTVPMouseButton::mbX1;
+							break;
+						case SDL_BUTTON_X2:
+							btn = tTVPMouseButton::mbX2;
+							break;
+						default:
+							hasbtn = false;
+							break;
+					}
+					if (hasbtn) {
+						switch (event.type) {
+							case SDL_MOUSEBUTTONDOWN:
+								TVPPostInputEvent(new tTVPOnMouseDownInputEvent(TJSNativeInstance, event.button.x, event.button.y, btn, s));
+								break;
+							case SDL_MOUSEBUTTONUP:
+								TVPPostInputEvent(new tTVPOnClickInputEvent(TJSNativeInstance, event.button.x, event.button.y));
+								TVPPostInputEvent(new tTVPOnMouseUpInputEvent(TJSNativeInstance, event.button.x, event.button.y, btn, s));
+								break;
+						}
+					}
+					return;
+				}
+				case SDL_KEYDOWN: {
+					if (SDL_IsTextInputActive())
+					{
+						if (ime_composition != nullptr)
 						{
 							return;
 						}
-						tTVPMouseButton btn;
-						bool hasbtn = true;
-						switch(event.button.button) {
-							case SDL_BUTTON_RIGHT:
-								btn = tTVPMouseButton::mbRight;
-								break;
-							case SDL_BUTTON_MIDDLE:
-								btn = tTVPMouseButton::mbMiddle;
-								break;
-							case SDL_BUTTON_LEFT:
-								btn = tTVPMouseButton::mbLeft;
-								break;
-							case SDL_BUTTON_X1:
-								btn = tTVPMouseButton::mbX1;
-								break;
-							case SDL_BUTTON_X2:
-								btn = tTVPMouseButton::mbX2;
-								break;
-							default:
-								hasbtn = false;
-								break;
-						}
-						if (hasbtn) {
-							switch (event.type) {
-								case SDL_MOUSEBUTTONDOWN:
-									TVPPostInputEvent(new tTVPOnMouseDownInputEvent(TJSNativeInstance, event.button.x, event.button.y, btn, s));
-									break;
-								case SDL_MOUSEBUTTONUP:
-									TVPPostInputEvent(new tTVPOnClickInputEvent(TJSNativeInstance, event.button.x, event.button.y));
-									TVPPostInputEvent(new tTVPOnMouseUpInputEvent(TJSNativeInstance, event.button.x, event.button.y, btn, s));
-									break;
-							}
-						}
-						return;
 					}
-					case SDL_KEYDOWN: {
-						if (SDL_IsTextInputActive())
-						{
-							if (ime_composition != nullptr)
-							{
-								return;
-							}
-						}
-						if (event.key.repeat) s |= TVP_SS_REPEAT;
-						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym), s));
-						SDL_SetTextInputRect(&attention_point_rect);
-						return;
-					}
-					case SDL_KEYUP: {
-						if (SDL_IsTextInputActive())
-						{
-							if (ime_composition != nullptr)
-							{
-								return;
-							}
-						}
-						if (!SDL_IsTextInputActive())
-						{
-							TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym)));
-						}
-						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym), s));
-						SDL_SetTextInputRect(&attention_point_rect);
-						return;
-					}
-					case SDL_TEXTINPUT:
-					case SDL_TEXTEDITING: {
-						if (!SDL_IsTextInputActive())
+					if (event.key.repeat) s |= TVP_SS_REPEAT;
+					TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym), s));
+					SDL_SetTextInputRect(&attention_point_rect);
+					return;
+				}
+				case SDL_KEYUP: {
+					if (SDL_IsTextInputActive())
+					{
+						if (ime_composition != nullptr)
 						{
 							return;
 						}
-						// TODO: figure out vertical edit
+					}
+					if (!SDL_IsTextInputActive())
+					{
+						TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym)));
+					}
+					TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym), s));
+					SDL_SetTextInputRect(&attention_point_rect);
+					return;
+				}
+				case SDL_TEXTINPUT:
+				case SDL_TEXTEDITING: {
+					if (!SDL_IsTextInputActive())
+					{
+						return;
+					}
+					// TODO: figure out vertical edit
+					for (size_t i = 0; i < ime_composition_selection; i += 1)
+					{
+						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_LEFT, TVP_SS_SHIFT));
+						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_LEFT, TVP_SS_SHIFT));
+#if 0
+						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_DOWN, TVP_SS_SHIFT));
+						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_DOWN, TVP_SS_SHIFT));
+#endif
+					}
+					for (size_t i = 0; i < ime_composition_len - ime_composition_cursor; i += 1)
+					{
+						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_RIGHT, 0));
+						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_RIGHT, 0));
+#if 0
+						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_DOWN, 0));
+						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_DOWN, 0));
+#endif
+					}
+					for (size_t i = 0; i < ime_composition_len; i += 1)
+					{
+						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_BACK, 0));
+						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_BACK, 0));
+					}
+					switch (event.type) {
+						case SDL_TEXTINPUT:
+							ime_composition = event.text.text;
+							ime_composition_cursor = 0;
+							ime_composition_selection = 0;
+							break;
+						case SDL_TEXTEDITING:
+							ime_composition = event.edit.text;
+							ime_composition_cursor = event.edit.start;
+							ime_composition_selection = event.edit.length;
+							break;
+					}
+					size_t buffer_len = TVPUtf8ToWideCharString((const char*)(ime_composition), NULL);
+					if (buffer_len == (size_t)-1)
+					{
+						return;
+					}
+					if (buffer_len != 0)
+					{
+						ime_composition_len = buffer_len;
+						tjs_char *buffer = new tjs_char[buffer_len + 1];
+						TVPUtf8ToWideCharString((const char*)(ime_composition), buffer);
+						for (size_t i = 0; i < buffer_len; i += 1)
+						{
+							TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, buffer[i]));
+						}
+						delete[] buffer;
+					}
+					else
+					{
+						ime_composition = nullptr;
+						ime_composition_len = 0;
+						ime_composition_cursor = 0;
+						ime_composition_selection = 0;
+					}
+					if (event.type == SDL_TEXTEDITING)
+					{
+						for (size_t i = 0; i < ime_composition_len - ime_composition_cursor; i += 1)
+						{
+							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_LEFT, 0));
+							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_LEFT, 0));
+#if 0
+							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_UP, 0));
+							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_UP, 0));
+#endif
+						}
 						for (size_t i = 0; i < ime_composition_selection; i += 1)
 						{
-							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_LEFT, TVP_SS_SHIFT));
-							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_LEFT, TVP_SS_SHIFT));
+							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_RIGHT, TVP_SS_SHIFT));
+							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_RIGHT, TVP_SS_SHIFT));
 #if 0
 							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_DOWN, TVP_SS_SHIFT));
 							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_DOWN, TVP_SS_SHIFT));
 #endif
 						}
-						for (size_t i = 0; i < ime_composition_len - ime_composition_cursor; i += 1)
+					}
+					if (event.type == SDL_TEXTINPUT)
+					{
+						ime_composition = nullptr;
+						ime_composition_len = 0;
+					}
+					return;
+				}
+				case SDL_MOUSEWHEEL: {
+					int x, y;
+					SDL_GetMouseState(&x, &y);
+					TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(TJSNativeInstance, event.wheel.x, event.wheel.y, x, y));
+					return;
+				}
+				case SDL_DROPBEGIN: {
+					if (!file_drop_array)
+					{
+						file_drop_array = TJSCreateArrayObject();
+					}
+					return;
+				}
+				case SDL_DROPCOMPLETE: {
+					if (file_drop_array)
+					{
+						tTJSVariant arg(file_drop_array, file_drop_array);
+						TVPPostInputEvent(new tTVPOnFileDropInputEvent(TJSNativeInstance, arg));
+						file_drop_array->Release();
+						file_drop_array = nullptr;
+						file_drop_array_count = 0;
+					}
+					return;
+				}
+				case SDL_DROPFILE:
+				case SDL_DROPTEXT: {
+					if (file_drop_array && event.drop.file)
+					{
+						std::string f_utf8 = event.drop.file;
+						tjs_string f_utf16;
+						TVPUtf8ToUtf16( f_utf16, f_utf8 );
+						SDL_free(event.drop.file);
+						if (TVPIsExistentStorageNoSearch(f_utf16))
 						{
-							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_RIGHT, 0));
-							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_RIGHT, 0));
-#if 0
-							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_DOWN, 0));
-							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_DOWN, 0));
-#endif
+							tTJSVariant val = TVPNormalizeStorageName(ttstr(f_utf16));
+							file_drop_array->PropSetByNum(TJS_MEMBERENSURE|TJS_IGNOREPROP, file_drop_array_count, &val, file_drop_array);
+							file_drop_array_count += 1;
 						}
-						for (size_t i = 0; i < ime_composition_len; i += 1)
-						{
-							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_BACK, 0));
-							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_BACK, 0));
-						}
-						switch (event.type) {
-							case SDL_TEXTINPUT:
-								ime_composition = event.text.text;
-								ime_composition_cursor = 0;
-								ime_composition_selection = 0;
-								break;
-							case SDL_TEXTEDITING:
-								ime_composition = event.edit.text;
-								ime_composition_cursor = event.edit.start;
-								ime_composition_selection = event.edit.length;
-								break;
-						}
-						size_t buffer_len = TVPUtf8ToWideCharString((const char*)(ime_composition), NULL);
-						if (buffer_len == (size_t)-1)
-						{
+					}
+					return;
+				}
+				case SDL_WINDOWEVENT: {
+					switch (event.window.event)
+					{
+						case SDL_WINDOWEVENT_EXPOSED: {
+							UpdateWindow(utNormal);
 							return;
 						}
-						if (buffer_len != 0)
-						{
-							ime_composition_len = buffer_len;
-							tjs_char *buffer = new tjs_char[buffer_len + 1];
-							TVPUtf8ToWideCharString((const char*)(ime_composition), buffer);
-							for (size_t i = 0; i < buffer_len; i += 1)
-							{
-								TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, buffer[i]));
-							}
-							delete[] buffer;
+						case SDL_WINDOWEVENT_MINIMIZED:
+						case SDL_WINDOWEVENT_MAXIMIZED:
+						case SDL_WINDOWEVENT_RESTORED:
+						case SDL_WINDOWEVENT_RESIZED:
+						case SDL_WINDOWEVENT_SIZE_CHANGED: {
+							UpdateWindow(utNormal);
+							TVPPostInputEvent(new tTVPOnResizeInputEvent(TJSNativeInstance), TVP_EPT_REMOVE_POST);
+							return;
 						}
-						else
-						{
-							ime_composition = nullptr;
-							ime_composition_len = 0;
-							ime_composition_cursor = 0;
-							ime_composition_selection = 0;
+						case SDL_WINDOWEVENT_ENTER: {
+							TVPPostInputEvent(new tTVPOnMouseEnterInputEvent(TJSNativeInstance));
+							return;
 						}
-						if (event.type == SDL_TEXTEDITING)
-						{
-							for (size_t i = 0; i < ime_composition_len - ime_composition_cursor; i += 1)
-							{
-								TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_LEFT, 0));
-								TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_LEFT, 0));
-#if 0
-								TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_UP, 0));
-								TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_UP, 0));
-#endif
-							}
-							for (size_t i = 0; i < ime_composition_selection; i += 1)
-							{
-								TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_RIGHT, TVP_SS_SHIFT));
-								TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_RIGHT, TVP_SS_SHIFT));
-#if 0
-								TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, VK_DOWN, TVP_SS_SHIFT));
-								TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, VK_DOWN, TVP_SS_SHIFT));
-#endif
-							}
+						case SDL_WINDOWEVENT_LEAVE: {
+							TVPPostInputEvent(new tTVPOnMouseOutOfWindowInputEvent(TJSNativeInstance));
+							TVPPostInputEvent(new tTVPOnMouseLeaveInputEvent(TJSNativeInstance));
+							return;
 						}
-						if (event.type == SDL_TEXTINPUT)
-						{
-							ime_composition = nullptr;
-							ime_composition_len = 0;
+						case SDL_WINDOWEVENT_FOCUS_GAINED:
+						case SDL_WINDOWEVENT_FOCUS_LOST: {
+							TVPPostInputEvent(new tTVPOnWindowActivateEvent(TJSNativeInstance, event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED), TVP_EPT_REMOVE_POST);
+							return;
 						}
-						return;
-					}
-					case SDL_MOUSEWHEEL: {
-						int x, y;
-						SDL_GetMouseState(&x, &y);
-						TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(TJSNativeInstance, event.wheel.x, event.wheel.y, x, y));
-						return;
-					}
-					case SDL_DROPBEGIN: {
-						if (!file_drop_array)
-						{
-							file_drop_array = TJSCreateArrayObject();
+						case SDL_WINDOWEVENT_CLOSE: {
+							TVPPostInputEvent(new tTVPOnCloseInputEvent(TJSNativeInstance));
+							return;
 						}
-						return;
-					}
-					case SDL_DROPCOMPLETE: {
-						if (file_drop_array)
-						{
-							tTJSVariant arg(file_drop_array, file_drop_array);
-							TVPPostInputEvent(new tTVPOnFileDropInputEvent(TJSNativeInstance, arg));
-							file_drop_array->Release();
-							file_drop_array = nullptr;
-							file_drop_array_count = 0;
-						}
-						return;
-					}
-					case SDL_DROPFILE:
-					case SDL_DROPTEXT: {
-						if (file_drop_array && event.drop.file)
-						{
-							std::string f_utf8 = event.drop.file;
-							tjs_string f_utf16;
-							TVPUtf8ToUtf16( f_utf16, f_utf8 );
-							SDL_free(event.drop.file);
-							if (TVPIsExistentStorageNoSearch(f_utf16))
-							{
-								tTJSVariant val = TVPNormalizeStorageName(ttstr(f_utf16));
-								file_drop_array->PropSetByNum(TJS_MEMBERENSURE|TJS_IGNOREPROP, file_drop_array_count, &val, file_drop_array);
-								file_drop_array_count += 1;
-							}
-						}
-						return;
-					}
-					case SDL_WINDOWEVENT: {
-						switch (event.window.event)
-						{
-							case SDL_WINDOWEVENT_EXPOSED: {
-								UpdateWindow(utNormal);
-								return;
-							}
-							case SDL_WINDOWEVENT_MINIMIZED:
-							case SDL_WINDOWEVENT_MAXIMIZED:
-							case SDL_WINDOWEVENT_RESTORED:
-							case SDL_WINDOWEVENT_RESIZED:
-							case SDL_WINDOWEVENT_SIZE_CHANGED: {
-								UpdateWindow(utNormal);
-								TVPPostInputEvent(new tTVPOnResizeInputEvent(TJSNativeInstance), TVP_EPT_REMOVE_POST);
-								return;
-							}
-							case SDL_WINDOWEVENT_ENTER: {
-								TVPPostInputEvent(new tTVPOnMouseEnterInputEvent(TJSNativeInstance));
-								return;
-							}
-							case SDL_WINDOWEVENT_LEAVE: {
-								TVPPostInputEvent(new tTVPOnMouseOutOfWindowInputEvent(TJSNativeInstance));
-								TVPPostInputEvent(new tTVPOnMouseLeaveInputEvent(TJSNativeInstance));
-								return;
-							}
-							case SDL_WINDOWEVENT_FOCUS_GAINED:
-							case SDL_WINDOWEVENT_FOCUS_LOST: {
-								TVPPostInputEvent(new tTVPOnWindowActivateEvent(TJSNativeInstance, event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED), TVP_EPT_REMOVE_POST);
-								return;
-							}
-							case SDL_WINDOWEVENT_CLOSE: {
-								TVPPostInputEvent(new tTVPOnCloseInputEvent(TJSNativeInstance));
-								return;
-							}
-							default: {
-								return;
-							}
+						default: {
+							return;
 						}
 					}
-					case SDL_QUIT: {
-						TVPPostInputEvent(new tTVPOnCloseInputEvent(TJSNativeInstance));
-						return;
-					}
-					default: {
-						return;
-					}
+				}
+				case SDL_QUIT: {
+					TVPPostInputEvent(new tTVPOnCloseInputEvent(TJSNativeInstance));
+					return;
+				}
+				default: {
+					return;
 				}
 			}
 		}
 	}
-};
+}
 
 #ifdef __EMSCRIPTEN__
 static void process_events()
