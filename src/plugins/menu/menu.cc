@@ -21,14 +21,16 @@ extern bool TVPEncodeUTF8ToUTF16(tjs_string &output, const std::string &source);
 
 class MenuItemBase : public NativeMenuItem, INativeMenuItemDelegate {
 private:
-  tTJSVariant m_instance;
+  iTJSDispatch2 *m_self;
 
 public:
-  MenuItemBase() : NativeMenuItem() {
-    setDelegate(this);
-  }
+  MenuItemBase() : NativeMenuItem() { setDelegate(this); }
 
-  virtual ~MenuItemBase() {}
+  virtual ~MenuItemBase() {
+    if (m_self) {
+      m_self->Release();
+    }
+  }
 
   void add(MenuItemBase *item) {
     assert("menu item should not be null" && item != nullptr);
@@ -85,12 +87,15 @@ public:
     }
   }
 
-  void setTjsInstance(tTJSVariant instance) { m_instance = instance; }
+  void setTjsInstance(tTJSVariant instance) {
+    m_self = instance.AsObject();
+  }
 
   void handleClick(NativeMenuItem *_sender) override {
     // インスタンスのonClick()を呼び出す
-    auto self = m_instance.AsObjectNoAddRef();
-    self->FuncCall(0, TJS_W("onClick"), nullptr, nullptr, 0, nullptr, self);
+    if (m_self->IsValid(0, TJS_W("onClick"), nullptr, m_self)) {
+      m_self->FuncCall(0, TJS_W("onClick"), nullptr, nullptr, 0, nullptr, m_self);
+    }
   }
 };
 
@@ -236,20 +241,19 @@ class MenuItem extends MenuItemBase {
 }
 
 class _WindowMenuPropHook {
-    property menu {
-        getter {
-            if (typeof this.__menu === "undefined") {
-                this.__menu = new MenuItem(this);
-                
-                if (typeof this.__menu.activate !== "undefined") {
-                    // TODO: the activation should follow the status of the window
-                    this.__menu.activate();
-                }
-            }
-
-            return this.__menu;
+  property menu {
+    getter {
+      if (typeof this.__menu === "undefined") {
+        this.__menu = new MenuItem(this);
+        if (typeof this.__menu.activate !== "undefined") {
+            // TODO: the activation should follow the status of the window
+            this.__menu.activate();
         }
+      }
+
+      return this.__menu;
     }
+  }
 }
 
 var _hook = new _WindowMenuPropHook();
