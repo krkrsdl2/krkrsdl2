@@ -12,12 +12,12 @@
 #include "menu.h"
 #include "ncbind/ncbind.hpp"
 
+#ifdef MENUEX_IMPLEMENTED
+
 #include <codecvt>
 #include <locale>
 
 extern bool TVPEncodeUTF8ToUTF16(tjs_string &output, const std::string &source);
-// extern bool TVPEncodeUTF16ToUTF8(std::string &output, const tjs_string
-// &source);
 
 class MenuItemBase : public NativeMenuItem, INativeMenuItemDelegate {
 private:
@@ -286,3 +286,5 @@ NCB_REGISTER_CLASS(MenuItemBase) {
 };
 
 NCB_POST_REGIST_CALLBACK(PostRegistMenu);
+
+#endif

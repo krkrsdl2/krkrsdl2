@@ -14,3 +14,7 @@
 #include "tp_stub.h"
 #include "ObjectList.h"
 #include "common.h"
+
+#ifdef __APPLE__
+#define MENUEX_IMPLEMENTED
+#endif
