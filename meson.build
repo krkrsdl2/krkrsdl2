@@ -626,6 +626,7 @@ endif
 krkrsdl2_cflags = []
 krkrsdl2_cflags += [
 	'-DTVP_OPUS_DECODER_IMPLEMENT',
+	'-DTVP_LOG_TO_COMMANDLINE_CONSOLE',
 	'-DHAVE_CONFIG_H',
 	'-DFT2_BUILD_LIBRARY',
 	'-DUSE_ALLOCA',
