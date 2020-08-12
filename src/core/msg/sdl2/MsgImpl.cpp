@@ -41,13 +41,11 @@ void TVPGetVersion(void)
 #endif
 	}
 }
-#if 0
 //---------------------------------------------------------------------------
 // about string retrieving
 //---------------------------------------------------------------------------
 extern const tjs_char* TVPCompileDate;
 extern const tjs_char* TVPCompileTime;
-#endif
 ttstr TVPReadAboutStringFromResource() {
 #if 0
 	HMODULE hModule = ::GetModuleHandle(NULL);
@@ -104,7 +102,9 @@ ttstr TVPReadAboutStringFromResource() {
 	}
 	return ret;
 #endif
-	return ttstr(TJS_W(R"__LICENSE_TEXT__(
+	const char *buf = NULL;
+	unsigned int size = 0;
+	buf = R"__LICENSE_TEXT__(
 吉里吉里[きりきり] SDL2 実行コア version %1 ( TJS version %2 )
 Compiled on %DATE% %TIME%
 Copyright (c) 1997-2013 W.Dee and contributors All rights reserved.
@@ -1244,6 +1244,45 @@ ANGLE license
 
 
 
-      )__LICENSE_TEXT__"));
+      )__LICENSE_TEXT__";
+    size_t len = TVPUtf8ToWideCharString( buf, size, NULL );
+	if( len < 0 ) return ttstr(TJS_W("UTF-8 conversion error."));
+	tjs_char* tmp = new tjs_char[len+1];
+	ttstr ret;
+	if( tmp ) {
+		try {
+			len = TVPUtf8ToWideCharString( buf, size, tmp );
+		} catch(...) {
+			delete[] tmp;
+			throw;
+		}
+		tmp[len] = 0;
+
+		size_t datelen = TJS_strlen( TVPCompileDate );
+		size_t timelen = TJS_strlen( TVPCompileTime );
+
+		// %DATE% and %TIME% to compile data and time
+		std::vector<tjs_char> tmp2;
+		tmp2.reserve( len * 2 + datelen + timelen );
+		for( size_t i = 0; i < len; i++ ) {
+			if( tmp[i] == '%' && (i+6) < len && tmp[i+1] == 'D' && tmp[i+2] == 'A' && tmp[i+3] == 'T' && tmp[i+4] == 'E' && tmp[i+5] == '%' ) {
+				for( size_t j = 0; j < datelen; j++ ) {
+					tmp2.push_back( TVPCompileDate[j] );
+				}
+				i += 5;
+			} else if( tmp[i] == '%' && (i+6) < len && tmp[i+1] == 'T' && tmp[i+2] == 'I' && tmp[i+3] == 'M' && tmp[i+4] == 'E' && tmp[i+5] == '%' ) {
+				for( size_t j = 0; j < timelen; j++ ) {
+					tmp2.push_back( TVPCompileTime[j] );
+				}
+				i += 5;
+			} else {
+				tmp2.push_back( tmp[i] );
+			}
+		}
+		tmp2.push_back( 0 );
+		ret = ttstr( &(tmp2[0]) );
+		delete[] tmp;
+	}
+	return ret;
 }
 
