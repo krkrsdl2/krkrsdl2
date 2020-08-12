@@ -440,6 +440,7 @@ krkrsdl2_src = [
 	'src/core/environ/sdl2/Application.cpp',
 	'src/core/environ/sdl2/SystemControl.cpp',
 	'src/core/msg/sdl2/MsgImpl.cpp',
+	'src/core/msg/sdl2/MsgLoad.cpp',
 	'src/core/sdl2/SDLApplication.cpp',
 	'src/core/sound/sdl2/WaveImpl.cpp',
 	'src/core/sound/sdl2/WaveMixer.cpp',

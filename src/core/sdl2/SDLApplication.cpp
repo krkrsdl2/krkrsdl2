@@ -23,6 +23,7 @@
 #include <emscripten.h>
 #endif
 
+extern void TVPLoadMessage();
 
 class TVPWindowLayer;
 static TVPWindowLayer *_lastWindowLayer, *_currentWindowLayer;
@@ -1614,6 +1615,8 @@ int main(int argc, char **argv)
 		warg_copy[v_utf16.length()] = '\0';
 		_wargv[i] = warg_copy;
 	}
+
+	TVPLoadMessage();
 
 	::Application = new tTVPApplication();
 	if (::Application->StartApplication( _argc, _wargv ))
