@@ -3695,7 +3695,7 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/getVisBuffer)
 		/*var. type*/tTJSNI_WaveSoundBuffer);
 
 	if(numparams < 3) return TJS_E_BADPARAMCOUNT;
-	tjs_int16 *dest = (tjs_int16*)(tjs_int)(*param[0]);
+	tjs_int16 *dest = (tjs_int16*)(uintptr_t)(tTVInteger)(*param[0]);
 
 	tjs_int ahead = 0;
 	if(numparams >= 4) ahead = (tjs_int)*param[3];
