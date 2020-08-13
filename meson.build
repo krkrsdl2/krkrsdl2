@@ -533,6 +533,11 @@ if get_option('builtin_plugin_enable_json') == true
 		'external/json/Main.cpp',
 	]
 endif
+if get_option('builtin_plugin_enable_layerexbtoa') == true
+	krkrsdl2_src += [
+		'external/layerExBTOA/Main.cpp',
+	]
+endif
 if get_option('builtin_plugin_enable_layereximage') == true
 	krkrsdl2_src += [
 		'external/layerExImage/LayerExImage.cpp',

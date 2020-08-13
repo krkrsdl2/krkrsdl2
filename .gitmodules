@@ -52,3 +52,6 @@
 [submodule "external/scriptsEx"]
 	path = external/scriptsEx
 	url = ../scriptsEx
+[submodule "external/layerExBTOA"]
+	path = external/layerExBTOA
+	url = ../layerExBTOA
