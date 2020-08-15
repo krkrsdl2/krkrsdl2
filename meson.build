@@ -681,6 +681,26 @@ krkrsdl2_dependson = [
 	sdl2_dep,
 ]
 
+if get_option('enable_coretext_rasterizer') == true
+	if target_machine.system() == 'darwin'
+		coretext_dep = dependency('appleframeworks', modules: 'CoreText')
+		krkrsdl2_dependson += [
+			coretext_dep
+		]
+		krkrsdl2_cppflags += [
+			'-DKRKRZ_CORETEXT_SUPPORT',
+			'-mmacosx-version-min=10.15',
+		]
+		krkrsdl2_src += [
+			'external/krkrz/visual/darwin/CoreTextFontFallback.mm',
+			'external/krkrz/visual/darwin/CoreTextFontRasterizer.cc',
+			'external/krkrz/visual/darwin/CoreTextFontRasterizer.h',
+			'external/krkrz/visual/darwin/CoreTextFontStorage.cc',
+			'external/krkrz/visual/darwin/CoreTextFontStorage.h',
+		]
+	endif
+endif
+
 if get_option('builtin_plugin_enable_menu') == true
 	krkrsdl2_src += [
 		'src/plugins/menu/menu.cc',

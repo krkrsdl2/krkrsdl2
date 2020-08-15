@@ -126,6 +126,13 @@ option(
 )
 
 option(
+	'enable_coretext_rasterizer',
+	type: 'boolean',
+	value: false,
+	description: 'Enable CoreText font rasterizer for the macOS build. Minimum macOS version required >= 10.15.'
+)
+
+option(
 	'krkrsdl2_data_path',
 	type: 'string',
 	description: 'Path to project directory that will be integrated into the Emscripten build.'
