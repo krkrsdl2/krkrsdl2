@@ -12,3 +12,4 @@
 #include "PluginImpl.h"
 #include "CharacterSet.h"
 #include "TransIntf.h"
+#include "GraphicsLoaderIntf.h"
