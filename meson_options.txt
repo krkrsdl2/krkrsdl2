@@ -91,6 +91,13 @@ option(
 )
 
 option(
+	'builtin_plugin_enable_krglhwebp',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the krglhwebp plugin.'
+)
+
+option(
 	'builtin_plugin_enable_ksupport',
 	type: 'boolean',
 	value: true,
