@@ -339,9 +339,22 @@ bool TVPShellExecute(const ttstr &target, const ttstr &param)
 	build_string += ttstr("')");
 	emscripten_run_script(build_string.AsNarrowStdString().c_str());
 #endif
-	{
-		return true;
+
+#if defined(__APPLE__)
+	auto cmd = TJS_W("open ") + target;
+	if (!param.IsEmpty()) {
+		cmd += TJS_W(" --args ") + param;
 	}
+	return system(cmd.AsNarrowStdString().c_str()) == 0;
+#elif defined(__linux__) // TODO: support other *nix-platforms
+	auto cmd = TJS_W("xdg-open ") + target;
+	if (!param.IsEmpty()) {
+		TVPAddImportantLog(TJS_W("TVPShellExecute() with parameters is not supported in Linux"));
+	}
+	return system(cmd.AsNarrowStdString().c_str()) == 0;
+#endif
+	// fallback
+	return true;
 }
 //---------------------------------------------------------------------------
 
