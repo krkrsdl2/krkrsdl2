@@ -245,7 +245,7 @@ public:
         setState:m_checked ? NSControlStateValueOn : NSControlStateValueOff];
 
     // if the item is a radio button, uncheck other elements in the group.
-    if (m_radio && flag) {
+    if (m_radio && m_parent && flag) {
       for (auto &i : m_parent->m_children) {
         if (i == this || i->getRadio() ||
             i->m_radioGroup != this->m_radioGroup) {
