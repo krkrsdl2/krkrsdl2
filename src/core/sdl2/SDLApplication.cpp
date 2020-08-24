@@ -149,8 +149,8 @@ static SDL_Keycode vk_key_to_sdl_key(tjs_uint key)
 	if (key == VK_RSHIFT) return SDLK_RSHIFT;
 	if (key == VK_LCONTROL) return SDLK_LCTRL;
 	if (key == VK_RCONTROL) return SDLK_RCTRL;
-	if (key == VK_LMENU) return SDLK_MENU;
-	if (key == VK_RMENU) return SDLK_MENU;
+	if (key == VK_LMENU) return SDLK_LALT;
+	if (key == VK_RMENU) return SDLK_RALT;
 	if (key == VK_BROWSER_BACK) return SDLK_AC_BACK;
 	if (key == VK_BROWSER_FORWARD) return SDLK_AC_FORWARD;
 	if (key == VK_BROWSER_REFRESH) return SDLK_AC_REFRESH;
@@ -281,6 +281,8 @@ static tjs_uint sdl_key_to_vk_key(SDL_Keycode key)
 	if (key == SDLK_RCTRL) return VK_RCONTROL;
 	if (key == SDLK_MENU) return VK_LMENU;
 	if (key == SDLK_MENU) return VK_RMENU;
+	if (key == SDLK_LALT) return VK_LMENU;
+	if (key == SDLK_RALT) return VK_RMENU;
 	if (key == SDLK_AC_BACK) return VK_BROWSER_BACK;
 	if (key == SDLK_AC_FORWARD) return VK_BROWSER_FORWARD;
 	if (key == SDLK_AC_REFRESH) return VK_BROWSER_REFRESH;
@@ -303,8 +305,14 @@ static tjs_uint sdl_key_to_vk_key(SDL_Keycode key)
 static int GetShiftState() {
 	int s = 0;
 	if(TVPGetAsyncKeyState(VK_MENU)) s |= MK_ALT;
+	if(TVPGetAsyncKeyState(VK_LMENU)) s |= MK_ALT;
+	if(TVPGetAsyncKeyState(VK_RMENU)) s |= MK_ALT;
 	if(TVPGetAsyncKeyState(VK_SHIFT)) s |= MK_SHIFT;
+	if(TVPGetAsyncKeyState(VK_LSHIFT)) s |= MK_SHIFT;
+	if(TVPGetAsyncKeyState(VK_RCONTROL)) s |= MK_SHIFT;
 	if(TVPGetAsyncKeyState(VK_CONTROL)) s |= MK_CONTROL;
+	if(TVPGetAsyncKeyState(VK_LCONTROL)) s |= MK_CONTROL;
+	if(TVPGetAsyncKeyState(VK_RCONTROL)) s |= MK_CONTROL;
 	return s;
 }
 static int GetMouseButtonState() {
@@ -1335,7 +1343,27 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 						}
 					}
 					if (event.key.repeat) s |= TVP_SS_REPEAT;
+					tjs_uint unified_vk_key = 0;
+					switch (event.key.keysym.sym)
+					{
+						case SDLK_LSHIFT:
+						case SDLK_RSHIFT:
+							unified_vk_key = VK_SHIFT;
+							break;
+						case SDLK_LCTRL:
+						case SDLK_RCTRL:
+							unified_vk_key = VK_CONTROL;
+							break;
+						case SDLK_LALT:
+						case SDLK_RALT:
+							unified_vk_key = VK_MENU;
+							break;
+					}
 					TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym), s));
+					if (unified_vk_key)
+					{
+						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, unified_vk_key, s));
+					}
 					SDL_SetTextInputRect(&attention_point_rect);
 					return;
 				}
@@ -1347,11 +1375,35 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 							return;
 						}
 					}
+					tjs_uint unified_vk_key = 0;
+					switch (event.key.keysym.sym)
+					{
+						case SDLK_LSHIFT:
+						case SDLK_RSHIFT:
+							unified_vk_key = VK_SHIFT;
+							break;
+						case SDLK_LCTRL:
+						case SDLK_RCTRL:
+							unified_vk_key = VK_CONTROL;
+							break;
+						case SDLK_LALT:
+						case SDLK_RALT:
+							unified_vk_key = VK_MENU;
+							break;
+					}
 					if (!SDL_IsTextInputActive())
 					{
 						TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym)));
+						if (unified_vk_key)
+						{
+							TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, unified_vk_key));
+						}
 					}
 					TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym), s));
+					if (unified_vk_key)
+					{
+						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, unified_vk_key, s));
+					}
 					SDL_SetTextInputRect(&attention_point_rect);
 					return;
 				}
