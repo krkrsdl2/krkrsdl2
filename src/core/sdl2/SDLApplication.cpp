@@ -27,12 +27,93 @@ extern void TVPLoadMessage();
 
 class TVPWindowLayer;
 static TVPWindowLayer *_lastWindowLayer, *_currentWindowLayer;
+static SDL_GameController** sdl_controllers = NULL;
+static int sdl_controller_num = 0;
 
 #ifdef __EMSCRIPTEN__
 static void process_events();
 #else
 static bool process_events();
 #endif
+
+static void refresh_controllers()
+{
+	if (SDL_WasInit(SDL_INIT_GAMECONTROLLER) == 0)
+	{
+		SDL_Init(SDL_INIT_GAMECONTROLLER);
+	}
+	if (sdl_controller_num != 0 && sdl_controllers != NULL)
+	{
+		for (int i = 0; i < sdl_controller_num; i += 1)
+		{
+			if (sdl_controllers[i] != NULL)
+			{
+				SDL_GameControllerClose(sdl_controllers[i]);
+				sdl_controllers[i] = NULL;
+			}
+		}
+		sdl_controller_num = 0;
+		free(sdl_controllers);
+		sdl_controllers = NULL;
+	}
+	sdl_controller_num = SDL_NumJoysticks();
+	sdl_controllers = (SDL_GameController**)malloc(sizeof(SDL_GameController*) * sdl_controller_num);
+	if (!sdl_controllers)
+	{
+		sdl_controller_num = 0;
+		TVPAddLog(ttstr("Could not allocate SDL controller memory"));
+		return;
+	}
+	for (int i = 0; i < sdl_controller_num; i += 1)
+	{
+		if (SDL_IsGameController(i))
+		{
+			sdl_controllers[i] = SDL_GameControllerOpen(i);
+			if (!sdl_controllers[i])
+			{
+				TVPAddLog(ttstr("Could not open controller: ") + ttstr(SDL_GetError()));
+			}
+		}
+	}
+}
+
+static Uint8 vk_key_to_sdl_gamecontrollerbutton(tjs_uint key)
+{
+	if (key == VK_PAD1) return SDL_CONTROLLER_BUTTON_A;
+	if (key == VK_PAD2) return SDL_CONTROLLER_BUTTON_B;
+	if (key == VK_PAD3) return SDL_CONTROLLER_BUTTON_X;
+	if (key == VK_PAD4) return SDL_CONTROLLER_BUTTON_Y;
+	if (key == VK_PAD7) return SDL_CONTROLLER_BUTTON_BACK;
+	if (key == VK_PAD8) return SDL_CONTROLLER_BUTTON_START;
+	if (key == VK_PAD9) return SDL_CONTROLLER_BUTTON_LEFTSTICK;
+	if (key == VK_PAD10) return SDL_CONTROLLER_BUTTON_RIGHTSTICK;
+	if (key == VK_PAD5) return SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
+	if (key == VK_PAD6) return SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
+	if (key == VK_PADUP) return SDL_CONTROLLER_BUTTON_DPAD_UP;
+	if (key == VK_PADDOWN) return SDL_CONTROLLER_BUTTON_DPAD_DOWN;
+	if (key == VK_PADLEFT) return SDL_CONTROLLER_BUTTON_DPAD_LEFT;
+	if (key == VK_PADRIGHT) return SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
+	return 0;
+}
+
+static tjs_uint sdl_gamecontrollerbutton_to_vk_key(Uint8 key)
+{
+	if (key == SDL_CONTROLLER_BUTTON_A) return VK_PAD1;
+	if (key == SDL_CONTROLLER_BUTTON_B) return VK_PAD2;
+	if (key == SDL_CONTROLLER_BUTTON_X) return VK_PAD3;
+	if (key == SDL_CONTROLLER_BUTTON_Y) return VK_PAD4;
+	if (key == SDL_CONTROLLER_BUTTON_BACK) return VK_PAD7;
+	if (key == SDL_CONTROLLER_BUTTON_START) return VK_PAD8;
+	if (key == SDL_CONTROLLER_BUTTON_LEFTSTICK) return VK_PAD9;
+	if (key == SDL_CONTROLLER_BUTTON_RIGHTSTICK) return VK_PAD10;
+	if (key == SDL_CONTROLLER_BUTTON_LEFTSHOULDER) return VK_PAD5;
+	if (key == SDL_CONTROLLER_BUTTON_RIGHTSHOULDER) return VK_PAD6;
+	if (key == SDL_CONTROLLER_BUTTON_DPAD_UP) return VK_PADUP;
+	if (key == SDL_CONTROLLER_BUTTON_DPAD_DOWN) return VK_PADDOWN;
+	if (key == SDL_CONTROLLER_BUTTON_DPAD_LEFT) return VK_PADLEFT;
+	if (key == SDL_CONTROLLER_BUTTON_DPAD_RIGHT) return VK_PADRIGHT;
+	return 0;
+}
 
 #define MK_SHIFT 4
 #define MK_CONTROL 8
@@ -414,6 +495,9 @@ public:
 	virtual void SetImeMode(tTVPImeMode mode) override;
 	virtual void ResetImeMode() override;
 	virtual void UpdateWindow(tTVPUpdateType type) override;
+	virtual void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) override;
+	virtual void OnKeyUp(tjs_uint16 vk, int shift) override;
+	virtual void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) override;
 	void window_receive_event(SDL_Event event);
 };
 
@@ -445,10 +529,15 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 		TJSNativeInstance = nullptr;
 	}
 	
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	if (SDL_WasInit(SDL_INIT_VIDEO) == 0)
 	{
-		TVPThrowExceptionMessage(TJS_W("Cannot initialize SDL video subsystem: %1"), ttstr(SDL_GetError()));
+		if (SDL_Init(SDL_INIT_VIDEO) < 0)
+		{
+			TVPThrowExceptionMessage(TJS_W("Cannot initialize SDL video subsystem: %1"), ttstr(SDL_GetError()));
+		}
+		refresh_controllers();
 	}
+
 	window = SDL_CreateWindow("krkrsdl2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
 	if (window == nullptr)
 	{
@@ -1234,6 +1323,15 @@ void TVPWindowLayer::UpdateWindow(tTVPUpdateType type) {
 		TVPDeliverWindowUpdateEvents();
 	}
 }
+void TVPWindowLayer::InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) {
+	TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, key, shift));
+}
+void TVPWindowLayer::OnKeyUp(tjs_uint16 vk, int shift) {
+	TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, vk, shift));
+}
+void TVPWindowLayer::OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) {
+	TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, vk));
+}
 void TVPWindowLayer::window_receive_event(SDL_Event event) {
 	if (isBeingDeleted) {
 		delete this;
@@ -1331,6 +1429,22 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 								TVPPostInputEvent(new tTVPOnMouseUpInputEvent(TJSNativeInstance, event.button.x, event.button.y, btn, s));
 								break;
 						}
+					}
+					return;
+				}
+				case SDL_CONTROLLERBUTTONDOWN:
+				case SDL_CONTROLLERBUTTONUP: {
+					switch (event.cbutton.state) {
+						case SDL_PRESSED:
+							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, sdl_gamecontrollerbutton_to_vk_key(event.cbutton.button), s));
+							break;
+						case SDL_RELEASED:
+							if (!SDL_IsTextInputActive())
+							{
+								TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, sdl_gamecontrollerbutton_to_vk_key(event.cbutton.button)));
+							}
+							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, sdl_gamecontrollerbutton_to_vk_key(event.cbutton.button), s));
+							break;
 					}
 					return;
 				}
@@ -1541,6 +1655,13 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 					}
 					return;
 				}
+				case SDL_CONTROLLERDEVICEADDED:
+				case SDL_CONTROLLERDEVICEREMOVED:
+				case SDL_CONTROLLERDEVICEREMAPPED:
+				{
+					refresh_controllers();
+					return;
+				}
 				case SDL_WINDOWEVENT: {
 					switch (event.window.event)
 					{
@@ -1724,7 +1845,15 @@ bool TVPGetKeyMouseAsyncState(tjs_uint keycode, bool getcurrent)
 
 bool TVPGetJoyPadAsyncState(tjs_uint keycode, bool getcurrent)
 {
-	return false;
+	bool is_pressed = false;
+	for (int i = 0; i < sdl_controller_num; i += 1)
+	{
+		if (sdl_controllers[i])
+		{
+			is_pressed |= !!SDL_GameControllerGetButton(sdl_controllers[i], (SDL_GameControllerButton)vk_key_to_sdl_gamecontrollerbutton(keycode));
+		}
+	}
+	return is_pressed;
 }
 
 TTVPWindowForm *TVPCreateAndAddWindow(tTJSNI_Window *w) {

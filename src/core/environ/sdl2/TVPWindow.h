@@ -384,6 +384,9 @@ public:
 	virtual void SetImeMode(tTVPImeMode mode) = 0;
 	virtual void ResetImeMode() = 0;
 	virtual void UpdateWindow(tTVPUpdateType type) = 0;
+	virtual void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) = 0;
+	virtual void OnKeyUp(tjs_uint16 vk, int shift) = 0;
+	virtual void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) = 0;
 
 	// dummy function
 	void SetInnerWidth(tjs_int v) { SetWidth(v); }
@@ -408,9 +411,6 @@ public:
 
 	// TODO
 	tTVPImeMode GetDefaultImeMode() const { return ::imDisable; };
-	void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) {};
-	void OnKeyUp(tjs_uint16 vk, int shift) {};
-	void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) {};
 	void SetUseMouseKey(bool b) {};
 	bool GetUseMouseKey() const { return false; };
 	void ResetMouseVelocity() {};
