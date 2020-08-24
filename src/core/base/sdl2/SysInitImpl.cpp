@@ -30,9 +30,7 @@
 #include "tjsLex.h"
 #include "LayerIntf.h"
 #include "Random.h"
-#if 0
 #include "DetectCPU.h"
-#endif
 #include "XP3Archive.h"
 #include "ScriptMgnIntf.h"
 #include "XP3Archive.h"
@@ -1292,7 +1290,7 @@ void TVPBeforeSystemInit()
 //---------------------------------------------------------------------------
 static void TVPDumpOptions();
 //---------------------------------------------------------------------------
-#if 0
+#ifdef __SSE2__
 extern void TVPGL_SSE2_Init();
 #endif
 extern void TVPAddGlobalHeapCompactCallback();
@@ -1302,9 +1300,9 @@ static uint32_t TVPTimeBeginPeriodRes = 0;
 void TVPAfterSystemInit()
 {
 	// check CPU type
-#if 0
 	TVPDetectCPU();
 
+#if 0
 	// dump display device
 	TVPDumpDisplayDevices();
 #endif
@@ -1416,6 +1414,8 @@ void TVPAfterSystemInit()
 #ifndef TJS_64BIT_OS
 	TVPGL_IA32_Init();
 #endif
+#endif
+#ifdef __SSE2__
 	TVPGL_SSE2_Init();
 #endif
 
