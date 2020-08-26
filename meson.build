@@ -789,6 +789,12 @@ if target_machine.system() == 'emscripten'
 		'-s', 'DISABLE_EXCEPTION_CATCHING=0',
 		'-s', 'EXIT_RUNTIME=1',
 	]
+	if get_option('emscripten_enable_wasm_simd') == true
+		krkrsdl2_cflags += [
+			'-msimd128',
+			'-msse4.2',
+		]
+	endif
 endif
 krkrsdl2_cppflags = []
 krkrsdl2_cppflags += krkrsdl2_cflags

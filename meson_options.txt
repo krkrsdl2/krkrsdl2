@@ -153,6 +153,13 @@ option(
 )
 
 option(
+	'emscripten_enable_wasm_simd',
+	type: 'boolean',
+	value: false,
+	description: 'Enable WebAssembly SIMD for the Emscripten build.'
+)
+
+option(
 	'emscripten_initial_memory',
 	type: 'integer',
 	value: 134217728,
