@@ -1749,7 +1749,7 @@ void tTVPWaveSoundBufferThread::Execute(void)
 	}
 }
 //---------------------------------------------------------------------------
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 void tTVPWaveSoundBufferThread::InternalTrigger()
 {
 	{
@@ -1959,7 +1959,7 @@ public:
 	void Interrupt();
 	void Continue();
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 	bool GetRunning() const { return false; }
 #else
 	bool GetRunning() const { return Running; }
@@ -2572,7 +2572,7 @@ tjs_uint tTJSNI_WaveSoundBuffer::Decode(void *buffer, tjs_uint bufsamplelen,
 	return w;
 }
 //---------------------------------------------------------------------------
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 void tTJSNI_WaveSoundBuffer::Trigger()
 {
 	if(TVPWaveSoundBufferThread)

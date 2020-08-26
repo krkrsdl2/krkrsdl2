@@ -795,6 +795,13 @@ if target_machine.system() == 'emscripten'
 			'-msse4.2',
 		]
 	endif
+	if get_option('emscripten_enable_threads') == true
+		krkrsdl2_cflags += [
+			'-s', 'USE_PTHREADS=1',
+			'-s', 'PROXY_TO_PTHREAD=1',
+			'-s', 'OFFSCREEN_FRAMEBUFFER=1',
+		]
+	endif
 endif
 krkrsdl2_cppflags = []
 krkrsdl2_cppflags += krkrsdl2_cflags
@@ -823,6 +830,19 @@ if target_machine.system() == 'emscripten'
 	else
 		krkrsdl2_ldflags += [
 			'-s', 'WASM=1',
+		]
+	endif
+	if get_option('emscripten_enable_threads') == true
+		krkrsdl2_ldflags += [
+			'-s', 'USE_PTHREADS=1',
+			'-s', 'PROXY_TO_PTHREAD=1',
+			'-s', 'OFFSCREEN_FRAMEBUFFER=1',
+		]
+	endif
+	if get_option('emscripten_enable_source_maps') == true
+		krkrsdl2_ldflags += [
+			'-g4',
+			'--source-map-base', 'http://127.0.0.1:8080/'
 		]
 	endif
 endif

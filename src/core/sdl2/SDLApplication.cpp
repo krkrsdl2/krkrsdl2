@@ -30,7 +30,7 @@ static TVPWindowLayer *_lastWindowLayer, *_currentWindowLayer;
 static SDL_GameController** sdl_controllers = NULL;
 static int sdl_controller_num = 0;
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 static void process_events();
 #else
 static bool process_events();
@@ -543,21 +543,28 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 	{
 		TVPThrowExceptionMessage(TJS_W("Cannot create SDL window: %1"), ttstr(SDL_GetError()));
 	}
+	renderer = nullptr;
+#if !defined(__EMSCRIPTEN__) || (defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__))
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (renderer == nullptr)
 	{
 		TVPAddLog(ttstr("Cannot create SDL renderer: ") + ttstr(SDL_GetError()));
+	}
+#endif
+	surface = nullptr;
+	if (renderer == nullptr)
+	{
 		surface = SDL_GetWindowSurface(window);
 		if (surface == nullptr)
 		{
-			TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
+			TVPAddLog(ttstr("Cannot get surface from SDL window: ") + ttstr(SDL_GetError()));
 		}
 	}
-	else
+	if (renderer == nullptr && surface == nullptr)
 	{
-		surface = nullptr;
+		TVPThrowExceptionMessage(TJS_W("Cannot get surface or renderer from SDL window"));
 	}
-	framebuffer = NULL;
+	framebuffer = nullptr;
 	if (renderer)
 	{
 		SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0x00, 0xFF );
@@ -1728,13 +1735,13 @@ void sdl_process_events()
 	}
 }
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 static void process_events()
 #else
 static bool process_events()
 #endif
 {
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 	tTJSNI_WaveSoundBuffer::Trigger();
 	tTVPTimerThread::Trigger();
 #endif
@@ -1742,13 +1749,13 @@ static bool process_events()
 	if (::Application->IsTarminate())
 	{
 		TVPSystemUninit();
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 		emscripten_cancel_main_loop();
 #else
 		return false;
 #endif
 	}
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) || (defined(__EMSCRIPTEN__) && defined(__EMSCRIPTEN_PTHREADS__))
 	return true;
 #endif
 }
@@ -1797,7 +1804,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 	emscripten_set_main_loop(process_events, 0, 0);
 #else
 	while (process_events());

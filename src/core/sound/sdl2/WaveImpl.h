@@ -169,7 +169,7 @@ private:
 		tTVPWaveSegmentQueue & segments);
 
 public:
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 	static void Trigger();
 #endif
 

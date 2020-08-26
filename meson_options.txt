@@ -160,6 +160,20 @@ option(
 )
 
 option(
+	'emscripten_enable_threads',
+	type: 'boolean',
+	value: false,
+	description: 'Enable threads for the Emscripten build.'
+)
+
+option(
+	'emscripten_enable_source_maps',
+	type: 'boolean',
+	value: false,
+	description: 'Enable source maps for the Emscripten build.'
+)
+
+option(
 	'emscripten_initial_memory',
 	type: 'integer',
 	value: 134217728,
