@@ -323,6 +323,7 @@ public:
 #endif
 
 extern void sdl_process_events();
+class TVPSDLBitmapCompletion;
 
 class TTVPWindowForm {
 public:
@@ -373,9 +374,7 @@ public:
 	virtual void RemoveOverlay(tTJSNI_BaseVideoOverlay *ovl) = 0;
 	virtual void UpdateOverlay() = 0;
 #endif
-	virtual void NotifyBitmapCompleted(iTVPLayerManager * manager,
-		tjs_int x, tjs_int y, const void * bits, const class BitmapInfomation * bitmapinfo,
-		const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity) = 0;
+	virtual TVPSDLBitmapCompletion *GetTVPSDLBitmapCompletion() = 0;
 	virtual void Show() = 0;
 	virtual void InvalidateClose() = 0;
 	virtual bool GetWindowActive() = 0;

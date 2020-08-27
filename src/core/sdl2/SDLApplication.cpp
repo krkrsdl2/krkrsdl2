@@ -15,6 +15,7 @@
 #include "DebugIntf.h"
 #include "tjsArray.h"
 #include "StorageIntf.h"
+#include "SDLBitmapCompletion.h"
 #include <SDL.h>
 
 #include <unistd.h>
@@ -417,6 +418,7 @@ protected:
 	SDL_Surface* surface;
 	tTJSNI_Window *TJSNativeInstance;
 	bool hasDrawn = false;
+	bool needs_graphic_update = false;
 	bool isBeingDeleted = false;
 	bool cursor_temporary_hidden = false;
 	char* ime_composition;
@@ -473,9 +475,7 @@ public:
 	virtual tjs_int GetTop() override;
 	virtual void SetTop(tjs_int t) override;
 	virtual void SetPosition(tjs_int l, tjs_int t) override;
-	virtual void NotifyBitmapCompleted(iTVPLayerManager * manager,
-		tjs_int x, tjs_int y, const void * bits, const class BitmapInfomation * bmpinfo,
-		const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity) override;
+	virtual TVPSDLBitmapCompletion *GetTVPSDLBitmapCompletion() override;
 	virtual void Show() override;
 	virtual void InvalidateClose() override;
 	virtual bool GetWindowActive() override;
@@ -1036,112 +1036,24 @@ void TVPWindowLayer::SetPosition(tjs_int l, tjs_int t) {
 		SDL_SetWindowPosition(window, l, t);
 	}
 }
-void TVPWindowLayer::NotifyBitmapCompleted(iTVPLayerManager * manager,
-	tjs_int x, tjs_int y, const void * bits, const class BitmapInfomation * bmpinfo,
-	const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity) {
-	const TVPBITMAPINFO *bitmapinfo = bmpinfo->GetBITMAPINFO();
-	tjs_int w = 0;
-	tjs_int h = 0;
-	if(!manager) return;
-	if(!manager->GetPrimaryLayerSize(w, h))
-	{
-		w = 0;
-		h = 0;
-	}
-	if(
-		!(x < 0 || y < 0 ||
-			x + cliprect.get_width() > w ||
-			y + cliprect.get_height() > h) &&
-		!(cliprect.left < 0 || cliprect.top < 0 ||
-			cliprect.right > bitmapinfo->bmiHeader.biWidth ||
-			cliprect.bottom > bitmapinfo->bmiHeader.biHeight))
-	{
-		// bitmapinfo で表された cliprect の領域を x,y にコピーする
-		long src_y       = cliprect.top;
-		long src_y_limit = cliprect.bottom;
-		long src_x       = cliprect.left;
-		long width_bytes   = cliprect.get_width() * 4; // 32bit
-		long dest_y      = 0;
-		long dest_x      = 0;
-		const tjs_uint8 * src_p = (const tjs_uint8 *)bits;
-		long src_pitch;
-
-		if(bitmapinfo->bmiHeader.biHeight < 0)
-		{
-			// bottom-down
-			src_pitch = bitmapinfo->bmiHeader.biWidth * 4;
-			//src_pitch = -bitmapinfo->bmiHeader.biWidth * 4;
-			//src_p += bitmapinfo->bmiHeader.biWidth * 4 * (bitmapinfo->bmiHeader.biHeight - 1);
-		}
-		else
-		{
-			// bottom-up
-			src_pitch = -bitmapinfo->bmiHeader.biWidth * 4;
-			src_p += bitmapinfo->bmiHeader.biWidth * 4 * (bitmapinfo->bmiHeader.biHeight - 1);
-			//src_pitch = bitmapinfo->bmiHeader.biWidth * 4;
-		}
-
-		void* TextureBuffer;
-		int TexturePitch;
-		SDL_Rect dstrect;
-		dstrect.x = x;
-		dstrect.y = y;
-		dstrect.w = cliprect.get_width();
-		dstrect.h = cliprect.get_height();
-
-		if (framebuffer)
-		{
-			SDL_LockTexture(framebuffer, &dstrect, &TextureBuffer, &TexturePitch);
-			for(; src_y < src_y_limit; src_y ++, dest_y ++)
-			{
-				const void *srcp = src_p + src_pitch * src_y + src_x * 4;
-				void *destp = (tjs_uint8*)TextureBuffer + TexturePitch * dest_y + dest_x * 4;
-				memcpy(destp, srcp, width_bytes);
-			}
-			SDL_UnlockTexture(framebuffer);
-		}
-		else if (surface)
-		{
-			dstrect.h = 1;
-			SDL_Surface* clip_surface = SDL_CreateRGBSurfaceFrom((void *)src_p, cliprect.get_width(), 1, 32, cliprect.get_width() * 4, 0x00ff0000, 0x0000ff00, 0x000000ff, 0);
-			if (clip_surface == nullptr)
-			{
-				TVPAddLog(ttstr("Cannot create clip surface: ") + ttstr(SDL_GetError()));
-				return;
-			}
-			for(; src_y < src_y_limit; src_y ++, dest_y ++)
-			{
-				const void *srcp = src_p + src_pitch * src_y + src_x * 4;
-				SDL_LockSurface(clip_surface);
-				clip_surface->pixels = (void *)srcp;
-				SDL_UnlockSurface(clip_surface);
-				int blit_result = SDL_BlitSurface(clip_surface, nullptr, surface, &dstrect);
-				if (blit_result < 0)
-				{
-					TVPAddLog(ttstr("Cannot blit onto window surface: ") + ttstr(SDL_GetError()));
-				}
-				dstrect.y += 1;
-			}
-			SDL_FreeSurface(clip_surface);
-		}
-
-	}
+TVPSDLBitmapCompletion *TVPWindowLayer::GetTVPSDLBitmapCompletion() {
+	needs_graphic_update = true;
+	return new TVPSDLBitmapCompletion(renderer, framebuffer, surface);
 }
 void TVPWindowLayer::Show() {
-	if (renderer)
+	if (needs_graphic_update)
 	{
-		SDL_RenderFillRect(renderer, NULL);
-		if (framebuffer)
+		if (renderer)
 		{
-			SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
+			SDL_RenderPresent(renderer);
+			hasDrawn = true;
 		}
-		SDL_RenderPresent(renderer);
-		hasDrawn = true;
-	}
-	else if (window && surface)
-	{
-		SDL_UpdateWindowSurface(window);
-		hasDrawn = true;
+		else if (window && surface)
+		{
+			SDL_UpdateWindowSurface(window);
+			hasDrawn = true;
+		}
+		needs_graphic_update = false;
 	}
 }
 void TVPWindowLayer::InvalidateClose() {

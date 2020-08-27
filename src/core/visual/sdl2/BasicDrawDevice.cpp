@@ -12,6 +12,7 @@
 #include "ComplexRect.h"
 #include "EventIntf.h"
 #include "WindowImpl.h"
+#include "SDLBitmapCompletion.h"
 
 #if 0
 #include <d3d9.h>
@@ -50,6 +51,8 @@ static void TVPInitBasicDrawDeviceOptions()
 tTVPBasicDrawDevice::tTVPBasicDrawDevice()
 {
 	TVPInitBasicDrawDeviceOptions(); // read and initialize options
+	bitmap_completion = nullptr;
+#if 0
 	TargetWindow = NULL;
 	DrawUpdateRectangle = false;
 	BackBufferDirty = true;
@@ -63,6 +66,7 @@ tTVPBasicDrawDevice::tTVPBasicDrawDevice()
 	VsyncInterval = 16;
 	ZeroMemory( &D3dPP, sizeof(D3dPP) );
 	ZeroMemory( &DispMode, sizeof(DispMode) );
+#endif
 }
 //---------------------------------------------------------------------------
 tTVPBasicDrawDevice::~tTVPBasicDrawDevice()
@@ -511,7 +515,9 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::SetTargetWindow(HWND wnd, bool is_main
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPBasicDrawDevice::SetDestRectangle(const tTVPRect & rect)
 {
+#if 0
 	BackBufferDirty = true;
+#endif
 	// 位置だけの変更の場合かどうかをチェックする
 	if(rect.get_width() == DestRect.get_width() && rect.get_height() == DestRect.get_height()) {
 		// 位置だけの変更だ
@@ -548,10 +554,10 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::NotifyLayerResize(iTVPLayerManager * m
 {
 	inherited::NotifyLayerResize(manager);
 
+#if 0
 	BackBufferDirty = true;
 
 	// テクスチャを捨てて作り直す。
-#if 0
 	CreateTexture();
 #endif
 }
@@ -639,6 +645,12 @@ bool TJS_INTF_METHOD tTVPBasicDrawDevice::WaitForVBlank( tjs_int* in_vblank, tjs
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPBasicDrawDevice::StartBitmapCompletion(iTVPLayerManager * manager)
 {
+	if (Window) {
+		TTVPWindowForm *form = ((tTJSNI_Window*)Window)->GetForm();
+		if (form) {
+			bitmap_completion = form->GetTVPSDLBitmapCompletion();
+		}
+	}
 #if 0
 	EnsureDevice();
 
@@ -671,11 +683,9 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::NotifyBitmapCompleted(iTVPLayerManager
 	tjs_int x, tjs_int y, const void * bits, const class BitmapInfomation * bmpinfo,
 	const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity)
 {
-	if (Window) {
-		TTVPWindowForm *form = ((tTJSNI_Window*)Window)->GetForm();
-		if (form) {
-			form->NotifyBitmapCompleted(manager, x, y, bits, bmpinfo, cliprect, type, opacity);
-		}
+	if (bitmap_completion)
+	{
+		bitmap_completion->NotifyBitmapCompleted(manager, x, y, bits, bmpinfo, cliprect, type, opacity);
 	}
 #if 0
 	const BITMAPINFO *bitmapinfo = bmpinfo->GetBITMAPINFO();
@@ -733,8 +743,13 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::NotifyBitmapCompleted(iTVPLayerManager
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPBasicDrawDevice::EndBitmapCompletion(iTVPLayerManager * manager)
 {
-	if(!TargetWindow) return;
+	if (bitmap_completion)
+	{
+		delete bitmap_completion;
+		bitmap_completion = nullptr;
+	}
 #if 0
+	if(!TargetWindow) return;
 	if(!Texture) return;
 	if(!Direct3DDevice) return;
 
@@ -857,7 +872,9 @@ got_error:
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPBasicDrawDevice::SetShowUpdateRect(bool b)
 {
+#if 0
 	DrawUpdateRectangle = b;
+#endif
 }
 //---------------------------------------------------------------------------
 bool TJS_INTF_METHOD tTVPBasicDrawDevice::SwitchToFullScreen( HWND window, tjs_uint w, tjs_uint h, tjs_uint bpp, tjs_uint color, bool changeresolution )

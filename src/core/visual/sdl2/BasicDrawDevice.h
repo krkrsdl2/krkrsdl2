@@ -7,6 +7,8 @@
 #include <d3d9.h>
 #endif
 
+class TVPSDLBitmapCompletion;
+
 //---------------------------------------------------------------------------
 //! @brief		「Basic」デバイス(もっとも基本的な描画を行うのみのデバイス)
 //---------------------------------------------------------------------------
@@ -14,6 +16,9 @@ class tTVPBasicDrawDevice : public tTVPDrawDevice
 {
 	typedef tTVPDrawDevice inherited;
 
+	TVPSDLBitmapCompletion* bitmap_completion;
+
+#if 0
 	void* TargetWindow;
 	bool IsMainWindow;
 	bool DrawUpdateRectangle;
@@ -25,13 +30,9 @@ class tTVPBasicDrawDevice : public tTVPDrawDevice
 	int	D3dPP;
 	int			DispMode;
 
-#if 0
 	UINT	CurrentMonitor;
-#endif
 	void*	TextureBuffer; //!< テクスチャのサーフェースへのメモリポインタ
-#if 0
 	long	TexturePitch; //!< テクスチャのピッチ
-#endif
 
 	tjs_uint TextureWidth; //!< テクスチャの横幅
 	tjs_uint TextureHeight; //!< テクスチャの縦幅
@@ -39,6 +40,7 @@ class tTVPBasicDrawDevice : public tTVPDrawDevice
 	bool ShouldShow; //!< show で実際に画面に画像を転送すべきか
 
 	tjs_uint VsyncInterval;
+#endif
 
 public:
 	tTVPBasicDrawDevice(); //!< コンストラクタ
