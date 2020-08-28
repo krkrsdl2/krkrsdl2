@@ -694,7 +694,15 @@ void tTVPApplication::Run() {
 			return;
 		}
 		ProcessMessages();
-		if (TVPSystemControl) TVPSystemControl->SystemWatchTimerTimer();
+		if (TVPSystemControl)
+		{
+			TVPSystemControl->ApplicationIdle();
+		}
+		tjs_int count = TVPGetWindowCount();
+		for( tjs_int i = 0; i<count; i++ ) {
+			tTJSNI_Window *win = TVPGetWindowListAt(i);
+			win->TickBeat();
+		}
 	} catch (const EAbort &) {
 		// nothing to do
 	} catch (const Exception &exception) {

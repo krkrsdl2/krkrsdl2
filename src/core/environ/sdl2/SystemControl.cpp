@@ -58,11 +58,9 @@ tTVPSystemControl::tTVPSystemControl() : EventEnable(true) {
 
 	TVPSystemControlAlive = true;
 
-#if 0
 	SystemWatchTimer.SetOnTimerHandler( this, &tTVPSystemControl::SystemWatchTimerTimer );
 	SystemWatchTimer.SetInterval(50);
 	SystemWatchTimer.SetEnabled( true );
-#endif
 }
 void tTVPSystemControl::InvokeEvents() {
 	CallDeliverAllEventsOnIdle();
@@ -128,6 +126,7 @@ void tTVPSystemControl::DeliverEvents() {
 }
 
 void tTVPSystemControl::SystemWatchTimerTimer() {
+#if 0
 	if( TVPTerminated ) {
 		// this will ensure terminating the application.
 		// the WM_QUIT message disappears in some unknown situations...
@@ -135,6 +134,7 @@ void tTVPSystemControl::SystemWatchTimerTimer() {
 		Application->Terminate();
 		// Application->PostMessageToMainWindow( TVP_EV_DELIVER_EVENTS_DUMMY, 0, 0 );
 	}
+#endif
 
 	// call events
 	tjs_uint32 tick = TVPGetRoughTickCount32();
@@ -170,6 +170,7 @@ void tTVPSystemControl::SystemWatchTimerTimer() {
 	}
 	*/
 
+#if 0
 	// check status and deliver events
 	DeliverEvents();
 
@@ -179,6 +180,7 @@ void tTVPSystemControl::SystemWatchTimerTimer() {
 		tTJSNI_Window *win = TVPGetWindowListAt(i);
 		win->TickBeat();
 	}
+#endif
 
 	if( !ContinuousEventCalling && tick - LastCompactedTick > 4000 ) {
 		// idle state over 4 sec.
