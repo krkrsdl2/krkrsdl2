@@ -7,10 +7,6 @@ TVPSDLBitmapCompletion::TVPSDLBitmapCompletion(SDL_Renderer* in_renderer, SDL_Te
 	renderer = in_renderer;
 	framebuffer = in_framebuffer;
 	surface = in_surface;
-	if (framebuffer)
-	{
-		SDL_LockTexture(framebuffer, nullptr, &TextureBuffer, &TexturePitch);
-	}
 }
 
 void TVPSDLBitmapCompletion::NotifyBitmapCompleted(iTVPLayerManager * manager,
@@ -38,8 +34,8 @@ void TVPSDLBitmapCompletion::NotifyBitmapCompleted(iTVPLayerManager * manager,
 		long src_y_limit = cliprect.bottom;
 		long src_x       = cliprect.left;
 		long width_bytes   = cliprect.get_width() * 4; // 32bit
-		long dest_y      = y;
-		long dest_x      = x;
+		long dest_y      = 0;
+		long dest_x      = 0;
 		const tjs_uint8 * src_p = (const tjs_uint8 *)bits;
 		long src_pitch;
 
@@ -58,22 +54,27 @@ void TVPSDLBitmapCompletion::NotifyBitmapCompleted(iTVPLayerManager * manager,
 			//src_pitch = bitmapinfo->bmiHeader.biWidth * 4;
 		}
 
+		SDL_Rect dstrect;
+		dstrect.x = x;
+		dstrect.y = y;
+		dstrect.w = cliprect.get_width();
+		dstrect.h = cliprect.get_height();
+
 		if (framebuffer)
 		{
+			void* TextureBuffer;
+			int TexturePitch;
+			SDL_LockTexture(framebuffer, &dstrect, &TextureBuffer, &TexturePitch);
 			for(; src_y < src_y_limit; src_y ++, dest_y ++)
 			{
 				const void *srcp = src_p + src_pitch * src_y + src_x * 4;
 				void *destp = (tjs_uint8*)TextureBuffer + TexturePitch * dest_y + dest_x * 4;
 				memcpy(destp, srcp, width_bytes);
 			}
+			SDL_UnlockTexture(framebuffer);
 		}
 		else if (surface)
 		{
-			SDL_Rect dstrect;
-			dstrect.x = x;
-			dstrect.y = y;
-			dstrect.w = cliprect.get_width();
-			dstrect.h = cliprect.get_height();
 			dstrect.h = 1;
 			SDL_Surface* clip_surface = SDL_CreateRGBSurfaceFrom((void *)src_p, cliprect.get_width(), 1, 32, cliprect.get_width() * 4, 0x00ff0000, 0x0000ff00, 0x000000ff, 0);
 			if (clip_surface == nullptr)
@@ -102,16 +103,4 @@ void TVPSDLBitmapCompletion::NotifyBitmapCompleted(iTVPLayerManager * manager,
 
 TVPSDLBitmapCompletion::~TVPSDLBitmapCompletion()
 {
-	if (framebuffer)
-	{
-		SDL_UnlockTexture(framebuffer);
-	}
-	if (renderer)
-	{
-		SDL_RenderFillRect(renderer, NULL);
-		if (framebuffer)
-		{
-			SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
-		}
-	}
 }

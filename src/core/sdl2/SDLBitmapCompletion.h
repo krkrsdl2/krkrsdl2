@@ -8,8 +8,6 @@ class TVPSDLBitmapCompletion
 	SDL_Renderer* renderer;
 	SDL_Texture* framebuffer;
 	SDL_Surface* surface;
-	void* TextureBuffer;
-	int TexturePitch;
 public:
 	TVPSDLBitmapCompletion(SDL_Renderer* in_renderer, SDL_Texture* in_framebuffer, SDL_Surface* in_surface);
 	~TVPSDLBitmapCompletion();
