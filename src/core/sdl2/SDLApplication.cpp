@@ -1048,7 +1048,15 @@ void TVPWindowLayer::TickBeat() {
 	{
 		if (renderer)
 		{
+			if (framebuffer)
+			{
+				SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
+			}
 			SDL_RenderPresent(renderer);
+			if (framebuffer)
+			{
+				SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
+			}
 			hasDrawn = true;
 		}
 		else if (window && surface)
