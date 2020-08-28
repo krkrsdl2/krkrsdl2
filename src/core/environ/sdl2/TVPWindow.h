@@ -376,6 +376,7 @@ public:
 #endif
 	virtual TVPSDLBitmapCompletion *GetTVPSDLBitmapCompletion() = 0;
 	virtual void Show() = 0;
+	virtual void TickBeat() = 0;
 	virtual void InvalidateClose() = 0;
 	virtual bool GetWindowActive() = 0;
 	virtual void Close() = 0;
@@ -415,7 +416,6 @@ public:
 	void ResetMouseVelocity() {};
 	void ResetTouchVelocity(tjs_int id) {};
 	bool GetMouseVelocity(float& x, float& y, float& speed) const { return false; };
-	void TickBeat() {};
 	void SetZoom(tjs_int numer, tjs_int denom) {};
 	void SetZoomNumer(tjs_int n) {}
 	tjs_int GetZoomNumer() const { return 1; }
