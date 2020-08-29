@@ -694,14 +694,24 @@ void tTVPApplication::Run() {
 			return;
 		}
 		ProcessMessages();
+		bool done = false;
 		if (TVPSystemControl)
 		{
-			TVPSystemControl->ApplicationIdle();
+			done = TVPSystemControl->ApplicationIdle();
 		}
 		tjs_int count = TVPGetWindowCount();
 		for( tjs_int i = 0; i<count; i++ ) {
 			tTJSNI_Window *win = TVPGetWindowListAt(i);
 			win->TickBeat();
+		}
+		if (done)
+		{
+			if (SDL_WasInit(SDL_INIT_EVENTS) != 0)
+			{
+#ifndef __EMSCRIPTEN__
+				SDL_WaitEvent(NULL);
+#endif
+			}
 		}
 	} catch (const EAbort &) {
 		// nothing to do
