@@ -68,8 +68,6 @@ public:
 
 	void PostEvent( const NativeEvent& event );
 
-	void Clear(int msg = 0);
-
 #if 0
 	HWND GetOwner() { return window_handle_; }
 #endif

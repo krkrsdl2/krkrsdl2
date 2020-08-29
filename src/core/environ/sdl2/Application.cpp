@@ -740,15 +740,14 @@ void tTVPApplication::Run() {
 
 void tTVPApplication::ProcessMessages()
 {
-	std::vector<std::tuple<void*, int, tMsg> > lstUserMsg;
+	std::vector<tMsg> lstUserMsg;
 	if (SDL_LockMutex(m_msgQueueLock) == 0) {
 		m_lstUserMsg.swap(lstUserMsg);
 		SDL_UnlockMutex(m_msgQueueLock);
 	}
-	for (std::tuple<void*, int, tMsg>& it : lstUserMsg) {
-		std::get<2>(it)();
+	for (tMsg& it : lstUserMsg) {
+		it();
 	}
-	// TVPTimer::ProgressAllTimer();
 }
 
 #if 0
@@ -908,18 +907,10 @@ void tTVPApplication::CheckDigitizer() {
 #endif
 }
 
-void tTVPApplication::PostUserMessage(const std::function<void()> &func, void* host, int msg)
+void tTVPApplication::PostUserMessage(const std::function<void()> &func)
 {
 	if (SDL_LockMutex(m_msgQueueLock) == 0) {
-		m_lstUserMsg.emplace_back(host, msg, func);
-		SDL_UnlockMutex(m_msgQueueLock);
-	}
-}
-
-void tTVPApplication::FilterUserMessage(const std::function<void(std::vector<std::tuple<void*, int, tMsg> > &)> &func)
-{
-	if (SDL_LockMutex(m_msgQueueLock) == 0) {
-		func(m_lstUserMsg);
+		m_lstUserMsg.emplace_back(func);
 		SDL_UnlockMutex(m_msgQueueLock);
 	}
 }
@@ -939,9 +930,6 @@ void tTVPApplication::OnActivate()
 
 	// trigger System.onActivate event
 	TVPPostApplicationActivateEvent();
-	for (auto & it : m_activeEvents) {
-		it.second(it.first, eTVPActiveEvent::onActive);
-	}
 }
 
 #if 0
@@ -968,9 +956,6 @@ void tTVPApplication::OnDeactivate(  )
 
 	// trigger System.onDeactivate event
 	TVPPostApplicationDeactivateEvent();
-	for (auto & it : m_activeEvents) {
-		it.second(it.first, eTVPActiveEvent::onDeactive);
-	}
 }
 
 bool tTVPApplication::GetNotMinimizing() const
@@ -1010,14 +995,6 @@ void tTVPApplication::LoadImageRequest( class iTJSDispatch2 *owner, class tTJSNI
 		image_load_thread_->LoadRequest( owner, bmp, name );
 	}
 #endif
-}
-
-void tTVPApplication::RegisterActiveEvent(void *host, const std::function<void(void*, eTVPActiveEvent)>& func/*empty = unregister*/)
-{
-	if (func)
-		m_activeEvents.emplace(host, func);
-	else
-		m_activeEvents.erase(host);
 }
 
 #if 0
