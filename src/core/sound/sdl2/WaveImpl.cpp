@@ -3086,9 +3086,11 @@ void tTJSNI_WaveSoundBuffer::StartPlay()
 		BufferPlaying = true;
 		FillL2Buffer(true, false);
 		FillBuffer(true, false);
+#if 0
 		FillBuffer(false, false);
 		FillBuffer(false, false);
 		FillBuffer(false, false);
+#endif
 
 		// start playing
 		if(!Paused)
@@ -3098,8 +3100,10 @@ void tTJSNI_WaveSoundBuffer::StartPlay()
 		}
 
 		// re-schedule label events
+#if 0
 		ResetLastCheckedDecodePos();
 		TVPReschedulePendingLabelEvent(GetNearestEventStep());
+#endif
 	}	// end of thread protected block
 
 	// ensure thread
