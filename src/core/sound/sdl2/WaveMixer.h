@@ -28,7 +28,6 @@ public:
 	virtual bool IsBufferValid() = 0;
 	virtual tjs_uint GetCurrentPlaySamples() = 0;
 	virtual tjs_uint GetLatencySamples() = 0;
-	virtual float GetLatencySeconds() { return 0; }
 	virtual int GetRemainBuffers() = 0;
 	virtual void SetPosition(float x, float y, float z) {}
 };

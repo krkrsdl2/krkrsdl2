@@ -188,7 +188,6 @@ public:
 		return _buffers.size();
 	}
 	virtual tjs_uint GetCurrentPlaySamples() override;
-	virtual float GetLatencySeconds() override;
 
 	void FillBuffer(uint8_t *out, int len);
 };
@@ -375,14 +374,9 @@ tjs_uint tTVPSoundBuffer::GetLatencySamples()
 
 tjs_uint tTVPSoundBuffer::GetCurrentPlaySamples()
 {
-	int32_t samples = TVPAudioRenderer->GetUnprocessedSamples();
+	int32_t samples = GetLatencySamples();
 	if (samples > _sendedSamples) return 0;
-	return _sendedSamples - GetLatencySamples();
-}
-
-float tTVPSoundBuffer::GetLatencySeconds()
-{
-	return GetLatencySamples() / TVPAudioRenderer->GetSpec().freq;
+	return _sendedSamples - samples;
 }
 
 void tTVPSoundBuffer::FillBuffer(uint8_t *out, int len)
