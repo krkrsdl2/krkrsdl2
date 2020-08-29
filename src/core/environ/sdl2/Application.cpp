@@ -425,7 +425,9 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 #endif
 	TVPTerminateCode = 0;
 
+#if 0
 	CheckConsole();
+#endif
 
 	// try starting the program!
 	bool engine_init = false;
@@ -443,7 +445,9 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 		// TVPInitializeBaseSystems
 		TVPInitializeBaseSystems();
 
+#if 0
 		Initialize();
+#endif
 
 		if(TVPCheckPrintDataPath()) return true;
 #if 0
@@ -462,11 +466,13 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 
 		SetTitle( tjs_string(TVPKirikiri) );
 		TVPSystemControl = new tTVPSystemControl();
+#if 0
 #ifndef TVP_IGNORE_LOAD_TPM_PLUGIN
 		TVPLoadPluigins(); // load plugin module *.tpm
 #endif
 		// Check digitizer
 		CheckDigitizer();
+#endif
 
 #if 0
 		// start image load thread
@@ -539,11 +545,11 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 
 	return true;
 }
+#if 0
 /**
  * コンソールからの起動か確認し、コンソールからの起動の場合は、標準出力を割り当てる
  */
 void tTVPApplication::CheckConsole() {
-#if 0
 #ifdef TVP_LOG_TO_COMMANDLINE_CONSOLE
 	if( has_map_report_process_ ) return; // 書き出し用子プロセスして起動されていた時はコンソール接続しない
 	HANDLE hin  = ::GetStdHandle(STD_INPUT_HANDLE);
@@ -576,11 +582,9 @@ void tTVPApplication::CheckConsole() {
 	}
 	is_attach_console_ = attachedConsole;
 #endif
-#endif
 }
 
 void tTVPApplication::CloseConsole() {
-#if 0
 	tjs_char buf[100];
 	DWORD len = TJS_snprintf(buf, 100, TVPExitCode, TVPTerminateCode);
 	PrintConsole(buf, len);
@@ -589,8 +593,8 @@ void tTVPApplication::CloseConsole() {
 		::FreeConsole();
 		is_attach_console_ = false;
 	}
-#endif
 }
+#endif
 
 void tTVPApplication::PrintConsole( const tjs_char* mes, unsigned long len, bool iserror ) {
 #if 0
@@ -864,10 +868,8 @@ void tTVPApplication::UnregisterAcceleratorKey(HWND hWnd, short cmd) {
 void tTVPApplication::DeleteAcceleratorKeyTable( HWND hWnd ) {
 	accel_key_.DelTable( hWnd );
 }
-#endif
 void tTVPApplication::CheckDigitizer() {
 	// Windows 7 以降でのみ有効
-#if 0
 	int value = ::GetSystemMetrics(SM_DIGITIZER);
 	if( value == 0 ) return;
 
@@ -890,65 +892,43 @@ void tTVPApplication::CheckDigitizer() {
 	if( value & NID_READY ) {
 		TVPAddLog( (const tjs_char*)TVPTouchReady );
 	}
-#endif
 }
-
-#if 0
 void tTVPApplication::OnActivate( HWND hWnd )
-#endif
-void tTVPApplication::OnActivate()
 {
 	application_activating_ = true;
 	
-#if 0
 	TVPRestoreFullScreenWindowAtActivation();
-#endif
 	TVPResetVolumeToAllSoundBuffer();
-	TVPUnlockSoundMixer();
 
 	// trigger System.onActivate event
 	TVPPostApplicationActivateEvent();
 }
-
-#if 0
 void tTVPApplication::OnDeactivate( HWND hWnd )
-#endif
-void tTVPApplication::OnDeactivate(  )
 {
-#if 0
 	if( hWnd != GetMainWindowHandle() ) return;
-#endif
 
 	application_activating_ = false;
 	
-#if 0
 	TVPMinimizeFullScreenWindowAtInactivation();
-#endif
 	
 	// fire compact event
 	TVPDeliverCompactEvent(TVP_COMPACT_LEVEL_DEACTIVATE);
 
 	// set sound volume
 	TVPResetVolumeToAllSoundBuffer();
-	TVPLockSoundMixer();
 
 	// trigger System.onDeactivate event
 	TVPPostApplicationDeactivateEvent();
 }
-
 bool tTVPApplication::GetNotMinimizing() const
 {
-	return !application_activating_;
-#if 0
 	HWND hWnd = GetMainWindowHandle();
 	if( hWnd != INVALID_HANDLE_VALUE && hWnd != NULL ) {
 		return ::IsIconic( hWnd ) == 0;
 	}
 	return true; // メインがない時は最小化されているとみなす
-#endif
 }
 
-#if 0
 void tTVPApplication::OnActiveAnyWindow() {
 	if( modal_window_stack_.empty() != true ) {
 		tTVPWindow* win = modal_window_stack_.top();

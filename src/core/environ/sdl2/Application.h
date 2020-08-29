@@ -113,11 +113,15 @@ class tTVPApplication {
 	std::vector<char> console_cache_;
 
 private:
+#if 0
 	void CheckConsole();
 	void CloseConsole();
 	void CheckDigitizer();
+#endif
 	void ShowException( const tjs_char* e );
+#if 0
 	void Initialize() {}
+#endif
 
 public:
 	tTVPApplication();
@@ -132,17 +136,13 @@ public:
 
 #if 0
 	HWND GetHandle();
-#endif
 	bool IsIconic() {
-#if 0
 		HWND hWnd = GetHandle();
 		if( hWnd != INVALID_HANDLE_VALUE ) {
 			return 0 != ::IsIconic(hWnd);
 		}
-#endif
 		return true; // そもそもウィンドウがない
 	}
-#if 0
 	void Minimize();
 	void Restore();
 	void BringToFront();
@@ -186,18 +186,17 @@ public:
 #endif
 		tarminate_ = true;
 	}
+#if 0
 	void SetHintHidePause( int v ) {}
 	void SetShowHint( bool b ) {}
 	void SetShowMainForm( bool b ) {}
 
 
-#if 0
 	HWND GetMainWindowHandle() const;
 #endif
 
 	int ArgC;
 	tjs_char ** ArgV;
-	typedef std::function<void()> tMsg;
 
 #if 0
 	void PostMessageToMainWindow(UINT message, WPARAM wParam, LPARAM lParam);
@@ -216,16 +215,14 @@ public:
 	void RegisterAcceleratorKey(HWND hWnd, char virt, short key, short cmd);
 	void UnregisterAcceleratorKey(HWND hWnd, short cmd);
 	void DeleteAcceleratorKeyTable( HWND hWnd );
-#endif
-	void OnActivate(  );
-	void OnDeactivate(  );
 
-#if 0
 	void OnActivate( HWND hWnd );
 	void OnDeactivate( HWND hWnd );
 #endif
 	bool GetActivating() const { return application_activating_; }
+#if 0
 	bool GetNotMinimizing() const;
+#endif
 
 	/**
 	 * 画像の非同期読込み要求
@@ -234,9 +231,7 @@ public:
 };
 #if 0
 std::vector<std::string>* LoadLinesFromFile( const tjs_string& path );
-#endif
 
-#if 0
 inline HINSTANCE GetHInstance() { return ((HINSTANCE)GetModuleHandle(0)); }
 #endif
 extern class tTVPApplication* Application;
