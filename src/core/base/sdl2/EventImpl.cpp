@@ -77,6 +77,7 @@ void TVPCallDeliverAllEventsOnIdle()
 static bool TVPBreathing = false;
 void TVPBreathe()
 {
+#if 0
 	TVPEventDisabled = true; // not to call TVP events...
 	TVPBreathing = true;
 	try
@@ -92,6 +93,7 @@ void TVPBreathe()
 
 	TVPBreathing = false;
 	TVPEventDisabled = false;
+#endif
 }
 //---------------------------------------------------------------------------
 bool TVPGetBreathing()

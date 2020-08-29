@@ -70,7 +70,28 @@ void NativeEventQueueImplement::PostEvent( const NativeEvent& event ) {
 #endif
 
 #include "Application.h"
+#include "DebugIntf.h"
+#include <SDL.h>
+
+extern tjs_uint32 native_event_queue_custom_event_type = ((tjs_uint32)-1);
+
+NativeEventQueueImplement::NativeEventQueueImplement() {
+	if (native_event_queue_custom_event_type == ((tjs_uint32)-1))
+	{
+		SDL_Init(SDL_INIT_EVENTS);
+		native_event_queue_custom_event_type = SDL_RegisterEvents(1);
+	}
+}
 
 void NativeEventQueueImplement::PostEvent(const NativeEvent& ev) {
-	Application->PostUserMessage([this, ev](){ Dispatch(*const_cast<NativeEvent*>(&ev)); });
+	if (native_event_queue_custom_event_type != ((tjs_uint32)-1))
+	{
+		SDL_Event event;
+		SDL_memset(&event, 0, sizeof(event));
+		event.type = native_event_queue_custom_event_type;
+		event.user.code = 0;
+		event.user.data1 = (void *)this;
+		event.user.data2 = (void *)&ev;
+		SDL_PushEvent(&event);
+	}
 }

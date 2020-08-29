@@ -1650,9 +1650,23 @@ void sdl_process_events()
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
-			if (_currentWindowLayer)
+			if (event.type == native_event_queue_custom_event_type)
 			{
-				_currentWindowLayer->window_receive_event(event);
+				((NativeEventQueueImplement *)(event.user.data1))->Dispatch(*((NativeEvent*)event.user.data2));
+			}
+			else
+			{
+				if (_currentWindowLayer)
+				{
+					_currentWindowLayer->window_receive_event(event);
+				}
+				else
+				{
+					if (event.type == SDL_QUIT)
+					{
+						Application->Terminate();
+					}
+				}
 			}
 		}
 	}

@@ -424,7 +424,6 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 	}
 #endif
 	TVPTerminateCode = 0;
-	m_msgQueueLock = SDL_CreateMutex();
 
 	CheckConsole();
 
@@ -693,7 +692,6 @@ void tTVPApplication::Run() {
 		if (tarminate_) {
 			return;
 		}
-		ProcessMessages();
 		bool done = false;
 		if (TVPSystemControl)
 		{
@@ -735,18 +733,6 @@ void tTVPApplication::Run() {
 		ShowException( e );
 	} catch (...) {
 		ShowException((const tjs_char*)TVPUnknownError);
-	}
-}
-
-void tTVPApplication::ProcessMessages()
-{
-	std::vector<tMsg> lstUserMsg;
-	if (SDL_LockMutex(m_msgQueueLock) == 0) {
-		m_lstUserMsg.swap(lstUserMsg);
-		SDL_UnlockMutex(m_msgQueueLock);
-	}
-	for (tMsg& it : lstUserMsg) {
-		it();
 	}
 }
 
@@ -905,14 +891,6 @@ void tTVPApplication::CheckDigitizer() {
 		TVPAddLog( (const tjs_char*)TVPTouchReady );
 	}
 #endif
-}
-
-void tTVPApplication::PostUserMessage(const std::function<void()> &func)
-{
-	if (SDL_LockMutex(m_msgQueueLock) == 0) {
-		m_lstUserMsg.emplace_back(func);
-		SDL_UnlockMutex(m_msgQueueLock);
-	}
 }
 
 #if 0

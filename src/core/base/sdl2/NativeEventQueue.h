@@ -41,6 +41,7 @@ public:
 	virtual void PostEvent( const NativeEvent& event ) = 0;
 };
 #endif
+extern tjs_uint32 native_event_queue_custom_event_type;
 class NativeEventQueueImplement/* : public NativeEventQueueIntarface*/ {
 #if 0
 	HWND window_handle_;
@@ -56,6 +57,7 @@ public:
 #if 0
 	NativeEventQueueImplement() : window_handle_(NULL) {}
 #endif
+	NativeEventQueueImplement();
 
 	// デフォルトハンドラ
 	void HandlerDefault( NativeEvent& event ) {}
