@@ -887,6 +887,23 @@ if get_option('builtin_plugin_enable_menu') == true
 	endif
 endif
 
+if get_option('enable_wavemixer_openal') == true
+	krkrsdl2_cppflags += [
+		'-DTVP_USE_OPENAL',
+	]
+	if target_machine.system() == 'darwin'
+		openal_dep = dependency('appleframeworks', modules: 'OpenAL')
+		krkrsdl2_dependson += [
+			openal_dep
+		]
+	else
+		openal_dep = dependency('openal', method: 'pkg-config')
+		krkrsdl2_dependson += [
+			openal_dep
+		]
+	endif
+endif
+
 krkrsdl2_override_options = []
 if target_machine.system() == 'emscripten'
 	krkrsdl2_override_options += [

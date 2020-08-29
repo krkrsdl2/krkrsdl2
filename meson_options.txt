@@ -140,6 +140,13 @@ option(
 )
 
 option(
+	'enable_wavemixer_openal',
+	type: 'boolean',
+	value: false,
+	description: 'Use OpenAL wave mixer instead of the built-in SDL mixer. Requires the OpenAL libraries to be installed.'
+)
+
+option(
 	'krkrsdl2_data_path',
 	type: 'string',
 	description: 'Path to project directory that will be integrated into the Emscripten build.'
