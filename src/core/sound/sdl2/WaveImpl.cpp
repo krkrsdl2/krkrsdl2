@@ -633,8 +633,8 @@ static bool TVPPrimaryBufferPlayingByProgram = false;
 static HMODULE TVPDirectSoundDLL = NULL;
 #endif
 static bool TVPPrimaryBufferPlayingByProgram = false;
-static TVPTimer *TVPPrimaryDelayedStopperTimer = NULL;
 #if 0
+static TVPTimer *TVPPrimaryDelayedStopperTimer = NULL;
 static bool TVPDirectSoundShutdown = false;
 #endif
 static bool TVPDeferedSettingAvailable = false;
@@ -661,6 +661,7 @@ static void TVPEnsurePrimaryBufferPlay()
 #endif
 }
 //---------------------------------------------------------------------------
+#if 0
 static void TVPStopPrimaryBuffer()
 {
 #if 0 // never stop sound
@@ -677,7 +678,6 @@ static void TVPStopPrimaryBuffer()
 	}
 #endif
 }
-#if 0
 //---------------------------------------------------------------------------
 class tTVPPrimaryDelayedStopper
 {
@@ -744,6 +744,7 @@ static ttstr TVPGetSoundBufferFormatString(const WAVEFORMATEXTENSIBLE &wfx)
 	return debuglog;
 }
 #endif
+#if 0
 static ttstr TVPGetSoundBufferFormatString(const tTVPWaveFormat &wfx)
 {
 	ttstr debuglog(TJS_W("format container = "));
@@ -760,6 +761,7 @@ static ttstr TVPGetSoundBufferFormatString(const tTVPWaveFormat &wfx)
 
 	return debuglog;
 }
+#endif
 //---------------------------------------------------------------------------
 void TVPWaveSoundBufferCommitSettings() {}
 #if 0
@@ -2071,14 +2073,12 @@ tTJSNI_WaveSoundBuffer::tTJSNI_WaveSoundBuffer()
 	TVPInitSoundOptions();
 #if 0
 	TVPRegisterTSSWaveDecoderCreator();
-#endif
 #ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
 	TVPRegisterWaveUnpackerCreator();
 #endif
 #ifdef TVP_SUPPORT_KPI
 	TVPRegisterKMPWaveDecoderCreator();
 #endif
-#if 0
 	TVPInitLogTable();
 #endif
 	Decoder = NULL;
@@ -2290,18 +2290,18 @@ void tTJSNI_WaveSoundBuffer::CreateSoundBuffer()
 		{
 			ttstr msg;
 			bool failed;
+#if 0
 			bool firstfailed = false;
 			ttstr firstformat;
-#if 0
 			bool use3d = (InputFormat.Channels >= 3 || InputFormat.SpeakerConfig != 0) ?
 				false : TVPDirectSoundUse3D;
 				// currently DirectSound3D cannot handle multiple speaker configuration
 				// other than stereo.
 #endif
 			bool use3d = false;
+#if 0
 			int forcemode = 0;
 
-#if 0
 			if(TVPForceConvertMode == fcm16bit) goto try16bits;
 			if(TVPForceConvertMode == fcm16bitMono) goto try16bits_mono;
 #endif
@@ -2717,7 +2717,7 @@ void tTJSNI_WaveSoundBuffer::FillDSBuffer(tjs_int writepos,
 
 	if (SoundBuffer->IsBufferValid())
 	{
-		tjs_uint decoded = ReadL2Buffer(UseVisBuffer ? VisBuffer + writepos : nullptr, segments);
+		ReadL2Buffer(UseVisBuffer ? VisBuffer + writepos : nullptr, segments);
 	}
 #if 0
 	HRESULT hr;

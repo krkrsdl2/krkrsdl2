@@ -244,7 +244,9 @@ private:
 	static tTVPSoundGlobalFocusMode GlobalFocusMode;
 
 	bool BufferCanControlPan;
+#if 0
 	bool BufferCanControlFrequency;
+#endif
 	tjs_int Pan; // -100000 .. 0 .. 100000
 	D3DVALUE PosX, PosY, PosZ; // 3D position
 
