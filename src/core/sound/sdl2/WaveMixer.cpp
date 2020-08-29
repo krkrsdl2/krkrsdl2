@@ -6,8 +6,8 @@
 #include <SDL.h>
 #include <unordered_set>
 
-class iTVPAudioRenderer;
-static iTVPAudioRenderer *TVPAudioRenderer;
+class tTVPAudioRendererSDL;
+static tTVPAudioRendererSDL *TVPAudioRenderer;
 
 template<int ch>
 void MixAudioS16CPP(void *dst, const void *src, int samples, int16_t *volume) {
@@ -193,7 +193,8 @@ public:
 	void FillBuffer(uint8_t *out, int len);
 };
 
-class iTVPAudioRenderer {
+class tTVPAudioRendererSDL {
+	SDL_AudioDeviceID _playback_id;
 protected:
 	SDL_AudioSpec _spec;
 	SDL_mutex *_streams_mtx;
@@ -202,7 +203,7 @@ protected:
 	int _buffer_size = 0;
 
 public:
-	iTVPAudioRenderer() {
+	tTVPAudioRendererSDL() {
 		_streams_mtx = SDL_CreateMutex();
 		memset(&_spec, 0, sizeof(_spec));
 		tTJSVariant val;
@@ -257,11 +258,11 @@ public:
 		_spec.channels = 2;
 		_spec.callback = [](void *p, Uint8 *s, int l) {
 			memset(s, 0, l);
-			((iTVPAudioRenderer*)p)->FillBuffer(s, l);
+			((tTVPAudioRendererSDL*)p)->FillBuffer(s, l);
 		};
 		_spec.userdata = this;
 	}
-	virtual ~iTVPAudioRenderer() {
+	virtual ~tTVPAudioRendererSDL() {
 		SDL_DestroyMutex(_streams_mtx);
 	}
 	void InitMixer() {
@@ -282,7 +283,19 @@ public:
 		}
 	}
 
-	virtual bool Init() = 0;
+	bool Init() {
+		InitMixer();
+		_playback_id = SDL_OpenAudioDevice(nullptr, false, &_spec, &_spec, SDL_AUDIO_ALLOW_ANY_CHANGE);
+		if (_playback_id <= 0) {
+			TVPAddLog(ttstr("Failed to open audio at ") + ttstr(_spec.freq) + ttstr("Hz: ") + ttstr(SDL_GetError()));
+			return false;
+		}
+		_frame_size = SDL_AUDIO_BITSIZE(_spec.format) / 8 * _spec.channels;
+		TVPAddLog(ttstr("Audio Device: ") + ttstr(SDL_GetCurrentAudioDriver()));
+		SDL_PauseAudioDevice(_playback_id, false);
+		SetupMixer();
+		return true;
+	}
 
 	virtual tTVPSoundBuffer* CreateStream(tTVPWaveFormat &fmt, int bufcount) {
 		SDL_AudioSpec spec;
@@ -343,7 +356,7 @@ public:
 		return _spec;
 	}
 
-	virtual int32_t GetUnprocessedSamples() { return 0; }
+	virtual int32_t GetUnprocessedSamples() { return SDL_GetQueuedAudioSize(_playback_id); }
 };
 
 tTVPSoundBuffer::~tTVPSoundBuffer()
@@ -364,7 +377,7 @@ tjs_uint tTVPSoundBuffer::GetCurrentPlaySamples()
 {
 	int32_t samples = TVPAudioRenderer->GetUnprocessedSamples();
 	if (samples > _sendedSamples) return 0;
-	return _sendedSamples - samples; // -GetLatencySamples();
+	return _sendedSamples - GetLatencySamples();
 }
 
 float tTVPSoundBuffer::GetLatencySeconds()
@@ -395,27 +408,8 @@ void tTVPSoundBuffer::FillBuffer(uint8_t *out, int len)
 	SDL_UnlockMutex(_buffer_mtx);
 }
 
-class tTVPAudioRendererSDL : public iTVPAudioRenderer {
-	SDL_AudioDeviceID _playback_id;
-
-public:
-	bool Init() override {
-		InitMixer();
-		_playback_id = SDL_OpenAudioDevice(nullptr, false, &_spec, &_spec, SDL_AUDIO_ALLOW_ANY_CHANGE);
-		if (_playback_id <= 0) {
-			TVPAddLog(ttstr("Failed to open audio at ") + ttstr(_spec.freq) + ttstr("Hz: ") + ttstr(SDL_GetError()));
-			return false;
-		}
-		_frame_size = SDL_AUDIO_BITSIZE(_spec.format) / 8 * _spec.channels;
-		TVPAddLog(ttstr("Audio Device: ") + ttstr(SDL_GetCurrentAudioDriver()));
-		SDL_PauseAudioDevice(_playback_id, false);
-		SetupMixer();
-		return true;
-	}
-};
-
-static iTVPAudioRenderer *CreateAudioRenderer() {
-	iTVPAudioRenderer *renderer = nullptr;
+static tTVPAudioRendererSDL *CreateAudioRenderer() {
+	tTVPAudioRendererSDL *renderer = nullptr;
 	renderer = new tTVPAudioRendererSDL;
 	renderer->Init();
 	return renderer;
