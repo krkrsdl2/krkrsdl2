@@ -15,6 +15,7 @@
 #include <SDL.h>
 #endif
 #include <unordered_set>
+#include <cassert>
 
 class tTVPAudioRenderer;
 static tTVPAudioRenderer *TVPAudioRenderer;
