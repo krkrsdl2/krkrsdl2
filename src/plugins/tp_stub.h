@@ -13,3 +13,4 @@
 #include "CharacterSet.h"
 #include "TransIntf.h"
 #include "GraphicsLoaderIntf.h"
+#include "TickCount.h"
