@@ -769,6 +769,42 @@ if get_option('builtin_plugin_enable_scriptsex') == true
 		'external/scriptsEx/Main.cpp',
 	]
 endif
+if get_option('builtin_plugin_enable_binarystream') == true
+	krkrsdl2_src += [
+		'external/binaryStream/Main.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_layerexareaaverage') == true
+	krkrsdl2_src += [
+		'external/layerExAreaAverage/main.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_layerexlongexposure') == true
+	krkrsdl2_src += [
+		'external/layerExLongExposure/Main.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_layerexraster') == true
+	krkrsdl2_src += [
+		'external/layerExRaster/main.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_lineparser') == true
+	krkrsdl2_src += [
+		'external/lineParser/Main.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_shrinkcopy') == true
+	krkrsdl2_src += [
+		'external/shrinkCopy/main.cpp',
+	]
+endif
+if get_option('builtin_plugin_enable_fftgraph') == true
+	krkrsdl2_src += [
+		'external/fftgraph/fftsg.c',
+		'external/fftgraph/Main.cpp',
+	]
+endif
 if target_machine.system() == 'emscripten'
 	krkrsdl2_src += [
 		'src/plugins/kremscripten.cpp',

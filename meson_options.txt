@@ -126,6 +126,55 @@ option(
 )
 
 option(
+	'builtin_plugin_enable_binarystream',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the binaryStream plugin.'
+)
+
+option(
+	'builtin_plugin_enable_layerexareaaverage',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the layerExAreaAverage plugin.'
+)
+
+option(
+	'builtin_plugin_enable_layerexlongexposure',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the layerExLongExposure plugin.'
+)
+
+option(
+	'builtin_plugin_enable_layerexraster',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the layerExRaster plugin.'
+)
+
+option(
+	'builtin_plugin_enable_lineparser',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the lineParser plugin.'
+)
+
+option(
+	'builtin_plugin_enable_shrinkcopy',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the shrinkCopy plugin.'
+)
+
+option(
+	'builtin_plugin_enable_fftgraph',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the fftgraph plugin.'
+)
+
+option(
 	'builtin_plugin_enable_menu',
 	type: 'boolean',
 	value: true,

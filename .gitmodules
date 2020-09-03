@@ -58,3 +58,24 @@
 [submodule "external/krglhwebp"]
 	path = external/krglhwebp
 	url = ../krglhwebp
+[submodule "external/binaryStream"]
+	path = external/binaryStream
+	url = ../binaryStream
+[submodule "external/fftgraph"]
+	path = external/fftgraph
+	url = ../fftgraph
+[submodule "external/layerExAreaAverage"]
+	path = external/layerExAreaAverage
+	url = ../layerExAreaAverage
+[submodule "external/layerExLongExposure"]
+	path = external/layerExLongExposure
+	url = ../layerExLongExposure
+[submodule "external/layerExRaster"]
+	path = external/layerExRaster
+	url = ../layerExRaster
+[submodule "external/lineParser"]
+	path = external/lineParser
+	url = ../lineParser
+[submodule "external/shrinkCopy"]
+	path = external/shrinkCopy
+	url = ../shrinkCopy
