@@ -4,7 +4,7 @@
 このプログラムは、KAG（吉里吉里アドベンチャーゲーム）3の変更バージョンと一緒に使用できます。詳細については、次の場所を参照してください：https://github.com/uyjulian/kag3  
 [Emscripten](https://emscripten.org/)を使用して[WebAssembly](https://webassembly.org/)にコンパイルされている吉里吉里SDL2のおかげで、Webブラウザーで再生可能なデモプロジェクトがここにあります：https://ghpages.uyjulian.pw/krkrsdl2/  
 
-## Cloning
+## クローニング
 
 リポジトリのクローンを作成するには、ターミナルで次のコマンドを使用してください：
 
