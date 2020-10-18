@@ -16,6 +16,7 @@
 #include "tjsArray.h"
 #include "StorageIntf.h"
 #include "SDLBitmapCompletion.h"
+#include "ScriptMgnIntf.h"
 #include <SDL.h>
 
 #include <unistd.h>
@@ -1678,20 +1679,29 @@ static void process_events()
 static bool process_events()
 #endif
 {
-#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
-	tTJSNI_WaveSoundBuffer::Trigger();
-	tTVPTimerThread::Trigger();
-#endif
-	::Application->Run();
-	if (::Application->IsTarminate())
+	try
 	{
-		TVPSystemUninit();
+		try
+		{
 #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
-		emscripten_cancel_main_loop();
-#else
-		return false;
+			tTJSNI_WaveSoundBuffer::Trigger();
+			tTVPTimerThread::Trigger();
 #endif
+			::Application->Run();
+			if (::Application->IsTarminate())
+			{
+				TVPSystemUninit();
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
+				emscripten_cancel_main_loop();
+#else
+				return false;
+#endif
+			}
+		}
+		TJS_CONVERT_TO_TJS_EXCEPTION
 	}
+	TVP_CATCH_AND_SHOW_SCRIPT_EXCEPTION(TJS_W("SDL event processing"));
+
 #if !defined(__EMSCRIPTEN__) || (defined(__EMSCRIPTEN__) && defined(__EMSCRIPTEN_PTHREADS__))
 	return true;
 #endif
