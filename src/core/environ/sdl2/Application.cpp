@@ -696,6 +696,7 @@ void tTVPApplication::Run() {
 		return;
 	}
 	bool done = false;
+	tTVPTimerThread::Trigger();
 	if (TVPSystemControl)
 	{
 		done = TVPSystemControl->ApplicationIdle();
@@ -705,15 +706,17 @@ void tTVPApplication::Run() {
 		tTJSNI_Window *win = TVPGetWindowListAt(i);
 		win->TickBeat();
 	}
+#if 0
+#ifndef __EMSCRIPTEN__
 	if (done)
 	{
 		if (SDL_WasInit(SDL_INIT_EVENTS) != 0)
 		{
-#ifndef __EMSCRIPTEN__
 			SDL_WaitEvent(NULL);
-#endif
 		}
 	}
+#endif
+#endif
 }
 
 #if 0
