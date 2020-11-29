@@ -821,6 +821,7 @@ krkrsdl2_cflags += [
 	'-DHAVE_LRINTF',
 	'-DHAVE_LRINT',
 	'-DFLOAT_APPROX',
+	'-DPNG_ARM_NEON_OPT=0',
 ]
 if target_machine.system() == 'emscripten'
 	krkrsdl2_cflags += [
