@@ -630,7 +630,7 @@ tjs_uint64 TJS_INTF_METHOD tTVPLocalFileStream::Seek(tjs_int64 offset, tjs_int w
 	if( fseek( Handle, offset, dwmm ) )
 		TVPThrowExceptionMessage(TVPSeekError);
 
-	tjs_uint low = ftell( Handle );
+	tjs_uint64 low = ftell( Handle );
 	return low;
 }
 //---------------------------------------------------------------------------
