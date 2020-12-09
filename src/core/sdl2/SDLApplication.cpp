@@ -580,10 +580,12 @@ TVPWindowLayer::~TVPWindowLayer() {
 	if (_currentWindowLayer == this) {
 		_currentWindowLayer = _lastWindowLayer;
 	}
-	if (texture)
+	if (texture && surface)
 	{
 		SDL_DestroyTexture(texture);
 		texture = NULL;
+		SDL_FreeSurface(surface);
+		surface = NULL;
 	}
 	if (renderer)
 	{
@@ -609,6 +611,16 @@ void TVPWindowLayer::SetPaintBoxSize(tjs_int w, tjs_int h) {
 		if (texture == nullptr)
 		{
 			TVPThrowExceptionMessage(TJS_W("Cannot create texture texture: %1"), ttstr(SDL_GetError()));
+		}
+		if (surface)
+		{
+			SDL_FreeSurface(surface);
+			surface = NULL;
+		}
+		surface = SDL_CreateRGBSurface(0, w, h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0);
+		if (surface == nullptr)
+		{
+			TVPThrowExceptionMessage(TJS_W("Cannot create surface: %1"), ttstr(SDL_GetError()));
 		}
 	}
 	SDL_Rect cliprect;
@@ -1049,15 +1061,12 @@ void TVPWindowLayer::TickBeat() {
 	{
 		if (renderer)
 		{
-			if (texture)
+			if (texture && surface)
 			{
+				SDL_UpdateTexture(texture, NULL, surface->pixels, surface->pitch);
 				SDL_RenderCopy(renderer, texture, NULL, NULL);
 			}
 			SDL_RenderPresent(renderer);
-			if (texture)
-			{
-				SDL_RenderCopy(renderer, texture, NULL, NULL);
-			}
 			hasDrawn = true;
 		}
 		else if (window && surface)

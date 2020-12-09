@@ -34,8 +34,8 @@ void TVPSDLBitmapCompletion::NotifyBitmapCompleted(iTVPLayerManager * manager,
 		long src_y_limit = cliprect.bottom;
 		long src_x       = cliprect.left;
 		long width_bytes   = cliprect.get_width() * 4; // 32bit
-		long dest_y      = 0;
-		long dest_x      = 0;
+		long dest_y      = y;
+		long dest_x      = x;
 		const tjs_uint8 * src_p = (const tjs_uint8 *)bits;
 		long src_pitch;
 
@@ -54,50 +54,17 @@ void TVPSDLBitmapCompletion::NotifyBitmapCompleted(iTVPLayerManager * manager,
 			//src_pitch = bitmapinfo->bmiHeader.biWidth * 4;
 		}
 
-		SDL_Rect dstrect;
-		dstrect.x = x;
-		dstrect.y = y;
-		dstrect.w = cliprect.get_width();
-		dstrect.h = cliprect.get_height();
-
-		if (framebuffer)
+		if (surface)
 		{
-			void* TextureBuffer;
-			int TexturePitch;
-			SDL_LockTexture(framebuffer, &dstrect, &TextureBuffer, &TexturePitch);
+			SDL_LockSurface(surface);
 			for(; src_y < src_y_limit; src_y ++, dest_y ++)
 			{
 				const void *srcp = src_p + src_pitch * src_y + src_x * 4;
-				void *destp = (tjs_uint8*)TextureBuffer + TexturePitch * dest_y + dest_x * 4;
+				void *destp = (tjs_uint8*)surface->pixels + surface->pitch * dest_y + dest_x * 4;
 				memcpy(destp, srcp, width_bytes);
 			}
-			SDL_UnlockTexture(framebuffer);
+			SDL_UnlockSurface(surface);
 		}
-		else if (surface)
-		{
-			dstrect.h = 1;
-			SDL_Surface* clip_surface = SDL_CreateRGBSurfaceFrom((void *)src_p, cliprect.get_width(), 1, 32, cliprect.get_width() * 4, 0x00ff0000, 0x0000ff00, 0x000000ff, 0);
-			if (clip_surface == nullptr)
-			{
-				TVPAddLog(ttstr("Cannot create clip surface: ") + ttstr(SDL_GetError()));
-				return;
-			}
-			for(; src_y < src_y_limit; src_y ++)
-			{
-				const void *srcp = src_p + src_pitch * src_y + src_x * 4;
-				SDL_LockSurface(clip_surface);
-				clip_surface->pixels = (void *)srcp;
-				SDL_UnlockSurface(clip_surface);
-				int blit_result = SDL_BlitSurface(clip_surface, nullptr, surface, &dstrect);
-				if (blit_result < 0)
-				{
-					TVPAddLog(ttstr("Cannot blit onto window surface: ") + ttstr(SDL_GetError()));
-				}
-				dstrect.y += 1;
-			}
-			SDL_FreeSurface(clip_surface);
-		}
-
 	}
 }
 
