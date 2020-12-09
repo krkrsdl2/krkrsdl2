@@ -844,7 +844,10 @@ if target_machine.system() == 'emscripten'
 endif
 krkrsdl2_cppflags = []
 krkrsdl2_cppflags += krkrsdl2_cflags
-krkrsdl2_cppflags += ['-std=c++11']
+krkrsdl2_cppflags += [
+	'-std=c++11',
+	'-Wno-non-virtual-dtor',
+]
 if cxx.get_id() == 'gcc'
 	krkrsdl2_cppflags += ['-fno-delete-null-pointer-checks']
 endif
