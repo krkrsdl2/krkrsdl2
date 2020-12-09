@@ -392,6 +392,18 @@ void TVPDetectCPU()
 	TVPCPUType |= TVP_CPU_HAS_AES;
 #endif
 
+#ifndef DISABLE_USE_VECTOR_CODEPATHS
+	TVPCPUType |= TVP_CPU_HAS_MMX;
+	TVPCPUType |= TVP_CPU_HAS_3DN;
+	TVPCPUType |= TVP_CPU_HAS_SSE;
+	TVPCPUType |= TVP_CPU_HAS_SSE2;
+	TVPCPUType |= TVP_CPU_HAS_SSE3;
+	TVPCPUType |= TVP_CPU_HAS_SSSE3;
+	TVPCPUType |= TVP_CPU_HAS_SSE41;
+	TVPCPUType |= TVP_CPU_HAS_SSE42;
+	TVPCPUType |= TVP_CPU_HAS_SSE4a;
+#endif
+
 	// Disable or enable cpu features by option
 	TVPDisableCPU(TVP_CPU_HAS_MMX,  TJS_W("-cpummx"));
 	TVPDisableCPU(TVP_CPU_HAS_3DN,  TJS_W("-cpu3dn"));
