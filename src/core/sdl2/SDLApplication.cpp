@@ -414,7 +414,7 @@ protected:
 	SDL_Window *window;
 
 	TVPWindowLayer *_prevWindow, *_nextWindow;
-	SDL_Texture* framebuffer;
+	SDL_Texture* texture;
 	SDL_Renderer* renderer;
 	SDL_Surface* surface;
 	tTJSNI_Window *TJSNativeInstance;
@@ -566,7 +566,7 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 	{
 		TVPThrowExceptionMessage(TJS_W("Cannot get surface or renderer from SDL window"));
 	}
-	framebuffer = nullptr;
+	texture = nullptr;
 	if (renderer)
 	{
 		SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0x00, 0xFF );
@@ -580,10 +580,10 @@ TVPWindowLayer::~TVPWindowLayer() {
 	if (_currentWindowLayer == this) {
 		_currentWindowLayer = _lastWindowLayer;
 	}
-	if (framebuffer)
+	if (texture)
 	{
-		SDL_DestroyTexture(framebuffer);
-		framebuffer = NULL;
+		SDL_DestroyTexture(texture);
+		texture = NULL;
 	}
 	if (renderer)
 	{
@@ -600,15 +600,15 @@ TVPWindowLayer::~TVPWindowLayer() {
 void TVPWindowLayer::SetPaintBoxSize(tjs_int w, tjs_int h) {
 	if (renderer)
 	{
-		if (framebuffer)
+		if (texture)
 		{
-			SDL_DestroyTexture(framebuffer);
-			framebuffer = NULL;
+			SDL_DestroyTexture(texture);
+			texture = NULL;
 		}
-		framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, w, h);
-		if (framebuffer == nullptr)
+		texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, w, h);
+		if (texture == nullptr)
 		{
-			TVPThrowExceptionMessage(TJS_W("Cannot create framebuffer texture: %1"), ttstr(SDL_GetError()));
+			TVPThrowExceptionMessage(TJS_W("Cannot create texture texture: %1"), ttstr(SDL_GetError()));
 		}
 	}
 	SDL_Rect cliprect;
@@ -1040,7 +1040,7 @@ void TVPWindowLayer::SetPosition(tjs_int l, tjs_int t) {
 }
 TVPSDLBitmapCompletion *TVPWindowLayer::GetTVPSDLBitmapCompletion() {
 	needs_graphic_update = true;
-	return new TVPSDLBitmapCompletion(renderer, framebuffer, surface);
+	return new TVPSDLBitmapCompletion(renderer, texture, surface);
 }
 void TVPWindowLayer::Show() {
 }
@@ -1049,14 +1049,14 @@ void TVPWindowLayer::TickBeat() {
 	{
 		if (renderer)
 		{
-			if (framebuffer)
+			if (texture)
 			{
-				SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
+				SDL_RenderCopy(renderer, texture, NULL, NULL);
 			}
 			SDL_RenderPresent(renderer);
-			if (framebuffer)
+			if (texture)
 			{
-				SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
+				SDL_RenderCopy(renderer, texture, NULL, NULL);
 			}
 			hasDrawn = true;
 		}
