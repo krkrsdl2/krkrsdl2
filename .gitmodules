@@ -79,3 +79,6 @@
 [submodule "external/shrinkCopy"]
 	path = external/shrinkCopy
 	url = ../shrinkCopy
+[submodule "external/simde"]
+	path = external/simde
+	url = https://github.com/simd-everywhere/simde.git

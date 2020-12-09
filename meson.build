@@ -509,6 +509,7 @@ krkrsdl2_includes = [
 	'external/krkrz/external/opusfile/include',
 	'external/krkrz/external/opusfile/src',
 	'external/krkrz/external/zlib',
+	'external/simde',
 	'src/config',
 	'src/plugins',
 ]
