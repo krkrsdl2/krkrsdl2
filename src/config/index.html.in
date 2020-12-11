@@ -467,10 +467,6 @@
             progressElement.hidden = true;
             if (!text) spinnerElement.style.display = 'none';
           }
-          if (text === '')
-          {
-            text = 'If you see a black screen, try clicking on it.';
-          }
           statusElement.innerHTML = text;
         },
         totalDependencies: 0,
