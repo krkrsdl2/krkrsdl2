@@ -20,7 +20,10 @@ jobs:
       - uses: actions/upload-artifact@master
         with:
           name: krkrsdl2-web.zip
-          path: build/krkrsdl2.wasm
+          path: |
+            build/krkrsdl2.wasm
+            build/krkrsdl2.js
+            build/index.html
   linux:
     runs-on: ubuntu-latest
     steps:
