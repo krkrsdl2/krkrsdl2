@@ -1281,6 +1281,27 @@ void TVPBeforeSystemInit()
 		TVPSetCurrentDirectory(TVPProjectDir);
 		TVPNativeProjectDir = dir_utf16;
 	}
+	for(tjs_int i = 1; i<_argc; i++)
+	{
+		if(_wargv[i][0] == TJS_W('-') && _wargv[i][1] == TJS_W('-') && _wargv[i][2] == 0)
+			break;
+
+		if(_wargv[i][0] != TJS_W('-'))
+		{
+			ttstr dirbuf = _wargv[i];
+			if(TVPCheckExistentLocalFolder(dirbuf))
+			{
+				dirbuf += "/";
+			}
+			else if (TVPCheckExistentLocalFile(dirbuf))
+			{
+				dirbuf += ">";
+			}
+			TVPProjectDir = TVPNormalizeStorageName(dirbuf);
+			TVPSetCurrentDirectory(TVPProjectDir);
+			TVPNativeProjectDir = dirbuf.AsStdString();
+		}
+	}
 
 	if (TVPProjectDirSelected)
 	{
