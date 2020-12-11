@@ -1,0 +1,39 @@
+name: Continuous Integration
+on: [pull_request, push]
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: textbook/git-checkout-submodule-action@master
+      - run: sudo apt-get install build-essential libsdl2-dev git
+      - uses: numworks/setup-emscripten@v1
+        with:
+          sdk: latest
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+      - run: pip install meson ninja
+      - run: meson setup build/ --cross-file ./external/meson_toolchains/emscripten_meson.ini
+      - run: meson compile -C build
+      - uses: actions/upload-artifact@master
+        with:
+          name: krkrsdl2-web.zip
+          path: build/krkrsdl2.wasm
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: textbook/git-checkout-submodule-action@master
+      - run: sudo apt-get install build-essential libsdl2-dev
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+      - run: pip install meson ninja
+      - run: meson setup build/
+      - run: meson compile -C build
+      - uses: actions/upload-artifact@master
+        with:
+          name: krkrsdl2-ubuntu.zip
+          path: build/krkrsdl2

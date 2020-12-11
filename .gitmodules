@@ -82,3 +82,6 @@
 [submodule "external/simde"]
 	path = external/simde
 	url = https://github.com/simd-everywhere/simde.git
+[submodule "external/meson_toolchains"]
+	path = external/meson_toolchains
+	url = ../meson_toolchains
