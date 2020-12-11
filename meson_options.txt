@@ -196,12 +196,6 @@ option(
 )
 
 option(
-	'krkrsdl2_data_path',
-	type: 'string',
-	description: 'Path to project directory that will be integrated into the Emscripten build.'
-)
-
-option(
 	'emscripten_enable_js_fallback',
 	type: 'boolean',
 	value: false,

@@ -966,29 +966,8 @@ krkrsdl2 = executable(
 	override_options: krkrsdl2_override_options
 )
 if target_machine.system() == 'emscripten'
-	krkrsdl2_data_output_basename = 'data'
-	krkrsdl2_input_folder_path = '' + get_option('krkrsdl2_data_path')
-	if krkrsdl2_input_folder_path == ''
-		krkrsdl2_input_folder_path = join_paths(meson.source_root(), 'data')
-	endif
-	krkrsdl2_data = custom_target(krkrsdl2_data_output_basename,
-		output: [krkrsdl2_data_output_basename + '.data', krkrsdl2_data_output_basename + '.js'],
-		depend_files: krkrsdl2_input_folder_path,
-		command: [
-			'bash',
-			'-c',
-			'python3 $EM_CACHE/../tools/file_packager.py $@',
-			'', 
-			krkrsdl2_data_output_basename + '.data',
-			'--preload', krkrsdl2_input_folder_path + '@/',
-			'--js-output=' + krkrsdl2_data_output_basename + '.js'
-		],
-		build_by_default: true
-	)
-	krkrsdl2_dependson += krkrsdl2_data
 	conf_data = configuration_data()
 	conf_data.set('exe_name', krkrsdl2.name())
-	conf_data.set('data_name', krkrsdl2_data_output_basename)
 	krkrsdl2_html = configure_file(input: 'src/config/index.html.in',
 		output: 'index.html',
 		configuration: conf_data
