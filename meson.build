@@ -813,6 +813,7 @@ if target_machine.system() == 'emscripten'
 endif
 krkrsdl2_cflags = []
 krkrsdl2_cflags += [
+	'-Wno-everything',
 	'-DTVP_OPUS_DECODER_IMPLEMENT',
 	'-DTVP_LOG_TO_COMMANDLINE_CONSOLE',
 	'-DHAVE_CONFIG_H',
