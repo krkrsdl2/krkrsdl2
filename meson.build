@@ -1,4 +1,4 @@
-project('krkrsdl2', ['c', 'cpp'], default_options: ['optimization=3', 'debug=true', 'warning_level=1'], version: 'unknown')
+project('krkrsdl2', ['c', 'cpp'], default_options: ['optimization=3', 'debug=true', 'warning_level=0'], version: 'unknown')
 
 if target_machine.system() == 'darwin'
 	add_languages('objcpp')
