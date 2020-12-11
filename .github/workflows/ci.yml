@@ -2,7 +2,7 @@ name: Continuous Integration
 on: [pull_request, push]
 
 jobs:
-  web:
+  build-web:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,7 +24,7 @@ jobs:
             build/krkrsdl2.wasm
             build/krkrsdl2.js
             build/index.html
-  linux:
+  build-ubuntu:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -40,3 +40,28 @@ jobs:
         with:
           name: krkrsdl2-ubuntu.zip
           path: build/krkrsdl2
+
+  create-release:
+    needs: [build-web, build-ubuntu]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+    - name: Download web artifact
+      uses: actions/download-artifact@v1
+      with:
+        name: krkrsdl2-web.zip
+
+    - name: Download ubuntu artifact
+      uses: actions/download-artifact@v1
+      with:
+        name: krkrsdl2-ubuntu.zip
+
+    - name: Create release
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        title: "Latest development builds"
+        files: |
+          krkrsdl2-web.zip
+          krkrsdl2-ubuntu.zip
