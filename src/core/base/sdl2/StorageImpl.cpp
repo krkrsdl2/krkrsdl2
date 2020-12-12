@@ -367,7 +367,12 @@ bool TVPRemoveFile(const ttstr &name)
 {
 	std::string filename;
 	if( TVPUtf16ToUtf8( filename, name.AsStdString() ) ) {
-		return 0 == remove(filename.c_str());
+		bool res = 0 == remove(filename.c_str());
+		if (res)
+		{
+			Application->SyncSavedata();
+		}
+		return res;
 	} else {
 		return false;
 	}
@@ -384,7 +389,12 @@ bool TVPRemoveFolder(const ttstr &name)
 {
 	std::string filename;
 	if( TVPUtf16ToUtf8( filename, name.AsStdString() ) ) {
-		return 0==rmdir(filename.c_str());
+		bool res = 0==rmdir(filename.c_str());
+		if (res)
+		{
+			Application->SyncSavedata();
+		}
+		return res;
 	} else {
 		return false;
 	}
@@ -566,6 +576,7 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
 {
 	tjs_uint32 access = flag & TJS_BS_ACCESS_MASK;
 	Handle = NULL;
+	written = false;
 	const char* mode = "rb";
 	switch(access)
 	{
@@ -614,6 +625,11 @@ tTVPLocalFileStream::~tTVPLocalFileStream()
 	// (timing information from file accesses may be good noises)
 	tjs_uint32 tick = TVPGetRoughTickCount32();
 	TVPPushEnvironNoise(&tick, sizeof(tick));
+
+	if (written)
+	{
+		Application->SyncSavedata();
+	}
 }
 //---------------------------------------------------------------------------
 tjs_uint64 TJS_INTF_METHOD tTVPLocalFileStream::Seek(tjs_int64 offset, tjs_int whence)
@@ -642,6 +658,7 @@ tjs_uint TJS_INTF_METHOD tTVPLocalFileStream::Read(void *buffer, tjs_uint read_s
 //---------------------------------------------------------------------------
 tjs_uint TJS_INTF_METHOD tTVPLocalFileStream::Write(const void *buffer, tjs_uint write_size)
 {
+	written = true;
 	size_t ret = fwrite( buffer, 1, write_size, Handle );
 	return (tjs_uint)ret;
 }

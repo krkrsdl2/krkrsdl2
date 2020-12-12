@@ -23,6 +23,7 @@ class tTVPLocalFileStream : public tTJSBinaryStream
 {
 private:
 	FILE* Handle;
+	bool written;
 
 public:
 	tTVPLocalFileStream(const ttstr &origname, const ttstr & localname,

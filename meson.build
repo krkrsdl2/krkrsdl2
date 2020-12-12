@@ -864,6 +864,7 @@ if target_machine.system() == 'emscripten'
 		'-s', 'ALLOW_MEMORY_GROWTH=1',
 		'-s', 'INITIAL_MEMORY=' + get_option('emscripten_initial_memory').to_string(),
 		'-s', 'FORCE_FILESYSTEM=1',
+		'-lidbfs.js',
 		'--bind',
 		'--no-heap-copy',
 	]

@@ -101,6 +101,8 @@ class tTVPApplication {
 	bool application_activating_;
 	bool has_map_report_process_;
 
+	bool should_sync_savedata_;
+
 #if 0
 	class tTVPAsyncImageLoader* image_load_thread_;
 #else
@@ -228,6 +230,11 @@ public:
 	 * 画像の非同期読込み要求
 	 */
 	void LoadImageRequest( class iTJSDispatch2 *owner, class tTJSNI_Bitmap* bmp, const ttstr &name );
+
+	void SyncSavedata()
+	{
+		should_sync_savedata_ = true;
+	}
 };
 #if 0
 std::vector<std::string>* LoadLinesFromFile( const tjs_string& path );

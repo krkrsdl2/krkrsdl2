@@ -728,8 +728,15 @@ function intArrayToString(array) {
                   }
               };
               xhr.send(null);
+              FS.mkdir('/savedata');
+              FS.mount(IDBFS, {}, '/savedata');
+
+              FS.syncfs(true, function (err) {
+                Module['removeRunDependency']('savedata');
+              });
 
               Module['addRunDependency']('data.xp3');
+              Module['addRunDependency']('savedata');
 
           }
           Module['preRun'].push(runWithXP3);

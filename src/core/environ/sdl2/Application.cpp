@@ -317,6 +317,7 @@ int APIENTRY wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstanc
 tTVPApplication::tTVPApplication() : is_attach_console_(false), tarminate_(false), application_activating_(true)
 	 , image_load_thread_(NULL), has_map_report_process_(false), console_cache_(1024)
 {
+	should_sync_savedata_ = false;
 }
 tTVPApplication::~tTVPApplication() {
 #if 0
@@ -705,6 +706,13 @@ void tTVPApplication::Run() {
 	for( tjs_int i = 0; i<count; i++ ) {
 		tTJSNI_Window *win = TVPGetWindowListAt(i);
 		win->TickBeat();
+	}
+	if (should_sync_savedata_)
+	{
+		should_sync_savedata_ = false;
+#ifdef __EMSCRIPTEN__
+		emscripten_run_script("FS.syncfs(false, function (err) {});");
+#endif
 	}
 #if 0
 #ifndef __EMSCRIPTEN__
