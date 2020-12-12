@@ -19,7 +19,7 @@ jobs:
       - run: meson compile -C build
       - uses: actions/upload-artifact@master
         with:
-          name: krkrsdl2-web.zip
+          name: krkrsdl2-web
           path: |
             build/krkrsdl2.wasm
             build/krkrsdl2.js
@@ -38,7 +38,7 @@ jobs:
       - run: meson compile -C build
       - uses: actions/upload-artifact@master
         with:
-          name: krkrsdl2-ubuntu.zip
+          name: krkrsdl2-ubuntu
           path: build/krkrsdl2
 
   create-release:
@@ -49,12 +49,17 @@ jobs:
     - name: Download web artifact
       uses: actions/download-artifact@v1
       with:
-        name: krkrsdl2-web.zip
+        name: krkrsdl2-web
 
     - name: Download ubuntu artifact
       uses: actions/download-artifact@v1
       with:
-        name: krkrsdl2-ubuntu.zip
+        name: krkrsdl2-ubuntu
+
+    - name: Prepare artifacts for release
+      run: |
+        7z a -tzip krkrsdl2-web.zip krkrsdl2-web/*
+        7z a -tzip krkrsdl2-ubuntu.zip krkrsdl2-ubuntu/*
 
     - name: Create release
       uses: marvinpinto/action-automatic-releases@latest
