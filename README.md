@@ -4,6 +4,30 @@
 このプログラムは、KAG（吉里吉里アドベンチャーゲーム）3の変更バージョンと一緒に使用できます。詳細については、次の場所を参照してください：https://github.com/uyjulian/kag3  
 [Emscripten](https://emscripten.org/)を使用して[WebAssembly](https://webassembly.org/)にコンパイルされている吉里吉里SDL2のおかげで、Webブラウザーで再生可能なデモプロジェクトがここにあります：https://ghpages.uyjulian.pw/krkrsdl2/  
 
+## ダウンロード
+
+プログラムは、Github Actionsによって最新のソースコードから自動的に構築されます。
+[Webビルド](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-web.zip)または[Ubuntuビルド](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip)のいずれかをダウンロードできます。
+
+## 使用法
+
+プログラムを使用するには、`startup.tjs`と同じディレクトリのコマンドラインで実行します：
+```bash
+/path/to/krkrsdl2
+```
+
+起動ディレクトリまたはアーカイブは、コマンドラインで指定できます：
+```bash
+/path/to/krkrsdl2 /path/to/startup/directory
+```
+
+コマンドライン引数は、コマンドラインで指定できます：
+```bash
+/path/to/krkrsdl2 -drawthread=4
+```
+
+Webバージョンの場合、[Releaser](https://krkrz.github.io/krkr2doc/kr2doc/contents/Releaser.html)によって作成されたWebビルドおよび`data.xp3`のファイルをWebサーバーに配置します。 それが完了すると、プロジェクトはWebブラウザからアクセスできます。  
+
 ## クローニング
 
 リポジトリのクローンを作成するには、ターミナルで次のコマンドを使用してください：

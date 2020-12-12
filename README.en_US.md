@@ -4,6 +4,30 @@ This is a ported version of [Kirikiri Z](https://krkrz.github.io/) that can be r
 This program can be used alongside a modified version of KAG (Kirikiri Adventure Game) 3. For more details, please see the following location: https://github.com/uyjulian/kag3  
 A demonstration project playable in your web browser thanks to Kirikiri SDL2 being compiled to [WebAssembly](https://webassembly.org/) with [Emscripten](https://emscripten.org/) is available here: https://ghpages.uyjulian.pw/krkrsdl2/  
 
+## Download
+
+The program is automatically built from the latest source code by Github Actions.  
+You can download either the [Web build](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-web.zip) or the [Ubuntu build](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip).
+
+## Usage
+
+To use the program, execute it in the command line in the same directory as `startup.tjs`:
+```bash
+/path/to/krkrsdl2
+```
+
+A startup directory or archive can be specified on the command line:
+```bash
+/path/to/krkrsdl2 /path/to/startup/directory
+```
+
+Command line arguments can be specified on the command line:
+```bash
+/path/to/krkrsdl2 -drawthread=4
+```
+
+For the web version, place the files from the Web build and `data.xp3` created by [Releaser](https://krkrz.github.io/krkr2doc/kr2doc/contents/Releaser.html) onto a web server. Once that is done, the project can be accessed from a web browser.  
+
 ## Cloning
 
 To clone the repository, please use the following command in a terminal:
