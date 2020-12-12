@@ -1,5 +1,21 @@
 name: Continuous Integration
-on: [pull_request, push]
+on:
+  push:
+    paths:
+      - "**.c"
+      - "**.h"
+      - "**.cpp"
+      - "**.hpp"
+      - "**.build"
+      - "**.in"
+  pull_request:
+    paths:
+      - "**.c"
+      - "**.h"
+      - "**.cpp"
+      - "**.hpp"
+      - "**.build"
+      - "**.in"
 
 jobs:
   build-web:
