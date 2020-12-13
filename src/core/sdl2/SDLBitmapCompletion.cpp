@@ -2,16 +2,19 @@
 #include "SDLBitmapCompletion.h"
 #include "DebugIntf.h"
 
-TVPSDLBitmapCompletion::TVPSDLBitmapCompletion(SDL_Renderer* in_renderer, SDL_Texture* in_framebuffer, SDL_Surface* in_surface)
+TVPSDLBitmapCompletion::TVPSDLBitmapCompletion()
 {
-	renderer = in_renderer;
-	framebuffer = in_framebuffer;
-	surface = in_surface;
+	surface = nullptr;
+	update_rect.clear();
 }
 
 void TVPSDLBitmapCompletion::NotifyBitmapCompleted(iTVPLayerManager * manager,
 	tjs_int x, tjs_int y, const void * bits, const class BitmapInfomation * bmpinfo,
 	const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity) {
+	if (!surface)
+	{
+		return;
+	}
 	const TVPBITMAPINFO *bitmapinfo = bmpinfo->GetBITMAPINFO();
 	tjs_int w = 0;
 	tjs_int h = 0;
@@ -65,7 +68,12 @@ void TVPSDLBitmapCompletion::NotifyBitmapCompleted(iTVPLayerManager * manager,
 			}
 			SDL_UnlockSurface(surface);
 		}
+		tTVPRect r;
+		r.set_offsets(x, y);
+		r.set_size(cliprect.get_width(), cliprect.get_height());
+		update_rect.do_union(r);
 	}
+
 }
 
 TVPSDLBitmapCompletion::~TVPSDLBitmapCompletion()

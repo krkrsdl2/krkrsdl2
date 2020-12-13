@@ -429,6 +429,7 @@ protected:
 	SDL_Rect attention_point_rect;
 	iTJSDispatch2 * file_drop_array;
 	tjs_int file_drop_array_count;
+	TVPSDLBitmapCompletion * bitmap_completion;
 
 public:
 	TVPWindowLayer(tTJSNI_Window *w);
@@ -553,6 +554,7 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 		TVPAddLog(ttstr("Cannot create SDL renderer: ") + ttstr(SDL_GetError()));
 	}
 #endif
+	bitmap_completion = new TVPSDLBitmapCompletion();
 	surface = nullptr;
 	if (renderer == nullptr)
 	{
@@ -561,6 +563,7 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 		{
 			TVPAddLog(ttstr("Cannot get surface from SDL window: ") + ttstr(SDL_GetError()));
 		}
+		bitmap_completion->surface = surface;
 	}
 	if (renderer == nullptr && surface == nullptr)
 	{
@@ -579,6 +582,11 @@ TVPWindowLayer::~TVPWindowLayer() {
 	if (_prevWindow) _prevWindow->_nextWindow = _nextWindow;
 	if (_currentWindowLayer == this) {
 		_currentWindowLayer = _lastWindowLayer;
+	}
+	if (bitmap_completion)
+	{
+		delete bitmap_completion;
+		bitmap_completion = NULL;
 	}
 	if (texture && surface)
 	{
@@ -612,6 +620,7 @@ void TVPWindowLayer::SetPaintBoxSize(tjs_int w, tjs_int h) {
 		{
 			TVPThrowExceptionMessage(TJS_W("Cannot create texture texture: %1"), ttstr(SDL_GetError()));
 		}
+		bitmap_completion->surface = NULL;
 		if (surface)
 		{
 			SDL_FreeSurface(surface);
@@ -622,6 +631,7 @@ void TVPWindowLayer::SetPaintBoxSize(tjs_int w, tjs_int h) {
 		{
 			TVPThrowExceptionMessage(TJS_W("Cannot create surface: %1"), ttstr(SDL_GetError()));
 		}
+		bitmap_completion->surface = surface;
 	}
 	SDL_Rect cliprect;
 	cliprect.x = 0;
@@ -888,13 +898,15 @@ void TVPWindowLayer::SetWidth(tjs_int w) {
 		int h;
 		SDL_GetWindowSize(window, NULL, &h);
 		SDL_SetWindowSize(window, w, h);
-		if (surface)
+		if (!renderer && surface)
 		{
+			bitmap_completion->surface = NULL;
 			surface = SDL_GetWindowSurface(window);
 			if (surface == nullptr)
 			{
 				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
 			}
+			bitmap_completion->surface = surface;
 		}
 	}
 	UpdateWindow(utNormal);
@@ -905,13 +917,15 @@ void TVPWindowLayer::SetHeight(tjs_int h) {
 		int w;
 		SDL_GetWindowSize(window, &w, NULL);
 		SDL_SetWindowSize(window, w, h);
-		if (surface)
+		if (!renderer && surface)
 		{
+			bitmap_completion->surface = NULL;
 			surface = SDL_GetWindowSurface(window);
 			if (surface == nullptr)
 			{
 				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
 			}
+			bitmap_completion->surface = surface;
 		}
 	}
 	UpdateWindow(utNormal);
@@ -920,13 +934,15 @@ void TVPWindowLayer::SetSize(tjs_int w, tjs_int h) {
 	if (window)
 	{
 		SDL_SetWindowSize(window, w, h);
-		if (surface)
+		if (!renderer && surface)
 		{
+			bitmap_completion->surface = NULL;
 			surface = SDL_GetWindowSurface(window);
 			if (surface == nullptr)
 			{
 				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
 			}
+			bitmap_completion->surface = surface;
 		}
 	}
 	UpdateWindow(utNormal);
@@ -1052,7 +1068,7 @@ void TVPWindowLayer::SetPosition(tjs_int l, tjs_int t) {
 }
 TVPSDLBitmapCompletion *TVPWindowLayer::GetTVPSDLBitmapCompletion() {
 	needs_graphic_update = true;
-	return new TVPSDLBitmapCompletion(renderer, texture, surface);
+	return bitmap_completion;
 }
 void TVPWindowLayer::Show() {
 }
@@ -1061,12 +1077,21 @@ void TVPWindowLayer::TickBeat() {
 	{
 		if (renderer)
 		{
+			SDL_Rect rect;
+			rect.x = bitmap_completion->update_rect.left;
+			rect.y = bitmap_completion->update_rect.top;
+			rect.w = bitmap_completion->update_rect.get_width();
+			rect.h = bitmap_completion->update_rect.get_height();
 			if (texture && surface)
 			{
-				SDL_UpdateTexture(texture, NULL, surface->pixels, surface->pitch);
-				SDL_RenderCopy(renderer, texture, NULL, NULL);
+				SDL_UpdateTexture(texture, &rect, surface->pixels, surface->pitch);
+				SDL_RenderCopy(renderer, texture, &rect, &rect);
 			}
 			SDL_RenderPresent(renderer);
+			if (texture)
+			{
+				SDL_RenderCopy(renderer, texture, &rect, &rect);
+			}
 			hasDrawn = true;
 		}
 		else if (window && surface)

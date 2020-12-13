@@ -743,11 +743,6 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::NotifyBitmapCompleted(iTVPLayerManager
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPBasicDrawDevice::EndBitmapCompletion(iTVPLayerManager * manager)
 {
-	if (bitmap_completion)
-	{
-		delete bitmap_completion;
-		bitmap_completion = nullptr;
-	}
 #if 0
 	if(!TargetWindow) return;
 	if(!Texture) return;

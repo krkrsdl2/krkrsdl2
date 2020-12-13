@@ -5,11 +5,10 @@
 
 class TVPSDLBitmapCompletion
 {
-	SDL_Renderer* renderer;
-	SDL_Texture* framebuffer;
-	SDL_Surface* surface;
 public:
-	TVPSDLBitmapCompletion(SDL_Renderer* in_renderer, SDL_Texture* in_framebuffer, SDL_Surface* in_surface);
+	SDL_Surface* surface;
+	tTVPRect update_rect;
+	TVPSDLBitmapCompletion();
 	~TVPSDLBitmapCompletion();
 	void NotifyBitmapCompleted(iTVPLayerManager * manager,
 		tjs_int x, tjs_int y, const void * bits, const class BitmapInfomation * bmpinfo,
