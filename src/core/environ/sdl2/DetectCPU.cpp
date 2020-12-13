@@ -392,6 +392,7 @@ void TVPDetectCPU()
 	TVPCPUType |= TVP_CPU_HAS_AES;
 #endif
 
+#ifndef __EMSCRIPTEN__
 #ifndef DISABLE_USE_VECTOR_CODEPATHS
 	TVPCPUType |= TVP_CPU_HAS_MMX;
 	TVPCPUType |= TVP_CPU_HAS_3DN;
@@ -402,6 +403,7 @@ void TVPDetectCPU()
 	TVPCPUType |= TVP_CPU_HAS_SSE41;
 	TVPCPUType |= TVP_CPU_HAS_SSE42;
 	TVPCPUType |= TVP_CPU_HAS_SSE4a;
+#endif
 #endif
 
 	// Disable or enable cpu features by option
