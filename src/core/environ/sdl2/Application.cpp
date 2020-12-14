@@ -500,7 +500,6 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 			// ignore errors
 		}
 #endif
-		TVPDeliverCompactEvent(TVP_COMPACT_LEVEL_IDLE);
 		return false;
 	} catch( const EAbort & ) {
 		// nothing to do
