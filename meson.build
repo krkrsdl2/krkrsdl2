@@ -866,7 +866,6 @@ if target_machine.system() == 'emscripten'
 		'-s', 'FORCE_FILESYSTEM=1',
 		'-s', 'ASSERTIONS=0',
 		'-s', 'STACK_OVERFLOW_CHECK=0',
-		'--profiling-funcs',
 		'-lidbfs.js',
 		'--bind',
 		'--no-heap-copy',
