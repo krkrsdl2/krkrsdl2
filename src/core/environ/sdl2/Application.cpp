@@ -154,9 +154,11 @@ tjs_string ExePath() {
 		}
 	}
 #endif
+#ifndef __EMSCRIPTEN__
 	if (exepath.empty()) {
 		exepath = tjs_string(_wargv[0]);
 	}
+#endif
 	return exepath;
 }
 
