@@ -1748,11 +1748,13 @@ int main(int argc, char **argv)
 	for (int i = 0; i < argc; i += 1)
 	{
 		const char* narg;
+#ifndef __EMSCRIPTEN__
 		if (!i)
 		{
 			narg = realpath(argv[i], NULL);
 		}
 		else
+#endif
 		{
 			narg = argv[i];
 		}
@@ -1766,10 +1768,12 @@ int main(int argc, char **argv)
 		std::string v_utf8 = narg;
 		tjs_string v_utf16;
 		TVPUtf8ToUtf16( v_utf16, v_utf8 );
+#ifndef __EMSCRIPTEN__
 		if (!i)
 		{
 			free((void*)narg);
 		}
+#endif
 		tjs_char* warg_copy = new tjs_char[v_utf16.length() + 1];
 		memcpy(warg_copy, v_utf16.c_str(), sizeof(tjs_char) * (v_utf16.length()));
 		warg_copy[v_utf16.length()] = '\0';
