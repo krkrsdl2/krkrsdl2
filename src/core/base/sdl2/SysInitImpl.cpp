@@ -53,6 +53,10 @@
 #include "TickCount.h"
 #include <SDL.h>
 #include <errno.h>
+#ifdef __APPLE__
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
 
 //---------------------------------------------------------------------------
 // global data
@@ -1008,15 +1012,27 @@ void TVPBeforeSystemInit()
 	TVPInitRandomGenerator();
 
 	// memory usage
-	TVPTotalPhysMemory = SDL_GetSystemRAM() * 1024 * 1024;
-#if 0
 	{
+#if 0
 		MEMORYSTATUSEX status = { sizeof(MEMORYSTATUSEX) };
 		::GlobalMemoryStatusEx(&status);
 
 		TVPPushEnvironNoise(&status, sizeof(status));
+#endif
 
+#ifdef __APPLE__
+		int darwin_sysctl_args[2] = {CTL_HW, HW_MEMSIZE};
+		int64_t darwin_physical_memory;
+		size_t darwin_physical_memory_arg_length = sizeof(int64_t);
+
+		sysctl(darwin_sysctl_args, 2, &darwin_physical_memory, &darwin_physical_memory_arg_length, NULL, 0);
+		TVPTotalPhysMemory = darwin_physical_memory;
+#else
+		TVPTotalPhysMemory = SDL_GetSystemRAM() * 1024 * 1024;
+#endif
+#if 0
 		TVPTotalPhysMemory = status.ullTotalPhys;
+#endif
 
 		ttstr memstr( to_tjs_string(TVPTotalPhysMemory).c_str() );
 		TVPAddImportantLog( TVPFormatMessage(TVPInfoTotalPhysicalMemory, memstr) );
@@ -1050,6 +1066,7 @@ void TVPBeforeSystemInit()
 				TJSObjectHashBitsLimit = 4;
 		}
 	}
+#if 0
 
 
 	tjs_char buf[MAX_PATH];
