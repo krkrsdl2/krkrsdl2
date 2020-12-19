@@ -1780,6 +1780,8 @@ int main(int argc, char **argv)
 		_wargv[i] = warg_copy;
 	}
 
+	setenv("DBUS_FATAL_WARNINGS", "0", 1);
+
 	TVPLoadMessage();
 
 	::Application = new tTVPApplication();
