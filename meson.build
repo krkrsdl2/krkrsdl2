@@ -833,7 +833,7 @@ if get_option('warning_level') == '0'
 	if cxx.get_id() == 'gcc'
 		krkrsdl2_cflags += ['-w']
 	endif
-	if cxx.get_id() == 'clang'
+	if cxx.get_id() == 'clang' or cxx.get_id() == 'clang-cl' or cxx.get_id() == 'emscripten'
 		krkrsdl2_cflags += ['-Wno-everything']
 	endif
 endif
