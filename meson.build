@@ -829,8 +829,15 @@ if target_machine.system() == 'emscripten'
 	]
 endif
 krkrsdl2_cflags = []
+if get_option('warning_level') == '0'
+	if cxx.get_id() == 'gcc'
+		krkrsdl2_cflags += ['-w']
+	endif
+	if cxx.get_id() == 'clang'
+		krkrsdl2_cflags += ['-Wno-everything']
+	endif
+endif
 krkrsdl2_cflags += [
-	'-Wno-everything',
 	'-DTVP_OPUS_DECODER_IMPLEMENT',
 	'-DTVP_LOG_TO_COMMANDLINE_CONSOLE',
 	'-DHAVE_CONFIG_H',
