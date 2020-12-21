@@ -324,6 +324,7 @@ public:
 
 extern void sdl_process_events();
 class TVPSDLBitmapCompletion;
+class tTVPOpenGLScreen;
 
 class TTVPWindowForm {
 public:
@@ -375,6 +376,10 @@ public:
 	virtual void UpdateOverlay() = 0;
 #endif
 	virtual TVPSDLBitmapCompletion *GetTVPSDLBitmapCompletion() = 0;
+	virtual void SetOpenGLScreen(tTVPOpenGLScreen *s) = 0;
+	virtual void SetSwapInterval(int interval) = 0;
+	virtual void GetDrawableSize(tjs_int &w, tjs_int &h) = 0;
+	virtual void Swap() = 0;
 	virtual void Show() = 0;
 	virtual void TickBeat() = 0;
 	virtual void InvalidateClose() = 0;

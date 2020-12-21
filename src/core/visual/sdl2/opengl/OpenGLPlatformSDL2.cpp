@@ -1,55 +1,10 @@
 
 #include "tjsCommHead.h"
 
+#include <SDL.h>
 #include "OpenGLHeaderSDL2.h"
 
 #ifndef __EMSCRIPTEN__
-///libEGL
-#ifdef EGLAPI
-#undef EGLAPI
-#endif
-#define EGLAPI
-
-extern "C" {
-EGLAPI EGLContext (EGLAPIENTRY* eglGetCurrentContext)( void );
-EGLAPI EGLBoolean (EGLAPIENTRY* eglChooseConfig)(EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglCopyBuffers)(EGLDisplay dpy, EGLSurface surface, EGLNativePixmapType target);
-EGLAPI EGLContext (EGLAPIENTRY* eglCreateContext)(EGLDisplay dpy, EGLConfig config, EGLContext share_context, const EGLint *attrib_list);
-EGLAPI EGLSurface (EGLAPIENTRY* eglCreatePbufferSurface)(EGLDisplay dpy, EGLConfig config, const EGLint *attrib_list);
-EGLAPI EGLSurface (EGLAPIENTRY* eglCreatePixmapSurface)(EGLDisplay dpy, EGLConfig config, EGLNativePixmapType pixmap, const EGLint *attrib_list);
-EGLAPI EGLSurface (EGLAPIENTRY* eglCreateWindowSurface)(EGLDisplay dpy, EGLConfig config, EGLNativeWindowType win, const EGLint *attrib_list);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglDestroyContext)(EGLDisplay dpy, EGLContext ctx);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglDestroySurface)(EGLDisplay dpy, EGLSurface surface);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglGetConfigAttrib)(EGLDisplay dpy, EGLConfig config, EGLint attribute, EGLint *value);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglGetConfigs)(EGLDisplay dpy, EGLConfig *configs, EGLint config_size, EGLint *num_config);
-EGLAPI EGLDisplay (EGLAPIENTRY* eglGetCurrentDisplay)(void);
-EGLAPI EGLSurface (EGLAPIENTRY* eglGetCurrentSurface)(EGLint readdraw);
-EGLAPI EGLDisplay (EGLAPIENTRY* eglGetDisplay)(EGLNativeDisplayType display_id);
-EGLAPI EGLint (EGLAPIENTRY* eglGetError)(void);
-EGLAPI __eglMustCastToProperFunctionPointerType (EGLAPIENTRY* eglGetProcAddress)(const char *procname);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglInitialize)(EGLDisplay dpy, EGLint *major, EGLint *minor);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglMakeCurrent)(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglQueryContext)(EGLDisplay dpy, EGLContext ctx, EGLint attribute, EGLint *value);
-EGLAPI const char *(EGLAPIENTRY* eglQueryString)(EGLDisplay dpy, EGLint name);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglQuerySurface)(EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint *value);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglSwapBuffers)(EGLDisplay dpy, EGLSurface surface);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglTerminate)(EGLDisplay dpy);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglWaitGL)(void);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglWaitNative)(EGLint engine);
-
-EGLAPI EGLBoolean (EGLAPIENTRY* eglBindTexImage)(EGLDisplay dpy, EGLSurface surface, EGLint buffer);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglReleaseTexImage)(EGLDisplay dpy, EGLSurface surface, EGLint buffer);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglSurfaceAttrib)(EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint value);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglSwapInterval)(EGLDisplay dpy, EGLint interval);
-
-EGLAPI EGLBoolean (EGLAPIENTRY* eglBindAPI)(EGLenum api);
-EGLAPI EGLenum (EGLAPIENTRY* eglQueryAPI)(void);
-EGLAPI EGLSurface (EGLAPIENTRY* eglCreatePbufferFromClientBuffer)(EGLDisplay dpy, EGLenum buftype, EGLClientBuffer buffer, EGLConfig config, const EGLint *attrib_list);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglReleaseThread)(void);
-EGLAPI EGLBoolean (EGLAPIENTRY* eglWaitClient)(void);
-
-EGLAPI EGLDisplay (EGLAPIENTRY* eglGetPlatformDisplayEXT)(EGLenum platform, void *native_display, const EGLint *attrib_list);
-}
 
 #ifdef GL_APICALL
 #undef GL_APICALL
@@ -308,13 +263,274 @@ GL_APICALL void (GL_APIENTRY* glGetInternalformativ)(GLenum target, GLenum inter
 }
 #endif
 
+#define FIND_PROC(s,type) (s = (type)::SDL_GL_GetProcAddress( #s ))
+
 static bool TVPANGLEInit = false;
 int TVPOpenGLESVersion = 200;
 void TVPInitializeOpenGLPlatform()
 {
-	// Stubbed for now
+	if (TVPANGLEInit)
+	{
+		return;
+	}
+#ifndef __EMSCRIPTEN__
+	FIND_PROC( glActiveTexture, void  ( GL_APIENTRY* )( GLenum texture ) );
+	FIND_PROC( glAttachShader, void  ( GL_APIENTRY* )( GLuint program, GLuint shader ) );
+	FIND_PROC( glBindAttribLocation, void  ( GL_APIENTRY* )( GLuint program, GLuint index, const GLchar *name ) );
+	FIND_PROC( glBindBuffer, void  ( GL_APIENTRY* )( GLenum target, GLuint buffer ) );
+	FIND_PROC( glBindFramebuffer, void  ( GL_APIENTRY* )( GLenum target, GLuint framebuffer ) );
+	FIND_PROC( glBindRenderbuffer, void  ( GL_APIENTRY* )( GLenum target, GLuint renderbuffer ) );
+	FIND_PROC( glBindTexture, void  ( GL_APIENTRY* )( GLenum target, GLuint texture ) );
+	FIND_PROC( glBlendColor, void  ( GL_APIENTRY* )( GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha ) );
+	FIND_PROC( glBlendEquation, void  ( GL_APIENTRY* )( GLenum mode ) );
+	FIND_PROC( glBlendEquationSeparate, void  ( GL_APIENTRY* )( GLenum modeRGB, GLenum modeAlpha ) );
+	FIND_PROC( glBlendFunc, void  ( GL_APIENTRY* )( GLenum sfactor, GLenum dfactor ) );
+	FIND_PROC( glBlendFuncSeparate, void  ( GL_APIENTRY* )( GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha, GLenum dfactorAlpha ) );
+	FIND_PROC( glBufferData, void  ( GL_APIENTRY* )( GLenum target, GLsizeiptr size, const void *data, GLenum usage ) );
+	FIND_PROC( glBufferSubData, void  ( GL_APIENTRY* )( GLenum target, GLintptr offset, GLsizeiptr size, const void *data ) );
+	FIND_PROC( glCheckFramebufferStatus, GLenum( GL_APIENTRY* )( GLenum target ) );
+	FIND_PROC( glClear, void  ( GL_APIENTRY* )( GLbitfield mask ) );
+	FIND_PROC( glClearColor, void  ( GL_APIENTRY* )( GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha ) );
+	FIND_PROC( glClearDepthf, void  ( GL_APIENTRY* )( GLfloat d ) );
+	FIND_PROC( glClearStencil, void  ( GL_APIENTRY* )( GLint s ) );
+	FIND_PROC( glColorMask, void  ( GL_APIENTRY* )( GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha ) );
+	FIND_PROC( glCompileShader, void  ( GL_APIENTRY* )( GLuint shader ) );
+	FIND_PROC( glCompressedTexImage2D, void  ( GL_APIENTRY* )( GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void *data ) );
+	FIND_PROC( glCompressedTexSubImage2D, void  ( GL_APIENTRY* )( GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void *data ) );
+	FIND_PROC( glCopyTexImage2D, void  ( GL_APIENTRY* )( GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border ) );
+	FIND_PROC( glCopyTexSubImage2D, void  ( GL_APIENTRY* )( GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height ) );
+	FIND_PROC( glCreateProgram, GLuint( GL_APIENTRY* )( void ) );
+	FIND_PROC( glCreateShader, GLuint( GL_APIENTRY* )( GLenum type ) );
+	FIND_PROC( glCullFace, void  ( GL_APIENTRY* )( GLenum mode ) );
+	FIND_PROC( glDeleteBuffers, void  ( GL_APIENTRY* )( GLsizei n, const GLuint *buffers ) );
+	FIND_PROC( glDeleteFramebuffers, void  ( GL_APIENTRY* )( GLsizei n, const GLuint *framebuffers ) );
+	FIND_PROC( glDeleteProgram, void  ( GL_APIENTRY* )( GLuint program ) );
+	FIND_PROC( glDeleteRenderbuffers, void  ( GL_APIENTRY* )( GLsizei n, const GLuint *renderbuffers ) );
+	FIND_PROC( glDeleteShader, void  ( GL_APIENTRY* )( GLuint shader ) );
+	FIND_PROC( glDeleteTextures, void  ( GL_APIENTRY* )( GLsizei n, const GLuint *textures ) );
+	FIND_PROC( glDepthFunc, void  ( GL_APIENTRY* )( GLenum func ) );
+	FIND_PROC( glDepthMask, void  ( GL_APIENTRY* )( GLboolean flag ) );
+	FIND_PROC( glDepthRangef, void  ( GL_APIENTRY* )( GLfloat n, GLfloat f ) );
+	FIND_PROC( glDetachShader, void  ( GL_APIENTRY* )( GLuint program, GLuint shader ) );
+	FIND_PROC( glDisable, void  ( GL_APIENTRY* )( GLenum cap ) );
+	FIND_PROC( glDisableVertexAttribArray, void  ( GL_APIENTRY* )( GLuint index ) );
+	FIND_PROC( glDrawArrays, void  ( GL_APIENTRY* )( GLenum mode, GLint first, GLsizei count ) );
+	FIND_PROC( glDrawElements, void  ( GL_APIENTRY* )( GLenum mode, GLsizei count, GLenum type, const void *indices ) );
+	FIND_PROC( glEnable, void  ( GL_APIENTRY* )( GLenum cap ) );
+	FIND_PROC( glEnableVertexAttribArray, void  ( GL_APIENTRY* )( GLuint index ) );
+	FIND_PROC( glFinish, void  ( GL_APIENTRY* )( void ) );
+	FIND_PROC( glFlush, void  ( GL_APIENTRY* )( void ) );
+	FIND_PROC( glFramebufferRenderbuffer, void  ( GL_APIENTRY* )( GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer ) );
+	FIND_PROC( glFramebufferTexture2D, void  ( GL_APIENTRY* )( GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level ) );
+	FIND_PROC( glFrontFace, void  ( GL_APIENTRY* )( GLenum mode ) );
+	FIND_PROC( glGenBuffers, void  ( GL_APIENTRY* )( GLsizei n, GLuint *buffers ) );
+	FIND_PROC( glGenerateMipmap, void  ( GL_APIENTRY* )( GLenum target ) );
+	FIND_PROC( glGenFramebuffers, void  ( GL_APIENTRY* )( GLsizei n, GLuint *framebuffers ) );
+	FIND_PROC( glGenRenderbuffers, void  ( GL_APIENTRY* )( GLsizei n, GLuint *renderbuffers ) );
+	FIND_PROC( glGenTextures, void  ( GL_APIENTRY* )( GLsizei n, GLuint *textures ) );
+	FIND_PROC( glGetActiveAttrib, void  ( GL_APIENTRY* )( GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLint *size, GLenum *type, GLchar *name ) );
+	FIND_PROC( glGetActiveUniform, void  ( GL_APIENTRY* )( GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLint *size, GLenum *type, GLchar *name ) );
+	FIND_PROC( glGetAttachedShaders, void  ( GL_APIENTRY* )( GLuint program, GLsizei maxCount, GLsizei *count, GLuint *shaders ) );
+	FIND_PROC( glGetAttribLocation, GLint( GL_APIENTRY* )( GLuint program, const GLchar *name ) );
+	FIND_PROC( glGetBooleanv, void  ( GL_APIENTRY* )( GLenum pname, GLboolean *data ) );
+	FIND_PROC( glGetBufferParameteriv, void  ( GL_APIENTRY* )( GLenum target, GLenum pname, GLint *params ) );
+	FIND_PROC( glGetError, GLenum( GL_APIENTRY* )( void ) );
+	FIND_PROC( glGetFloatv, void  ( GL_APIENTRY* )( GLenum pname, GLfloat *data ) );
+	FIND_PROC( glGetFramebufferAttachmentParameteriv, void  ( GL_APIENTRY* )( GLenum target, GLenum attachment, GLenum pname, GLint *params ) );
+	FIND_PROC( glGetIntegerv, void  ( GL_APIENTRY* )( GLenum pname, GLint *data ) );
+	FIND_PROC( glGetProgramiv, void  ( GL_APIENTRY* )( GLuint program, GLenum pname, GLint *params ) );
+	FIND_PROC( glGetProgramInfoLog, void  ( GL_APIENTRY* )( GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog ) );
+	FIND_PROC( glGetRenderbufferParameteriv, void  ( GL_APIENTRY* )( GLenum target, GLenum pname, GLint *params ) );
+	FIND_PROC( glGetShaderiv, void  ( GL_APIENTRY* )( GLuint shader, GLenum pname, GLint *params ) );
+	FIND_PROC( glGetShaderInfoLog, void  ( GL_APIENTRY* )( GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog ) );
+	FIND_PROC( glGetShaderPrecisionFormat, void  ( GL_APIENTRY* )( GLenum shadertype, GLenum precisiontype, GLint *range, GLint *precision ) );
+	FIND_PROC( glGetShaderSource, void  ( GL_APIENTRY* )( GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *source ) );
+	FIND_PROC( glGetString, const GLubyte * (GL_APIENTRY*)( GLenum name ) );
+	FIND_PROC( glGetTexParameterfv, void  ( GL_APIENTRY* )( GLenum target, GLenum pname, GLfloat *params ) );
+	FIND_PROC( glGetTexParameteriv, void  ( GL_APIENTRY* )( GLenum target, GLenum pname, GLint *params ) );
+	FIND_PROC( glGetUniformfv, void  ( GL_APIENTRY* )( GLuint program, GLint location, GLfloat *params ) );
+	FIND_PROC( glGetUniformiv, void  ( GL_APIENTRY* )( GLuint program, GLint location, GLint *params ) );
+	FIND_PROC( glGetUniformLocation, GLint( GL_APIENTRY* )( GLuint program, const GLchar *name ) );
+	FIND_PROC( glGetVertexAttribfv, void  ( GL_APIENTRY* )( GLuint index, GLenum pname, GLfloat *params ) );
+	FIND_PROC( glGetVertexAttribiv, void  ( GL_APIENTRY* )( GLuint index, GLenum pname, GLint *params ) );
+	FIND_PROC( glGetVertexAttribPointerv, void  ( GL_APIENTRY* )( GLuint index, GLenum pname, void **pointer ) );
+	FIND_PROC( glHint, void  ( GL_APIENTRY* )( GLenum target, GLenum mode ) );
+	FIND_PROC( glIsBuffer, GLboolean( GL_APIENTRY* )( GLuint buffer ) );
+	FIND_PROC( glIsEnabled, GLboolean( GL_APIENTRY* )( GLenum cap ) );
+	FIND_PROC( glIsFramebuffer, GLboolean( GL_APIENTRY* )( GLuint framebuffer ) );
+	FIND_PROC( glIsProgram, GLboolean( GL_APIENTRY* )( GLuint program ) );
+	FIND_PROC( glIsRenderbuffer, GLboolean( GL_APIENTRY* )( GLuint renderbuffer ) );
+	FIND_PROC( glIsShader, GLboolean( GL_APIENTRY* )( GLuint shader ) );
+	FIND_PROC( glIsTexture, GLboolean( GL_APIENTRY* )( GLuint texture ) );
+	FIND_PROC( glLineWidth, void  ( GL_APIENTRY* )( GLfloat width ) );
+	FIND_PROC( glLinkProgram, void  ( GL_APIENTRY* )( GLuint program ) );
+	FIND_PROC( glPixelStorei, void  ( GL_APIENTRY* )( GLenum pname, GLint param ) );
+	FIND_PROC( glPolygonOffset, void  ( GL_APIENTRY* )( GLfloat factor, GLfloat units ) );
+	FIND_PROC( glReadPixels, void  ( GL_APIENTRY* )( GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *pixels ) );
+	FIND_PROC( glReleaseShaderCompiler, void  ( GL_APIENTRY* )( void ) );
+	FIND_PROC( glRenderbufferStorage, void  ( GL_APIENTRY* )( GLenum target, GLenum internalformat, GLsizei width, GLsizei height ) );
+	FIND_PROC( glSampleCoverage, void  ( GL_APIENTRY* )( GLfloat value, GLboolean invert ) );
+	FIND_PROC( glScissor, void  ( GL_APIENTRY* )( GLint x, GLint y, GLsizei width, GLsizei height ) );
+	FIND_PROC( glShaderBinary, void  ( GL_APIENTRY* )( GLsizei count, const GLuint *shaders, GLenum binaryformat, const void *binary, GLsizei length ) );
+	FIND_PROC( glShaderSource, void  ( GL_APIENTRY* )( GLuint shader, GLsizei count, const GLchar *const*string, const GLint *length ) );
+	FIND_PROC( glStencilFunc, void  ( GL_APIENTRY* )( GLenum func, GLint ref, GLuint mask ) );
+	FIND_PROC( glStencilFuncSeparate, void  ( GL_APIENTRY* )( GLenum face, GLenum func, GLint ref, GLuint mask ) );
+	FIND_PROC( glStencilMask, void  ( GL_APIENTRY* )( GLuint mask ) );
+	FIND_PROC( glStencilMaskSeparate, void  ( GL_APIENTRY* )( GLenum face, GLuint mask ) );
+	FIND_PROC( glStencilOp, void  ( GL_APIENTRY* )( GLenum fail, GLenum zfail, GLenum zpass ) );
+	FIND_PROC( glStencilOpSeparate, void  ( GL_APIENTRY* )( GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass ) );
+	FIND_PROC( glTexImage2D, void  ( GL_APIENTRY* )( GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels ) );
+	FIND_PROC( glTexParameterf, void  ( GL_APIENTRY* )( GLenum target, GLenum pname, GLfloat param ) );
+	FIND_PROC( glTexParameterfv, void  ( GL_APIENTRY* )( GLenum target, GLenum pname, const GLfloat *params ) );
+	FIND_PROC( glTexParameteri, void  ( GL_APIENTRY* )( GLenum target, GLenum pname, GLint param ) );
+	FIND_PROC( glTexParameteriv, void  ( GL_APIENTRY* )( GLenum target, GLenum pname, const GLint *params ) );
+	FIND_PROC( glTexSubImage2D, void  ( GL_APIENTRY* )( GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels ) );
+	FIND_PROC( glUniform1f, void  ( GL_APIENTRY* )( GLint location, GLfloat v0 ) );
+	FIND_PROC( glUniform1fv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, const GLfloat *value ) );
+	FIND_PROC( glUniform1i, void  ( GL_APIENTRY* )( GLint location, GLint v0 ) );
+	FIND_PROC( glUniform1iv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, const GLint *value ) );
+	FIND_PROC( glUniform2f, void  ( GL_APIENTRY* )( GLint location, GLfloat v0, GLfloat v1 ) );
+	FIND_PROC( glUniform2fv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, const GLfloat *value ) );
+	FIND_PROC( glUniform2i, void  ( GL_APIENTRY* )( GLint location, GLint v0, GLint v1 ) );
+	FIND_PROC( glUniform2iv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, const GLint *value ) );
+	FIND_PROC( glUniform3f, void  ( GL_APIENTRY* )( GLint location, GLfloat v0, GLfloat v1, GLfloat v2 ) );
+	FIND_PROC( glUniform3fv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, const GLfloat *value ) );
+	FIND_PROC( glUniform3i, void  ( GL_APIENTRY* )( GLint location, GLint v0, GLint v1, GLint v2 ) );
+	FIND_PROC( glUniform3iv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, const GLint *value ) );
+	FIND_PROC( glUniform4f, void  ( GL_APIENTRY* )( GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3 ) );
+	FIND_PROC( glUniform4fv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, const GLfloat *value ) );
+	FIND_PROC( glUniform4i, void  ( GL_APIENTRY* )( GLint location, GLint v0, GLint v1, GLint v2, GLint v3 ) );
+	FIND_PROC( glUniform4iv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, const GLint *value ) );
+	FIND_PROC( glUniformMatrix2fv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value ) );
+	FIND_PROC( glUniformMatrix3fv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value ) );
+	FIND_PROC( glUniformMatrix4fv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value ) );
+	FIND_PROC( glUseProgram, void  ( GL_APIENTRY* )( GLuint program ) );
+	FIND_PROC( glValidateProgram, void  ( GL_APIENTRY* )( GLuint program ) );
+	FIND_PROC( glVertexAttrib1f, void  ( GL_APIENTRY* )( GLuint index, GLfloat x ) );
+	FIND_PROC( glVertexAttrib1fv, void  ( GL_APIENTRY* )( GLuint index, const GLfloat *v ) );
+	FIND_PROC( glVertexAttrib2f, void  ( GL_APIENTRY* )( GLuint index, GLfloat x, GLfloat y ) );
+	FIND_PROC( glVertexAttrib2fv, void  ( GL_APIENTRY* )( GLuint index, const GLfloat *v ) );
+	FIND_PROC( glVertexAttrib3f, void  ( GL_APIENTRY* )( GLuint index, GLfloat x, GLfloat y, GLfloat z ) );
+	FIND_PROC( glVertexAttrib3fv, void  ( GL_APIENTRY* )( GLuint index, const GLfloat *v ) );
+	FIND_PROC( glVertexAttrib4f, void  ( GL_APIENTRY* )( GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w ) );
+	FIND_PROC( glVertexAttrib4fv, void  ( GL_APIENTRY* )( GLuint index, const GLfloat *v ) );
+	FIND_PROC( glVertexAttribPointer, void  ( GL_APIENTRY* )( GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer ) );
+	FIND_PROC( glViewport, void  ( GL_APIENTRY* )( GLint x, GLint y, GLsizei width, GLsizei height ) );
+
+	// 3.0
+	FIND_PROC( glReadBuffer, void  ( GL_APIENTRY* )( GLenum src ) );
+	FIND_PROC( glDrawRangeElements, void  ( GL_APIENTRY* )( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const void *indices ) );
+	FIND_PROC( glTexImage3D, void  ( GL_APIENTRY* )( GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void *pixels ) );
+	FIND_PROC( glTexSubImage3D, void  ( GL_APIENTRY* )( GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const void *pixels ) );
+	FIND_PROC( glCopyTexSubImage3D, void  ( GL_APIENTRY* )( GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height ) );
+	FIND_PROC( glCompressedTexImage3D, void  ( GL_APIENTRY* )( GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const void *data ) );
+	FIND_PROC( glCompressedTexSubImage3D, void  ( GL_APIENTRY* )( GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const void *data ) );
+	FIND_PROC( glGenQueries, void  ( GL_APIENTRY* )( GLsizei n, GLuint *ids ) );
+	FIND_PROC( glDeleteQueries, void  ( GL_APIENTRY* )( GLsizei n, const GLuint *ids ) );
+	FIND_PROC( glIsQuery, GLboolean( GL_APIENTRY* )( GLuint id ) );
+	FIND_PROC( glBeginQuery, void  ( GL_APIENTRY* )( GLenum target, GLuint id ) );
+	FIND_PROC( glEndQuery, void  ( GL_APIENTRY* )( GLenum target ) );
+	FIND_PROC( glGetQueryiv, void  ( GL_APIENTRY* )( GLenum target, GLenum pname, GLint *params ) );
+	FIND_PROC( glGetQueryObjectuiv, void  ( GL_APIENTRY* )( GLuint id, GLenum pname, GLuint *params ) );
+	FIND_PROC( glUnmapBuffer, GLboolean( GL_APIENTRY* )( GLenum target ) );
+	FIND_PROC( glGetBufferPointerv, void  ( GL_APIENTRY* )( GLenum target, GLenum pname, void **params ) );
+	FIND_PROC( glDrawBuffers, void  ( GL_APIENTRY* )( GLsizei n, const GLenum *bufs ) );
+	FIND_PROC( glUniformMatrix2x3fv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value ) );
+	FIND_PROC( glUniformMatrix3x2fv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value ) );
+	FIND_PROC( glUniformMatrix2x4fv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value ) );
+	FIND_PROC( glUniformMatrix4x2fv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value ) );
+	FIND_PROC( glUniformMatrix3x4fv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value ) );
+	FIND_PROC( glUniformMatrix4x3fv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value ) );
+	FIND_PROC( glBlitFramebuffer, void  ( GL_APIENTRY* )( GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter ) );
+	FIND_PROC( glRenderbufferStorageMultisample, void  ( GL_APIENTRY* )( GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height ) );
+	FIND_PROC( glFramebufferTextureLayer, void  ( GL_APIENTRY* )( GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer ) );
+	FIND_PROC( glMapBufferRange, void * (GL_APIENTRY*)( GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access ) );
+	FIND_PROC( glFlushMappedBufferRange, void  ( GL_APIENTRY* )( GLenum target, GLintptr offset, GLsizeiptr length ) );
+	FIND_PROC( glBindVertexArray, void  ( GL_APIENTRY* )( GLuint array ) );
+	FIND_PROC( glDeleteVertexArrays, void  ( GL_APIENTRY* )( GLsizei n, const GLuint *arrays ) );
+	FIND_PROC( glGenVertexArrays, void  ( GL_APIENTRY* )( GLsizei n, GLuint *arrays ) );
+	FIND_PROC( glIsVertexArray, GLboolean( GL_APIENTRY* )( GLuint array ) );
+	FIND_PROC( glGetIntegeri_v, void  ( GL_APIENTRY* )( GLenum target, GLuint index, GLint *data ) );
+	FIND_PROC( glBeginTransformFeedback, void  ( GL_APIENTRY* )( GLenum primitiveMode ) );
+	FIND_PROC( glEndTransformFeedback, void  ( GL_APIENTRY* )( void ) );
+	FIND_PROC( glBindBufferRange, void  ( GL_APIENTRY* )( GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size ) );
+	FIND_PROC( glBindBufferBase, void  ( GL_APIENTRY* )( GLenum target, GLuint index, GLuint buffer ) );
+	FIND_PROC( glTransformFeedbackVaryings, void  ( GL_APIENTRY* )( GLuint program, GLsizei count, const GLchar *const*varyings, GLenum bufferMode ) );
+	FIND_PROC( glGetTransformFeedbackVarying, void  ( GL_APIENTRY* )( GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLsizei *size, GLenum *type, GLchar *name ) );
+	FIND_PROC( glVertexAttribIPointer, void  ( GL_APIENTRY* )( GLuint index, GLint size, GLenum type, GLsizei stride, const void *pointer ) );
+	FIND_PROC( glGetVertexAttribIiv, void  ( GL_APIENTRY* )( GLuint index, GLenum pname, GLint *params ) );
+	FIND_PROC( glGetVertexAttribIuiv, void  ( GL_APIENTRY* )( GLuint index, GLenum pname, GLuint *params ) );
+	FIND_PROC( glVertexAttribI4i, void  ( GL_APIENTRY* )( GLuint index, GLint x, GLint y, GLint z, GLint w ) );
+	FIND_PROC( glVertexAttribI4ui, void  ( GL_APIENTRY* )( GLuint index, GLuint x, GLuint y, GLuint z, GLuint w ) );
+	FIND_PROC( glVertexAttribI4iv, void  ( GL_APIENTRY* )( GLuint index, const GLint *v ) );
+	FIND_PROC( glVertexAttribI4uiv, void  ( GL_APIENTRY* )( GLuint index, const GLuint *v ) );
+	FIND_PROC( glGetUniformuiv, void  ( GL_APIENTRY* )( GLuint program, GLint location, GLuint *params ) );
+	FIND_PROC( glGetFragDataLocation, GLint( GL_APIENTRY* )( GLuint program, const GLchar *name ) );
+	FIND_PROC( glUniform1ui, void  ( GL_APIENTRY* )( GLint location, GLuint v0 ) );
+	FIND_PROC( glUniform2ui, void  ( GL_APIENTRY* )( GLint location, GLuint v0, GLuint v1 ) );
+	FIND_PROC( glUniform3ui, void  ( GL_APIENTRY* )( GLint location, GLuint v0, GLuint v1, GLuint v2 ) );
+	FIND_PROC( glUniform4ui, void  ( GL_APIENTRY* )( GLint location, GLuint v0, GLuint v1, GLuint v2, GLuint v3 ) );
+	FIND_PROC( glUniform1uiv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, const GLuint *value ) );
+	FIND_PROC( glUniform2uiv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, const GLuint *value ) );
+	FIND_PROC( glUniform3uiv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, const GLuint *value ) );
+	FIND_PROC( glUniform4uiv, void  ( GL_APIENTRY* )( GLint location, GLsizei count, const GLuint *value ) );
+	FIND_PROC( glClearBufferiv, void  ( GL_APIENTRY* )( GLenum buffer, GLint drawbuffer, const GLint *value ) );
+	FIND_PROC( glClearBufferuiv, void  ( GL_APIENTRY* )( GLenum buffer, GLint drawbuffer, const GLuint *value ) );
+	FIND_PROC( glClearBufferfv, void  ( GL_APIENTRY* )( GLenum buffer, GLint drawbuffer, const GLfloat *value ) );
+	FIND_PROC( glClearBufferfi, void  ( GL_APIENTRY* )( GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil ) );
+	FIND_PROC( glGetStringi, const GLubyte * (GL_APIENTRY*)( GLenum name, GLuint index ) );
+	FIND_PROC( glCopyBufferSubData, void  ( GL_APIENTRY* )( GLenum readTarget, GLenum writeTarget, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size ) );
+	FIND_PROC( glGetUniformIndices, void  ( GL_APIENTRY* )( GLuint program, GLsizei uniformCount, const GLchar *const*uniformNames, GLuint *uniformIndices ) );
+	FIND_PROC( glGetActiveUniformsiv, void  ( GL_APIENTRY* )( GLuint program, GLsizei uniformCount, const GLuint *uniformIndices, GLenum pname, GLint *params ) );
+	FIND_PROC( glGetUniformBlockIndex, GLuint( GL_APIENTRY* )( GLuint program, const GLchar *uniformBlockName ) );
+	FIND_PROC( glGetActiveUniformBlockiv, void  ( GL_APIENTRY* )( GLuint program, GLuint uniformBlockIndex, GLenum pname, GLint *params ) );
+	FIND_PROC( glGetActiveUniformBlockName, void  ( GL_APIENTRY* )( GLuint program, GLuint uniformBlockIndex, GLsizei bufSize, GLsizei *length, GLchar *uniformBlockName ) );
+	FIND_PROC( glUniformBlockBinding, void  ( GL_APIENTRY* )( GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding ) );
+	FIND_PROC( glDrawArraysInstanced, void  ( GL_APIENTRY* )( GLenum mode, GLint first, GLsizei count, GLsizei instancecount ) );
+	FIND_PROC( glDrawElementsInstanced, void  ( GL_APIENTRY* )( GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei instancecount ) );
+	FIND_PROC( glFenceSync, GLsync( GL_APIENTRY* )( GLenum condition, GLbitfield flags ) );
+	FIND_PROC( glIsSync, GLboolean( GL_APIENTRY* )( GLsync sync ) );
+	FIND_PROC( glDeleteSync, void  ( GL_APIENTRY* )( GLsync sync ) );
+	FIND_PROC( glClientWaitSync, GLenum( GL_APIENTRY* )( GLsync sync, GLbitfield flags, GLuint64 timeout ) );
+	FIND_PROC( glWaitSync, void  ( GL_APIENTRY* )( GLsync sync, GLbitfield flags, GLuint64 timeout ) );
+	FIND_PROC( glGetInteger64v, void  ( GL_APIENTRY* )( GLenum pname, GLint64 *data ) );
+	FIND_PROC( glGetSynciv, void  ( GL_APIENTRY* )( GLsync sync, GLenum pname, GLsizei bufSize, GLsizei *length, GLint *values ) );
+	FIND_PROC( glGetInteger64i_v, void  ( GL_APIENTRY* )( GLenum target, GLuint index, GLint64 *data ) );
+	FIND_PROC( glGetBufferParameteri64v, void  ( GL_APIENTRY* )( GLenum target, GLenum pname, GLint64 *params ) );
+	FIND_PROC( glGenSamplers, void  ( GL_APIENTRY* )( GLsizei count, GLuint *samplers ) );
+	FIND_PROC( glDeleteSamplers, void  ( GL_APIENTRY* )( GLsizei count, const GLuint *samplers ) );
+	FIND_PROC( glIsSampler, GLboolean( GL_APIENTRY* )( GLuint sampler ) );
+	FIND_PROC( glBindSampler, void  ( GL_APIENTRY* )( GLuint unit, GLuint sampler ) );
+	FIND_PROC( glSamplerParameteri, void  ( GL_APIENTRY* )( GLuint sampler, GLenum pname, GLint param ) );
+	FIND_PROC( glSamplerParameteriv, void  ( GL_APIENTRY* )( GLuint sampler, GLenum pname, const GLint *param ) );
+	FIND_PROC( glSamplerParameterf, void  ( GL_APIENTRY* )( GLuint sampler, GLenum pname, GLfloat param ) );
+	FIND_PROC( glSamplerParameterfv, void  ( GL_APIENTRY* )( GLuint sampler, GLenum pname, const GLfloat *param ) );
+	FIND_PROC( glGetSamplerParameteriv, void  ( GL_APIENTRY* )( GLuint sampler, GLenum pname, GLint *params ) );
+	FIND_PROC( glGetSamplerParameterfv, void  ( GL_APIENTRY* )( GLuint sampler, GLenum pname, GLfloat *params ) );
+	FIND_PROC( glVertexAttribDivisor, void  ( GL_APIENTRY* )( GLuint index, GLuint divisor ) );
+	FIND_PROC( glBindTransformFeedback, void  ( GL_APIENTRY* )( GLenum target, GLuint id ) );
+	FIND_PROC( glDeleteTransformFeedbacks, void  ( GL_APIENTRY* )( GLsizei n, const GLuint *ids ) );
+	FIND_PROC( glGenTransformFeedbacks, void  ( GL_APIENTRY* )( GLsizei n, GLuint *ids ) );
+	FIND_PROC( glIsTransformFeedback, GLboolean( GL_APIENTRY* )( GLuint id ) );
+	FIND_PROC( glPauseTransformFeedback, void  ( GL_APIENTRY* )( void ) );
+	FIND_PROC( glResumeTransformFeedback, void  ( GL_APIENTRY* )( void ) );
+	FIND_PROC( glGetProgramBinary, void  ( GL_APIENTRY* )( GLuint program, GLsizei bufSize, GLsizei *length, GLenum *binaryFormat, void *binary ) );
+	FIND_PROC( glProgramBinary, void  ( GL_APIENTRY* )( GLuint program, GLenum binaryFormat, const void *binary, GLsizei length ) );
+	FIND_PROC( glProgramParameteri, void  ( GL_APIENTRY* )( GLuint program, GLenum pname, GLint value ) );
+	FIND_PROC( glInvalidateFramebuffer, void  ( GL_APIENTRY* )( GLenum target, GLsizei numAttachments, const GLenum *attachments ) );
+	FIND_PROC( glInvalidateSubFramebuffer, void  ( GL_APIENTRY* )( GLenum target, GLsizei numAttachments, const GLenum *attachments, GLint x, GLint y, GLsizei width, GLsizei height ) );
+	FIND_PROC( glTexStorage2D, void  ( GL_APIENTRY* )( GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height ) );
+	FIND_PROC( glTexStorage3D, void  ( GL_APIENTRY* )( GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth ) );
+	FIND_PROC( glGetInternalformativ, void  ( GL_APIENTRY* )( GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint *params ) );
+#endif
+
+	TVPANGLEInit = true;
 }
+
+// Avoid get proc address for now, since dead code elimination doesn't work on it
+#if 0
 void* TVPeglGetProcAddress(const char *procname)
 {
 	return NULL;
 }
+#endif

@@ -1111,10 +1111,8 @@ tTJSNI_Window::Construct(tjs_int numparams, tTJSVariant **param,
 		Form = new TTVPWindowForm(Application, this);
 #endif
 	}
-#if 0
-	CreateCanvas( tjs_obj );
-#endif
 	Form = TVPCreateAndAddWindow(this);
+	CreateCanvas( tjs_obj );
 	return TJS_S_OK;
 }
 //---------------------------------------------------------------------------

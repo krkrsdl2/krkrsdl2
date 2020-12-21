@@ -17,6 +17,7 @@
 #include "StorageIntf.h"
 #include "SDLBitmapCompletion.h"
 #include "ScriptMgnIntf.h"
+#include "OpenGLScreenSDL2.h"
 #include <SDL.h>
 
 #include <unistd.h>
@@ -417,6 +418,7 @@ protected:
 	SDL_Texture* texture;
 	SDL_Renderer* renderer;
 	SDL_Surface* surface;
+	SDL_GLContext context;
 	tTJSNI_Window *TJSNativeInstance;
 	bool hasDrawn = false;
 	bool needs_graphic_update = false;
@@ -430,6 +432,7 @@ protected:
 	iTJSDispatch2 * file_drop_array;
 	tjs_int file_drop_array_count;
 	TVPSDLBitmapCompletion * bitmap_completion;
+	tTVPOpenGLScreen * open_gl_screen;
 
 public:
 	TVPWindowLayer(tTJSNI_Window *w);
@@ -478,6 +481,10 @@ public:
 	virtual void SetTop(tjs_int t) override;
 	virtual void SetPosition(tjs_int l, tjs_int t) override;
 	virtual TVPSDLBitmapCompletion *GetTVPSDLBitmapCompletion() override;
+	virtual void SetOpenGLScreen(tTVPOpenGLScreen *s) override;
+	virtual void SetSwapInterval(int interval) override;
+	virtual void GetDrawableSize(tjs_int &w, tjs_int &h) override;
+	virtual void Swap() override;
 	virtual void Show() override;
 	virtual void TickBeat() override;
 	virtual void InvalidateClose() override;
@@ -541,39 +548,70 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 		refresh_controllers();
 	}
 
-	window = SDL_CreateWindow("krkrsdl2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+	Uint32 window_flags = 0;
+
+	if (TVPIsEnableDrawDevice() == false)
+	{
+		SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+		SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+		window_flags |= SDL_WINDOW_OPENGL;
+	}
+
+	window = SDL_CreateWindow("krkrsdl2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, window_flags);
 	if (window == nullptr)
 	{
 		TVPThrowExceptionMessage(TJS_W("Cannot create SDL window: %1"), ttstr(SDL_GetError()));
 	}
-	renderer = nullptr;
-#if !defined(__EMSCRIPTEN__) || (defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__))
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (renderer == nullptr)
+	context = nullptr;
+	if (TVPIsEnableDrawDevice() == false)
 	{
-		TVPAddLog(ttstr("Cannot create SDL renderer: ") + ttstr(SDL_GetError()));
-	}
-#endif
-	bitmap_completion = new TVPSDLBitmapCompletion();
-	surface = nullptr;
-	if (renderer == nullptr)
-	{
-		surface = SDL_GetWindowSurface(window);
-		if (surface == nullptr)
+		context = SDL_GL_CreateContext(window);
+		if (context == nullptr)
 		{
-			TVPAddLog(ttstr("Cannot get surface from SDL window: ") + ttstr(SDL_GetError()));
+			TVPThrowExceptionMessage(TJS_W("Cannot create SDL context: %1"), ttstr(SDL_GetError()));
 		}
-		bitmap_completion->surface = surface;
+		SDL_GL_MakeCurrent(window, context);
 	}
-	if (renderer == nullptr && surface == nullptr)
+	renderer = nullptr;
+	bitmap_completion = nullptr;
+	open_gl_screen = nullptr;
+	surface = nullptr;
+	if (TVPIsEnableDrawDevice() == true)
 	{
-		TVPThrowExceptionMessage(TJS_W("Cannot get surface or renderer from SDL window"));
+#if !defined(__EMSCRIPTEN__) || (defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__))
+		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+		if (renderer == nullptr)
+		{
+			TVPAddLog(ttstr("Cannot create SDL renderer: ") + ttstr(SDL_GetError()));
+		}
+#endif
+		bitmap_completion = new TVPSDLBitmapCompletion();
+		if (renderer == nullptr)
+		{
+			surface = SDL_GetWindowSurface(window);
+			if (surface == nullptr)
+			{
+				TVPAddLog(ttstr("Cannot get surface from SDL window: ") + ttstr(SDL_GetError()));
+			}
+			bitmap_completion->surface = surface;
+		}
+		if (renderer == nullptr && surface == nullptr)
+		{
+			TVPThrowExceptionMessage(TJS_W("Cannot get surface or renderer from SDL window"));
+		}
+		texture = nullptr;
+		if (renderer)
+		{
+			SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0x00, 0xFF );
+		}
 	}
-	texture = nullptr;
-	if (renderer)
-	{
-		SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0x00, 0xFF );
-	}
+
 }
 
 TVPWindowLayer::~TVPWindowLayer() {
@@ -587,6 +625,11 @@ TVPWindowLayer::~TVPWindowLayer() {
 	{
 		delete bitmap_completion;
 		bitmap_completion = NULL;
+	}
+	if (context)
+	{
+		SDL_GL_DeleteContext(context);
+		context = NULL;
 	}
 	if (texture && surface)
 	{
@@ -1070,6 +1113,32 @@ TVPSDLBitmapCompletion *TVPWindowLayer::GetTVPSDLBitmapCompletion() {
 	needs_graphic_update = true;
 	return bitmap_completion;
 }
+void TVPWindowLayer::SetOpenGLScreen(tTVPOpenGLScreen *s) {
+	open_gl_screen = s;
+}
+void TVPWindowLayer::SetSwapInterval(int interval) {
+	if (context)
+	{
+		SDL_GL_SetSwapInterval(interval);
+	}
+}
+void TVPWindowLayer::GetDrawableSize(tjs_int &w, tjs_int &h) {
+	if (context)
+	{
+		SDL_GL_GetDrawableSize(window, &w, &h);
+	}
+	else
+	{
+		w = 0;
+		h = 0;
+	}
+}
+void TVPWindowLayer::Swap() {
+	if (context)
+	{
+		SDL_GL_SwapWindow(window);
+	}
+}
 void TVPWindowLayer::Show() {
 }
 void TVPWindowLayer::TickBeat() {
@@ -1100,6 +1169,11 @@ void TVPWindowLayer::TickBeat() {
 			hasDrawn = true;
 		}
 		needs_graphic_update = false;
+	}
+	else if (context && TJSNativeInstance)
+	{
+		TJSNativeInstance->StartDrawing();
+		hasDrawn = true;
 	}
 }
 void TVPWindowLayer::InvalidateClose() {

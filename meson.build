@@ -140,7 +140,6 @@ krkrsdl2_src = [
 	'external/krkrz/visual/opengl/Matrix32Intf.cpp',
 	'external/krkrz/visual/opengl/Matrix44Intf.cpp',
 	'external/krkrz/visual/opengl/OffscreenIntf.cpp',
-	'external/krkrz/visual/opengl/OpenGLScreen.cpp',
 	'external/krkrz/visual/opengl/ShaderProgramIntf.cpp',
 	'external/krkrz/visual/opengl/TextureIntf.cpp',
 	'external/krkrz/visual/opengl/VertexBinderIntf.cpp',
@@ -485,6 +484,7 @@ krkrsdl2_src = [
 	'src/core/visual/sdl2/VideoOvlImpl.cpp',
 	'src/core/visual/sdl2/WindowImpl.cpp',
 	'src/core/visual/sdl2/opengl/OpenGLPlatformSDL2.cpp',
+	'src/core/visual/sdl2/opengl/OpenGLScreenSDL2.cpp',
 ]
 krkrsdl2_includes = [
 	'src/core/base/sdl2',
@@ -890,6 +890,8 @@ if target_machine.system() == 'emscripten'
 		'-s', 'FORCE_FILESYSTEM=1',
 		'-s', 'ASSERTIONS=0',
 		'-s', 'STACK_OVERFLOW_CHECK=0',
+		'-s', 'MAX_WEBGL_VERSION=2',
+		'-s', 'FULL_ES3=1',
 		'-lidbfs.js',
 		'--bind',
 		'--no-heap-copy',

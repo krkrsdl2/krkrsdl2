@@ -17,311 +17,413 @@ bool TVPCheckProcessLog() { return false; }
 //---------------------------------------------------------------------------
 static const tjs_nchar * TVPInitTJSScript =
 	// note that this script is stored as narrow string
-TJS_N("const\
-\
-/* constants */\
- /* tTVPBorderStyle */ bsNone=0,  bsSingle=1,  bsSizeable=2,  bsDialog=3,  bsToolWindow=4,  bsSizeToolWin=5,\
- /* tTVPUpdateType */ utNormal=0,  utEntire =1,\
- /* tTVPMouseButton */  mbLeft=0,  mbRight=1,  mbMiddle=2, mbX1=3, mbX2=4,\
- /* tTVPMouseCursorState */ mcsVisible=0, mcsTempHidden=1, mcsHidden=2,\
- /* tTVPImeMode */ imDisable=0, imClose=1, imOpen=2, imDontCare=3, imSAlpha=4, imAlpha=5, imHira=6, imSKata=7, imKata=8, imChinese=9, imSHanguel=10, imHanguel=11,\
- /* Set of shift state */  ssShift=(1<<0),  ssAlt=(1<<1),  ssCtrl=(1<<2),  ssLeft=(1<<3),  ssRight=(1<<4),  ssMiddle=(1<<5),  ssDouble =(1<<6),  ssRepeat = (1<<7),\
- /* TVP_FSF_???? */ fsfFixedPitch=1, fsfSameCharSet=2, fsfNoVertical=4, \
-	fsfTrueTypeOnly=8, fsfUseFontFace=0x100, fsfIgnoreSymbol=0x10,\
- /* tTVPLayerType */ ltBinder=0, ltCoverRect=1, ltOpaque=1, ltTransparent=2, ltAlpha=2, ltAdditive=3, ltSubtractive=4, ltMultiplicative=5, ltEffect=6, ltFilter=7, ltDodge=8, ltDarken=9, ltLighten=10, ltScreen=11, ltAddAlpha = 12,\
-	ltPsNormal = 13, ltPsAdditive = 14, ltPsSubtractive = 15, ltPsMultiplicative = 16, ltPsScreen = 17, ltPsOverlay = 18, ltPsHardLight = 19, ltPsSoftLight = 20, ltPsColorDodge = 21, ltPsColorDodge5 = 22, ltPsColorBurn = 23, ltPsLighten = 24, ltPsDarken = 25, ltPsDifference = 26, ltPsDifference5 = 27, ltPsExclusion = 28, \
- /* tTVPBlendOperationMode */ omPsNormal = ltPsNormal,omPsAdditive = ltPsAdditive,omPsSubtractive = ltPsSubtractive,omPsMultiplicative = ltPsMultiplicative,omPsScreen = ltPsScreen,omPsOverlay = ltPsOverlay,omPsHardLight = ltPsHardLight,omPsSoftLight = ltPsSoftLight,omPsColorDodge = ltPsColorDodge,omPsColorDodge5 = ltPsColorDodge5,omPsColorBurn = ltPsColorBurn,omPsLighten = ltPsLighten,omPsDarken = ltPsDarken,omPsDifference = ltPsDifference,omPsDifference5 = ltPsDifference5,omPsExclusion = ltPsExclusion, \
-	omAdditive=ltAdditive, omSubtractive=ltSubtractive, omMultiplicative=ltMultiplicative, omDodge=ltDodge, omDarken=ltDarken, omLighten=ltLighten, omScreen=ltScreen, omAddAlpha=ltAddAlpha, omOpaque=ltOpaque, omAlpha=ltAlpha, omAuto = 128,\
- /* tTVPDrawFace */ dfBoth=0, dfAlpha = dfBoth, dfAddAlpha = 4, dfMain=1, dfOpaque = dfMain, dfMask=2, dfProvince=3, dfAuto=128,\
- /* tTVPHitType */ htMask=0, htProvince=1,\
- /* tTVPScrollTransFrom */ sttLeft=0, sttTop=1, sttRight=2, sttBottom=3,\
- /* tTVPScrollTransStay */ ststNoStay=0, ststStayDest=1, ststStaySrc=2, \
- /* tTVPKAGDebugLevel */ tkdlNone=0, tkdlSimple=1, tkdlVerbose=2, \
- /* tTVPAsyncTriggerMode */	atmNormal=0, atmExclusive=1, atmAtIdle=2, \
- /* tTVPBBStretchType */ stNearest=0, stFastLinear=1, stLinear=2, stCubic=3, stSemiFastLinear = 4, stFastCubic = 5, stLanczos2 = 6, stFastLanczos2 = 7, stLanczos3 = 8, stFastLanczos3 = 9, stSpline16 = 10, stFastSpline16 = 11, stSpline36 = 12, stFastSpline36 = 13, stAreaAvg = 14, stFastAreaAvg = 15, stGaussian = 16, stFastGaussian = 17, stBlackmanSinc = 18, stFastBlackmanSinc = 19, stRefNoClip = 0x10000,\
- /* tTVPClipboardFormat */ cbfText = 1,\
- /* TVP_COMPACT_LEVEL_???? */ clIdle = 5, clDeactivate = 10, clMinimize = 15, clAll = 100,\
- /* tTVPVideoOverlayMode Add: T.Imoto */ vomOverlay=0, vomLayer=1, vomMixer=2, vomMFEVR=3,\
- /* tTVPPeriodEventReason */ perLoop = 0, perPeriod = 1, perPrepare = 2, perSegLoop = 3,\
- /* tTVPSoundGlobalFocusMode */ sgfmNeverMute = 0, sgfmMuteOnMinimize = 1, sgfmMuteOnDeactivate = 2,\
- /* tTVPTouchDevice */ tdNone=0, tdIntegratedTouch=0x01, tdExternalTouch=0x02, tdIntegratedPen=0x04, tdExternalPen=0x08, tdMultiInput=0x40, tdDigitizerReady=0x80,\
-    tdMouse=0x0100, tdMouseWheel=0x0200,\
- /* Display Orientation */ oriUnknown=0, oriPortrait=1, oriLandscape=2,\
-\
-/* file attributes */\
- faReadOnly=0x01, faHidden=0x02, faSysFile=0x04, faVolumeID=0x08, faDirectory=0x10, faArchive=0x20, faAnyFile=0x3f,\
-/* mouse cursor constants */\
- crDefault = 0x0,\
- crNone = -1,\
- crArrow = -2,\
- crCross = -3,\
- crIBeam = -4,\
- crSize = -5,\
- crSizeNESW = -6,\
- crSizeNS = -7,\
- crSizeNWSE = -8,\
- crSizeWE = -9,\
- crUpArrow = -10,\
- crHourGlass = -11,\
- crDrag = -12,\
- crNoDrop = -13,\
- crHSplit = -14,\
- crVSplit = -15,\
- crMultiDrag = -16,\
- crSQLWait = -17,\
- crNo = -18,\
- crAppStart = -19,\
- crHelp = -20,\
- crHandPoint = -21,\
- crSizeAll = -22,\
- crHBeam = 1,\
-/* color constants */\
- clScrollBar = 0x80000000,\
- clBackground = 0x80000001,\
- clActiveCaption = 0x80000002,\
- clInactiveCaption = 0x80000003,\
- clMenu = 0x80000004,\
- clWindow = 0x80000005,\
- clWindowFrame = 0x80000006,\
- clMenuText = 0x80000007,\
- clWindowText = 0x80000008,\
- clCaptionText = 0x80000009,\
- clActiveBorder = 0x8000000a,\
- clInactiveBorder = 0x8000000b,\
- clAppWorkSpace = 0x8000000c,\
- clHighlight = 0x8000000d,\
- clHighlightText = 0x8000000e,\
- clBtnFace = 0x8000000f,\
- clBtnShadow = 0x80000010,\
- clGrayText = 0x80000011,\
- clBtnText = 0x80000012,\
- clInactiveCaptionText = 0x80000013,\
- clBtnHighlight = 0x80000014,\
- cl3DDkShadow = 0x80000015,\
- cl3DLight = 0x80000016,\
- clInfoText = 0x80000017,\
- clInfoBk = 0x80000018,\
- clNone = 0x1fffffff,\
- clAdapt= 0x01ffffff,\
- clPalIdx = 0x3000000,\
- clAlphaMat = 0x4000000,\
-/* for Menu.trackPopup (see winuser.h) */\
- tpmLeftButton      = 0x0000,\
- tpmRightButton     = 0x0002,\
- tpmLeftAlign       = 0x0000,\
- tpmCenterAlign     = 0x0004,\
- tpmRightAlign      = 0x0008,\
- tpmTopAlign        = 0x0000,\
- tpmVCenterAlign    = 0x0010,\
- tpmBottomAlign     = 0x0020,\
- tpmHorizontal      = 0x0000,\
- tpmVertical        = 0x0040,\
- tpmNoNotify        = 0x0080,\
- tpmReturnCmd       = 0x0100,\
- tpmRecurse         = 0x0001,\
- tpmHorPosAnimation = 0x0400,\
- tpmHorNegAnimation = 0x0800,\
- tpmVerPosAnimation = 0x1000,\
- tpmVerNegAnimation = 0x2000,\
- tpmNoAnimation     = 0x4000,\
-/* for Pad.showScrollBars (see Vcl/stdctrls.hpp :: enum TScrollStyle) */\
- ssNone       = 0,\
- ssHorizontal = 1,\
- ssVertical   = 2,\
- ssBoth       = 3,\
-/* virtual keycodes */\
- VK_LBUTTON =0x01,\
- VK_RBUTTON =0x02,\
- VK_CANCEL =0x03,\
- VK_MBUTTON =0x04,\
- VK_BACK =0x08,\
- VK_TAB =0x09,\
- VK_CLEAR =0x0C,\
- VK_RETURN =0x0D,\
- VK_SHIFT =0x10,\
- VK_CONTROL =0x11,\
- VK_MENU =0x12,\
- VK_PAUSE =0x13,\
- VK_CAPITAL =0x14,\
- VK_KANA =0x15,\
- VK_HANGEUL =0x15,\
- VK_HANGUL =0x15,\
- VK_JUNJA =0x17,\
- VK_FINAL =0x18,\
- VK_HANJA =0x19,\
- VK_KANJI =0x19,\
- VK_ESCAPE =0x1B,\
- VK_CONVERT =0x1C,\
- VK_NONCONVERT =0x1D,\
- VK_ACCEPT =0x1E,\
- VK_MODECHANGE =0x1F,\
- VK_SPACE =0x20,\
- VK_PRIOR =0x21,\
- VK_NEXT =0x22,\
- VK_END =0x23,\
- VK_HOME =0x24,\
- VK_LEFT =0x25,\
- VK_UP =0x26,\
- VK_RIGHT =0x27,\
- VK_DOWN =0x28,\
- VK_SELECT =0x29,\
- VK_PRINT =0x2A,\
- VK_EXECUTE =0x2B,\
- VK_SNAPSHOT =0x2C,\
- VK_INSERT =0x2D,\
- VK_DELETE =0x2E,\
- VK_HELP =0x2F,\
- VK_0 =0x30,\
- VK_1 =0x31,\
- VK_2 =0x32,\
- VK_3 =0x33,\
- VK_4 =0x34,\
- VK_5 =0x35,\
- VK_6 =0x36,\
- VK_7 =0x37,\
- VK_8 =0x38,\
- VK_9 =0x39,\
- VK_A =0x41,\
- VK_B =0x42,\
- VK_C =0x43,\
- VK_D =0x44,\
- VK_E =0x45,\
- VK_F =0x46,\
- VK_G =0x47,\
- VK_H =0x48,\
- VK_I =0x49,\
- VK_J =0x4A,\
- VK_K =0x4B,\
- VK_L =0x4C,\
- VK_M =0x4D,\
- VK_N =0x4E,\
- VK_O =0x4F,\
- VK_P =0x50,\
- VK_Q =0x51,\
- VK_R =0x52,\
- VK_S =0x53,\
- VK_T =0x54,\
- VK_U =0x55,\
- VK_V =0x56,\
- VK_W =0x57,\
- VK_X =0x58,\
- VK_Y =0x59,\
- VK_Z =0x5A,\
- VK_LWIN =0x5B,\
- VK_RWIN =0x5C,\
- VK_APPS =0x5D,\
- VK_NUMPAD0 =0x60,\
- VK_NUMPAD1 =0x61,\
- VK_NUMPAD2 =0x62,\
- VK_NUMPAD3 =0x63,\
- VK_NUMPAD4 =0x64,\
- VK_NUMPAD5 =0x65,\
- VK_NUMPAD6 =0x66,\
- VK_NUMPAD7 =0x67,\
- VK_NUMPAD8 =0x68,\
- VK_NUMPAD9 =0x69,\
- VK_MULTIPLY =0x6A,\
- VK_ADD =0x6B,\
- VK_SEPARATOR =0x6C,\
- VK_SUBTRACT =0x6D,\
- VK_DECIMAL =0x6E,\
- VK_DIVIDE =0x6F,\
- VK_F1 =0x70,\
- VK_F2 =0x71,\
- VK_F3 =0x72,\
- VK_F4 =0x73,\
- VK_F5 =0x74,\
- VK_F6 =0x75,\
- VK_F7 =0x76,\
- VK_F8 =0x77,\
- VK_F9 =0x78,\
- VK_F10 =0x79,\
- VK_F11 =0x7A,\
- VK_F12 =0x7B,\
- VK_F13 =0x7C,\
- VK_F14 =0x7D,\
- VK_F15 =0x7E,\
- VK_F16 =0x7F,\
- VK_F17 =0x80,\
- VK_F18 =0x81,\
- VK_F19 =0x82,\
- VK_F20 =0x83,\
- VK_F21 =0x84,\
- VK_F22 =0x85,\
- VK_F23 =0x86,\
- VK_F24 =0x87,\
- VK_NUMLOCK =0x90,\
- VK_SCROLL =0x91,\
- VK_LSHIFT =0xA0,\
- VK_RSHIFT =0xA1,\
- VK_LCONTROL =0xA2,\
- VK_RCONTROL =0xA3,\
- VK_LMENU =0xA4,\
- VK_RMENU =0xA5,\
-/* VK_PADXXXX are KIRIKIRI specific */\
- VK_PADLEFT =0x1B5,\
- VK_PADUP =0x1B6,\
- VK_PADRIGHT =0x1B7,\
- VK_PADDOWN =0x1B8,\
- VK_PAD1 =0x1C0,\
- VK_PAD2 =0x1C1,\
- VK_PAD3 =0x1C2,\
- VK_PAD4 =0x1C3,\
- VK_PAD5 =0x1C4,\
- VK_PAD6 =0x1C5,\
- VK_PAD7 =0x1C6,\
- VK_PAD8 =0x1C7,\
- VK_PAD9 =0x1C8,\
- VK_PAD10 =0x1C9,\
- VK_PADANY = 0x1DF,\
- VK_PROCESSKEY =0xE5,\
- VK_ATTN =0xF6,\
- VK_CRSEL =0xF7,\
- VK_EXSEL =0xF8,\
- VK_EREOF =0xF9,\
- VK_PLAY =0xFA,\
- VK_ZOOM =0xFB,\
- VK_NONAME =0xFC,\
- VK_PA1 =0xFD,\
- VK_OEM_CLEAR =0xFE,\
- frFreeType=0,\
- frGDI=1,\
-/* graphic cache system */\
- gcsAuto=-1,\
-/* image 'mode' tag (mainly is generated by image format converter) constants */\
- imageTagLayerType = %[\
-opaque		:%[type:ltOpaque			],\
-rect		:%[type:ltOpaque			],\
-alpha		:%[type:ltAlpha				],\
-transparent	:%[type:ltAlpha				],\
-addalpha	:%[type:ltAddAlpha			],\
-add			:%[type:ltAdditive			],\
-sub			:%[type:ltSubtractive		],\
-mul			:%[type:ltMultiplicative	],\
-dodge		:%[type:ltDodge				],\
-darken		:%[type:ltDarken			],\
-lighten		:%[type:ltLighten			],\
-screen		:%[type:ltScreen			],\
-psnormal	:%[type:ltPsNormal			],\
-psadd		:%[type:ltPsAdditive		],\
-pssub		:%[type:ltPsSubtractive		],\
-psmul		:%[type:ltPsMultiplicative	],\
-psscreen	:%[type:ltPsScreen			],\
-psoverlay	:%[type:ltPsOverlay			],\
-pshlight	:%[type:ltPsHardLight		],\
-psslight	:%[type:ltPsSoftLight		],\
-psdodge		:%[type:ltPsColorDodge		],\
-psdodge5	:%[type:ltPsColorDodge5		],\
-psburn		:%[type:ltPsColorBurn		],\
-pslighten	:%[type:ltPsLighten			],\
-psdarken	:%[type:ltPsDarken			],\
-psdiff		:%[type:ltPsDifference		],\
-psdiff5		:%[type:ltPsDifference5		],\
-psexcl		:%[type:ltPsExclusion		],\
-],\
-/* draw thread num */\
- dtnAuto=0\
-;");
+	TJS_N("const")
+	TJS_N("")
+	TJS_N("/* constants */")
+	TJS_N(" /* tTVPBorderStyle */ bsNone=0,  bsSingle=1,  bsSizeable=2,  bsDialog=3,  bsToolWindow=4,  bsSizeToolWin=5,")
+	TJS_N(" /* tTVPUpdateType */ utNormal=0,  utEntire =1,")
+	TJS_N(" /* tTVPMouseButton */  mbLeft=0,  mbRight=1,  mbMiddle=2, mbX1=3, mbX2=4,")
+	TJS_N(" /* tTVPMouseCursorState */ mcsVisible=0, mcsTempHidden=1, mcsHidden=2,")
+	TJS_N(" /* tTVPImeMode */ imDisable=0, imClose=1, imOpen=2, imDontCare=3, imSAlpha=4, imAlpha=5, imHira=6, imSKata=7, imKata=8, imChinese=9, imSHanguel=10, imHanguel=11,")
+	TJS_N(" /* Set of shift state */  ssShift=(1<<0),  ssAlt=(1<<1),  ssCtrl=(1<<2),  ssLeft=(1<<3),  ssRight=(1<<4),  ssMiddle=(1<<5),  ssDouble =(1<<6),  ssRepeat = (1<<7), ssX1 = (1<<8), ssX2 = (1<<9), ")
+	TJS_N(" /* TVP_FSF_???? */ fsfFixedPitch=1, fsfSameCharSet=2, fsfNoVertical=4, ")
+	TJS_N("	fsfTrueTypeOnly=8, fsfUseFontFace=0x100, fsfIgnoreSymbol=0x10,")
+	TJS_N(" /* tTVPLayerType */ ltBinder=0, ltCoverRect=1, ltOpaque=1, ltTransparent=2, ltAlpha=2, ltAdditive=3, ltSubtractive=4, ltMultiplicative=5, ltEffect=6, ltFilter=7, ltDodge=8, ltDarken=9, ltLighten=10, ltScreen=11, ltAddAlpha = 12,")
+	TJS_N("	ltPsNormal = 13, ltPsAdditive = 14, ltPsSubtractive = 15, ltPsMultiplicative = 16, ltPsScreen = 17, ltPsOverlay = 18, ltPsHardLight = 19, ltPsSoftLight = 20, ltPsColorDodge = 21, ltPsColorDodge5 = 22, ltPsColorBurn = 23, ltPsLighten = 24, ltPsDarken = 25, ltPsDifference = 26, ltPsDifference5 = 27, ltPsExclusion = 28, ")
+	TJS_N(" /* tTVPBlendOperationMode */ omPsNormal = ltPsNormal,omPsAdditive = ltPsAdditive,omPsSubtractive = ltPsSubtractive,omPsMultiplicative = ltPsMultiplicative,omPsScreen = ltPsScreen,omPsOverlay = ltPsOverlay,omPsHardLight = ltPsHardLight,omPsSoftLight = ltPsSoftLight,omPsColorDodge = ltPsColorDodge,omPsColorDodge5 = ltPsColorDodge5,omPsColorBurn = ltPsColorBurn,omPsLighten = ltPsLighten,omPsDarken = ltPsDarken,omPsDifference = ltPsDifference,omPsDifference5 = ltPsDifference5,omPsExclusion = ltPsExclusion, ")
+	TJS_N("	omAdditive=ltAdditive, omSubtractive=ltSubtractive, omMultiplicative=ltMultiplicative, omDodge=ltDodge, omDarken=ltDarken, omLighten=ltLighten, omScreen=ltScreen, omAddAlpha=ltAddAlpha, omOpaque=ltOpaque, omAlpha=ltAlpha, omAuto = 128,")
+	TJS_N(" /* tTVPDrawFace */ dfBoth=0, dfAlpha = dfBoth, dfAddAlpha = 4, dfMain=1, dfOpaque = dfMain, dfMask=2, dfProvince=3, dfAuto=128,")
+	TJS_N(" /* tTVPHitType */ htMask=0, htProvince=1,")
+	TJS_N(" /* tTVPScrollTransFrom */ sttLeft=0, sttTop=1, sttRight=2, sttBottom=3,")
+	TJS_N(" /* tTVPScrollTransStay */ ststNoStay=0, ststStayDest=1, ststStaySrc=2, ")
+	TJS_N(" /* tTVPKAGDebugLevel */ tkdlNone=0, tkdlSimple=1, tkdlVerbose=2, ")
+	TJS_N(" /* tTVPAsyncTriggerMode */	atmNormal=0, atmExclusive=1, atmAtIdle=2, ")
+	TJS_N(" /* tTVPBBStretchType */ stNearest=0, stFastLinear=1, stLinear=2, stCubic=3, stSemiFastLinear = 4, stFastCubic = 5, stLanczos2 = 6, stFastLanczos2 = 7, stLanczos3 = 8, stFastLanczos3 = 9, stSpline16 = 10, stFastSpline16 = 11, stSpline36 = 12, stFastSpline36 = 13, stAreaAvg = 14, stFastAreaAvg = 15, stGaussian = 16, stFastGaussian = 17, stBlackmanSinc = 18, stFastBlackmanSinc = 19, stRefNoClip = 0x10000,")
+	TJS_N(" /* tTVPClipboardFormat */ cbfText = 1,")
+	TJS_N(" /* TVP_COMPACT_LEVEL_???? */ clIdle = 5, clDeactivate = 10, clMinimize = 15, clAll = 100,")
+	TJS_N(" /* tTVPVideoOverlayMode Add: T.Imoto */ vomOverlay=0, vomLayer=1, vomMixer=2, vomMFEVR=3,")
+	TJS_N(" /* tTVPPeriodEventReason */ perLoop = 0, perPeriod = 1, perPrepare = 2, perSegLoop = 3,")
+	TJS_N(" /* tTVPSoundGlobalFocusMode */ sgfmNeverMute = 0, sgfmMuteOnMinimize = 1, sgfmMuteOnDeactivate = 2,")
+	TJS_N(" /* tTVPTouchDevice */ tdNone=0, tdIntegratedTouch=0x01, tdExternalTouch=0x02, tdIntegratedPen=0x04, tdExternalPen=0x08, tdMultiInput=0x40, tdDigitizerReady=0x80,")
+	TJS_N("    tdMouse=0x0100, tdMouseWheel=0x0200,")
+	TJS_N(" /* Display Orientation */ oriUnknown=0, oriPortrait=1, oriLandscape=2,")
+	TJS_N("")
+	TJS_N("/* file attributes */")
+	TJS_N(" faReadOnly=0x01, faHidden=0x02, faSysFile=0x04, faVolumeID=0x08, faDirectory=0x10, faArchive=0x20, faAnyFile=0x3f,")
+	TJS_N("")
+	TJS_N("/* mouse cursor constants */")
+	TJS_N(" crDefault = 0x0,")
+	TJS_N(" crNone = -1,")
+	TJS_N(" crArrow = -2,")
+	TJS_N(" crCross = -3,")
+	TJS_N(" crIBeam = -4,")
+	TJS_N(" crSize = -5,")
+	TJS_N(" crSizeNESW = -6,")
+	TJS_N(" crSizeNS = -7,")
+	TJS_N(" crSizeNWSE = -8,")
+	TJS_N(" crSizeWE = -9,")
+	TJS_N(" crUpArrow = -10,")
+	TJS_N(" crHourGlass = -11,")
+	TJS_N(" crDrag = -12,")
+	TJS_N(" crNoDrop = -13,")
+	TJS_N(" crHSplit = -14,")
+	TJS_N(" crVSplit = -15,")
+	TJS_N(" crMultiDrag = -16,")
+	TJS_N(" crSQLWait = -17,")
+	TJS_N(" crNo = -18,")
+	TJS_N(" crAppStart = -19,")
+	TJS_N(" crHelp = -20,")
+	TJS_N(" crHandPoint = -21,")
+	TJS_N(" crSizeAll = -22,")
+	TJS_N(" crHBeam = 1,")
+	TJS_N("")
+	TJS_N("/* color constants */")
+	TJS_N(" clScrollBar = 0x80000000,")
+	TJS_N(" clBackground = 0x80000001,")
+	TJS_N(" clActiveCaption = 0x80000002,")
+	TJS_N(" clInactiveCaption = 0x80000003,")
+	TJS_N(" clMenu = 0x80000004,")
+	TJS_N(" clWindow = 0x80000005,")
+	TJS_N(" clWindowFrame = 0x80000006,")
+	TJS_N(" clMenuText = 0x80000007,")
+	TJS_N(" clWindowText = 0x80000008,")
+	TJS_N(" clCaptionText = 0x80000009,")
+	TJS_N(" clActiveBorder = 0x8000000a,")
+	TJS_N(" clInactiveBorder = 0x8000000b,")
+	TJS_N(" clAppWorkSpace = 0x8000000c,")
+	TJS_N(" clHighlight = 0x8000000d,")
+	TJS_N(" clHighlightText = 0x8000000e,")
+	TJS_N(" clBtnFace = 0x8000000f,")
+	TJS_N(" clBtnShadow = 0x80000010,")
+	TJS_N(" clGrayText = 0x80000011,")
+	TJS_N(" clBtnText = 0x80000012,")
+	TJS_N(" clInactiveCaptionText = 0x80000013,")
+	TJS_N(" clBtnHighlight = 0x80000014,")
+	TJS_N(" cl3DDkShadow = 0x80000015,")
+	TJS_N(" cl3DLight = 0x80000016,")
+	TJS_N(" clInfoText = 0x80000017,")
+	TJS_N(" clInfoBk = 0x80000018,")
+	TJS_N(" clNone = 0x1fffffff,")
+	TJS_N(" clAdapt= 0x01ffffff,")
+	TJS_N(" clPalIdx = 0x3000000,")
+	TJS_N(" clAlphaMat = 0x4000000,")
+	TJS_N("")
+	TJS_N("/* for Menu.trackPopup (see winuser.h) */")
+	TJS_N(" tpmLeftButton      = 0x0000,")
+	TJS_N(" tpmRightButton     = 0x0002,")
+	TJS_N(" tpmLeftAlign       = 0x0000,")
+	TJS_N(" tpmCenterAlign     = 0x0004,")
+	TJS_N(" tpmRightAlign      = 0x0008,")
+	TJS_N(" tpmTopAlign        = 0x0000,")
+	TJS_N(" tpmVCenterAlign    = 0x0010,")
+	TJS_N(" tpmBottomAlign     = 0x0020,")
+	TJS_N(" tpmHorizontal      = 0x0000,")
+	TJS_N(" tpmVertical        = 0x0040,")
+	TJS_N(" tpmNoNotify        = 0x0080,")
+	TJS_N(" tpmReturnCmd       = 0x0100,")
+	TJS_N(" tpmRecurse         = 0x0001,")
+	TJS_N(" tpmHorPosAnimation = 0x0400,")
+	TJS_N(" tpmHorNegAnimation = 0x0800,")
+	TJS_N(" tpmVerPosAnimation = 0x1000,")
+	TJS_N(" tpmVerNegAnimation = 0x2000,")
+	TJS_N(" tpmNoAnimation     = 0x4000,")
+	TJS_N("")
+	TJS_N("/* for Pad.showScrollBars (see Vcl/stdctrls.hpp :: enum TScrollStyle) */")
+	TJS_N(" ssNone       = 0,")
+	TJS_N(" ssHorizontal = 1,")
+	TJS_N(" ssVertical   = 2,")
+	TJS_N(" ssBoth       = 3,")
+	TJS_N("")
+	TJS_N("/* virtual keycodes */")
+	TJS_N(" VK_LBUTTON =0x01,")
+	TJS_N(" VK_RBUTTON =0x02,")
+	TJS_N(" VK_CANCEL =0x03,")
+	TJS_N(" VK_MBUTTON =0x04,")
+	TJS_N(" VK_XBUTTON1 =0x05,")
+	TJS_N(" VK_XBUTTON2 =0x06,")
+	TJS_N(" VK_BACK =0x08,")
+	TJS_N(" VK_TAB =0x09,")
+	TJS_N(" VK_CLEAR =0x0C,")
+	TJS_N(" VK_RETURN =0x0D,")
+	TJS_N(" VK_SHIFT =0x10,")
+	TJS_N(" VK_CONTROL =0x11,")
+	TJS_N(" VK_MENU =0x12,")
+	TJS_N(" VK_PAUSE =0x13,")
+	TJS_N(" VK_CAPITAL =0x14,")
+	TJS_N(" VK_KANA =0x15,")
+	TJS_N(" VK_HANGEUL =0x15,")
+	TJS_N(" VK_HANGUL =0x15,")
+	TJS_N(" VK_JUNJA =0x17,")
+	TJS_N(" VK_FINAL =0x18,")
+	TJS_N(" VK_HANJA =0x19,")
+	TJS_N(" VK_KANJI =0x19,")
+	TJS_N(" VK_ESCAPE =0x1B,")
+	TJS_N(" VK_CONVERT =0x1C,")
+	TJS_N(" VK_NONCONVERT =0x1D,")
+	TJS_N(" VK_ACCEPT =0x1E,")
+	TJS_N(" VK_MODECHANGE =0x1F,")
+	TJS_N(" VK_SPACE =0x20,")
+	TJS_N(" VK_PRIOR =0x21,")
+	TJS_N(" VK_NEXT =0x22,")
+	TJS_N(" VK_END =0x23,")
+	TJS_N(" VK_HOME =0x24,")
+	TJS_N(" VK_LEFT =0x25,")
+	TJS_N(" VK_UP =0x26,")
+	TJS_N(" VK_RIGHT =0x27,")
+	TJS_N(" VK_DOWN =0x28,")
+	TJS_N(" VK_SELECT =0x29,")
+	TJS_N(" VK_PRINT =0x2A,")
+	TJS_N(" VK_EXECUTE =0x2B,")
+	TJS_N(" VK_SNAPSHOT =0x2C,")
+	TJS_N(" VK_INSERT =0x2D,")
+	TJS_N(" VK_DELETE =0x2E,")
+	TJS_N(" VK_HELP =0x2F,")
+	TJS_N(" VK_0 =0x30,")
+	TJS_N(" VK_1 =0x31,")
+	TJS_N(" VK_2 =0x32,")
+	TJS_N(" VK_3 =0x33,")
+	TJS_N(" VK_4 =0x34,")
+	TJS_N(" VK_5 =0x35,")
+	TJS_N(" VK_6 =0x36,")
+	TJS_N(" VK_7 =0x37,")
+	TJS_N(" VK_8 =0x38,")
+	TJS_N(" VK_9 =0x39,")
+	TJS_N(" VK_A =0x41,")
+	TJS_N(" VK_B =0x42,")
+	TJS_N(" VK_C =0x43,")
+	TJS_N(" VK_D =0x44,")
+	TJS_N(" VK_E =0x45,")
+	TJS_N(" VK_F =0x46,")
+	TJS_N(" VK_G =0x47,")
+	TJS_N(" VK_H =0x48,")
+	TJS_N(" VK_I =0x49,")
+	TJS_N(" VK_J =0x4A,")
+	TJS_N(" VK_K =0x4B,")
+	TJS_N(" VK_L =0x4C,")
+	TJS_N(" VK_M =0x4D,")
+	TJS_N(" VK_N =0x4E,")
+	TJS_N(" VK_O =0x4F,")
+	TJS_N(" VK_P =0x50,")
+	TJS_N(" VK_Q =0x51,")
+	TJS_N(" VK_R =0x52,")
+	TJS_N(" VK_S =0x53,")
+	TJS_N(" VK_T =0x54,")
+	TJS_N(" VK_U =0x55,")
+	TJS_N(" VK_V =0x56,")
+	TJS_N(" VK_W =0x57,")
+	TJS_N(" VK_X =0x58,")
+	TJS_N(" VK_Y =0x59,")
+	TJS_N(" VK_Z =0x5A,")
+	TJS_N(" VK_LWIN =0x5B,")
+	TJS_N(" VK_RWIN =0x5C,")
+	TJS_N(" VK_APPS =0x5D,")
+	TJS_N(" VK_SLEEP =0x5F,")
+	TJS_N(" VK_NUMPAD0 =0x60,")
+	TJS_N(" VK_NUMPAD1 =0x61,")
+	TJS_N(" VK_NUMPAD2 =0x62,")
+	TJS_N(" VK_NUMPAD3 =0x63,")
+	TJS_N(" VK_NUMPAD4 =0x64,")
+	TJS_N(" VK_NUMPAD5 =0x65,")
+	TJS_N(" VK_NUMPAD6 =0x66,")
+	TJS_N(" VK_NUMPAD7 =0x67,")
+	TJS_N(" VK_NUMPAD8 =0x68,")
+	TJS_N(" VK_NUMPAD9 =0x69,")
+	TJS_N(" VK_MULTIPLY =0x6A,")
+	TJS_N(" VK_ADD =0x6B,")
+	TJS_N(" VK_SEPARATOR =0x6C,")
+	TJS_N(" VK_SUBTRACT =0x6D,")
+	TJS_N(" VK_DECIMAL =0x6E,")
+	TJS_N(" VK_DIVIDE =0x6F,")
+	TJS_N(" VK_F1 =0x70,")
+	TJS_N(" VK_F2 =0x71,")
+	TJS_N(" VK_F3 =0x72,")
+	TJS_N(" VK_F4 =0x73,")
+	TJS_N(" VK_F5 =0x74,")
+	TJS_N(" VK_F6 =0x75,")
+	TJS_N(" VK_F7 =0x76,")
+	TJS_N(" VK_F8 =0x77,")
+	TJS_N(" VK_F9 =0x78,")
+	TJS_N(" VK_F10 =0x79,")
+	TJS_N(" VK_F11 =0x7A,")
+	TJS_N(" VK_F12 =0x7B,")
+	TJS_N(" VK_F13 =0x7C,")
+	TJS_N(" VK_F14 =0x7D,")
+	TJS_N(" VK_F15 =0x7E,")
+	TJS_N(" VK_F16 =0x7F,")
+	TJS_N(" VK_F17 =0x80,")
+	TJS_N(" VK_F18 =0x81,")
+	TJS_N(" VK_F19 =0x82,")
+	TJS_N(" VK_F20 =0x83,")
+	TJS_N(" VK_F21 =0x84,")
+	TJS_N(" VK_F22 =0x85,")
+	TJS_N(" VK_F23 =0x86,")
+	TJS_N(" VK_F24 =0x87,")
+	TJS_N(" VK_NUMLOCK =0x90,")
+	TJS_N(" VK_SCROLL =0x91,")
+	TJS_N(" VK_LSHIFT =0xA0,")
+	TJS_N(" VK_RSHIFT =0xA1,")
+	TJS_N(" VK_LCONTROL =0xA2,")
+	TJS_N(" VK_RCONTROL =0xA3,")
+	TJS_N(" VK_LMENU =0xA4,")
+	TJS_N(" VK_RMENU =0xA5,")
+	TJS_N(" VK_BROWSER_BACK =0xA6,")
+	TJS_N(" VK_BROWSER_FORWARD =0xA7,")
+	TJS_N(" VK_BROWSER_REFRESH =0xA8,")
+	TJS_N(" VK_BROWSER_STOP =0xA9,")
+	TJS_N(" VK_BROWSER_SEARCH =0xAA,")
+	TJS_N(" VK_BROWSER_FAVORITES =0xAB,")
+	TJS_N(" VK_BROWSER_HOME =0xAC,")
+	TJS_N(" VK_VOLUME_MUTE =0xAD,")
+	TJS_N(" VK_VOLUME_DOWN =0xAE,")
+	TJS_N(" VK_VOLUME_UP =0xAF,")
+	TJS_N(" VK_MEDIA_NEXT_TRACK =0xB0,")
+	TJS_N(" VK_MEDIA_PREV_TRACK =0xB1,")
+	TJS_N(" VK_MEDIA_STOP =0xB2,")
+	TJS_N(" VK_MEDIA_PLAY_PAUSE =0xB3,")
+	TJS_N(" VK_LAUNCH_MAIL =0xB4,")
+	TJS_N(" VK_LAUNCH_MEDIA_SELECT =0xB5,")
+	TJS_N(" VK_LAUNCH_APP1 =0xB6,")
+	TJS_N(" VK_LAUNCH_APP2 =0xB7,")
+	TJS_N(" VK_OEM_1 =0xBA,")
+	TJS_N(" VK_OEM_PLUS =0xBB,")
+	TJS_N(" VK_OEM_COMMA =0xBC,")
+	TJS_N(" VK_OEM_MINUS =0xBD,")
+	TJS_N(" VK_OEM_PERIOD =0xBE,")
+	TJS_N(" VK_OEM_2 =0xBF,")
+	TJS_N(" VK_OEM_3 =0xC0,")
+	TJS_N(" VK_OEM_4 =0xDB,")
+	TJS_N(" VK_OEM_5 =0xDC,")
+	TJS_N(" VK_OEM_6 =0xDD,")
+	TJS_N(" VK_OEM_7 =0xDE,")
+	TJS_N(" VK_OEM_8 =0xDF,")
+	TJS_N(" VK_OEM_102 =0xE2,")
+	TJS_N(" VK_ICO_HELP =0xE3,")
+	TJS_N(" VK_ICO_00 =0xE4,")
+	TJS_N(" VK_PROCESSKEY =0xE5,")
+	TJS_N(" VK_ICO_CLEAR =0xE6,")
+	TJS_N(" VK_PACKET =0xE7,")
+	TJS_N(" VK_OEM_RESET =0xE9,")
+	TJS_N(" VK_OEM_JUMP =0xEA,")
+	TJS_N(" VK_OEM_PA1 =0xEB,")
+	TJS_N(" VK_OEM_PA2 =0xEC,")
+	TJS_N(" VK_OEM_PA3 =0xED,")
+	TJS_N(" VK_OEM_WSCTRL =0xEE,")
+	TJS_N(" VK_OEM_CUSEL =0xEF,")
+	TJS_N(" VK_OEM_ATTN =0xF0,")
+	TJS_N(" VK_OEM_FINISH =0xF1,")
+	TJS_N(" VK_OEM_COPY =0xF2,")
+	TJS_N(" VK_OEM_AUTO =0xF3,")
+	TJS_N(" VK_OEM_ENLW =0xF4,")
+	TJS_N(" VK_OEM_BACKTAB =0xF5,")
+	TJS_N(" VK_ATTN =0xF6,")
+	TJS_N(" VK_CRSEL =0xF7,")
+	TJS_N(" VK_EXSEL =0xF8,")
+	TJS_N(" VK_EREOF =0xF9,")
+	TJS_N(" VK_PLAY =0xFA,")
+	TJS_N(" VK_ZOOM =0xFB,")
+	TJS_N(" VK_NONAME =0xFC,")
+	TJS_N(" VK_PA1 =0xFD,")
+	TJS_N(" VK_OEM_CLEAR =0xFE,")
+	TJS_N("/* VK_PADXXXX are KIRIKIRI specific */")
+	TJS_N(" VK_PADLEFT =0x1B5,")
+	TJS_N(" VK_PADUP =0x1B6,")
+	TJS_N(" VK_PADRIGHT =0x1B7,")
+	TJS_N(" VK_PADDOWN =0x1B8,")
+	TJS_N(" VK_PAD1 =0x1C0,")
+	TJS_N(" VK_PAD2 =0x1C1,")
+	TJS_N(" VK_PAD3 =0x1C2,")
+	TJS_N(" VK_PAD4 =0x1C3,")
+	TJS_N(" VK_PAD5 =0x1C4,")
+	TJS_N(" VK_PAD6 =0x1C5,")
+	TJS_N(" VK_PAD7 =0x1C6,")
+	TJS_N(" VK_PAD8 =0x1C7,")
+	TJS_N(" VK_PAD9 =0x1C8,")
+	TJS_N(" VK_PAD10 =0x1C9,")
+	TJS_N(" VK_PADANY = 0x1DF,")
+	TJS_N(" VK_PADCENTER = 0x1B9,")
+	TJS_N(" VK_PAD_A = 0x1D0,")
+	TJS_N(" VK_PAD_B = 0x1D1,")
+	TJS_N(" VK_PAD_C = 0x1D2,")
+	TJS_N(" VK_PAD_X = 0x1D3,")
+	TJS_N(" VK_PAD_Y = 0x1D4,")
+	TJS_N(" VK_PAD_Z = 0x1D5,")
+	TJS_N(" VK_PAD_L1 = 0x1D6,")
+	TJS_N(" VK_PAD_R1 = 0x1D7,")
+	TJS_N(" VK_PAD_L2 = 0x1D8,")
+	TJS_N(" VK_PAD_R2 = 0x1D9,")
+	TJS_N(" VK_PAD_THUMBL = 0x1DA,")
+	TJS_N(" VK_PAD_THUMBR = 0x1DB,")
+	TJS_N(" VK_PAD_START = 0x1DC,")
+	TJS_N(" VK_PAD_SELECT = 0x1DD,")
+	TJS_N(" VK_PAD_MODE = 0x1DE,")
+	TJS_N(" VK_MEDIA_REWIND = 0x1F0,")
+	TJS_N(" VK_MEDIA_FAST_FORWARD = 0x1F1,")
+	TJS_N(" VK_BACK_SCREEN = 0x200,")
+	TJS_N("")
+	TJS_N(" frFreeType=0,")
+	TJS_N(" frGDI=1,")
+	TJS_N("")
+	TJS_N("/* graphic cache system */")
+	TJS_N(" gcsAuto=-1,")
+	TJS_N("")
+	TJS_N("/* Canvas blend mode */")
+	TJS_N(" bmDisable = 0,")
+	TJS_N(" bmOpaque = 1,")
+	TJS_N(" bmAlpha = 2,")
+	TJS_N(" bmAdd = 3,")
+	TJS_N(" bmAddWithAlpha = 4,")
+	TJS_N("")
+	TJS_N("/* Textrue color format */")
+	TJS_N(" tcfRGBA = 0,")
+	TJS_N(" tcfAlpha = 1,")
+	TJS_N("")
+	TJS_N("/* Pointer type */")
+	TJS_N(" ptUnknown = 0,")
+	TJS_N(" ptMouseLeft = 1,")
+	TJS_N(" ptMouseRight = 2,")
+	TJS_N(" ptMouseMiddle = 3,")
+	TJS_N(" ptMouseX1 = 4,")
+	TJS_N(" ptMouseX2 = 5,")
+	TJS_N(" ptMouse = 6,")
+	TJS_N(" ptTouch = 7,")
+	TJS_N(" ptPen = 8,")
+	TJS_N("")
+	TJS_N("/* image 'mode' tag (mainly is generated by image format converter) constants */")
+	TJS_N(" imageTagLayerType = %[")
+	TJS_N("opaque		:%[type:ltOpaque			],")
+	TJS_N("rect		:%[type:ltOpaque			],")
+	TJS_N("alpha		:%[type:ltAlpha				],")
+	TJS_N("transparent	:%[type:ltAlpha				],")
+	TJS_N("addalpha	:%[type:ltAddAlpha			],")
+	TJS_N("add			:%[type:ltAdditive			],")
+	TJS_N("sub			:%[type:ltSubtractive		],")
+	TJS_N("mul			:%[type:ltMultiplicative	],")
+	TJS_N("dodge		:%[type:ltDodge				],")
+	TJS_N("darken		:%[type:ltDarken			],")
+	TJS_N("lighten		:%[type:ltLighten			],")
+	TJS_N("screen		:%[type:ltScreen			],")
+	TJS_N("psnormal	:%[type:ltPsNormal			],")
+	TJS_N("psadd		:%[type:ltPsAdditive		],")
+	TJS_N("pssub		:%[type:ltPsSubtractive		],")
+	TJS_N("psmul		:%[type:ltPsMultiplicative	],")
+	TJS_N("psscreen	:%[type:ltPsScreen			],")
+	TJS_N("psoverlay	:%[type:ltPsOverlay			],")
+	TJS_N("pshlight	:%[type:ltPsHardLight		],")
+	TJS_N("psslight	:%[type:ltPsSoftLight		],")
+	TJS_N("psdodge		:%[type:ltPsColorDodge		],")
+	TJS_N("psdodge5	:%[type:ltPsColorDodge5		],")
+	TJS_N("psburn		:%[type:ltPsColorBurn		],")
+	TJS_N("pslighten	:%[type:ltPsLighten			],")
+	TJS_N("psdarken	:%[type:ltPsDarken			],")
+	TJS_N("psdiff		:%[type:ltPsDifference		],")
+	TJS_N("psdiff5		:%[type:ltPsDifference5		],")
+	TJS_N("psexcl		:%[type:ltPsExclusion		],")
+	TJS_N("],")
+	TJS_N("")
+	TJS_N("/* draw thread num */")
+	TJS_N(" dtnAuto=0")
+	TJS_N(";")
+	;
 //---------------------------------------------------------------------------
 ttstr TVPGetSystemInitializeScript()
 {
