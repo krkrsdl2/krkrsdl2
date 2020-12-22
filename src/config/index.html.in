@@ -413,7 +413,7 @@
       var spinnerElement = document.getElementById('spinner');
 
       var Module = {
-        arguments: ['/data/data.xp3'],
+        arguments: ['/data.xp3'],
         preRun: [],
         postRun: [],
         print: (function() {
@@ -714,7 +714,7 @@ function intArrayToString(array) {
               }
               xhr.onload = function(event) {
                   if (xhr.status == 200 || xhr.status == 304 || xhr.status == 206 || (xhr.status == 0 && xhr.response)) {
-                      FS.writeFile('/data/data.xp3', new Uint8Array(xhr.response), {
+                      FS.writeFile('data.xp3', new Uint8Array(xhr.response), {
                           canOwn: true
                       });
                       if (Module['setStatus']) Module['setStatus']('');
@@ -727,8 +727,6 @@ function intArrayToString(array) {
                       if (Module['setStatus']) Module['setStatus']('Project download error!');
                   }
               };
-              FS.mkdir('/data');
-              FS.chdir('/data');
               xhr.send(null);
               FS.mkdir('/savedata');
               FS.mount(IDBFS, {}, '/savedata');
