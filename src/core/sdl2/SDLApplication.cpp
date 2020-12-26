@@ -567,8 +567,12 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 		window_flags |= SDL_WINDOW_OPENGL;
 	}
 
+#ifdef SDL_HINT_TOUCH_MOUSE_EVENTS
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
+#endif
+#ifdef SDL_HINT_MOUSE_TOUCH_EVENTS
 	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
+#endif
 
 	window = SDL_CreateWindow("krkrsdl2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, window_flags);
 	if (window == nullptr)
