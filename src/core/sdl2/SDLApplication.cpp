@@ -433,6 +433,8 @@ protected:
 	tjs_int file_drop_array_count;
 	TVPSDLBitmapCompletion * bitmap_completion;
 	tTVPOpenGLScreen * open_gl_screen;
+	int last_mouse_x;
+	int last_mouse_y;
 
 public:
 	TVPWindowLayer(tTJSNI_Window *w);
@@ -523,6 +525,8 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 	attention_point_rect.h = 0;
 	file_drop_array = nullptr;
 	file_drop_array_count = 0;
+	last_mouse_x = 0;
+	last_mouse_y = 0;
 	_nextWindow = nullptr;
 	_prevWindow = _lastWindowLayer;
 	_lastWindowLayer = this;
@@ -792,7 +796,8 @@ void TVPWindowLayer::RestoreMouseCursor() {
 	}
 }
 void TVPWindowLayer::GetCursorPos(tjs_int &x, tjs_int &y) {
-	SDL_GetMouseState(&x, &y);
+	x = last_mouse_x;
+	y = last_mouse_y;
 }
 void TVPWindowLayer::SetCursorPos(tjs_int x, tjs_int y) {
 	RestoreMouseCursor();
@@ -1430,7 +1435,9 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 			switch (event.type) { 
 				case SDL_MOUSEMOTION: {
 					RestoreMouseCursor();
-					TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, event.motion.x, event.motion.y, s));
+					last_mouse_x = event.motion.x;
+					last_mouse_y = event.motion.y;
+					TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, s));
 					return;
 				}
 				case SDL_MOUSEBUTTONDOWN:
@@ -1462,13 +1469,15 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 							break;
 					}
 					if (hasbtn) {
+						last_mouse_x = event.button.x;
+						last_mouse_y = event.button.y;
 						switch (event.type) {
 							case SDL_MOUSEBUTTONDOWN:
-								TVPPostInputEvent(new tTVPOnMouseDownInputEvent(TJSNativeInstance, event.button.x, event.button.y, btn, s));
+								TVPPostInputEvent(new tTVPOnMouseDownInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, btn, s));
 								break;
 							case SDL_MOUSEBUTTONUP:
-								TVPPostInputEvent(new tTVPOnClickInputEvent(TJSNativeInstance, event.button.x, event.button.y));
-								TVPPostInputEvent(new tTVPOnMouseUpInputEvent(TJSNativeInstance, event.button.x, event.button.y, btn, s));
+								TVPPostInputEvent(new tTVPOnClickInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y));
+								TVPPostInputEvent(new tTVPOnMouseUpInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, btn, s));
 								break;
 						}
 					}
@@ -1657,9 +1666,7 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 					return;
 				}
 				case SDL_MOUSEWHEEL: {
-					int x, y;
-					SDL_GetMouseState(&x, &y);
-					TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(TJSNativeInstance, event.wheel.x, event.wheel.y, x, y));
+					TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(TJSNativeInstance, event.wheel.x, event.wheel.y, last_mouse_x, last_mouse_y));
 					return;
 				}
 				case SDL_DROPBEGIN: {
