@@ -1475,6 +1475,7 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 					if (hasbtn) {
 						last_mouse_x = event.button.x;
 						last_mouse_y = event.button.y;
+						TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, s));
 						switch (event.type) {
 							case SDL_MOUSEBUTTONDOWN:
 								TVPPostInputEvent(new tTVPOnMouseDownInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, btn, s));
