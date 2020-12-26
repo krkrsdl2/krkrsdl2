@@ -1442,11 +1442,21 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 					last_mouse_x = event.motion.x;
 					last_mouse_y = event.motion.y;
 					TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, s));
+					if (event.motion.which == SDL_TOUCH_MOUSEID)
+					{
+						TVPPostInputEvent(new tTVPOnMouseDownInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, tTVPMouseButton::mbLeft, s));
+						TVPPostInputEvent(new tTVPOnClickInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y));
+						TVPPostInputEvent(new tTVPOnMouseUpInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, tTVPMouseButton::mbLeft, s));
+					}
 					return;
 				}
 				case SDL_MOUSEBUTTONDOWN:
 				case SDL_MOUSEBUTTONUP: {
 					if (SDL_IsTextInputActive() && ime_composition != nullptr)
+					{
+						return;
+					}
+					if (event.button.which == SDL_TOUCH_MOUSEID)
 					{
 						return;
 					}
