@@ -8,6 +8,7 @@ on:
       - "**.hpp"
       - "**.build"
       - "**.in"
+      - "**.yml"
   pull_request:
     paths:
       - "**.c"
@@ -16,6 +17,7 @@ on:
       - "**.hpp"
       - "**.build"
       - "**.in"
+      - "**.yml"
 
 jobs:
   build-web:
@@ -23,6 +25,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: textbook/git-checkout-submodule-action@master
+      - run: sudo apt-get update
+      - run: sudo apt-get upgrade
       - run: sudo apt-get install build-essential libsdl2-dev git
       - uses: numworks/setup-emscripten@v1
         with:
@@ -45,6 +49,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: textbook/git-checkout-submodule-action@master
+      - run: sudo apt-get update
+      - run: sudo apt-get upgrade
       - run: sudo apt-get install build-essential libsdl2-dev
       - uses: actions/setup-python@v1
         with:
