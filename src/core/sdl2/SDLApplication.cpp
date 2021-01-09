@@ -1165,6 +1165,14 @@ void TVPWindowLayer::TickBeat() {
 			rect.h = bitmap_completion->update_rect.get_height();
 			if (texture && surface)
 			{
+				if ((rect.w + rect.x) > surface->w)
+				{
+					rect.w = surface->w;
+				}
+				if ((rect.h + rect.y) > surface->h)
+				{
+					rect.h = surface->h;
+				}
 				SDL_UpdateTexture(texture, &rect, surface->pixels, surface->pitch);
 				SDL_RenderCopy(renderer, texture, &rect, &rect);
 			}
