@@ -1,0 +1,6 @@
+external/kri18n/main.cpp
+external/kri18n/i18n/Entry.cpp
+external/kri18n/i18n/I18nUtils.cpp
+external/kri18n/i18n/MO.cpp
+external/kri18n/i18n/plural-exp.c
+external/kri18n/i18n/plural.c
