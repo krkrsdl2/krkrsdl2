@@ -675,7 +675,7 @@ function intArrayToString(array) {
               }
 
               var xhr = new XMLHttpRequest();
-              xhr.open('GET', url, true);
+              xhr.open('GET', url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime(), true);
               xhr.responseType = 'arraybuffer';
               xhr.onprogress = function(event) {
                   var size = -1;
