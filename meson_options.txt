@@ -182,6 +182,13 @@ option(
 )
 
 option(
+	'enable_canvas',
+	type: 'boolean',
+	value: false,
+	description: 'Enable Canvas interface. Requires OpenGL ES or ANGLE at runtime.'
+)
+
+option(
 	'enable_coretext_rasterizer',
 	type: 'boolean',
 	value: false,

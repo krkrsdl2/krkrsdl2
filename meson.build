@@ -152,8 +152,6 @@ if target_machine.system() == 'emscripten'
 		'-s', 'FORCE_FILESYSTEM=1',
 		'-s', 'ASSERTIONS=0',
 		'-s', 'STACK_OVERFLOW_CHECK=0',
-		'-s', 'MAX_WEBGL_VERSION=2',
-		'-s', 'FULL_ES3=1',
 		'-lidbfs.js',
 		'--bind',
 		'--no-heap-copy',
@@ -233,6 +231,39 @@ if get_option('enable_wavemixer_openal') == true
 		openal_dep = dependency('openal', method: 'pkg-config')
 		krkrsdl2_dependson += [
 			openal_dep
+		]
+	endif
+endif
+
+if get_option('enable_canvas') == true
+	krkrsdl2_cppflags += [
+		'-DKRKRZ_ENABLE_CANVAS',
+	]
+	krkrsdl2_src += [
+		'external/krkrz/visual/opengl/CanvasIntf.cpp',
+		'external/krkrz/visual/opengl/DrawCycleTimer.cpp',
+		'external/krkrz/visual/opengl/GLFrameBufferObject.cpp',
+		'external/krkrz/visual/opengl/GLShaderUtil.cpp',
+		'external/krkrz/visual/opengl/Matrix32Intf.cpp',
+		'external/krkrz/visual/opengl/Matrix44Intf.cpp',
+		'external/krkrz/visual/opengl/OffscreenIntf.cpp',
+		'external/krkrz/visual/opengl/ShaderProgramIntf.cpp',
+		'external/krkrz/visual/opengl/TextureIntf.cpp',
+		'external/krkrz/visual/opengl/VertexBinderIntf.cpp',
+		'external/krkrz/visual/opengl/VertexBufferIntf.cpp',
+		'src/core/visual/sdl2/opengl/OpenGLPlatformSDL2.cpp',
+		'src/core/visual/sdl2/opengl/OpenGLScreenSDL2.cpp',
+	]
+	krkrsdl2_includes += [
+		'src/core/visual/sdl2/opengl',
+		'external/krkrz/visual/opengl',
+		'external/krkrz/external/angle/include',
+		'external/krkrz/external/glm',
+	]
+	if target_machine.system() == 'emscripten'
+		krkrsdl2_ldflags += [
+			'-s', 'MAX_WEBGL_VERSION=2',
+			'-s', 'FULL_ES3=1',
 		]
 	endif
 endif

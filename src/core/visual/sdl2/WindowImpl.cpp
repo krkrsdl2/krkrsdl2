@@ -1112,7 +1112,9 @@ tTJSNI_Window::Construct(tjs_int numparams, tTJSVariant **param,
 #endif
 	}
 	Form = TVPCreateAndAddWindow(this);
+#ifdef KRKRZ_ENABLE_CANVAS
 	CreateCanvas( tjs_obj );
+#endif
 	return TJS_S_OK;
 }
 //---------------------------------------------------------------------------

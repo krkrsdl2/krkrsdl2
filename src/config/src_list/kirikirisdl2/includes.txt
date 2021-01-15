@@ -5,7 +5,6 @@ src/core/sdl2
 src/core/sound/sdl2
 src/core/utils/sdl2
 src/core/visual/sdl2
-src/core/visual/sdl2/opengl
 external
 external/krkrz
 external/krkrz/base
@@ -18,12 +17,9 @@ external/krkrz/utils
 external/krkrz/visual
 external/krkrz/visual/IA32
 external/krkrz/visual/gl
-external/krkrz/visual/opengl
 external/krkrz/external
-external/krkrz/external/angle/include
 external/krkrz/external/freetype/include
 external/krkrz/external/freetype/src
-external/krkrz/external/glm
 external/krkrz/external/libjpeg-turbo
 external/krkrz/external/libogg/include
 external/krkrz/external/lpng

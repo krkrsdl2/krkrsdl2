@@ -121,17 +121,6 @@ external/krkrz/visual/gl/tlg_sse2.cpp
 external/krkrz/visual/gl/univtrans_sse2.cpp
 external/krkrz/visual/gl/x86simdutil.cpp
 external/krkrz/visual/gl/x86simdutilAVX2.cpp
-external/krkrz/visual/opengl/CanvasIntf.cpp
-external/krkrz/visual/opengl/DrawCycleTimer.cpp
-external/krkrz/visual/opengl/GLFrameBufferObject.cpp
-external/krkrz/visual/opengl/GLShaderUtil.cpp
-external/krkrz/visual/opengl/Matrix32Intf.cpp
-external/krkrz/visual/opengl/Matrix44Intf.cpp
-external/krkrz/visual/opengl/OffscreenIntf.cpp
-external/krkrz/visual/opengl/ShaderProgramIntf.cpp
-external/krkrz/visual/opengl/TextureIntf.cpp
-external/krkrz/visual/opengl/VertexBinderIntf.cpp
-external/krkrz/visual/opengl/VertexBufferIntf.cpp
 external/krkrz/visual/tvpgl.c
 external/krkrz/external/freetype/src/autofit/autofit.c
 external/krkrz/external/freetype/src/base/ftbase.c
@@ -471,5 +460,3 @@ src/core/visual/sdl2/LayerImpl.cpp
 src/core/visual/sdl2/TVPScreen.cpp
 src/core/visual/sdl2/VideoOvlImpl.cpp
 src/core/visual/sdl2/WindowImpl.cpp
-src/core/visual/sdl2/opengl/OpenGLPlatformSDL2.cpp
-src/core/visual/sdl2/opengl/OpenGLScreenSDL2.cpp

@@ -17,7 +17,9 @@
 #include "StorageIntf.h"
 #include "SDLBitmapCompletion.h"
 #include "ScriptMgnIntf.h"
+#ifdef KRKRZ_ENABLE_CANVAS
 #include "OpenGLScreenSDL2.h"
+#endif
 #include <SDL.h>
 
 #include <unistd.h>
@@ -418,7 +420,9 @@ protected:
 	SDL_Texture* texture;
 	SDL_Renderer* renderer;
 	SDL_Surface* surface;
+#ifdef KRKRZ_ENABLE_CANVAS
 	SDL_GLContext context;
+#endif
 	tTJSNI_Window *TJSNativeInstance;
 	bool hasDrawn = false;
 	bool needs_graphic_update = false;
@@ -432,7 +436,9 @@ protected:
 	iTJSDispatch2 * file_drop_array;
 	tjs_int file_drop_array_count;
 	TVPSDLBitmapCompletion * bitmap_completion;
+#ifdef KRKRZ_ENABLE_CANVAS
 	tTVPOpenGLScreen * open_gl_screen;
+#endif
 	int last_mouse_x;
 	int last_mouse_y;
 
@@ -483,10 +489,12 @@ public:
 	virtual void SetTop(tjs_int t) override;
 	virtual void SetPosition(tjs_int l, tjs_int t) override;
 	virtual TVPSDLBitmapCompletion *GetTVPSDLBitmapCompletion() override;
+#ifdef KRKRZ_ENABLE_CANVAS
 	virtual void SetOpenGLScreen(tTVPOpenGLScreen *s) override;
 	virtual void SetSwapInterval(int interval) override;
 	virtual void GetDrawableSize(tjs_int &w, tjs_int &h) override;
 	virtual void Swap() override;
+#endif
 	virtual void Show() override;
 	virtual void TickBeat() override;
 	virtual void InvalidateClose() override;
@@ -554,6 +562,7 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 
 	Uint32 window_flags = 0;
 
+#ifdef KRKRZ_ENABLE_CANVAS
 	if (TVPIsEnableDrawDevice() == false)
 	{
 		SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
@@ -566,6 +575,7 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 		window_flags |= SDL_WINDOW_OPENGL;
 	}
+#endif
 
 #ifdef SDL_HINT_TOUCH_MOUSE_EVENTS
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
@@ -579,6 +589,7 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 	{
 		TVPThrowExceptionMessage(TJS_W("Cannot create SDL window: %1"), ttstr(SDL_GetError()));
 	}
+#ifdef KRKRZ_ENABLE_CANVAS
 	context = nullptr;
 	if (TVPIsEnableDrawDevice() == false)
 	{
@@ -589,11 +600,16 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 		}
 		SDL_GL_MakeCurrent(window, context);
 	}
+#endif
 	renderer = nullptr;
 	bitmap_completion = nullptr;
+#ifdef KRKRZ_ENABLE_CANVAS
 	open_gl_screen = nullptr;
+#endif
 	surface = nullptr;
+#ifdef KRKRZ_ENABLE_CANVAS
 	if (TVPIsEnableDrawDevice() == true)
+#endif
 	{
 #if !defined(__EMSCRIPTEN__) || (defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__))
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -622,7 +638,6 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 			SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0x00, 0xFF );
 		}
 	}
-
 }
 
 TVPWindowLayer::~TVPWindowLayer() {
@@ -637,11 +652,13 @@ TVPWindowLayer::~TVPWindowLayer() {
 		delete bitmap_completion;
 		bitmap_completion = NULL;
 	}
+#ifdef KRKRZ_ENABLE_CANVAS
 	if (context)
 	{
 		SDL_GL_DeleteContext(context);
 		context = NULL;
 	}
+#endif
 	if (texture && surface)
 	{
 		SDL_DestroyTexture(texture);
@@ -1125,6 +1142,7 @@ TVPSDLBitmapCompletion *TVPWindowLayer::GetTVPSDLBitmapCompletion() {
 	needs_graphic_update = true;
 	return bitmap_completion;
 }
+#ifdef KRKRZ_ENABLE_CANVAS
 void TVPWindowLayer::SetOpenGLScreen(tTVPOpenGLScreen *s) {
 	open_gl_screen = s;
 }
@@ -1151,6 +1169,7 @@ void TVPWindowLayer::Swap() {
 		SDL_GL_SwapWindow(window);
 	}
 }
+#endif
 void TVPWindowLayer::Show() {
 }
 void TVPWindowLayer::TickBeat() {
@@ -1190,11 +1209,13 @@ void TVPWindowLayer::TickBeat() {
 		}
 		needs_graphic_update = false;
 	}
+#ifdef KRKRZ_ENABLE_CANVAS
 	else if (context && TJSNativeInstance)
 	{
 		TJSNativeInstance->StartDrawing();
 		hasDrawn = true;
 	}
+#endif
 }
 void TVPWindowLayer::InvalidateClose() {
 	TJSNativeInstance = NULL;
