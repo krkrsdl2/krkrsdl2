@@ -21,6 +21,9 @@
 #include "OpenGLScreenSDL2.h"
 #endif
 #include <SDL.h>
+#ifdef USE_SDL_MAIN
+#include <SDL_main.h>
+#endif
 
 #include <unistd.h>
 
@@ -43,6 +46,12 @@ static bool process_events();
 
 static void refresh_controllers()
 {
+#ifdef __IPHONEOS__
+	// For some reason, invalid pointers get set
+	{
+		return;
+	}
+#endif
 	if (SDL_WasInit(SDL_INIT_GAMECONTROLLER) == 0)
 	{
 		SDL_Init(SDL_INIT_GAMECONTROLLER);
@@ -1471,21 +1480,11 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 					last_mouse_x = event.motion.x;
 					last_mouse_y = event.motion.y;
 					TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, s));
-					if (event.motion.which == SDL_TOUCH_MOUSEID)
-					{
-						TVPPostInputEvent(new tTVPOnMouseDownInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, tTVPMouseButton::mbLeft, s));
-						TVPPostInputEvent(new tTVPOnClickInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y));
-						TVPPostInputEvent(new tTVPOnMouseUpInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, tTVPMouseButton::mbLeft, s));
-					}
 					return;
 				}
 				case SDL_MOUSEBUTTONDOWN:
 				case SDL_MOUSEBUTTONUP: {
 					if (SDL_IsTextInputActive() && ime_composition != nullptr)
-					{
-						return;
-					}
-					if (event.button.which == SDL_TOUCH_MOUSEID)
 					{
 						return;
 					}
@@ -1868,7 +1867,9 @@ static bool process_events()
 #endif
 }
 
-#ifdef USE_SDL_MAIN
+#if defined(USE_SDL_MAIN) && defined(__IPHONEOS__)
+static int SDL_actual_main(int argc, char **argv)
+#elif defined(USE_SDL_MAIN)
 int SDL_main(int argc, char **argv)
 #else
 int main(int argc, char **argv)
@@ -1929,6 +1930,13 @@ int main(int argc, char **argv)
 #endif
 	return 0;
 }
+
+#if defined(USE_SDL_MAIN) && defined(__IPHONEOS__)
+int SDL_main(int argc, char **argv)
+{
+	return SDL_UIKitRunApp(argc, argv, SDL_actual_main);
+}
+#endif
 
 bool TVPGetKeyMouseAsyncState(tjs_uint keycode, bool getcurrent)
 {

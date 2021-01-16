@@ -189,6 +189,13 @@ option(
 )
 
 option(
+	'enable_case_insensitivity',
+	type: 'boolean',
+	value: true,
+	description: 'Enable case insensitivity. May malfunction if directories in the path are not listable.'
+)
+
+option(
 	'enable_coretext_rasterizer',
 	type: 'boolean',
 	value: false,

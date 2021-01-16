@@ -268,6 +268,12 @@ if get_option('enable_canvas') == true
 	endif
 endif
 
+if get_option('enable_case_insensitivity') == true
+	krkrsdl2_cppflags += [
+		'-DKRKRZ_CASE_INSENSITIVE',
+	]
+endif
+
 krkrsdl2_override_options = []
 if target_machine.system() == 'emscripten'
 	krkrsdl2_override_options += [

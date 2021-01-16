@@ -24,6 +24,7 @@
 #include <intrin.h>
 #endif
 #include "MsgIntf.h"
+#include <SDL_platform.h>
 
 #if 0
 #ifdef _MSC_VER
@@ -392,7 +393,7 @@ void TVPDetectCPU()
 	TVPCPUType |= TVP_CPU_HAS_AES;
 #endif
 
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) && !defined(__IPHONEOS__)
 #ifndef DISABLE_USE_VECTOR_CODEPATHS
 	TVPCPUType |= TVP_CPU_HAS_MMX;
 	TVPCPUType |= TVP_CPU_HAS_3DN;
