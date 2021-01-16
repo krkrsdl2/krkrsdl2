@@ -69,6 +69,7 @@ void TJS_INTF_METHOD tTVPFileMedia::NormalizeDomainName(ttstr &name)
 {
 	// normalize domain name
 	// make all characters small
+#ifdef KRKRZ_CASE_INSENSITIVE
 	tjs_char *p = name.Independ();
 	while(*p)
 	{
@@ -76,6 +77,7 @@ void TJS_INTF_METHOD tTVPFileMedia::NormalizeDomainName(ttstr &name)
 			*p += TJS_W('a') - TJS_W('A');
 		p++;
 	}
+#endif
 }
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPFileMedia::NormalizePathName(ttstr &name)
@@ -83,6 +85,7 @@ void TJS_INTF_METHOD tTVPFileMedia::NormalizePathName(ttstr &name)
 	// 非Windows環境では大文字小文字区別する実装の方が良いか？
 	// normalize path name
 	// make all characters small
+#ifdef KRKRZ_CASE_INSENSITIVE
 	tjs_char *p = name.Independ();
 	while(*p)
 	{
@@ -90,6 +93,7 @@ void TJS_INTF_METHOD tTVPFileMedia::NormalizePathName(ttstr &name)
 			*p += TJS_W('a') - TJS_W('A');
 		p++;
 	}
+#endif
 }
 //---------------------------------------------------------------------------
 bool TJS_INTF_METHOD tTVPFileMedia::CheckExistentStorage(const ttstr &name)
@@ -132,6 +136,7 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 					tjs_int count = TVPUtf8ToWideCharString( entry->d_name, fname );
 					fname[count] = TJS_W('\0');
 					ttstr file(fname);
+#ifdef KRKRZ_CASE_INSENSITIVE
 					tjs_char *p = file.Independ();
 					while(*p) {
 						// make all characters small
@@ -139,6 +144,7 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 							*p += TJS_W('a') - TJS_W('A');
 						p++;
 					}
+#endif
 					lister->Add(file);
 				}
 				// entry->d_type == DT_UNKNOWN
@@ -217,24 +223,32 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 				{
 					nnewname += direntp->d_name;
 					found = true;
-					is_directory = direntp->d_type == DT_DIR;
+					break;
 				}
 			}
 			closedir(dirp);
 			if (!found)
 			{
-			    nnewname += ptr_cur;
-				break;
-			}
-			if (!is_directory)
-			{
+				nnewname += ptr_cur;
 				break;
 			}
 		}
 		else
 		{
-			nnewname += ptr_cur;
-			break;
+			if (errno == EPERM || errno == EACCES) // Most likely inside the iOS sandbox, so just append the name
+			{
+				nnewname += nwalker;
+			}
+			else if (errno == ENOENT || errno == ENOTDIR)
+			{
+				nnewname += ptr_cur;
+				break;
+			}
+			else // Other error, probably can't access anyway
+			{
+				name.Clear();
+				return;
+			}
 		}
 	}
 

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(krkrsdl2)
 
-if((NOT ANDROID) AND (NOT (CMAKE_SYSTEM_NAME STREQUAL "iOS")))
+if((NOT ANDROID) AND (NOT IOS))
 message(WARN "The CMake file is provided for platforms that do not support Meson well. Please try the Meson build system first.")
 endif()
 
@@ -31,6 +31,10 @@ option(BUILTIN_PLUGIN_ENABLE_LAYEREXRASTER "Enable the layerExRaster plugin." ON
 option(BUILTIN_PLUGIN_ENABLE_LINEPARSER "Enable the lineParser plugin." ON)
 option(BUILTIN_PLUGIN_ENABLE_SHRINKCOPY "Enable the shrinkCopy plugin." ON)
 option(BUILTIN_PLUGIN_ENABLE_FFTGRAPH "Enable the fftgraph plugin." ON)
+
+if(IOS AND (NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET))
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.0)
+endif()
 
 file(STRINGS src/config/src_list/kirikirisdl2/sources.txt KIRIKIRISDL2_SRC)
 file(STRINGS src/config/src_list/kirikirisdl2/includes.txt KIRIKIRISDL2_INCLUDES)
@@ -170,9 +174,8 @@ list(APPEND KRKRSDL2_LDFLAGS
 )
 endif()
 
-if((ANDROID) OR (CMAKE_SYSTEM_NAME STREQUAL "iOS"))
-set(SDL_STATIC ON)
-set(SDL_SHARED OFF)
+if(ANDROID OR IOS)
+set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
 add_subdirectory(external/SDL)
 find_library(SDL2 NAMES SDL2-static SDL2main)
 list(APPEND KRKRSDL2_LIBS
@@ -194,7 +197,7 @@ endif()
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-if(${ANDROID})
+if(ANDROID)
 set(KRKRSDL2_NAME main)
 add_library(${KRKRSDL2_NAME} SHARED)
 else()
@@ -206,5 +209,17 @@ target_compile_options(${KRKRSDL2_NAME} PUBLIC $<$<COMPILE_LANGUAGE:C>:${KRKRSDL
 target_compile_options(${KRKRSDL2_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${KRKRSDL2_CXXFLAGS}>)
 target_include_directories(${KRKRSDL2_NAME} PUBLIC ${KRKRSDL2_INCLUDES})
 target_link_libraries(${KRKRSDL2_NAME} ${KRKRSDL2_LIBS})
+
+if(IOS)
+set_target_properties(${KRKRSDL2_NAME} PROPERTIES
+	BUNDLE TRUE
+	MACOSX_BUNDLE TRUE
+	MACOSX_BUNDLE_GUI_IDENTIFIER pw.uyjulian.krkrsdl2
+)
+set_property(SOURCE data
+	PROPERTY MACOSX_PACKAGE_LOCATION "Resources/"
+)
+target_sources(${KRKRSDL2_NAME} PRIVATE data)
+endif()
 
 
