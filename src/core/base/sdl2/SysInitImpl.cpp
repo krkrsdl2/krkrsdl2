@@ -1267,56 +1267,136 @@ void TVPBeforeSystemInit()
 		TVPAddImportantLog( TVPFormatMessage(TVPInfoSelectedProjectDirectory, TVPProjectDir) );
 	}
 #endif
-	size_t size = 512;
-	char *buf = (char *)malloc(size);
-	char *dir = getcwd(buf, size);
-	while (dir == nullptr && buf != nullptr && errno == ERANGE)
+	// First, try SDL_GetBasePath
+	char *base_path = SDL_GetBasePath();
+	std::string base_path_utf8;
+	if (base_path)
 	{
-		size *= 2;
-		buf = (char *)realloc(buf, size);
-		dir = getcwd(buf, size);
+		base_path_utf8 = base_path;
+		SDL_free(base_path);
 	}
-	std::string dir_utf8;
-	if (dir)
+	tjs_string base_path_utf16;
+	TVPUtf8ToUtf16(base_path_utf16, base_path_utf8);
+	if (base_path_utf16.length() != 0 && !TVPGetCommandLine(TJS_W("-nosel")))
 	{
-		dir_utf8 = dir;
-	}
-	tjs_string dir_utf16;
-	TVPUtf8ToUtf16( dir_utf16, dir_utf8 );
-	if (buf)
-	{
-		free(buf);
-	}
-	if (dir_utf16.length() != 0)
-	{
-		if (!TVPGetCommandLine(TJS_W("-nosel")))
+		tjs_string found_dir;
+		if (found_dir.length() == 0)
 		{
+			tjs_string tmp_search_dir = base_path_utf16 + TJS_W("content-data");
+			if (TVPCheckExistentLocalFolder(tmp_search_dir))
+			{
+				found_dir = tmp_search_dir + TJS_W("/");
+			}
+			else if (TVPCheckExistentLocalFile(tmp_search_dir))
+			{
+				found_dir = tmp_search_dir + TJS_W(">");
+			}
+		}
+		if (found_dir.length() == 0)
+		{
+			tjs_string tmp_search_dir = base_path_utf16 + TJS_W("data.xp3");
+			if (TVPCheckExistentLocalFolder(tmp_search_dir))
+			{
+				found_dir = tmp_search_dir + TJS_W("/");
+			}
+			else if (TVPCheckExistentLocalFile(tmp_search_dir))
+			{
+				found_dir = tmp_search_dir + TJS_W(">");
+			}
+		}
+		if (found_dir.length() == 0)
+		{
+			tjs_string tmp_search_dir = base_path_utf16 + TJS_W("data.exe");
+			if (TVPCheckExistentLocalFolder(tmp_search_dir))
+			{
+				found_dir = tmp_search_dir + TJS_W("/");
+			}
+			else if (TVPCheckExistentLocalFile(tmp_search_dir))
+			{
+				found_dir = tmp_search_dir + TJS_W(">");
+			}
+		}
+		if (found_dir.length() == 0)
+		{
+			tjs_string tmp_search_dir = base_path_utf16 + TJS_W("data");
+			if (TVPCheckExistentLocalFolder(tmp_search_dir))
+			{
+				found_dir = tmp_search_dir + TJS_W("/");
+			}
+			else if (TVPCheckExistentLocalFile(tmp_search_dir))
+			{
+				found_dir = tmp_search_dir + TJS_W(">");
+			}
+		}
+		if (found_dir.length() != 0)
+		{
+			TVPProjectDir = TVPNormalizeStorageName(found_dir);
+			TVPSetCurrentDirectory(TVPProjectDir);
+			TVPNativeProjectDir = found_dir;
 			TVPProjectDirSelected = true;
 		}
-		dir_utf16 += TJS_W("/");
-		TVPProjectDir = TVPNormalizeStorageName(dir_utf16);
-		TVPSetCurrentDirectory(TVPProjectDir);
-		TVPNativeProjectDir = dir_utf16;
 	}
-	for(tjs_int i = 1; i<_argc; i++)
+	
+	if (!TVPProjectDirSelected)
 	{
-		if(_wargv[i][0] == TJS_W('-') && _wargv[i][1] == TJS_W('-') && _wargv[i][2] == 0)
-			break;
-
-		if(_wargv[i][0] != TJS_W('-'))
+		size_t size = 512;
+		char *buf = (char *)malloc(size);
+		char *dir = getcwd(buf, size);
+		while (dir == nullptr && buf != nullptr && errno == ERANGE)
 		{
-			ttstr dirbuf = _wargv[i];
-			if(TVPCheckExistentLocalFolder(dirbuf))
+			size *= 2;
+			buf = (char *)realloc(buf, size);
+			dir = getcwd(buf, size);
+		}
+		std::string dir_utf8;
+		if (dir)
+		{
+			dir_utf8 = dir;
+		}
+		tjs_string dir_utf16;
+		TVPUtf8ToUtf16( dir_utf16, dir_utf8 );
+		if (buf)
+		{
+			free(buf);
+		}
+		if (dir_utf16.length() != 0)
+		{
+			if (!TVPGetCommandLine(TJS_W("-nosel")))
 			{
-				dirbuf += "/";
+				TVPProjectDirSelected = true;
 			}
-			else if (TVPCheckExistentLocalFile(dirbuf))
-			{
-				dirbuf += ">";
-			}
-			TVPProjectDir = TVPNormalizeStorageName(dirbuf);
+			dir_utf16 += TJS_W("/");
+			TVPProjectDir = TVPNormalizeStorageName(dir_utf16);
 			TVPSetCurrentDirectory(TVPProjectDir);
-			TVPNativeProjectDir = dirbuf.AsStdString();
+			TVPNativeProjectDir = dir_utf16;
+		}
+		for (tjs_int i = 1; i < _argc; i += 1)
+		{
+			if (_wargv[i][0] == TJS_W('-') && _wargv[i][1] == TJS_W('-') && _wargv[i][2] == 0)
+			{
+				break;
+			}
+
+			if (_wargv[i][0] != TJS_W('-'))
+			{
+				ttstr dirbuf = _wargv[i];
+				if (TVPCheckExistentLocalFolder(dirbuf))
+				{
+					dirbuf += TJS_W("/");
+					TVPProjectDirSelected = true;
+				}
+				else if (TVPCheckExistentLocalFile(dirbuf))
+				{
+					dirbuf += TJS_W(">");
+					TVPProjectDirSelected = true;
+				}
+				if (TVPProjectDirSelected)
+				{
+					TVPProjectDir = TVPNormalizeStorageName(dirbuf);
+					TVPSetCurrentDirectory(TVPProjectDir);
+					TVPNativeProjectDir = dirbuf.AsStdString();
+				}
+			}
 		}
 	}
 
