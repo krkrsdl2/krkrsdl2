@@ -728,8 +728,9 @@ function intArrayToString(array) {
                   }
               };
               xhr.send(null);
-              FS.mkdir('/savedata');
-              FS.mount(IDBFS, {}, '/savedata');
+              FS.mkdir('/libsdl');
+              FS.mkdir('/libsdl/krkrsdl2');
+              FS.mount(IDBFS, {}, '/libsdl/krkrsdl2');
 
               FS.syncfs(true, function (err) {
                 Module['removeRunDependency']('savedata');

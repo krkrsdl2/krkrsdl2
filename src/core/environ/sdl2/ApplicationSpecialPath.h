@@ -7,6 +7,7 @@
 #endif
 #include "FilePathUtil.h"
 #include "StorageIntf.h"
+#include <SDL.h>
 
 class ApplicationSpecialPath {
 public:
@@ -59,6 +60,16 @@ public:
 	}
 	static tjs_string GetDataPathDirectory( tjs_string datapath, const tjs_string& exename ) {
 		if (datapath != TJS_W("")) return datapath;
+		char *pref_path = SDL_GetPrefPath(NULL, "krkrsdl2");
+		std::string pref_path_utf8;
+		if (pref_path)
+		{
+			pref_path_utf8 = pref_path;
+			SDL_free(pref_path);
+			tjs_string pref_path_utf16;
+			TVPUtf8ToUtf16(pref_path_utf16, pref_path_utf8);
+			return pref_path_utf16;
+		}
 		ttstr nativeDataPath = ttstr(TVPGetAppPath().AsStdString());
 #ifndef __EMSCRIPTEN__
 		if (!nativeDataPath.IsEmpty())
