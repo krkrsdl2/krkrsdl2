@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(krkrsdl2)
 
-if(NOT ANDROID)
+if((NOT ANDROID) AND (NOT (CMAKE_SYSTEM_NAME STREQUAL "iOS")))
 message(WARN "The CMake file is provided for platforms that do not support Meson well. Please try the Meson build system first.")
 endif()
 
@@ -170,11 +170,17 @@ list(APPEND KRKRSDL2_LDFLAGS
 )
 endif()
 
-if(${ANDROID})
+if((ANDROID) OR (CMAKE_SYSTEM_NAME STREQUAL "iOS"))
+set(SDL_STATIC ON)
+set(SDL_SHARED OFF)
 add_subdirectory(external/SDL)
-find_library(SDL2 SDL2)
+find_library(SDL2 NAMES SDL2-static SDL2main)
 list(APPEND KRKRSDL2_LIBS
-	SDL2
+	SDL2-static
+	SDL2main
+)
+list(APPEND KRKRSDL2_CXXFLAGS
+	-DUSE_SDL_MAIN
 )
 else()
 find_package(SDL2 REQUIRED)
@@ -200,4 +206,5 @@ target_compile_options(${KRKRSDL2_NAME} PUBLIC $<$<COMPILE_LANGUAGE:C>:${KRKRSDL
 target_compile_options(${KRKRSDL2_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${KRKRSDL2_CXXFLAGS}>)
 target_include_directories(${KRKRSDL2_NAME} PUBLIC ${KRKRSDL2_INCLUDES})
 target_link_libraries(${KRKRSDL2_NAME} ${KRKRSDL2_LIBS})
+
 

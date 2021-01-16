@@ -111,8 +111,11 @@ static MemoryLeaksDebugBreakPoint gMemoryLeaksDebugBreakPoint;
 #endif
 
 #include <unistd.h>
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#if TARGET_OS_MAC && !TARGET_OS_IPHONE
 #include <libproc.h>
+#endif
 #endif
 tjs_string ExePath() {
 #if 0
@@ -121,7 +124,7 @@ tjs_string ExePath() {
 	return tjs_string(szFull);
 #endif
 	static tjs_string exepath(TJS_W(""));
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(__APPLE__) && (TARGET_OS_MAC && !TARGET_OS_IPHONE)
 	if (exepath.empty())
 	{
 		char pathbuf[PROC_PIDPATHINFO_MAXSIZE];

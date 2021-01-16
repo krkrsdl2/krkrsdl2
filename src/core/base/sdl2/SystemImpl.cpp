@@ -313,6 +313,9 @@ tjs_int TVPGetOSBits()
 }
 //---------------------------------------------------------------------------
 
+#ifdef __APPLE__
+#include <TargetConditionals.h>
+#endif
 
 //---------------------------------------------------------------------------
 // TVPShellExecute
@@ -341,11 +344,13 @@ bool TVPShellExecute(const ttstr &target, const ttstr &param)
 #endif
 
 #if defined(__APPLE__)
+#if TARGET_OS_MAC && !TARGET_OS_IPHONE
 	auto cmd = TJS_W("open ") + target;
 	if (!param.IsEmpty()) {
 		cmd += TJS_W(" --args ") + param;
 	}
 	return system(cmd.AsNarrowStdString().c_str()) == 0;
+#endif
 #elif defined(__linux__) // TODO: support other *nix-platforms
 	auto cmd = TJS_W("xdg-open ") + target;
 	if (!param.IsEmpty()) {

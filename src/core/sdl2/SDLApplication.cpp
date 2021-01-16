@@ -1868,7 +1868,11 @@ static bool process_events()
 #endif
 }
 
+#ifdef USE_SDL_MAIN
+int SDL_main(int argc, char **argv)
+#else
 int main(int argc, char **argv)
+#endif
 {
 	_argc = argc;
 	_wargv = new tjs_char*[argc];
