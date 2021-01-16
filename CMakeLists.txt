@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.10)
 
 project(krkrsdl2)
 
+if(NOT ANDROID)
 message(WARN "The CMake file is provided for platforms that do not support Meson well. Please try the Meson build system first.")
+endif()
 
 option(BUILTIN_PLUGIN_ENABLE_KAGPARSER "Enable the KAGParser plugin." ON)
 option(BUILTIN_PLUGIN_ENABLE_EXTRANS "Enable the extrans plugin." ON)
@@ -162,25 +164,40 @@ list(APPEND KRKRSDL2_CXXFLAGS
 )
 endif()
 
-if(${LINUX})
+if(LINUX OR ANDROID)
 list(APPEND KRKRSDL2_LDFLAGS
 	-pthread
 )
 endif()
 
+if(${ANDROID})
+add_subdirectory(external/SDL)
+find_library(SDL2 SDL2)
+list(APPEND KRKRSDL2_LIBS
+	SDL2
+)
+else()
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
 list(APPEND KRKRSDL2_LIBS
 	${SDL2_LIBRARIES}
 )
+endif()
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-add_executable(krkrsdl2 ${KRKRSDL2_SRC})
-target_compile_options(krkrsdl2 PUBLIC $<$<COMPILE_LANGUAGE:C>:${KRKRSDL2_CFLAGS}>)
-target_compile_options(krkrsdl2 PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${KRKRSDL2_CXXFLAGS}>)
-target_include_directories(krkrsdl2 PUBLIC ${KRKRSDL2_INCLUDES})
-target_link_libraries(krkrsdl2 ${KRKRSDL2_LIBS})
+if(${ANDROID})
+set(KRKRSDL2_NAME main)
+add_library(${KRKRSDL2_NAME} SHARED)
+else()
+set(KRKRSDL2_NAME krkrsdl2)
+add_executable(${KRKRSDL2_NAME})
+endif()
+target_sources(${KRKRSDL2_NAME} PRIVATE ${KRKRSDL2_SRC})
+target_compile_options(${KRKRSDL2_NAME} PUBLIC $<$<COMPILE_LANGUAGE:C>:${KRKRSDL2_CFLAGS}>)
+target_compile_options(${KRKRSDL2_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${KRKRSDL2_CXXFLAGS}>)
+target_include_directories(${KRKRSDL2_NAME} PUBLIC ${KRKRSDL2_INCLUDES})
+target_link_libraries(${KRKRSDL2_NAME} ${KRKRSDL2_LIBS})
 

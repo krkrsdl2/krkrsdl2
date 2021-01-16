@@ -7,3 +7,5 @@ krkrsdl2
 build-*
 build_*
 build
+.externalNativeBuild
+.gradle

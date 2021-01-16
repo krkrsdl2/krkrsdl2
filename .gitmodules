@@ -85,3 +85,6 @@
 [submodule "external/meson_toolchains"]
 	path = external/meson_toolchains
 	url = ../meson_toolchains
+[submodule "external/SDL"]
+	path = external/SDL
+	url = https://github.com/SDL-mirror/SDL.git
