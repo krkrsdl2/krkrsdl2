@@ -31,6 +31,10 @@
 #include <emscripten.h>
 #endif
 
+#ifdef __IPHONEOS__
+#define KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
+#endif
+
 extern void TVPLoadMessage();
 
 class TVPWindowLayer;
@@ -569,6 +573,10 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 		refresh_controllers();
 	}
 
+	int new_window_x = SDL_WINDOWPOS_UNDEFINED;
+	int new_window_y = SDL_WINDOWPOS_UNDEFINED;
+	int new_window_w = 640;
+	int new_window_h = 480;
 	Uint32 window_flags = 0;
 
 #ifdef KRKRZ_ENABLE_CANVAS
@@ -593,7 +601,15 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 #endif
 
-	window = SDL_CreateWindow("krkrsdl2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, window_flags);
+#ifdef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
+	window_flags |= SDL_WINDOW_RESIZABLE;
+	window_flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+	window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	new_window_w = 0;
+	new_window_h = 0;
+#endif
+
+	window = SDL_CreateWindow("krkrsdl2", new_window_x, new_window_y, new_window_w, new_window_h, window_flags);
 	if (window == nullptr)
 	{
 		TVPThrowExceptionMessage(TJS_W("Cannot create SDL window: %1"), ttstr(SDL_GetError()));
@@ -826,12 +842,62 @@ void TVPWindowLayer::RestoreMouseCursor() {
 	}
 }
 void TVPWindowLayer::GetCursorPos(tjs_int &x, tjs_int &y) {
+	bool win_has_mouse_focus = window == SDL_GetMouseFocus();
+	if (win_has_mouse_focus && renderer)
+	{
+		tjs_int new_x = 0;
+		tjs_int new_y = 0;
+		SDL_GetMouseState(&new_x, &new_y);
+
+		float scale_x, scale_y;
+		SDL_Rect viewport;
+		int window_w, window_h;
+		int output_w, output_h;
+		SDL_RenderGetScale(renderer, &scale_x, &scale_y);
+		SDL_RenderGetViewport(renderer, &viewport);
+		SDL_GetWindowSize(window, &window_w, &window_h);
+		SDL_GetRendererOutputSize(renderer, &output_w, &output_h);
+		float dpi_scale_x = (float)window_w / output_w;
+		float dpi_scale_y = (float)window_h / output_h;
+		new_x -= (int)(viewport.x * dpi_scale_x);
+		new_y -= (int)(viewport.y * dpi_scale_y);
+		new_x = (int)(new_x / (scale_x * dpi_scale_x));
+		new_y = (int)(new_y / (scale_x * dpi_scale_y));
+		x = new_x;
+		y = new_y;
+		return;
+	}
+	else if (win_has_mouse_focus)
+	{
+		SDL_GetMouseState(&x, &y);
+		return;
+	}
 	x = last_mouse_x;
 	y = last_mouse_y;
 }
 void TVPWindowLayer::SetCursorPos(tjs_int x, tjs_int y) {
 	RestoreMouseCursor();
-	if (window)
+	if (renderer && window)
+	{
+		tjs_int new_x = x;
+		tjs_int new_y = y;
+		float scale_x, scale_y;
+		SDL_Rect viewport;
+		int window_w, window_h;
+		int output_w, output_h;
+		SDL_RenderGetScale(renderer, &scale_x, &scale_y);
+		SDL_RenderGetViewport(renderer, &viewport);
+		SDL_GetWindowSize(window, &window_w, &window_h);
+		SDL_GetRendererOutputSize(renderer, &output_w, &output_h);
+		float dpi_scale_x = (float)window_w / output_w;
+		float dpi_scale_y = (float)window_h / output_h;
+		new_x = (int)(new_x * (scale_x * dpi_scale_x));
+		new_y = (int)(new_y * (scale_x * dpi_scale_y));
+		new_x += (int)(viewport.x * dpi_scale_x);
+		new_y += (int)(viewport.y * dpi_scale_y);
+	    SDL_WarpMouseInWindow(window, new_x, new_y);
+	}
+	else if (window)
 	{
 		SDL_WarpMouseInWindow(window, x, y);
 	}
@@ -883,6 +949,7 @@ bool TVPWindowLayer::GetVisible() {
 void TVPWindowLayer::SetVisible(bool visible) {
 	if (window)
 	{
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 		if (visible)
 		{
 			SDL_ShowWindow(window);
@@ -891,6 +958,7 @@ void TVPWindowLayer::SetVisible(bool visible) {
 		{
 			SDL_HideWindow(window);
 		}
+#endif
 	}
 	if (visible)
 	{
@@ -906,27 +974,34 @@ void TVPWindowLayer::SetVisible(bool visible) {
 	}
 }
 void TVPWindowLayer::SetFullScreenMode(bool fullscreen) {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 	}
 	UpdateWindow(utNormal);
+#endif
 }
 bool TVPWindowLayer::GetFullScreenMode() {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		return SDL_GetWindowFlags(window) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP);
 	}
+#endif
 	return false;
 }
 void TVPWindowLayer::SetBorderStyle(tTVPBorderStyle bs) {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		SDL_SetWindowBordered(window, (bs == bsNone) ? SDL_FALSE : SDL_TRUE);
 		SDL_SetWindowResizable(window, (bs == bsSizeable || bs == bsSizeToolWin) ? SDL_TRUE : SDL_FALSE);
 	}
+#endif
 }
 tTVPBorderStyle TVPWindowLayer::GetBorderStyle() const {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		Uint32 flags = SDL_GetWindowFlags(window);
@@ -939,6 +1014,7 @@ tTVPBorderStyle TVPWindowLayer::GetBorderStyle() const {
 			return bsSizeable;
 		}
 	}
+#endif
 	return bsSingle;
 }
 tjs_string TVPWindowLayer::GetCaption() {
@@ -974,6 +1050,7 @@ void TVPWindowLayer::SetCaption(const tjs_string & v) {
 	}
 }
 void TVPWindowLayer::SetWidth(tjs_int w) {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		int h;
@@ -990,9 +1067,11 @@ void TVPWindowLayer::SetWidth(tjs_int w) {
 			bitmap_completion->surface = surface;
 		}
 	}
+#endif
 	UpdateWindow(utNormal);
 }
 void TVPWindowLayer::SetHeight(tjs_int h) {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		int w;
@@ -1009,9 +1088,11 @@ void TVPWindowLayer::SetHeight(tjs_int h) {
 			bitmap_completion->surface = surface;
 		}
 	}
+#endif
 	UpdateWindow(utNormal);
 }
 void TVPWindowLayer::SetSize(tjs_int w, tjs_int h) {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		SDL_SetWindowSize(window, w, h);
@@ -1026,33 +1107,55 @@ void TVPWindowLayer::SetSize(tjs_int w, tjs_int h) {
 			bitmap_completion->surface = surface;
 		}
 	}
+#endif
 	UpdateWindow(utNormal);
 }
 void TVPWindowLayer::GetSize(tjs_int &w, tjs_int &h) {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		SDL_GetWindowSize(window, &w, &h);
+		return;
 	}
-	else
+#endif
+	if (renderer)
 	{
-		w = 0;
-		h = 0;
+		SDL_RenderGetLogicalSize(renderer, &w, &h);
+		return;
 	}
+	w = 0;
+	h = 0;
 }
 tjs_int TVPWindowLayer::GetWidth() const {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		int w;
 		SDL_GetWindowSize(window, &w, NULL);
 		return w;
 	}
+#endif
+	if (renderer)
+	{
+		int w, h;
+		SDL_RenderGetLogicalSize(renderer, &w, &h);
+		return w;
+	}
 	return 0;
 }
 tjs_int TVPWindowLayer::GetHeight() const {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		int h;
 		SDL_GetWindowSize(window, NULL, &h);
+		return h;
+	}
+#endif
+	if (renderer)
+	{
+		int w, h;
+		SDL_RenderGetLogicalSize(renderer, &w, &h);
 		return h;
 	}
 	return 0;
@@ -1070,82 +1173,124 @@ void TVPWindowLayer::SetMaxHeight(tjs_int h) {
 	SetMaxSize(GetMaxWidth(), h);
 }
 void TVPWindowLayer::SetMinSize(tjs_int w, tjs_int h) {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		SDL_SetWindowMinimumSize(window, w, h);
 	}
+#endif
 }
 void TVPWindowLayer::SetMaxSize(tjs_int w, tjs_int h) {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		SDL_SetWindowMaximumSize(window, w, h);
 	}
+#endif
 }
 tjs_int TVPWindowLayer::GetMinWidth() {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		int w;
 		SDL_GetWindowMinimumSize(window, &w, nullptr);
 		return w;
 	}
+#endif
+	if (renderer)
+	{
+		int w, h;
+		SDL_RenderGetLogicalSize(renderer, &w, &h);
+		return w;
+	}
 	return 0;
 }
 tjs_int TVPWindowLayer::GetMaxWidth() {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		int w;
 		SDL_GetWindowMaximumSize(window, &w, nullptr);
 		return w;
 	}
+#endif
+	if (renderer)
+	{
+		int w, h;
+		SDL_RenderGetLogicalSize(renderer, &w, &h);
+		return w;
+	}
 	return 0;
 }
 tjs_int TVPWindowLayer::GetMinHeight() {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		int h;
 		SDL_GetWindowMinimumSize(window, &h, nullptr);
 		return h;
 	}
+#endif
+	if (renderer)
+	{
+		int w, h;
+		SDL_RenderGetLogicalSize(renderer, &w, &h);
+		return h;
+	}
 	return 0;
 }
 tjs_int TVPWindowLayer::GetMaxHeight() {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		int h;
 		SDL_GetWindowMaximumSize(window, &h, nullptr);
 		return h;
 	}
+#endif
+	if (renderer)
+	{
+		int w, h;
+		SDL_RenderGetLogicalSize(renderer, &w, &h);
+		return h;
+	}
 	return 0;
 }
 tjs_int TVPWindowLayer::GetLeft() {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		int x;
 		SDL_GetWindowPosition(window, &x, nullptr);
 		return x;
 	}
+#endif
 	return 0;
 }
 void TVPWindowLayer::SetLeft(tjs_int l) {
 	SetPosition(l, GetTop());
 }
 tjs_int TVPWindowLayer::GetTop() {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		int y;
 		SDL_GetWindowPosition(window, nullptr, &y);
 		return y;
 	}
+#endif
 	return 0;
 }
 void TVPWindowLayer::SetTop(tjs_int t) {
 	SetPosition(GetLeft(), t);
 }
 void TVPWindowLayer::SetPosition(tjs_int l, tjs_int t) {
+#ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
 		SDL_SetWindowPosition(window, l, t);
 	}
+#endif
 }
 TVPSDLBitmapCompletion *TVPWindowLayer::GetTVPSDLBitmapCompletion() {
 	needs_graphic_update = true;
@@ -1184,13 +1329,22 @@ void TVPWindowLayer::Show() {
 void TVPWindowLayer::TickBeat() {
 	if (needs_graphic_update)
 	{
-		if (renderer)
+		if (renderer && bitmap_completion)
 		{
 			SDL_Rect rect;
 			rect.x = bitmap_completion->update_rect.left;
 			rect.y = bitmap_completion->update_rect.top;
 			rect.w = bitmap_completion->update_rect.get_width();
 			rect.h = bitmap_completion->update_rect.get_height();
+			SDL_Rect logical_rect;
+			SDL_RenderGetLogicalSize(renderer, &(logical_rect.w), &(logical_rect.h));
+			if (logical_rect.w == rect.w && logical_rect.h == rect.h)
+			{
+				// Clear extra artifacts
+				SDL_RenderSetLogicalSize(renderer, 0, 0);
+				SDL_RenderFillRect(renderer, NULL);
+				SDL_RenderSetLogicalSize(renderer, logical_rect.w, logical_rect.h);
+			}
 			if (texture && surface)
 			{
 				if ((rect.w + rect.x) > surface->w)
@@ -1205,6 +1359,13 @@ void TVPWindowLayer::TickBeat() {
 				SDL_RenderCopy(renderer, texture, &rect, &rect);
 			}
 			SDL_RenderPresent(renderer);
+			if (logical_rect.w == rect.w && logical_rect.h == rect.h)
+			{
+				// Clear extra artifacts (for the back buffer)
+				SDL_RenderSetLogicalSize(renderer, 0, 0);
+				SDL_RenderFillRect(renderer, NULL);
+				SDL_RenderSetLogicalSize(renderer, logical_rect.w, logical_rect.h);
+			}
 			if (texture)
 			{
 				SDL_RenderCopy(renderer, texture, &rect, &rect);
