@@ -222,11 +222,16 @@ set_target_properties(${KRKRSDL2_NAME} PROPERTIES
 	XCODE_ATTRIBUTE_ENABLE_BITCODE NO
 	XCODE_ATTRIBUTE_SKIP_INSTALL NO
 	XCODE_ATTRIBUTE_INSTALL_PATH "/Applications"
+	XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
+	XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
 )
-set_property(SOURCE data
-	PROPERTY MACOSX_PACKAGE_LOCATION "Resources/"
+set_property(
+	SOURCE data src/ios-resources/Images.xcassets
+	PROPERTY MACOSX_PACKAGE_LOCATION "Resources"
 )
-target_sources(${KRKRSDL2_NAME} PRIVATE data)
+target_sources(${KRKRSDL2_NAME} PRIVATE 
+	data src/ios-resources/Images.xcassets
+)
 endif()
 
 
