@@ -35,6 +35,8 @@
 	<true/>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Kirikiri SDL2 uses the SDL2 library, which uses the Bluetooth functionality to connect to Bluetooth game pads.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Kirikiri SDL2 uses the SDL2 library, which uses the Bluetooth functionality to connect to Bluetooth game pads.</string>
 	<!-- Modifications end -->
 </dict>
 </plist>
