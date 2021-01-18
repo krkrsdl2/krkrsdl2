@@ -450,9 +450,7 @@ public:
 
 	void OnTouchUp( tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id );
 
-#if 0
 	void SetWindowMouseCursor( tjs_int cursor ) { SetMouseCursor( cursor ); }
-#endif
 
 public: // for iTVPLayerTreeOwner
 	// LayerManager -> LTO
