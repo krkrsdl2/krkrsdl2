@@ -179,12 +179,24 @@ list(APPEND KRKRSDL2_LDFLAGS
 )
 endif()
 
-if(ANDROID OR IOS)
+if(IOS)
 set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
 add_subdirectory(external/SDL)
 find_library(SDL2 NAMES SDL2-static SDL2main)
 list(APPEND KRKRSDL2_LIBS
 	SDL2-static
+	SDL2main
+)
+list(APPEND KRKRSDL2_CXXFLAGS
+	-DUSE_SDL_MAIN
+)
+elseif(ANDROID)
+set(SDL_SHARED_ENABLED_BY_DEFAULT ON)
+set(SDL_STATIC_ENABLED_BY_DEFAULT OFF)
+add_subdirectory(external/SDL)
+find_library(SDL2 NAMES SDL2 SDL2main)
+list(APPEND KRKRSDL2_LIBS
+	SDL2
 	SDL2main
 )
 list(APPEND KRKRSDL2_CXXFLAGS

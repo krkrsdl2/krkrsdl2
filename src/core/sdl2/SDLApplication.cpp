@@ -31,7 +31,7 @@
 #include <emscripten.h>
 #endif
 
-#ifdef __IPHONEOS__
+#if defined(__IPHONEOS__) || defined(__ANDROID__)
 #define KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 #endif
 
@@ -50,7 +50,7 @@ static bool process_events();
 
 static void refresh_controllers()
 {
-#ifdef __IPHONEOS__
+#if defined(__IPHONEOS__)
 	// For some reason, invalid pointers get set
 	{
 		return;
