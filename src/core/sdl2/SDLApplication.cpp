@@ -2078,6 +2078,10 @@ int main(int argc, char **argv)
 
 	TVPLoadMessage();
 
+#ifdef TVP_LOG_TO_COMMANDLINE_CONSOLE
+	SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
+#endif
+
 	::Application = new tTVPApplication();
 	if (::Application->StartApplication( _argc, _wargv ))
 	{
