@@ -629,11 +629,19 @@ void tTVPApplication::PrintConsole( const tjs_char* mes, unsigned long len, bool
 	}
 	tjs_int u8len = TVPWideCharToUtf8String( mes, &(console_cache_[0]) );
 	console_cache_[u8len] = '\0';
+#ifdef __ANDROID__
 	if( iserror ) {
 		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", &(console_cache_[0]) );
 	} else {
 		SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "%s", &(console_cache_[0]) );
 	}
+#else
+	if( iserror ) {
+		fprintf(stdout, "%s\n", &(console_cache_[0]) );
+	} else {
+		fprintf(stdout, "%s\n", &(console_cache_[0]) );
+	}
+#endif
 #if 0
 #ifdef _DEBUG
 	::OutputDebugString( mes );
