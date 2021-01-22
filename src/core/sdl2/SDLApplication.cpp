@@ -29,9 +29,10 @@
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+#include <emscripten/html5.h>
 #endif
 
-#if defined(__IPHONEOS__) || defined(__ANDROID__)
+#if defined(__IPHONEOS__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__)
 #define KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 #endif
 
@@ -579,6 +580,10 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 	int new_window_h = 480;
 	Uint32 window_flags = 0;
 
+#ifdef SDL_HINT_RENDER_SCALE_QUALITY
+	SDL_SetHintWithPriority(SDL_HINT_RENDER_SCALE_QUALITY, "2", SDL_HINT_DEFAULT);
+#endif
+
 #ifdef KRKRZ_ENABLE_CANVAS
 	if (TVPIsEnableDrawDevice() == false)
 	{
@@ -604,7 +609,9 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 #ifdef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	window_flags |= SDL_WINDOW_RESIZABLE;
 	window_flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+#ifndef __EMSCRIPTEN__
 	window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+#endif
 	new_window_w = 0;
 	new_window_h = 0;
 #endif
@@ -614,6 +621,12 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 	{
 		TVPThrowExceptionMessage(TJS_W("Cannot create SDL window: %1"), ttstr(SDL_GetError()));
 	}
+#if defined(__EMSCRIPTEN__) && defined(KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE)
+	EmscriptenFullscreenStrategy strategy;
+	strategy.scaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF;
+	strategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
+	emscripten_enter_soft_fullscreen("canvas", &strategy);           
+#endif
 #ifdef KRKRZ_ENABLE_CANVAS
 	context = nullptr;
 	if (TVPIsEnableDrawDevice() == false)
@@ -922,7 +935,7 @@ void TVPWindowLayer::BringToFront() {
 	}
 }
 void TVPWindowLayer::ShowWindowAsModal() {
-#ifdef __EMSCRIPTEN__
+#if defined(KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE)
 	TVPThrowExceptionMessage(TJS_W("Showing window as modal is not supported"));
 #else
 	in_mode_ = true;
