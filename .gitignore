@@ -1,6 +1,8 @@
 *.o
 .DS_Store
-krkrsdl2
+build-*/krkrsdl2
+build_*/krkrsdl2
+build/krkrsdl2
 *.a
 *.exe
 *.7z
