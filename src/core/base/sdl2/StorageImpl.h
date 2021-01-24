@@ -14,7 +14,7 @@
 #include "StorageIntf.h"
 #include "UtilStreams.h"
 #include <functional>
-#include <stdio.h>
+#include <SDL.h>
 
 //---------------------------------------------------------------------------
 // tTVPLocalFileStream
@@ -22,7 +22,7 @@
 class tTVPLocalFileStream : public tTJSBinaryStream
 {
 private:
-	FILE* Handle;
+	SDL_RWops * io_handle;
 	bool written;
 
 public:
@@ -39,7 +39,7 @@ public:
 
 	tjs_uint64 TJS_INTF_METHOD GetSize();
 
-	FILE* GetHandle() const { return Handle; }
+	SDL_RWops * GetHandle() const { return io_handle; }
 };
 //---------------------------------------------------------------------------
 

@@ -185,6 +185,8 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 
 	std::string nnewname;
 	const char *ptr = nname.c_str();
+	tjs_int path_entries = 0;
+	std::string domain_name;
 
 	while (*ptr)
 	{
@@ -204,14 +206,26 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 			ptr_end += 1;
 		}
 		ptr = ptr_end;
-		if (nwalker == ".")
+		if (path_entries == 0)
+		{
+			domain_name = nwalker;
+		}
+		path_entries += 1;
+		if (nwalker == "." || (path_entries == 1 && nwalker == "?"))
 		{
 			continue;
 		}
 
 		DIR *dirp;
 		struct dirent *direntp;
-		nnewname += "/";
+		if ((path_entries != 2) || (path_entries == 2 && domain_name != "?"))
+		{
+			nnewname += "/";
+		}
+		else
+		{
+			nnewname += "./";
+		}
 
 		if ((dirp = opendir(nnewname.c_str())))
 		{
@@ -250,6 +264,12 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 				return;
 			}
 		}
+	}
+
+	if (path_entries == 1 && domain_name == "?")
+	{
+		name = ttstr(TJS_W("./"));
+		return;
 	}
 
 	tjs_string wnewname;
@@ -300,7 +320,7 @@ void TVPPreNormalizeStorageName(ttstr &name)
 	// HACK for Switch and Vita: colon in filesystem causes a conflict
 	if ((TJS_strstr(name.c_str(), TJS_W("file:")) == nullptr) && (TJS_strchr(name.c_str(), TJS_W(':')) != nullptr))
 	{
-		ttstr newname(TJS_W("file://./"));
+		ttstr newname(TJS_W("file://?/"));
 		newname += name;
 		name = newname;
 	}
@@ -589,7 +609,7 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
 	const ttstr &localname, tjs_uint32 flag)
 {
 	tjs_uint32 access = flag & TJS_BS_ACCESS_MASK;
-	Handle = NULL;
+	io_handle = NULL;
 	written = false;
 	const char* mode = "rb";
 	switch(access)
@@ -609,8 +629,8 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
 	TVPUtf16ToUtf8( filename, localname.AsStdString() );
 
 retry:
-	Handle = fopen( filename.c_str(), mode );
-	if(Handle == nullptr)
+	io_handle = SDL_RWFromFile(filename.c_str(), mode);
+	if(io_handle == nullptr)
 	{
 		if(trycount == 0 && access == TJS_BS_WRITE)
 		{
@@ -623,8 +643,14 @@ retry:
 		TVPThrowExceptionMessage(TVPCannotOpenStorage, origname);
 	}
 
-	if(access == TJS_BS_APPEND) // move the file pointer to last
-		fseek(Handle, 0, SEEK_END);
+	if (access == TJS_BS_APPEND) // move the file pointer to last
+	{
+		tjs_uint64 low = SDL_RWseek(io_handle, 0, RW_SEEK_END);
+		if (low < 0)
+		{
+			TVPThrowExceptionMessage(TVPSeekError);
+		}
+	}
 
 	// push current tick as an environment noise
 	tjs_uint32 tick = TVPGetRoughTickCount32();
@@ -633,7 +659,10 @@ retry:
 //---------------------------------------------------------------------------
 tTVPLocalFileStream::~tTVPLocalFileStream()
 {
-	if(Handle!=nullptr) fclose(Handle);
+	if (io_handle != nullptr)
+	{
+		SDL_RWclose(io_handle);
+	}
 
 	// push current tick as an environment noise
 	// (timing information from file accesses may be good noises)
@@ -651,46 +680,59 @@ tjs_uint64 TJS_INTF_METHOD tTVPLocalFileStream::Seek(tjs_int64 offset, tjs_int w
 	int dwmm;
 	switch(whence)
 	{
-	case TJS_BS_SEEK_SET:	dwmm = SEEK_SET;	break;
-	case TJS_BS_SEEK_CUR:	dwmm = SEEK_CUR;	break;
-	case TJS_BS_SEEK_END:	dwmm = SEEK_END;	break;
-	default:				dwmm = SEEK_SET;	break; // may be enough
+	case TJS_BS_SEEK_SET:	dwmm = RW_SEEK_SET;	break;
+	case TJS_BS_SEEK_CUR:	dwmm = RW_SEEK_CUR;	break;
+	case TJS_BS_SEEK_END:	dwmm = RW_SEEK_END;	break;
+	default:				dwmm = RW_SEEK_SET;	break; // may be enough
 	}
 
-	if( fseek( Handle, offset, dwmm ) )
+	tjs_uint64 low = SDL_RWseek(io_handle, offset, dwmm);
+	if (low < 0)
+	{
 		TVPThrowExceptionMessage(TVPSeekError);
-
-	tjs_uint64 low = ftell( Handle );
+	}
 	return low;
 }
 //---------------------------------------------------------------------------
 tjs_uint TJS_INTF_METHOD tTVPLocalFileStream::Read(void *buffer, tjs_uint read_size)
 {
-	size_t ret = fread( buffer, 1, read_size, Handle );
+	size_t ret = SDL_RWread(io_handle, buffer, 1, read_size);
 	return (tjs_uint)ret;
 }
 //---------------------------------------------------------------------------
 tjs_uint TJS_INTF_METHOD tTVPLocalFileStream::Write(const void *buffer, tjs_uint write_size)
 {
 	written = true;
-	size_t ret = fwrite( buffer, 1, write_size, Handle );
+	size_t ret = SDL_RWwrite(io_handle, buffer, 1, write_size);
 	return (tjs_uint)ret;
 }
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPLocalFileStream::SetEndOfStorage()
 {
-	if( fseek( Handle, 0, SEEK_END ) )
+	if (SDL_RWseek(io_handle, 0, RW_SEEK_END) < 0)
+	{
 		TVPThrowExceptionMessage(TVPSeekError);
+	}
 }
 //---------------------------------------------------------------------------
 tjs_uint64 TJS_INTF_METHOD tTVPLocalFileStream::GetSize()
 {
-	tjs_uint64 ret;
-	struct stat stbuf;
-	if( fstat( fileno(Handle), &stbuf) != 0 ) {
+	tjs_uint64 cur_pos = SDL_RWtell(io_handle);
+	if (cur_pos < 0)
+	{
 		TVPThrowExceptionMessage(TVPSeekError);
 	}
-	ret = stbuf.st_size;
+	tjs_uint64 ret;
+	ret = SDL_RWseek(io_handle, 0, RW_SEEK_END);
+	if (ret < 0)
+	{
+		TVPThrowExceptionMessage(TVPSeekError);
+	}
+	cur_pos = SDL_RWseek(io_handle, cur_pos, RW_SEEK_SET);
+	if (cur_pos < 0)
+	{
+		TVPThrowExceptionMessage(TVPSeekError);
+	}
 	return ret;
 }
 //---------------------------------------------------------------------------
