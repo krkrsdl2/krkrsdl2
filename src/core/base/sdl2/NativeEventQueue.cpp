@@ -73,25 +73,38 @@ void NativeEventQueueImplement::PostEvent( const NativeEvent& event ) {
 #include "DebugIntf.h"
 #include <SDL.h>
 
-extern tjs_uint32 native_event_queue_custom_event_type = ((tjs_uint32)-1);
+tjs_uint32 NativeEventQueueImplement::native_event_queue_custom_event_type = 0;
 
 NativeEventQueueImplement::NativeEventQueueImplement() {
-	if (native_event_queue_custom_event_type == ((tjs_uint32)-1))
+	if (NativeEventQueueImplement::native_event_queue_custom_event_type == 0)
 	{
-		SDL_Init(SDL_INIT_EVENTS);
-		native_event_queue_custom_event_type = SDL_RegisterEvents(1);
+		if (SDL_WasInit(SDL_INIT_EVENTS) == 0)
+		{
+			SDL_Init(SDL_INIT_EVENTS);
+		}
+		NativeEventQueueImplement::native_event_queue_custom_event_type = SDL_RegisterEvents(1);
 	}
 }
 
 void NativeEventQueueImplement::PostEvent(const NativeEvent& ev) {
-	if (native_event_queue_custom_event_type != ((tjs_uint32)-1))
+	if (NativeEventQueueImplement::native_event_queue_custom_event_type != 0)
 	{
+		NativeEvent * tmp_ev = new NativeEvent(ev);
 		SDL_Event event;
 		SDL_memset(&event, 0, sizeof(event));
-		event.type = native_event_queue_custom_event_type;
+		event.type = NativeEventQueueImplement::native_event_queue_custom_event_type;
 		event.user.code = 0;
-		event.user.data1 = (void *)this;
-		event.user.data2 = (void *)&ev;
-		SDL_PushEvent(&event);
+		event.user.data2 = (void *)tmp_ev;
+		tmp_ev->SetQueue(this);
+		int res = 0;
+		while (true)
+		{
+			res = SDL_PushEvent(&event);
+			if (res == 1)
+			{
+				break;
+			}
+			SDL_Delay(100);
+		}
 	}
 }

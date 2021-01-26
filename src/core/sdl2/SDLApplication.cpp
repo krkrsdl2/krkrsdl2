@@ -1986,9 +1986,9 @@ void sdl_process_events()
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
-			if (event.type == native_event_queue_custom_event_type)
+			if (event.type == NativeEventQueueImplement::native_event_queue_custom_event_type)
 			{
-				((NativeEventQueueImplement *)(event.user.data1))->Dispatch(*((NativeEvent*)event.user.data2));
+				((NativeEvent*)event.user.data2)->HandleEvent();
 			}
 			else
 			{

@@ -4,6 +4,11 @@
 
 // 呼び出されるハンドラがシングルスレッドで動作するイベントキュー
 
+class NativeEvent;
+class NativeEventQueueIntarface {
+public:
+	virtual void Dispatch(NativeEvent& event) = 0;
+};
 class NativeEvent {
 public:
 #if 0
@@ -16,12 +21,23 @@ public:
  	unsigned int Message;
 	intptr_t WParam;
 	intptr_t LParam;
+	NativeEventQueueIntarface * queue;
 
 #if 0
 	NativeEvent(){}
 	NativeEvent( int mes ) : Result(0), HWnd(NULL), Message(mes), WParam(0), LParam(0) {}
 #endif
 	NativeEvent( int mes ) : /*Result(0), HWnd(NULL),*/ Message(mes), WParam(0), LParam(0) {}
+	void SetQueue(NativeEventQueueIntarface * tmp_queue)
+	{
+		queue = tmp_queue;
+	}
+	void HandleEvent()
+	{
+		NativeEvent _this = *this;
+		queue->Dispatch(_this);
+		delete this;
+	}
 };
 
 #if 0
@@ -41,8 +57,7 @@ public:
 	virtual void PostEvent( const NativeEvent& event ) = 0;
 };
 #endif
-extern tjs_uint32 native_event_queue_custom_event_type;
-class NativeEventQueueImplement/* : public NativeEventQueueIntarface*/ {
+class NativeEventQueueImplement : public NativeEventQueueIntarface {
 #if 0
 	HWND window_handle_;
 	WNDCLASSEX	wc_;
@@ -54,6 +69,7 @@ class NativeEventQueueImplement/* : public NativeEventQueueIntarface*/ {
 #endif
 
 public:
+	static tjs_uint32 native_event_queue_custom_event_type;
 #if 0
 	NativeEventQueueImplement() : window_handle_(NULL) {}
 #endif
@@ -73,7 +89,7 @@ public:
 #if 0
 	HWND GetOwner() { return window_handle_; }
 #endif
-	virtual void Dispatch(class NativeEvent& event) = 0;
+	void Dispatch(NativeEvent& event) {}
 };
 
 
