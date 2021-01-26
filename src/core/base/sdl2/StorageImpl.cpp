@@ -260,8 +260,8 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 			}
 			else // Other error, probably can't access anyway
 			{
-				name.Clear();
-				return;
+				nnewname += ptr_cur;
+				break;
 			}
 		}
 	}
