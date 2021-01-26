@@ -1,4 +1,16 @@
-project('krkrsdl2', ['c', 'cpp'], default_options: ['optimization=3', 'debug=true', 'warning_level=0'], version: 'unknown')
+project('krkrsdl2',
+	[
+		'c',
+		'cpp',
+	],
+	default_options: [
+		'optimization=3',
+		'debug=true',
+		'warning_level=0',
+		'default_library=static',
+	],
+	version: 'unknown'
+)
 
 if target_machine.system() == 'darwin'
 	add_languages('objcpp')
@@ -182,6 +194,12 @@ endif
 krkrsdl2_dependson = [
 	sdl2_dep,
 ]
+
+if get_option('enable_async_image_load') == true and target_machine.system() != 'emscripten'
+	krkrsdl2_cppflags += [
+		'-DKRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD',
+	]
+endif
 
 if get_option('enable_coretext_rasterizer') == true
 	if target_machine.system() == 'darwin'

@@ -103,7 +103,7 @@ class tTVPApplication {
 
 	bool should_sync_savedata_;
 
-#if 0
+#ifdef KRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD
 	class tTVPAsyncImageLoader* image_load_thread_;
 #else
 	void * image_load_thread_;

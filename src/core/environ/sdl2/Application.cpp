@@ -333,7 +333,7 @@ tTVPApplication::~tTVPApplication() {
 	}
 	windows_list_.clear();
 #endif
-#if 0
+#ifdef KRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD
 	delete image_load_thread_;
 #endif
 }
@@ -460,7 +460,7 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 		if(TVPExecuteUserConfig()) return true;
 #endif
 		
-#if 0
+#ifdef KRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD
 		image_load_thread_ = new tTVPAsyncImageLoader();
 #endif
 
@@ -480,7 +480,7 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 		CheckDigitizer();
 #endif
 
-#if 0
+#ifdef KRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD
 		// start image load thread
 		image_load_thread_->StartTread();
 #endif
@@ -948,7 +948,7 @@ void tTVPApplication::ModalFinished() {
 }
 #endif
 void tTVPApplication::LoadImageRequest( class iTJSDispatch2 *owner, class tTJSNI_Bitmap* bmp, const ttstr &name ) {
-#if 0
+#ifdef KRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD
 	if( image_load_thread_ ) {
 		image_load_thread_->LoadRequest( owner, bmp, name );
 	}

@@ -182,6 +182,13 @@ option(
 )
 
 option(
+	'enable_async_image_load',
+	type: 'boolean',
+	value: true,
+	description: 'Enable async image load. Not applicable to Emscripten build.'
+)
+
+option(
 	'enable_canvas',
 	type: 'boolean',
 	value: false,
