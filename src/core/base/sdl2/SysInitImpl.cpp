@@ -1336,7 +1336,8 @@ void TVPBeforeSystemInit()
 			TVPProjectDirSelected = true;
 		}
 	}
-	
+
+#if !defined(__vita__)
 	if (!TVPProjectDirSelected)
 	{
 		size_t size = 512;
@@ -1399,6 +1400,7 @@ void TVPBeforeSystemInit()
 			}
 		}
 	}
+#endif
 
 	if (TVPProjectDirSelected)
 	{

@@ -2055,7 +2055,7 @@ int main(int argc, char **argv)
 	for (int i = 0; i < argc; i += 1)
 	{
 		const char* narg;
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) && !defined(__vita__)
 		if (!i)
 		{
 			narg = realpath(argv[i], NULL);
@@ -2236,6 +2236,7 @@ void TVPGetAllFontList( std::vector<tjs_string>& list ) {
 		TVPGetSystemFontListFromFreeType( list );
 	}
 
+#if defined(__APPLE__) && defined(__MACH__)
 	DIR* dr;
 	if( ( dr = opendir("/System/Library/Fonts/") ) != nullptr ) {
 		struct dirent* entry;
@@ -2256,6 +2257,7 @@ void TVPGetAllFontList( std::vector<tjs_string>& list ) {
 		closedir( dr );
 		TVPIsGetAllFontList = true;
 	}
+#endif
 #if 0
 	for( std::list<std::string>::const_iterator i = fontfiles.begin(); i != fontfiles.end(); ++i ) {
 		FT_Face face = nullptr;
