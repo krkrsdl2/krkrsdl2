@@ -226,9 +226,9 @@ void tTVPBitmapBitsAlloc::Free( void* ptr ) {
 
 		// check sentinel
 		if(~(*(tjs_uint32*)(bptr - sizeof(tjs_uint32))) != record->sentinel_backup1)
-			TVPThrowExceptionMessage( TVPLayerBitmapBufferUnderrunDetectedCheckYourDrawingCode );
+			TVPAddLog( ttstr(TVPLayerBitmapBufferUnderrunDetectedCheckYourDrawingCode) );
 		if(~(*(tjs_uint32*)(bptr + record->size      )) != record->sentinel_backup2)
-			TVPThrowExceptionMessage( TVPLayerBitmapBufferOverrunDetectedCheckYourDrawingCode );
+			TVPAddLog( ttstr(TVPLayerBitmapBufferOverrunDetectedCheckYourDrawingCode) );
 
 		Allocator->free( record->alloc_ptr );
 	}
