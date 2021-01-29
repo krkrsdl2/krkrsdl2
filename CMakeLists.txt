@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(krkrsdl2)
 
-if((NOT ANDROID) AND (NOT IOS) AND (NOT VITA))
+if((NOT ANDROID) AND (NOT IOS) AND (NOT VITA) AND (NOT NSWITCH))
 message(WARN "The CMake file is provided for platforms that do not support Meson well. Please try the Meson build system first.")
 endif()
 
@@ -56,6 +56,18 @@ set(VITA_TITLEID  "KRKR00001")
 endif()
 if(NOT VITA_VERSION)
 set(VITA_VERSION  "02.00")
+endif()
+endif()
+
+if(NSWITCH)
+if(NOT SWITCH_APP_NAME)
+set(SWITCH_APP_NAME "Kirikiri for Nintendo Switch")
+endif()
+if(NOT SWITCH_AUTHOR)
+set(SWITCH_AUTHOR   "uyjulian")
+endif()
+if(NOT SWITCH_VERSION)
+set(SWITCH_VERSION  "v2.0.0")
 endif()
 endif()
 
@@ -246,6 +258,13 @@ list(APPEND KRKRSDL2_LIBS
 	m
 	z
 )
+elseif(NSWITCH)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
+
+list(APPEND KRKRSDL2_LIBS
+	PkgConfig::SDL2
+)
 else()
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
@@ -305,6 +324,25 @@ dolce_create_vpk(${KRKRSDL2_NAME}.vpk ${VITA_TITLEID} ${KRKRSDL2_NAME}.self
     FILE src/vita-resources/sce_sys/livearea/contents/icon.png sce_sys/livearea/contents/icon.png
     FILE src/vita-resources/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
     FILE data data
+)
+endif()
+
+if(NSWITCH)
+add_custom_target(${KRKRSDL2_NAME}.nacp
+    COMMAND $ENV{DEVKITPRO}/tools/bin/nacptool
+        --create
+        ${SWITCH_APP_NAME}
+        ${SWITCH_AUTHOR}
+        ${SWITCH_VERSION}
+        ${KRKRSDL2_NAME}.nacp
+)
+add_custom_target(${KRKRSDL2_NAME}.nro ALL
+    COMMAND $ENV{DEVKITPRO}/tools/bin/elf2nro
+        ${KRKRSDL2_NAME}
+        ${KRKRSDL2_NAME}.nro
+        --icon=${CMAKE_SOURCE_DIR}/src/nswitch-resources/icon.jpg
+        --nacp=${KRKRSDL2_NAME}.nacp
+    DEPENDS ${KRKRSDL2_NAME}.nacp ${KRKRSDL2_NAME} ${CMAKE_SOURCE_DIR}/src/nswitch-resources/icon.jpg
 )
 endif()
 

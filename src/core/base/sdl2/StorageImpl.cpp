@@ -341,7 +341,7 @@ void TVPPreNormalizeStorageName(ttstr &name)
 
 	tjs_char lastchar = name.GetLastChar();
 
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(__vita__)
 	// HACK for Switch and Vita: colon in filesystem causes a conflict
 	if ((TJS_strstr(name.c_str(), TJS_W("file:")) == nullptr) && (TJS_strchr(name.c_str(), TJS_W(':')) != nullptr))
 	{
@@ -388,8 +388,10 @@ ttstr TVPGetTemporaryName()
 #if 0
 			TVPTempPath = ttstr( Application->GetCachePath()->c_str() );
 #endif
-#ifdef __SWITCH__
+#if defined(__SWITCH__)
 			TVPTempPath = ttstr( "sdmc:/tmp/" );
+#elif defined(__vita__)
+			TVPTempPath = ttstr( "./tmp/" );
 #else
 			TVPTempPath = ttstr( "/tmp/" );
 #endif

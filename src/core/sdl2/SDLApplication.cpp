@@ -2055,7 +2055,7 @@ int main(int argc, char **argv)
 	for (int i = 0; i < argc; i += 1)
 	{
 		const char* narg;
-#if !defined(__EMSCRIPTEN__) && !defined(__vita__)
+#if !defined(__EMSCRIPTEN__) && !defined(__vita__) && !defined(__SWITCH__)
 		if (!i)
 		{
 			narg = realpath(argv[i], NULL);
