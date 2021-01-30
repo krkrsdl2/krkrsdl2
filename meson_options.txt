@@ -210,6 +210,13 @@ option(
 )
 
 option(
+	'enable_sdl_threads',
+	type: 'boolean',
+	value: false,
+	description: 'Enable SDL threads. May be more useful on platforms that do not have a good implementation of std::thread.'
+)
+
+option(
 	'enable_wavemixer_openal',
 	type: 'boolean',
 	value: false,

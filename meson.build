@@ -292,6 +292,12 @@ if get_option('enable_case_insensitivity') == true
 	]
 endif
 
+if get_option('enable_sdl_threads') == true
+	krkrsdl2_cppflags += [
+		'-DKRKRZ_USE_SDL_THREADS',
+	]
+endif
+
 krkrsdl2_override_options = []
 if target_machine.system() == 'emscripten'
 	krkrsdl2_override_options += [
