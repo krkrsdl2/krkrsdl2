@@ -32,7 +32,7 @@
 #include <emscripten/html5.h>
 #endif
 
-#if defined(__IPHONEOS__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__)
+#if defined(__IPHONEOS__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__) || defined(__vita__) || defined(__SWITCH__)
 #define KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 #endif
 
@@ -2075,7 +2075,7 @@ int main(int argc, char **argv)
 		std::string v_utf8 = narg;
 		tjs_string v_utf16;
 		TVPUtf8ToUtf16( v_utf16, v_utf8 );
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) && !defined(__vita__) && !defined(__SWITCH__)
 		if (!i)
 		{
 			free((void*)narg);

@@ -243,6 +243,7 @@ list(APPEND KRKRSDL2_LIBS
 	SDL2
 	pib
 	SceAppMgr_stub
+	SceAppMgrUser_stub
 	SceAppUtil_stub
 	SceShellSvc_stub
 	SceDisplay_stub
@@ -258,12 +259,18 @@ list(APPEND KRKRSDL2_LIBS
 	m
 	z
 )
+list(APPEND KRKRSDL2_CXXFLAGS
+	-DKRKRZ_USE_SDL_THREADS
+)
 elseif(NSWITCH)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
 
 list(APPEND KRKRSDL2_LIBS
 	PkgConfig::SDL2
+)
+list(APPEND KRKRSDL2_CXXFLAGS
+	-DKRKRZ_USE_SDL_THREADS
 )
 else()
 find_package(SDL2 REQUIRED)

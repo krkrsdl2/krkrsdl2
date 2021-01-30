@@ -124,6 +124,12 @@ tjs_string ExePath() {
 	return tjs_string(szFull);
 #endif
 	static tjs_string exepath(TJS_W(""));
+#if defined(__vita__)
+	if (exepath.empty())
+	{
+		exepath = tjs_string(TJS_W("app0:/eboot.bin"));
+	}
+#endif
 #if defined(__APPLE__) && (TARGET_OS_MAC && !TARGET_OS_IPHONE)
 	if (exepath.empty())
 	{

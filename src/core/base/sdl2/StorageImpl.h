@@ -15,6 +15,9 @@
 #include "UtilStreams.h"
 #include <functional>
 #include <SDL.h>
+#if defined(__vita__)
+#include <psp2/kernel/iofilemgr.h> 
+#endif
 
 //---------------------------------------------------------------------------
 // tTVPLocalFileStream
@@ -22,7 +25,11 @@
 class tTVPLocalFileStream : public tTJSBinaryStream
 {
 private:
+#if defined(__vita__)
+	SceUID io_handle;
+#else
 	SDL_RWops * io_handle;
+#endif
 	bool written;
 
 public:
@@ -39,7 +46,11 @@ public:
 
 	tjs_uint64 TJS_INTF_METHOD GetSize();
 
+#if defined(__vita__)
+	SceUID GetHandle() const { return io_handle; }
+#else
 	SDL_RWops * GetHandle() const { return io_handle; }
+#endif
 };
 //---------------------------------------------------------------------------
 
