@@ -717,8 +717,7 @@ retry:
 #if defined(__vita__)
 		sceIoLseek(io_handle, 0, SCE_SEEK_END);
 #else
-		tjs_uint64 low = SDL_RWseek(io_handle, 0, RW_SEEK_END);
-		if (low < 0)
+		if (SDL_RWseek(io_handle, 0, RW_SEEK_END) < 0)
 		{
 			TVPThrowExceptionMessage(TVPSeekError);
 		}
@@ -776,12 +775,12 @@ tjs_uint64 TJS_INTF_METHOD tTVPLocalFileStream::Seek(tjs_int64 offset, tjs_int w
 #if defined(__vita__)
 	return sceIoLseek( io_handle, offset, dwmm );
 #else
-	tjs_uint64 low = SDL_RWseek(io_handle, offset, dwmm);
+	Sint64 low = SDL_RWseek(io_handle, offset, dwmm);
 	if (low < 0)
 	{
 		TVPThrowExceptionMessage(TVPSeekError);
 	}
-	return low;
+	return (tjs_uint64)low;
 #endif
 }
 //---------------------------------------------------------------------------
@@ -826,23 +825,12 @@ tjs_uint64 TJS_INTF_METHOD tTVPLocalFileStream::GetSize()
 	sceIoLseek( io_handle, oldpos, SCE_SEEK_SET );
 	return retpos;
 #else
-	tjs_uint64 cur_pos = SDL_RWtell(io_handle);
-	if (cur_pos < 0)
+	Sint64 low = SDL_RWsize(io_handle);
+	if (low < 0)
 	{
 		TVPThrowExceptionMessage(TVPSeekError);
 	}
-	tjs_uint64 ret;
-	ret = SDL_RWseek(io_handle, 0, RW_SEEK_END);
-	if (ret < 0)
-	{
-		TVPThrowExceptionMessage(TVPSeekError);
-	}
-	cur_pos = SDL_RWseek(io_handle, cur_pos, RW_SEEK_SET);
-	if (cur_pos < 0)
-	{
-		TVPThrowExceptionMessage(TVPSeekError);
-	}
-	return ret;
+	return (tjs_uint64)low;
 #endif
 }
 //---------------------------------------------------------------------------
