@@ -88,3 +88,6 @@
 [submodule "external/SDL"]
 	path = external/SDL
 	url = https://github.com/SDL-mirror/SDL.git
+[submodule "external/minizip"]
+	path = external/minizip
+	url = ../minizip
