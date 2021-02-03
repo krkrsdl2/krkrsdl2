@@ -18,9 +18,12 @@
 #define BYTE tjs_uint8
 #define DWORD tjs_uint32
 #define REFIID void*
+#define STG_E_ACCESSDENIED TJS_E_FAIL
 #define E_FAIL TJS_E_FAIL
 #define E_NOTIMPL TJS_E_FAIL
 #define E_INVALIDARG TJS_E_FAIL
+#define S_TRUE TJS_S_TRUE
+#define S_FALSE TJS_S_FALSE
 #define S_OK TJS_S_OK
 #define STREAM_SEEK_SET TJS_BS_SEEK_SET
 #define STREAM_SEEK_CUR TJS_BS_SEEK_CUR
@@ -41,7 +44,24 @@ typedef struct tagSTATSTG {
 	ULARGE_INTEGER cbSize;
 } STATSTG;
 
-#define IStream tTVPIStreamAdapter
+class IStream
+{
+public:
+
+	// IUnknown
+	virtual ULONG STDMETHODCALLTYPE AddRef(void) = 0;
+	virtual ULONG STDMETHODCALLTYPE Release(void) = 0;
+
+	// ISequentialStream
+	virtual HRESULT STDMETHODCALLTYPE Read(void *pv, ULONG cb, ULONG *pcbRead) = 0;
+	virtual HRESULT STDMETHODCALLTYPE Write(const void *pv, ULONG cb, ULONG *pcbWritten) = 0;
+
+	// IStream
+	virtual HRESULT STDMETHODCALLTYPE Seek(LARGE_INTEGER dlibMove, DWORD dwOrigin, ULARGE_INTEGER *plibNewPosition) = 0;
+	virtual HRESULT STDMETHODCALLTYPE Commit(DWORD grfCommitFlags) = 0;
+	virtual HRESULT STDMETHODCALLTYPE Stat(STATSTG *pstatstg, DWORD grfStatFlag) = 0;
+
+};
 
 //---------------------------------------------------------------------------
 // tTVPIStreamAdapter
@@ -49,7 +69,7 @@ typedef struct tagSTATSTG {
 /*
 	this class provides COM's IStream adapter for tTJSBinaryStream
 */
-class tTVPIStreamAdapter
+class tTVPIStreamAdapter : public IStream
 {
 private:
 	tTJSBinaryStream *Stream;
@@ -211,6 +231,122 @@ inline IStream * TVPCreateIStream(const ttstr &name, tjs_uint32 flags)
 	IStream *istream = new tTVPIStreamAdapter(stream0);
 
 	return istream;
+}
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+// tTVPBinaryStreamAdapter
+//---------------------------------------------------------------------------
+/*
+	this class provides tTJSBinaryStream adapter for IStream
+*/
+class tTVPBinaryStreamAdapter : public tTJSBinaryStream
+{
+	typedef tTJSBinaryStream inherited;
+
+private:
+	IStream *Stream;
+
+public:
+	tTVPBinaryStreamAdapter(IStream *ref)
+	{
+		Stream = ref;
+		Stream->AddRef();
+	}
+	/*
+		the stream passed by argument here is freed by this instance'
+		destruction.
+	*/
+
+	~tTVPBinaryStreamAdapter()
+	{
+		Stream->Release();
+	}
+
+	tjs_uint64 TJS_INTF_METHOD Seek(tjs_int64 offset, tjs_int whence)
+	{
+		DWORD origin;
+
+		switch(whence)
+		{
+		case TJS_BS_SEEK_SET:			origin = STREAM_SEEK_SET;		break;
+		case TJS_BS_SEEK_CUR:			origin = STREAM_SEEK_CUR;		break;
+		case TJS_BS_SEEK_END:			origin = STREAM_SEEK_END;		break;
+		default:						origin = STREAM_SEEK_SET;		break;
+		}
+
+		LARGE_INTEGER ofs;
+		ULARGE_INTEGER newpos;
+
+		ofs.QuadPart = 0;
+		HRESULT hr = Stream->Seek(ofs, STREAM_SEEK_CUR, &newpos);
+		bool orgpossaved;
+		LARGE_INTEGER orgpos;
+		if(FAILED(hr))
+		{
+			orgpossaved = false;
+		}
+		else
+		{
+			orgpossaved = true;
+			*(LARGE_INTEGER*)&orgpos = *(LARGE_INTEGER*)&newpos;
+		}
+
+		ofs.QuadPart = offset;
+
+		hr = Stream->Seek(ofs, origin, &newpos);
+		if(FAILED(hr))
+		{
+			if(orgpossaved)
+			{
+				Stream->Seek(orgpos, STREAM_SEEK_SET, &newpos);
+			}
+		}
+
+		return newpos.QuadPart;
+	}
+
+	tjs_uint TJS_INTF_METHOD Read(void *buffer, tjs_uint read_size)
+	{
+		ULONG cb = read_size;
+		ULONG read;
+		HRESULT hr = Stream->Read(buffer, cb, &read);
+		if(FAILED(hr)) read = 0;
+		return read;
+	}
+
+	tjs_uint TJS_INTF_METHOD Write(const void *buffer, tjs_uint write_size)
+	{
+		ULONG cb = write_size;
+		ULONG written;
+		HRESULT hr = Stream->Write(buffer, cb, &written);
+		if(FAILED(hr)) written = 0;
+		return written;
+	}
+
+	tjs_uint64 TJS_INTF_METHOD GetSize()
+	{
+		HRESULT hr;
+		STATSTG stg;
+
+		hr = Stream->Stat(&stg, STATFLAG_NONAME);
+		if(FAILED(hr))
+		{
+			return inherited::GetSize(); // use default routine
+		}
+
+		return stg.cbSize.QuadPart;
+	}
+};
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+// TVPCreateBinaryStreamAdapter
+//---------------------------------------------------------------------------
+inline tTJSBinaryStream * TVPCreateBinaryStreamAdapter(IStream *refstream)
+{
+	return new  tTVPBinaryStreamAdapter(refstream);
 }
 //---------------------------------------------------------------------------
 
