@@ -412,7 +412,8 @@ krkrsdl2 = executable(
 if target_machine.system() == 'emscripten'
 	conf_data = configuration_data()
 	conf_data.set('exe_name', krkrsdl2.name())
-	krkrsdl2_html = configure_file(input: 'src/config/index.html.in',
+	krkrsdl2_html = configure_file(
+		input: 'src/config/index.html.in',
 		output: 'index.html',
 		configuration: conf_data
 	)
