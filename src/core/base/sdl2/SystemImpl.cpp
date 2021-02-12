@@ -44,10 +44,6 @@
 #include "ScriptMgnIntf.h"
 #include "tjsArray.h"
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#endif
-
 //---------------------------------------------------------------------------
 static ttstr TVPAppTitle;
 static bool TVPAppTitleInit = false;
@@ -336,28 +332,30 @@ bool TVPShellExecute(const ttstr &target, const ttstr &param)
 	}
 	else
 #endif
-#ifdef __EMSCRIPTEN__
-	ttstr build_string = ttstr("window.open('");
-	build_string += target;
-	build_string += ttstr("')");
-	emscripten_run_script(build_string.AsNarrowStdString().c_str());
-#endif
-
+	tjs_string wtarget(target.AsStdString());
+	std::string ntarget;
+	if( TVPUtf16ToUtf8(ntarget, wtarget) ) {
 #if defined(__APPLE__)
 #if TARGET_OS_MAC && !TARGET_OS_IPHONE
-	auto cmd = TJS_W("open ") + target;
-	if (!param.IsEmpty()) {
-		cmd += TJS_W(" --args ") + param;
-	}
-	return system(cmd.AsNarrowStdString().c_str()) == 0;
+		auto cmd = TJS_W("open ") + target;
+		if (!param.IsEmpty()) {
+			cmd += TJS_W(" --args ") + param;
+		}
+		return system(ntarget.c_str()) == 0;
 #endif
 #elif defined(__linux__) // TODO: support other *nix-platforms
-	auto cmd = TJS_W("xdg-open ") + target;
-	if (!param.IsEmpty()) {
-		TVPAddImportantLog(TJS_W("TVPShellExecute() with parameters is not supported in Linux"));
-	}
-	return system(cmd.AsNarrowStdString().c_str()) == 0;
+		auto cmd = TJS_W("xdg-open ") + target;
+		if (!param.IsEmpty()) {
+			TVPAddImportantLog(TJS_W("TVPShellExecute() with parameters is not supported in Linux"));
+		}
+		return system(ntarget.c_str()) == 0;
 #endif
+	}
+	else
+	{
+		return false;
+	}
+
 	// fallback
 	return true;
 }

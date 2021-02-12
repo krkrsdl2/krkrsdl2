@@ -8,6 +8,7 @@
 static emscripten::val js_eval = emscripten::val::undefined();
 static emscripten::val js_wrap_exception = emscripten::val::undefined();
 static emscripten::val js_get_own_property_descriptor = emscripten::val::undefined();
+static emscripten::val js_get_own_property_names = emscripten::val::undefined();
 static emscripten::val js_is_integer = emscripten::val::undefined();
 static emscripten::val js_function_prototype_bind = emscripten::val::undefined();
 static emscripten::val js_throw_error = emscripten::val::undefined();
@@ -126,6 +127,27 @@ class iTJSDispatch2WrapperForEmscripten : public tTJSDispatch
 	public: tjs_error TJS_INTF_METHOD PropSetByNum(tjs_uint32 flag, tjs_int num, const tTJSVariant *param, iTJSDispatch2 *objthis)
 	{
 		js_set(v, (tjs_int32)num, tjs_variant_to_emscripten_val(*param));
+		return TJS_S_OK;
+	}
+
+	public: tjs_error TJS_INTF_METHOD EnumMembers(tjs_uint32 flags, tTJSVariantClosure *callback, iTJSDispatch2 *objthis)
+	{
+		emscripten::val property_names = js_get_own_property_names(v);
+		tjs_int32 length = property_names["length"].as<tjs_int32>();
+		tTJSVariant name;
+		tTJSVariant newflags = 0;
+		tTJSVariant value;
+		tTJSVariant * params[3] = { &name, &newflags, &value };
+		for (tjs_int i = 0; i < length; i += 1)
+		{
+			name = emscripten_val_to_tjs_variant(property_names[i]);
+			if (!(flags & TJS_ENUM_NO_VALUE))
+			{
+				value = emscripten_val_to_tjs_variant(v[property_names[i]]);
+			}
+			tTJSVariant res;
+			callback->FuncCall( 0, NULL, NULL, &res, (flags & TJS_ENUM_NO_VALUE) ? 2 : 3, params, NULL);
+		}
 		return TJS_S_OK;
 	}
 
@@ -287,11 +309,38 @@ class KirikiriEmscriptenInterface
 	{
 		return emscripten_val_to_tjs_variant(js_eval(v.AsStdString()));
 	}
+
+	public: static tjs_error TJS_INTF_METHOD evalStorageJS(tTJSVariant *result, tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *objthis)
+	{
+		if (numparams < 1) return TJS_E_BADPARAMCOUNT;
+		ttstr place = *param[0];
+		ttstr modestr;
+		if (numparams >= 2 && param[1]->Type() != tvtVoid)
+		{
+			modestr = *param[1];
+		}
+		
+		iTJSTextReadStream * stream = TVPCreateTextStreamForRead(place, modestr);
+		ttstr buffer;
+		try
+		{
+			stream->Read(buffer, 0);
+		}
+		catch(...)
+		{
+			stream->Destruct();
+			throw;
+		}
+		stream->Destruct();
+
+		return emscripten_val_to_tjs_variant(js_eval(buffer.AsStdString()));
+	}
 };
 
 NCB_REGISTER_CLASS(KirikiriEmscriptenInterface)
 {
 	NCB_METHOD(evalJS);
+	RawCallback(TJS_W("evalStorageJS"), &KirikiriEmscriptenInterface::evalStorageJS, TJS_STATICMEMBER);
 };
 
 static void init_js_callbacks()
@@ -300,6 +349,7 @@ static void init_js_callbacks()
 	js_wrap_exception = js_eval(std::string("(function(a){return function(...b){try{return a(...b);}catch(e){Module.internal_TJS2JS_throw_val_as_TJS_exception(e);}};})"));
 	js_eval = js_wrap_exception(js_eval);
 	js_get_own_property_descriptor = js_wrap_exception(js_eval(std::string("(Object.getOwnPropertyDescriptor)")));
+	js_get_own_property_names = js_wrap_exception(js_eval(std::string("(Object.getOwnPropertyNames)")));
 	js_is_integer = js_wrap_exception(js_eval(std::string("(Number.isInteger)")));
 	js_function_prototype_bind = js_wrap_exception(js_eval(std::string("(Function.prototype.bind)")));
 	js_throw_error = js_wrap_exception(js_eval(std::string("(function(e){throw e;})")));
@@ -325,6 +375,55 @@ static void init_js_callbacks()
 }
 
 NCB_PRE_REGIST_CALLBACK(init_js_callbacks);
+
+static void init_js_replacements()
+{
+	tTJS *script_engine = TVPGetScriptEngine();
+	if (script_engine)
+	{
+		iTJSDispatch2 * global = script_engine->GetGlobalNoAddRef();
+		if (global)
+		{
+			tTJSVariant val;
+			tjs_error er;
+
+			// Add references to window and console to KirikiriEmscriptenInterface class.
+			emscripten::val window = emscripten::val::undefined();
+			window = js_eval(std::string("window"));
+			emscripten::val console = emscripten::val::undefined();
+			console = js_eval(std::string("console"));
+			er = global->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("KirikiriEmscriptenInterface"), NULL, &val, global);
+			if (!TJS_FAILED(er) && val.Type() == tvtObject)
+			{
+				tTJSVariant window_val = emscripten_val_to_tjs_variant(window);
+				val.AsObjectNoAddRef()->PropSet(TJS_MEMBERENSURE, TJS_W("window"), NULL, &window_val, global);
+				tTJSVariant console_val = emscripten_val_to_tjs_variant(console);
+				val.AsObjectNoAddRef()->PropSet(TJS_MEMBERENSURE, TJS_W("console"), NULL, &console_val, global);
+			}
+
+			// Replace System.{shellExecute,inform} with Javascript equivalents.
+			er = global->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("System"), NULL, &val, global);
+			if (!TJS_FAILED(er) && val.Type() == tvtObject)
+			{
+				tTJSVariant shellExecute_val = emscripten_val_to_tjs_variant(window["open"], window);
+				val.AsObjectNoAddRef()->PropSet(TJS_MEMBERENSURE, TJS_W("shellExecute"), NULL, &shellExecute_val, global);
+				tTJSVariant inform_val = emscripten_val_to_tjs_variant(window["alert"], window);
+				val.AsObjectNoAddRef()->PropSet(TJS_MEMBERENSURE, TJS_W("inform"), NULL, &inform_val, global);
+			}
+
+			// Replace Debug.{message,notice} with Javascript equivalents.
+			er = global->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("Debug"), NULL, &val, global);
+			if (!TJS_FAILED(er) && val.Type() == tvtObject)
+			{
+				tTJSVariant message_val = emscripten_val_to_tjs_variant(console["log"], console);
+				val.AsObjectNoAddRef()->PropSet(TJS_MEMBERENSURE, TJS_W("message"), NULL, &message_val, global);
+				tTJSVariant notice_val = emscripten_val_to_tjs_variant(console["warn"], console);
+				val.AsObjectNoAddRef()->PropSet(TJS_MEMBERENSURE, TJS_W("notice"), NULL, &notice_val, global);
+			}
+		}
+	}
+}
+NCB_POST_REGIST_CALLBACK(init_js_replacements);
 
 #define TJS2JS_EXCEPTION_HANDLER_GUARD(block) \
 	{ \
@@ -501,6 +600,15 @@ void internal_TJS2JS_throw_val_as_TJS_exception(emscripten::val v)
 	if (type == "string")
 	{
 		msg = v.as<tjs_string>();
+	}
+	else if (type == "object")
+	{
+		emscripten::val v2 = v["message"];
+		std::string type2 = v2.typeof().as<std::string>();
+		if (type2 == "string")
+		{
+			msg = v2.as<tjs_string>();
+		}
 	}
 	TJS_eTJSScriptException(msg, (tTJSScriptBlock *)nullptr, 0, ve);
 }
