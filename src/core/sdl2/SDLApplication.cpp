@@ -1707,6 +1707,27 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 					}
 					return;
 				}
+				case SDL_FINGERMOTION: {
+					TVPPostInputEvent(new tTVPOnTouchMoveInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
+					return;
+				}
+				case SDL_FINGERDOWN:
+				case SDL_FINGERUP: {
+					switch (event.tfinger.type) {
+						case SDL_FINGERDOWN:
+							TVPPostInputEvent(new tTVPOnTouchDownInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
+							break;
+						case SDL_FINGERUP:
+							TVPPostInputEvent(new tTVPOnTouchUpInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
+							break;
+					}
+					return;
+				}
+				case SDL_MULTIGESTURE: {
+					TVPPostInputEvent(new tTVPOnTouchScalingInputEvent(TJSNativeInstance, 0, event.mgesture.dDist, event.mgesture.x, event.mgesture.y, 0));
+					TVPPostInputEvent(new tTVPOnTouchRotateInputEvent(TJSNativeInstance, 0, event.mgesture.dTheta, event.mgesture.dDist, event.mgesture.x, event.mgesture.y, 0));
+					return;
+				}
 				case SDL_CONTROLLERBUTTONDOWN:
 				case SDL_CONTROLLERBUTTONUP: {
 					switch (event.cbutton.state) {
