@@ -1693,7 +1693,14 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 								TVPPostInputEvent(new tTVPOnMouseDownInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, btn, s));
 								break;
 							case SDL_MOUSEBUTTONUP:
-								TVPPostInputEvent(new tTVPOnClickInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y));
+								if (event.button.clicks >= 2)
+								{
+									TVPPostInputEvent(new tTVPOnDoubleClickInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y));
+								}
+								else
+								{
+									TVPPostInputEvent(new tTVPOnClickInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y));
+								}
 								TVPPostInputEvent(new tTVPOnMouseUpInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, btn, s));
 								break;
 						}
