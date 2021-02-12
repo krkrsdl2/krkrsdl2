@@ -2048,6 +2048,7 @@ static bool process_events()
 		{
 #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 			tTJSNI_WaveSoundBuffer::Trigger();
+			tTVPTimerThread::Trigger();
 #endif
 			::Application->Run();
 			if (::Application->IsTarminate())
