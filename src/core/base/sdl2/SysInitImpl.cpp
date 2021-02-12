@@ -1620,8 +1620,13 @@ void TVPAfterSystemUninit()
 
 //---------------------------------------------------------------------------
 bool TVPTerminated = false;
+#ifdef __EMSCRIPTEN__
+bool TVPTerminateOnWindowClose = false;
+bool TVPTerminateOnNoWindowStartup = false;
+#else
 bool TVPTerminateOnWindowClose = true;
 bool TVPTerminateOnNoWindowStartup = true;
+#endif
 int TVPTerminateCode = 0;
 //---------------------------------------------------------------------------
 void TVPTerminateAsync(int code)
