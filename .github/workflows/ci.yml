@@ -113,7 +113,7 @@ jobs:
   create-release:
     needs: [build-web, build-ubuntu, build-macos]
     runs-on: ubuntu-20.04
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     steps:
     - name: Download web artifact
       uses: actions/download-artifact@v1
