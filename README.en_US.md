@@ -57,6 +57,9 @@ Code from this project is based on the following projects:
 * [SamplePlugin](https://github.com/krkrz/SamplePlugin)
 * [wuvorbis](https://github.com/krkrz/wuvorbis)
 * [ncbind](https://github.com/wtnbgo/ncbind)
+* [fstat](https://github.com/wtnbgo/fstat)
+* [json](https://github.com/wtnbgo/json)
+* [varfile](https://github.com/wtnbgo/varfile)
 * [SDL](https://github.com/libsdl-org/SDL)
 
 ## IRC Channel

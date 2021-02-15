@@ -32,6 +32,15 @@ if get_option('builtin_plugin_enable_wuvorbis') == true
 	krkrsdl2_src += run_command('cat', files('src/config/src_list/wuvorbis/sources.txt')).stdout().strip().split('\n')
 	krkrsdl2_includes += run_command('cat', files('src/config/src_list/wuvorbis/includes.txt')).stdout().strip().split('\n')
 endif
+if get_option('builtin_plugin_enable_fstat') == true
+	krkrsdl2_src += run_command('cat', files('src/config/src_list/fstat/sources.txt')).stdout().strip().split('\n')
+endif
+if get_option('builtin_plugin_enable_json') == true
+	krkrsdl2_src += run_command('cat', files('src/config/src_list/json/sources.txt')).stdout().strip().split('\n')
+endif
+if get_option('builtin_plugin_enable_varfile') == true
+	krkrsdl2_src += run_command('cat', files('src/config/src_list/varfile/sources.txt')).stdout().strip().split('\n')
+endif
 if target_machine.system() == 'emscripten'
 	krkrsdl2_src += [
 		'src/plugins/kremscripten.cpp',

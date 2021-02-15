@@ -22,3 +22,12 @@
 [submodule "external/ncbind"]
 	path = external/ncbind
 	url = ../ncbind
+[submodule "external/varfile"]
+	path = external/varfile
+	url = ../varfile
+[submodule "external/json"]
+	path = external/json
+	url = ../json
+[submodule "external/fstat"]
+	path = external/fstat
+	url = ../fstat

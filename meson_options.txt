@@ -28,6 +28,27 @@ option(
 )
 
 option(
+	'builtin_plugin_enable_fstat',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the fstat plugin.'
+)
+
+option(
+	'builtin_plugin_enable_json',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the json plugin.'
+)
+
+option(
+	'builtin_plugin_enable_varfile',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the varfile plugin.'
+)
+
+option(
 	'enable_async_image_load',
 	type: 'boolean',
 	value: true,
