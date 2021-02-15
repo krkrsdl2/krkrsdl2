@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-python@v1
         with:
           python-version: '3.x'
-      - run: pip install meson ninja
+      - run: python -m pip install --upgrade meson ninja
       - run: meson setup build/ --cross-file ./external/meson_toolchains/emscripten_meson.ini
       - run: meson compile -C build
       - uses: actions/upload-artifact@master
@@ -53,16 +53,33 @@ jobs:
       - uses: actions/setup-python@v1
         with:
           python-version: '3.x'
-      - run: pip install meson ninja
+      - run: python -m pip install --upgrade meson ninja
       - run: meson setup build/
       - run: meson compile -C build
       - uses: actions/upload-artifact@master
         with:
           name: krkrsdl2-ubuntu
           path: build/krkrsdl2
+  build-macos:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+      - uses: textbook/git-checkout-submodule-action@master
+      - run: brew update
+      - run: brew install sdl2
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+      - run: python -m pip install --upgrade meson ninja
+      - run: meson setup build/
+      - run: meson compile -C build
+      - uses: actions/upload-artifact@master
+        with:
+          name: krkrsdl2-macos
+          path: build/krkrsdl2
 
   create-release:
-    needs: [build-web, build-ubuntu]
+    needs: [build-web, build-ubuntu, build-macos]
     runs-on: ubuntu-20.04
     if: github.ref == 'refs/heads/master'
     steps:
@@ -76,10 +93,16 @@ jobs:
       with:
         name: krkrsdl2-ubuntu
 
+    - name: Download macos artifact
+      uses: actions/download-artifact@v1
+      with:
+        name: krkrsdl2-macos
+
     - name: Prepare artifacts for release
       run: |
         7z a -tzip krkrsdl2-web.zip krkrsdl2-web/*
         7z a -tzip krkrsdl2-ubuntu.zip krkrsdl2-ubuntu/*
+        7z a -tzip krkrsdl2-macos.zip krkrsdl2-macos/*
 
     - name: Create prerelease
       if: github.ref == 'refs/heads/main'
@@ -92,3 +115,4 @@ jobs:
         files: |
           krkrsdl2-web.zip
           krkrsdl2-ubuntu.zip
+          krkrsdl2-macos.zip

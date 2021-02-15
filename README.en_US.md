@@ -7,7 +7,7 @@ A demonstration project playable in your web browser thanks to Kirikiri SDL2 bei
 ## Download
 
 The program is automatically built from the latest source code by Github Actions.  
-You can download either the [Web build](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-web.zip) or the [Ubuntu build](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip).
+You can download the [Web build](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-web.zip), the [macOS build](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-macos.zip), or the [Ubuntu build](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip).
 
 ## Usage
 

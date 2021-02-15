@@ -7,7 +7,7 @@
 ## ダウンロード
 
 プログラムは、Github Actionsによって最新のソースコードから自動的に構築されます。
-[Webビルド](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-web.zip)または[Ubuntuビルド](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip)のいずれかをダウンロードできます。
+[Webビルド](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-web.zip)、[macOSビルド](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-macos.zip)、または[Ubuntuビルド](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip)をダウンロードできます。
 
 ## 使用法
 
