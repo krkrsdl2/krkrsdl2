@@ -29,7 +29,7 @@ jobs:
       - run: sudo apt-get install build-essential libsdl2-dev git
       - uses: numworks/setup-emscripten@v1
         with:
-          sdk: '2.0.9'
+          sdk: '2.0.13'
       - uses: actions/setup-python@v1
         with:
           python-version: '3.x'
