@@ -24,7 +24,7 @@ static emscripten::val js_curry_get_own_property_descriptor = emscripten::val::u
 static emscripten::val js_new_proxy = emscripten::val::undefined();
 
 static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::val vthis = emscripten::val::null());
-static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v, iTJSDispatch2 *objthis = nullptr);
+static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v);
 
 class iTJSDispatch2WrapperForEmscripten : public tTJSDispatch
 {
@@ -243,7 +243,7 @@ static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::
 	return tTJSVariant();
 }
 
-static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v, iTJSDispatch2 *objthis)
+static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v)
 {
 	tTJSVariantType type = v.Type();
 	if (type == tvtInteger)
@@ -265,6 +265,7 @@ static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v, iTJSDispatch
 	else if (type == tvtObject)
 	{
 		iTJSDispatch2 *obj = v.AsObject();
+		iTJSDispatch2 *objthis = v.AsObjectThis();
 		if (obj == nullptr)
 		{
 			return emscripten::val::null();
