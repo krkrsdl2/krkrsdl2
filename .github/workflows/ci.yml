@@ -81,10 +81,12 @@ jobs:
         7z a -tzip krkrsdl2-web.zip krkrsdl2-web/*
         7z a -tzip krkrsdl2-ubuntu.zip krkrsdl2-ubuntu/*
 
-    - name: Create release
+    - name: Create prerelease
+      if: github.ref == 'refs/heads/main'
       uses: marvinpinto/action-automatic-releases@latest
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: true
         automatic_release_tag: "latest"
         title: "Latest development builds"
         files: |
