@@ -56,6 +56,7 @@ Code from this project is based on the following projects:
 * [KAGParser](https://github.com/krkrz/KAGParser)
 * [SamplePlugin](https://github.com/krkrz/SamplePlugin)
 * [wuvorbis](https://github.com/krkrz/wuvorbis)
+* [ncbind](https://github.com/wtnbgo/ncbind)
 * [SDL](https://github.com/libsdl-org/SDL)
 
 ## IRC Channel
