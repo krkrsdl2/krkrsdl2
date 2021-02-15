@@ -14,3 +14,6 @@
 #include "TransIntf.h"
 #include "GraphicsLoaderIntf.h"
 #include "TickCount.h"
+#include "Extension.h"
+#include "tjsGlobalStringMap.h"
+#include "EventIntf.h"

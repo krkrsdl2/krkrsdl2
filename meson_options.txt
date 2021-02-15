@@ -21,171 +21,10 @@ option(
 )
 
 option(
-	'builtin_plugin_enable_csvparser',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the csvparser plugin.'
-)
-
-option(
-	'builtin_plugin_enable_fstat',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the fstat plugin.'
-)
-
-option(
-	'builtin_plugin_enable_getsample',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the getsample plugin.'
-)
-
-option(
-	'builtin_plugin_enable_json',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the json plugin.'
-)
-
-option(
-	'builtin_plugin_enable_layerexbtoa',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the layerExBTOA plugin.'
-)
-
-option(
-	'builtin_plugin_enable_layereximage',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the layerExImage plugin.'
-)
-
-option(
 	'builtin_plugin_enable_wuvorbis',
 	type: 'boolean',
 	value: true,
 	description: 'Enable the wuvorbis plugin.'
-)
-
-option(
-	'builtin_plugin_enable_kratrac9',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the kratrac9 plugin.'
-)
-
-option(
-	'builtin_plugin_enable_kratrac9',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the kratrac9 plugin.'
-)
-
-option(
-	'builtin_plugin_enable_kri18n',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the kri18n plugin.'
-)
-
-option(
-	'builtin_plugin_enable_krglhwebp',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the krglhwebp plugin.'
-)
-
-option(
-	'builtin_plugin_enable_ksupport',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the ksupport plugin.'
-)
-
-option(
-	'builtin_plugin_enable_savestruct',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the saveStruct plugin.'
-)
-
-option(
-	'builtin_plugin_enable_varfile',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the varfile plugin.'
-)
-
-option(
-	'builtin_plugin_enable_scriptsex',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the scriptsEx plugin.'
-)
-
-option(
-	'builtin_plugin_enable_binarystream',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the binaryStream plugin.'
-)
-
-option(
-	'builtin_plugin_enable_layerexareaaverage',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the layerExAreaAverage plugin.'
-)
-
-option(
-	'builtin_plugin_enable_layerexlongexposure',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the layerExLongExposure plugin.'
-)
-
-option(
-	'builtin_plugin_enable_layerexraster',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the layerExRaster plugin.'
-)
-
-option(
-	'builtin_plugin_enable_lineparser',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the lineParser plugin.'
-)
-
-option(
-	'builtin_plugin_enable_shrinkcopy',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the shrinkCopy plugin.'
-)
-
-option(
-	'builtin_plugin_enable_fftgraph',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the fftgraph plugin.'
-)
-
-option(
-	'builtin_plugin_enable_minizip',
-	type: 'boolean',
-	value: false,
-	description: 'Enable the minizip plugin.'
-)
-
-option(
-	'builtin_plugin_enable_menu',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the menu plugin. At the moment, only the Cocoa backend is supported.'
 )
 
 option(
@@ -210,24 +49,10 @@ option(
 )
 
 option(
-	'enable_coretext_rasterizer',
-	type: 'boolean',
-	value: false,
-	description: 'Enable CoreText font rasterizer for the macOS build. Minimum macOS version required >= 10.15.'
-)
-
-option(
 	'enable_sdl_threads',
 	type: 'boolean',
 	value: false,
 	description: 'Enable SDL threads. May be more useful on platforms that do not have a good implementation of std::thread.'
-)
-
-option(
-	'enable_wavemixer_openal',
-	type: 'boolean',
-	value: false,
-	description: 'Use OpenAL wave mixer instead of the built-in SDL mixer. Requires the OpenAL libraries to be installed.'
 )
 
 option(

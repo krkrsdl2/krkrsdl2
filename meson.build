@@ -12,10 +12,6 @@ project('krkrsdl2',
 	version: 'unknown'
 )
 
-if target_machine.system() == 'darwin'
-	add_languages('objcpp')
-endif
-
 cxx = meson.get_compiler('cpp')
 host_system = host_machine.system()
 
@@ -29,129 +25,12 @@ endif
 if get_option('builtin_plugin_enable_extrans') == true
 	krkrsdl2_src += run_command('cat', files('src/config/src_list/extrans/sources.txt')).stdout().strip().split('\n')
 endif
-if get_option('builtin_plugin_enable_extrans') == true
+if get_option('builtin_plugin_enable_wutcwf') == true
 	krkrsdl2_src += run_command('cat', files('src/config/src_list/wutcwf/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_csvparser') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/csvparser/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_fstat') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/fstat/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_getsample') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/getsample/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_json') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/json/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_layerexbtoa') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/layerexbtoa/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_layereximage') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/layereximage/sources.txt')).stdout().strip().split('\n')
 endif
 if get_option('builtin_plugin_enable_wuvorbis') == true
 	krkrsdl2_src += run_command('cat', files('src/config/src_list/wuvorbis/sources.txt')).stdout().strip().split('\n')
 	krkrsdl2_includes += run_command('cat', files('src/config/src_list/wuvorbis/includes.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_kratrac9') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/kratrac9/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_krglhwebp') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/krglhwebp/sources.txt')).stdout().strip().split('\n')
-	krkrsdl2_includes += run_command('cat', files('src/config/src_list/krglhwebp/includes.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_kri18n') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/kri18n/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_ksupport') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/ksupport/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_savestruct') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/savestruct/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_varfile') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/varfile/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_scriptsex') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/scriptsex/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_binarystream') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/binarystream/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_layerexareaaverage') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/layerexareaaverage/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_layerexlongexposure') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/layerexlongexposure/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_layerexraster') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/layerexraster/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_lineparser') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/lineparser/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_shrinkcopy') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/shrinkcopy/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_fftgraph') == true
-	krkrsdl2_src += run_command('cat', files('src/config/src_list/fftgraph/sources.txt')).stdout().strip().split('\n')
-endif
-if get_option('builtin_plugin_enable_minizip') == true
-	krkrsdl2_src += [
-		'external/minizip/ioapi.cpp',
-		'external/minizip/main.cpp',
-		'external/minizip/storage.cpp',
-		'external/minizip/external/minizip/lib/bzip2/blocksort.c',
-		'external/minizip/external/minizip/lib/bzip2/bzlib.c',
-		'external/minizip/external/minizip/lib/bzip2/compress.c',
-		'external/minizip/external/minizip/lib/bzip2/crctable.c',
-		'external/minizip/external/minizip/lib/bzip2/decompress.c',
-		'external/minizip/external/minizip/lib/bzip2/huffman.c',
-		'external/minizip/external/minizip/lib/bzip2/randtable.c',
-		'external/minizip/external/minizip/lib/liblzma/check/check.c',
-		'external/minizip/external/minizip/lib/liblzma/check/crc32_fast.c',
-		'external/minizip/external/minizip/lib/liblzma/check/crc32_table.c',
-		'external/minizip/external/minizip/lib/liblzma/common/alone_decoder.c',
-		'external/minizip/external/minizip/lib/liblzma/common/alone_encoder.c',
-		'external/minizip/external/minizip/lib/liblzma/common/common.c',
-		'external/minizip/external/minizip/lib/liblzma/common/filter_encoder.c',
-		'external/minizip/external/minizip/lib/liblzma/lz/lz_decoder.c',
-		'external/minizip/external/minizip/lib/liblzma/lz/lz_encoder.c',
-		'external/minizip/external/minizip/lib/liblzma/lz/lz_encoder_mf.c',
-		'external/minizip/external/minizip/lib/liblzma/lzma/fastpos_table.c',
-		'external/minizip/external/minizip/lib/liblzma/lzma/lzma_decoder.c',
-		'external/minizip/external/minizip/lib/liblzma/lzma/lzma_encoder.c',
-		'external/minizip/external/minizip/lib/liblzma/lzma/lzma_encoder_optimum_fast.c',
-		'external/minizip/external/minizip/lib/liblzma/lzma/lzma_encoder_optimum_normal.c',
-		'external/minizip/external/minizip/lib/liblzma/lzma/lzma_encoder_presets.c',
-		'external/minizip/external/minizip/lib/liblzma/rangecoder/price_table.c',
-		'external/minizip/external/minizip/mz_compat.c',
-		'external/minizip/external/minizip/mz_crypt.c',
-		'external/minizip/external/minizip/mz_os.c',
-		'external/minizip/external/minizip/mz_os_posix.c',
-		'external/minizip/external/minizip/mz_strm.c',
-		'external/minizip/external/minizip/mz_strm_buf.c',
-		'external/minizip/external/minizip/mz_strm_bzip.c',
-		'external/minizip/external/minizip/mz_strm_lzma.c',
-		'external/minizip/external/minizip/mz_strm_mem.c',
-		'external/minizip/external/minizip/mz_strm_os_posix.c',
-		'external/minizip/external/minizip/mz_strm_split.c',
-		'external/minizip/external/minizip/mz_strm_zlib.c',
-		'external/minizip/external/minizip/mz_zip.c',
-		'external/minizip/external/minizip/mz_zip_rw.c',
-	]
-	krkrsdl2_includes += [
-		'external/minizip/external/minizip',
-		'external/minizip/external/minizip/lib/bzip2',
-		'external/minizip/external/minizip/lib/liblzma',
-		'external/minizip/external/minizip/lib/liblzma/api',
-		'external/minizip/external/minizip/lib/liblzma/check',
-		'external/minizip/external/minizip/lib/liblzma/common',
-		'external/minizip/external/minizip/lib/liblzma/lz',
-		'external/minizip/external/minizip/lib/liblzma/lzma',
-		'external/minizip/external/minizip/lib/liblzma/rangecoder',
-	]
 endif
 if target_machine.system() == 'emscripten'
 	krkrsdl2_src += [
@@ -179,33 +58,6 @@ krkrsdl2_cflags += [
 	'-DFLOAT_APPROX',
 	'-DPNG_ARM_NEON_OPT=0',
 ]
-if get_option('builtin_plugin_enable_minizip') == true
-	krkrsdl2_cflags += [
-		'-DMZ_ZIP_NO_ENCRYPTION',
-		'-DMZ_ZIP_NO_SIGNING',
-		'-D__USE_FILE_OFFSET64',
-		'-D__USE_LARGEFILE64',
-		'-D_LARGEFILE64_SOURCE',
-		'-D_FILE_OFFSET_BITS=64',
-		'-DHAVE_STDINT_H',
-		'-DHAVE_INTTYPES_H',
-		'-DHAVE_ZLIB',
-		'-DHAVE_BZIP2',
-		'-DBZ_NO_STDIO',
-		'-DHAVE_LZMA',
-		'-DLZMA_API_STATIC',
-		'-DHAVE_CONFIG_H',
-		'-DHAVE_LIMITS_H',
-		'-DHAVE_STRING_H',
-		'-DHAVE_STRINGS_H',
-		'-DHAVE_MEMORY_H',
-		'-DHAVE_STDBOOL_H',
-		'-DSYMBOLIC_LINK_FLAG_DIRECTORY=0x1',
-	]
-	if cxx.has_header_symbol('iconv.h', 'iconv_open')
-		libiconv = [cxx.find_library('iconv')]
-	endif
-endif
 if target_machine.system() == 'emscripten'
 	krkrsdl2_cflags += [
 		'-s', 'DISABLE_EXCEPTION_CATCHING=0',
@@ -278,70 +130,10 @@ krkrsdl2_dependson = [
 	sdl2_dep,
 ]
 
-if get_option('builtin_plugin_enable_minizip') == true
-	if cxx.has_header_symbol('iconv.h', 'iconv_open')
-		krkrsdl2_dependson += [
-			cxx.find_library('iconv')
-		]
-	endif
-endif
-
 if get_option('enable_async_image_load') == true and target_machine.system() != 'emscripten'
 	krkrsdl2_cppflags += [
 		'-DKRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD',
 	]
-endif
-
-if get_option('enable_coretext_rasterizer') == true
-	if target_machine.system() == 'darwin'
-		coretext_dep = dependency('appleframeworks', modules: 'CoreText')
-		krkrsdl2_dependson += [
-			coretext_dep
-		]
-		krkrsdl2_cppflags += [
-			'-DKRKRZ_CORETEXT_SUPPORT',
-			'-mmacosx-version-min=10.15',
-		]
-		krkrsdl2_src += [
-			'external/krkrz/visual/darwin/CoreTextFontFallback.mm',
-			'external/krkrz/visual/darwin/CoreTextFontRasterizer.cc',
-			'external/krkrz/visual/darwin/CoreTextFontRasterizer.h',
-			'external/krkrz/visual/darwin/CoreTextFontStorage.cc',
-			'external/krkrz/visual/darwin/CoreTextFontStorage.h',
-		]
-	endif
-endif
-
-if get_option('builtin_plugin_enable_menu') == true
-	krkrsdl2_src += [
-		'src/plugins/menu/menu.cc',
-	]
-	if target_machine.system() == 'darwin'
-		cocoa_dep = dependency('appleframeworks', modules: 'Cocoa')
-		krkrsdl2_dependson += [
-			cocoa_dep
-		]
-		krkrsdl2_src += [
-			'src/plugins/menu/cocoa.mm',
-		]
-	endif
-endif
-
-if get_option('enable_wavemixer_openal') == true
-	krkrsdl2_cppflags += [
-		'-DTVP_USE_OPENAL',
-	]
-	if target_machine.system() == 'darwin'
-		openal_dep = dependency('appleframeworks', modules: 'OpenAL')
-		krkrsdl2_dependson += [
-			openal_dep
-		]
-	else
-		openal_dep = dependency('openal', method: 'pkg-config')
-		krkrsdl2_dependson += [
-			openal_dep
-		]
-	endif
 endif
 
 if get_option('enable_canvas') == true

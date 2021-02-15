@@ -1,3 +1,0 @@
-external/krglhwebp/libwebp
-external/krglhwebp/libwebp/src
-external/krglhwebp/libwebp_config
