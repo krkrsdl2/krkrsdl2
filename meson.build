@@ -99,6 +99,7 @@ if target_machine.system() == 'emscripten'
 		'-s', 'FORCE_FILESYSTEM=1',
 		'-s', 'ASSERTIONS=0',
 		'-s', 'STACK_OVERFLOW_CHECK=0',
+		'-s', 'IMPORTED_MEMORY=1',
 		'-lidbfs.js',
 		'--bind',
 		'--no-heap-copy',
