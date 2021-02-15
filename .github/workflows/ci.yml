@@ -24,7 +24,8 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - uses: textbook/git-checkout-submodule-action@master
+        with:
+          submodules: recursive
       - run: sudo apt-get update
       - run: sudo apt-get install build-essential libsdl2-dev git
       - uses: numworks/setup-emscripten@v1
@@ -47,7 +48,8 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - uses: textbook/git-checkout-submodule-action@master
+        with:
+          submodules: recursive
       - run: sudo apt-get update
       - run: sudo apt-get install build-essential libsdl2-dev
       - uses: actions/setup-python@v1
@@ -64,7 +66,8 @@ jobs:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
-      - uses: textbook/git-checkout-submodule-action@master
+        with:
+          submodules: recursive
       - run: brew update
       - run: brew install sdl2
       - uses: actions/setup-python@v1
