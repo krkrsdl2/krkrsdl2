@@ -196,7 +196,6 @@ if target_machine.system() == 'emscripten'
 	krkrsdl2_override_options += [
 		'optimization=s',
 		'debug=false',
-		'b_lto=true'
 	]
 endif
 krkrsdl2 = executable(

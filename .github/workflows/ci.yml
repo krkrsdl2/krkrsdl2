@@ -34,7 +34,7 @@ jobs:
         with:
           python-version: '3.x'
       - run: pip install meson ninja
-      - run: meson setup build/ --cross-file ./external/meson_toolchains/emscripten_meson.ini -Db_lto=true
+      - run: meson setup build/ --cross-file ./external/meson_toolchains/emscripten_meson.ini
       - run: meson compile -C build
       - uses: actions/upload-artifact@master
         with:
