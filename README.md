@@ -1,13 +1,13 @@
 # 吉里吉里SDL2
 
 これは、macOSやLinuxなど、[SDL2](https://www.libsdl.org/)をサポートするプラットフォームで実行できる[吉里吉里Z](https://krkrz.github.io/)の移植版です。  
-このプログラムは、KAG（吉里吉里アドベンチャーゲーム）3の変更バージョンと一緒に使用できます。詳細については、次の場所を参照してください：https://github.com/uyjulian/kag3  
-[Emscripten](https://emscripten.org/)を使用して[WebAssembly](https://webassembly.org/)にコンパイルされている吉里吉里SDL2のおかげで、Webブラウザーで再生可能なデモプロジェクトがここにあります：https://ghpages.uyjulian.pw/krkrsdl2/  
+このプログラムは、KAG（吉里吉里アドベンチャーゲーム）3の変更バージョンと一緒に使用できます。詳細については、次の場所を参照してください：https://github.com/krkrsdl2/kag3  
+[Emscripten](https://emscripten.org/)を使用して[WebAssembly](https://webassembly.org/)にコンパイルされている吉里吉里SDL2のおかげで、Webブラウザーで再生可能なデモプロジェクトがここにあります：https://krkrsdl2.github.io/krkrsdl2/  
 
 ## ダウンロード
 
 プログラムは、Github Actionsによって最新のソースコードから自動的に構築されます。
-[Webビルド](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-web.zip)、[macOSビルド](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-macos.zip)、または[Ubuntuビルド](https://github.com/uyjulian/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip)をダウンロードできます。
+[Webビルド](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-web.zip)、[macOSビルド](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-macos.zip)、または[Ubuntuビルド](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip)をダウンロードできます。
 
 ## 使用法
 
@@ -33,7 +33,7 @@ Webバージョンの場合、[Releaser](https://krkrz.github.io/krkr2doc/kr2doc
 リポジトリのクローンを作成するには、ターミナルで次のコマンドを使用してください：
 
 ```bash
-git clone --recursive https://github.com/uyjulian/krkrsdl2
+git clone --recursive https://github.com/krkrsdl2/krkrsdl2
 ```
 上記の正確なコマンドを使用しない場合、プロジェクトがGitサブモジュールを使用するため、ファイルが失われます。
 
@@ -41,7 +41,7 @@ git clone --recursive https://github.com/uyjulian/krkrsdl2
 
 このプロジェクトは、Mesonビルドシステムを使用してビルドできます。 システムの詳細については、次の場所をご覧ください： https://mesonbuild.com/  
 Mesonツールチェーンファイルは、[Emscripten](https://emscripten.org/)を使用する場合など、異なるプラットフォームへのクロスコンパイルに使用できます。  
-便宜上、Mesonツールチェーンファイルは次の場所にあります：https://github.com/uyjulian/meson_toolchains  
+便宜上、Mesonツールチェーンファイルは次の場所にあります：https://github.com/krkrsdl2/meson_toolchains  
 
 ## クイックスタート
 
