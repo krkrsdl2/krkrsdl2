@@ -60,6 +60,7 @@ Mesonツールチェーンファイルは、[Emscripten](https://emscripten.org/
 * [fstat](https://github.com/wtnbgo/fstat)
 * [json](https://github.com/wtnbgo/json)
 * [varfile](https://github.com/wtnbgo/varfile)
+* [simde](https://github.com/simd-everywhere/simde)
 * [SDL](https://github.com/libsdl-org/SDL)
 
 ## IRCチャンネル
