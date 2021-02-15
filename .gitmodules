@@ -7,78 +7,9 @@
 [submodule "external/KAGParser"]
 	path = external/KAGParser
 	url = ../KAGParser
-[submodule "external/ncbind"]
-	path = external/ncbind
-	url = ../ncbind
-[submodule "external/varfile"]
-	path = external/varfile
-	url = ../varfile
-[submodule "external/getSample"]
-	path = external/getSample
-	url = ../getSample
-[submodule "external/json"]
-	path = external/json
-	url = ../json
-[submodule "external/saveStruct"]
-	path = external/saveStruct
-	url = ../saveStruct
-[submodule "external/csvParser"]
-	path = external/csvParser
-	url = ../csvParser
-[submodule "external/fstat"]
-	path = external/fstat
-	url = ../fstat
-[submodule "external/layerEx"]
-	path = external/layerEx
-	url = ../layerEx
-[submodule "external/layerExDraw"]
-	path = external/layerExDraw
-	url = ../layerExDraw
-[submodule "external/layerExImage"]
-	path = external/layerExImage
-	url = ../layerExImage
 [submodule "external/wuvorbis"]
 	path = external/wuvorbis
 	url = ../wuvorbis
-[submodule "external/kri18n"]
-	path = external/kri18n
-	url = ../kri18n
-[submodule "external/kratrac9"]
-	path = external/kratrac9
-	url = ../kratrac9
-[submodule "external/ksupport"]
-	path = external/ksupport
-	url = ../ksupport
-[submodule "external/scriptsEx"]
-	path = external/scriptsEx
-	url = ../scriptsEx
-[submodule "external/layerExBTOA"]
-	path = external/layerExBTOA
-	url = ../layerExBTOA
-[submodule "external/krglhwebp"]
-	path = external/krglhwebp
-	url = ../krglhwebp
-[submodule "external/binaryStream"]
-	path = external/binaryStream
-	url = ../binaryStream
-[submodule "external/fftgraph"]
-	path = external/fftgraph
-	url = ../fftgraph
-[submodule "external/layerExAreaAverage"]
-	path = external/layerExAreaAverage
-	url = ../layerExAreaAverage
-[submodule "external/layerExLongExposure"]
-	path = external/layerExLongExposure
-	url = ../layerExLongExposure
-[submodule "external/layerExRaster"]
-	path = external/layerExRaster
-	url = ../layerExRaster
-[submodule "external/lineParser"]
-	path = external/lineParser
-	url = ../lineParser
-[submodule "external/shrinkCopy"]
-	path = external/shrinkCopy
-	url = ../shrinkCopy
 [submodule "external/simde"]
 	path = external/simde
 	url = https://github.com/simd-everywhere/simde.git
@@ -88,6 +19,3 @@
 [submodule "external/SDL"]
 	path = external/SDL
 	url = https://github.com/SDL-mirror/SDL.git
-[submodule "external/minizip"]
-	path = external/minizip
-	url = ../minizip
