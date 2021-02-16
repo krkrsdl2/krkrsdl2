@@ -714,14 +714,7 @@ retry:
 
 	if (access == TJS_BS_APPEND) // move the file pointer to last
 	{
-#if defined(__vita__)
-		sceIoLseek(io_handle, 0, SCE_SEEK_END);
-#else
-		if (SDL_RWseek(io_handle, 0, RW_SEEK_END) < 0)
-		{
-			TVPThrowExceptionMessage(TVPSeekError);
-		}
-#endif
+		SetEndOfStorage();
 	}
 
 	// push current tick as an environment noise
@@ -807,22 +800,15 @@ tjs_uint TJS_INTF_METHOD tTVPLocalFileStream::Write(const void *buffer, tjs_uint
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPLocalFileStream::SetEndOfStorage()
 {
-#if defined(__vita__)
-	sceIoLseek(io_handle, 0, SCE_SEEK_END);
-#else
-	if (SDL_RWseek(io_handle, 0, RW_SEEK_END) < 0)
-	{
-		TVPThrowExceptionMessage(TVPSeekError);
-	}
-#endif
+	Seek(0, TJS_BS_SEEK_END);
 }
 //---------------------------------------------------------------------------
 tjs_uint64 TJS_INTF_METHOD tTVPLocalFileStream::GetSize()
 {
 #if defined(__vita__)
-	SceOff oldpos = sceIoLseek( io_handle, 0, SCE_SEEK_CUR );
-	SceOff retpos = sceIoLseek( io_handle, 0, SCE_SEEK_END );
-	sceIoLseek( io_handle, oldpos, SCE_SEEK_SET );
+	tjs_uint64 oldpos = Seek(0, TJS_BS_SEEK_CUR);
+	tjs_uint64 retpos = Seek(0, TJS_BS_SEEK_END);
+	Seek(oldpos, TJS_BS_SEEK_SET);
 	return retpos;
 #else
 	Sint64 low = SDL_RWsize(io_handle);
