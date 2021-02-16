@@ -1,17 +1,24 @@
 # 吉里吉里SDL2
 
-これは、macOSやLinuxなど、[SDL2](https://www.libsdl.org/)をサポートするプラットフォームで実行できる[吉里吉里Z](https://krkrz.github.io/)の移植版です。  
-このプログラムは、KAG（吉里吉里アドベンチャーゲーム）3の変更バージョンと一緒に使用できます。詳細については、次の場所を参照してください：https://github.com/krkrsdl2/kag3  
-[Emscripten](https://emscripten.org/)を使用して[WebAssembly](https://webassembly.org/)にコンパイルされている吉里吉里SDL2のおかげで、Webブラウザーで再生可能なデモプロジェクトがここにあります：https://krkrsdl2.github.io/krkrsdl2/  
+吉里吉里SDL2は、macOSやLinuxなど、[SDL2](https://www.libsdl.org/)をサポートするプラットフォームで実行できる[吉里吉里Z](https://krkrz.github.io/)の移植版です。  
+
+このプログラムは、KAG（吉里吉里アドベンチャーゲーム）3の変更バージョンと共に使用できます。  
+詳細については、次の場所を参照してください：https://github.com/krkrsdl2/kag3  
+
+吉里吉里SDL2は[Emscripten](https://emscripten.org/)を使用して[WebAssembly](https://webassembly.org/)にコンパイルすることも可能です。  
+Webブラウザーでプレイできるデモはここにあります：https://krkrsdl2.github.io/krkrsdl2/  
 
 ## ダウンロード
 
-プログラムは、Github Actionsによって最新のソースコードから自動的に構築されます。
-[Webビルド](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-web.zip)、[macOSビルド](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-macos.zip)、または[Ubuntuビルド](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip)をダウンロードできます。
+以下のビルドは、Github Actionsによって最新のソースコードから自動的に構築されます。
+
+* [Webビルド](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-web.zip)
+* [macOSビルド](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-macos.zip)
+* [Ubuntuビルド](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip)
 
 ## 使用法
 
-プログラムを使用するには、`startup.tjs`と同じディレクトリのコマンドラインで実行します：
+プログラムを使用するには、`startup.tjs`と同じディレクトリのコマンドラインで以下を実行します：
 ```bash
 /path/to/krkrsdl2
 ```
@@ -26,7 +33,7 @@
 /path/to/krkrsdl2 -drawthread=4
 ```
 
-Webバージョンの場合、[Releaser](https://krkrz.github.io/krkr2doc/kr2doc/contents/Releaser.html)によって作成されたWebビルドおよび`data.xp3`のファイルをWebサーバーに配置します。 それが完了すると、プロジェクトはWebブラウザからアクセスできます。  
+Webバージョンの場合は、[Releaser](https://krkrz.github.io/krkr2doc/kr2doc/contents/Releaser.html)によって作成した`data.xp3`をWebビルドと同じフォルダに配置し、Webサーバー上にアップロードします。 設置でき次第、プロジェクトはWebブラウザから動作します。
 
 ## クローニング
 
@@ -35,18 +42,20 @@ Webバージョンの場合、[Releaser](https://krkrz.github.io/krkr2doc/kr2doc
 ```bash
 git clone --recursive https://github.com/krkrsdl2/krkrsdl2
 ```
-上記の正確なコマンドを使用しない場合、プロジェクトがGitサブモジュールを使用するため、ファイルが失われます。
+プロジェクトがGitサブモジュールを使用するため、上記のコマンドを正しく使用しない場合、ソースファイルが欠落します。
 
 ## ビルディング
 
-このプロジェクトは、Mesonビルドシステムを使用してビルドできます。 システムの詳細については、次の場所をご覧ください： https://mesonbuild.com/  
-Mesonツールチェーンファイルは、[Emscripten](https://emscripten.org/)を使用する場合など、異なるプラットフォームへのクロスコンパイルに使用できます。  
-便宜上、Mesonツールチェーンファイルは次の場所にあります：https://github.com/krkrsdl2/meson_toolchains  
+このプロジェクトは、Mesonビルドシステムを使用してビルドできます。  
+Mesonビルドシステムの詳細については、次の場所をご覧ください： https://mesonbuild.com/
+ 
+Mesonツールチェーンファイルは、[Emscripten](https://emscripten.org/)を使用する場合など、異なるプラットフォームへのクロスコンパイルに使用できます。    
+便宜上、Mesonツールチェーンファイルは次の場所に置いてあります：https://github.com/krkrsdl2/meson_toolchains  
 
 ## クイックスタート
 
-このプロジェクトをビルドしたら、ディレクトリを`startup.tjs`を含むディレクトリに変更できます。
-その後、次のプログラムを実行します： `/path/to/krkrsdl2`  
+このプロジェクトをビルドしたら、`startup.tjs`を含むディレクトリに設置してください。  
+その後、次のコマンドを実行します： `/path/to/krkrsdl2`  
 
 ## オリジナルプロジェクト
 

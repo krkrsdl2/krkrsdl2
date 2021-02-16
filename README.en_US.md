@@ -1,13 +1,20 @@
 # Kirikiri SDL2
 
-This is a ported version of [Kirikiri Z](https://krkrz.github.io/) that can be run on platforms supporting [SDL2](https://www.libsdl.org/), such as macOS and Linux.  
-This program can be used alongside a modified version of KAG (Kirikiri Adventure Game) 3. For more details, please see the following location: https://github.com/krkrsdl2/kag3  
-A demonstration project playable in your web browser thanks to Kirikiri SDL2 being compiled to [WebAssembly](https://webassembly.org/) with [Emscripten](https://emscripten.org/) is available here: https://krkrsdl2.github.io/krkrsdl2/  
+Kirikiri SDL2 is a port of [Kirikiri Z](https://krkrz.github.io/) that can be run on platforms supporting [SDL2](https://www.libsdl.org/), such as macOS and Linux.  
+
+This program can be used alongside a modified version of KAG (Kirikiri Adventure Game) 3.  
+For more details, please see the following location: https://github.com/krkrsdl2/kag3  
+
+Kirikiri SDL2 can also be compiled to [WebAssembly](https://webassembly.org/) with [Emscripten](https://emscripten.org/).  
+A demonstration project playable in your web browser is available here: https://krkrsdl2.github.io/krkrsdl2/  
 
 ## Download
 
-The program is automatically built from the latest source code by Github Actions.  
-You can download the [Web build](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-web.zip), the [macOS build](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-macos.zip), or the [Ubuntu build](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip).
+The following builds are automatically built from the latest source code by Github Actions.  
+
+* [Web build](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-web.zip)
+* [macOS build](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-macos.zip)
+* [Ubuntu build](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip)
 
 ## Usage
 
@@ -35,11 +42,13 @@ To clone the repository, please use the following command in a terminal:
 ```bash
 git clone --recursive https://github.com/krkrsdl2/krkrsdl2
 ```
-If you do not use the exact command above, you will be missing files since the project uses Git submodules.
+If you do not use the exact command above, source files will be missing files since the project uses Git submodules.
 
 ## Building
 
-This project can be built by using the Meson build system. For more information about the system, please visit the following location: https://mesonbuild.com/  
+This project can be built by using the Meson build system.  
+For more information about the system, please visit the following location: https://mesonbuild.com/  
+
 Meson toolchain files can be used to cross compile to different platforms, such as when using [Emscripten](https://emscripten.org/).  
 For your convenience, Meson toolchain files are located here: https://github.com/krkrsdl2/meson_toolchains  
 
