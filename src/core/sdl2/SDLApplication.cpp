@@ -623,9 +623,10 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 	}
 #if defined(__EMSCRIPTEN__) && defined(KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE)
 	EmscriptenFullscreenStrategy strategy;
+	memset(&strategy, 0, sizeof(strategy));
 	strategy.scaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF;
 	strategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
-	emscripten_enter_soft_fullscreen("canvas", &strategy);           
+	emscripten_enter_soft_fullscreen("#canvas", &strategy);
 #endif
 #ifdef KRKRZ_ENABLE_CANVAS
 	context = nullptr;
