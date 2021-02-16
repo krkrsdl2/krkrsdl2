@@ -108,7 +108,6 @@ if target_machine.system() == 'emscripten'
 		'-s', 'FORCE_FILESYSTEM=1',
 		'-s', 'ASSERTIONS=0',
 		'-s', 'STACK_OVERFLOW_CHECK=0',
-		'-s', 'IMPORTED_MEMORY=1',
 		'-lidbfs.js',
 		'--bind',
 		'--no-heap-copy',
@@ -116,10 +115,6 @@ if target_machine.system() == 'emscripten'
 	if get_option('emscripten_enable_js_fallback') == true
 		krkrsdl2_ldflags += [
 			'-s', 'WASM=2',
-		]
-	else
-		krkrsdl2_ldflags += [
-			'-s', 'WASM=1',
 		]
 	endif
 	if get_option('emscripten_enable_threads') == true

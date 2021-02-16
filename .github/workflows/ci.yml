@@ -20,7 +20,7 @@ on:
       - "**.yml"
 
 env:
-  EM_VERSION: 2.0.13
+  EM_VERSION: 2.0.9
   EM_CACHE_FOLDER: 'emsdk-cache'
 
 jobs:
