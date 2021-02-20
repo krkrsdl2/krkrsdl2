@@ -2074,9 +2074,9 @@ static bool process_events()
 #if defined(USE_SDL_MAIN) && defined(__IPHONEOS__)
 static int SDL_actual_main(int argc, char **argv)
 #elif defined(USE_SDL_MAIN)
-int SDL_main(int argc, char **argv)
+extern "C" int SDL_main(int argc, char **argv)
 #else
-int main(int argc, char **argv)
+extern "C" int main(int argc, char **argv)
 #endif
 {
 	_argc = argc;
@@ -2140,7 +2140,7 @@ int main(int argc, char **argv)
 }
 
 #if defined(USE_SDL_MAIN) && defined(__IPHONEOS__)
-int SDL_main(int argc, char **argv)
+extern "C" int SDL_main(int argc, char **argv)
 {
 	return SDL_UIKitRunApp(argc, argv, SDL_actual_main);
 }

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(krkrsdl2)
 
-if((NOT ANDROID) AND (NOT IOS) AND (NOT VITA) AND (NOT NSWITCH))
+if((NOT ANDROID) AND (NOT IOS) AND (NOT VITA) AND (NOT NSWITCH) AND (NOT (APPLE AND NOT IOS)))
 message(WARN "The CMake file is provided for platforms that do not support Meson well. Please try the Meson build system first.")
 endif()
 
@@ -132,6 +132,13 @@ list(APPEND KRKRSDL2_LIBS
 list(APPEND KRKRSDL2_CXXFLAGS
 	-DUSE_SDL_MAIN
 )
+elseif(APPLE AND NOT IOS)
+set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
+add_subdirectory(external/SDL)
+find_library(SDL2 NAMES SDL2-static)
+list(APPEND KRKRSDL2_LIBS
+	SDL2-static
+)
 elseif(ANDROID)
 set(SDL_SHARED_ENABLED_BY_DEFAULT ON)
 set(SDL_STATIC_ENABLED_BY_DEFAULT OFF)
@@ -226,7 +233,27 @@ set_property(
 	PROPERTY MACOSX_PACKAGE_LOCATION "Resources"
 )
 target_sources(${KRKRSDL2_NAME} PRIVATE 
-	data src/ios-resources/Images.xcassets
+	data
+	src/ios-resources/Images.xcassets
+)
+endif()
+
+if(APPLE AND NOT IOS)
+set_target_properties(${KRKRSDL2_NAME} PROPERTIES
+	BUNDLE TRUE
+	MACOSX_BUNDLE TRUE
+	MACOSX_BUNDLE_GUI_IDENTIFIER pw.uyjulian.krkrsdl2
+	MACOSX_BUNDLE_ICON_FILE "krkrsdl2.icns"
+	XCODE_ATTRIBUTE_SKIP_INSTALL NO
+	XCODE_ATTRIBUTE_INSTALL_PATH "/Applications"
+)
+set_property(
+	SOURCE data src/macos-resources/krkrsdl2.icns
+	PROPERTY MACOSX_PACKAGE_LOCATION "Resources"
+)
+target_sources(${KRKRSDL2_NAME} PRIVATE 
+	data
+	src/macos-resources/krkrsdl2.icns
 )
 endif()
 
