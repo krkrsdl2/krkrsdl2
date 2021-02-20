@@ -117,7 +117,7 @@ jobs:
         with:
           submodules: recursive
       - run: brew update
-      - run: brew install sdl2 cmake
+      - run: brew install sdl2
       - uses: actions/setup-python@v1
         with:
           python-version: '3.x'
