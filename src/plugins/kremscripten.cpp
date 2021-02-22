@@ -365,6 +365,7 @@ static void init_js_callbacks()
 	js_curry_get_own_property_descriptor = js_wrap_exception(js_eval(std::string("(function(a,b){return function(c,d){return (d == '__internal_JS2TJS_wrapper') ? {__internal_JS2TJS_wrapper:true,obj:a,objthis:b} : undefined;};})")));
 	js_new_proxy = js_wrap_exception(js_eval(std::string("(function(f,g){return new Proxy(f,g);})")));
 	// Work around RuntimeError: memory access out of bounds on first exception catch
+#if !defined(__EMSCRIPTEN_PTHREADS__)
 	tTJS *script_engine = TVPGetScriptEngine();
 	if (script_engine)
 	{
@@ -373,12 +374,14 @@ static void init_js_callbacks()
 		js_pcall(js_eval, std::string("Module.evalTJS('(function(){try{KirikiriEmscriptenInterface.evalJS(\"throw 1337\");}catch(e){throw e;}})()')"));
 		script_engine->SetConsoleOutput(output);
 	}
+#endif
 }
 
 NCB_PRE_REGIST_CALLBACK(init_js_callbacks);
 
 static void init_js_replacements()
 {
+#if !defined(__EMSCRIPTEN_PTHREADS__)
 	tTJS *script_engine = TVPGetScriptEngine();
 	if (script_engine)
 	{
@@ -423,6 +426,7 @@ static void init_js_replacements()
 			}
 		}
 	}
+#endif
 }
 NCB_POST_REGIST_CALLBACK(init_js_replacements);
 
