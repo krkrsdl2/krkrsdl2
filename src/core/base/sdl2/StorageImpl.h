@@ -16,7 +16,10 @@
 #include <functional>
 #include <SDL.h>
 #if defined(__vita__)
-#include <psp2/kernel/iofilemgr.h> 
+#include <psp2/io/devctl.h>
+#include <psp2/io/dirent.h>
+#include <psp2/io/fcntl.h>
+#include <psp2/io/stat.h>
 #endif
 
 //---------------------------------------------------------------------------

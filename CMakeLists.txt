@@ -28,7 +28,7 @@ set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
 endif()
 
 if(VITA)
-include("${DOLCESDK}/share/dolce.cmake" REQUIRED)
+include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 if(NOT VITA_APP_NAME)
 set(VITA_APP_NAME "Kirikiri for Playstation Vita")
@@ -88,6 +88,10 @@ endif()
 if(${BUILTIN_PLUGIN_ENABLE_VARFILE})
 file(STRINGS src/config/src_list/varfile/sources.txt VARFILE_SRC)
 list(APPEND KRKRSDL2_SRC ${VARFILE_SRC})
+endif()
+if(VITA)
+file(STRINGS src/config/src_list/varfile/sources.txt VARFILE_SRC)
+list(APPEND KRKRSDL2_SRC src/support/roundevenf.c)
 endif()
 
 list(APPEND KRKRSDL2_CFLAGS
@@ -152,7 +156,7 @@ list(APPEND KRKRSDL2_CXXFLAGS
 	-DUSE_SDL_MAIN
 )
 elseif(VITA)
-include_directories($ENV{DOLCESDK}/arm-dolce-eabi/include/SDL2)
+include_directories($ENV{VITASDK}/arm-vita-eabi/include/SDL2)
 
 list(APPEND KRKRSDL2_LIBS
 	stdc++
@@ -160,13 +164,10 @@ list(APPEND KRKRSDL2_LIBS
 	stdc++
 
 	SDL2
-	pib
 	SceAppMgr_stub
-	SceAppMgrUser_stub
 	SceAppUtil_stub
 	SceShellSvc_stub
 	SceDisplay_stub
-	SceDisplayUser_stub
 	SceCtrl_stub
 	SceAudio_stub
 	SceSysmodule_stub
@@ -258,11 +259,11 @@ target_sources(${KRKRSDL2_NAME} PRIVATE
 endif()
 
 if(VITA)
-dolce_create_self(${KRKRSDL2_NAME}.self ${KRKRSDL2_NAME})
+vita_create_self(${KRKRSDL2_NAME}.self ${KRKRSDL2_NAME})
 
-set(DOLCE_MKSFOEX_FLAGS "${DOLCE_MKSFOEX_FLAGS} -s CATEGORY=gdb")
+set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -s CATEGORY=gdb")
 
-dolce_create_vpk(${KRKRSDL2_NAME}.vpk ${VITA_TITLEID} ${KRKRSDL2_NAME}.self
+vita_create_vpk(${KRKRSDL2_NAME}.vpk ${VITA_TITLEID} ${KRKRSDL2_NAME}.self
     VERSION ${VITA_VERSION}
     NAME ${VITA_APP_NAME}
     FILE src/vita-resources/sce_sys/icon0.png sce_sys/icon0.png

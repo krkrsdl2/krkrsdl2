@@ -144,7 +144,7 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 #endif
 			{
 #if defined(__vita__)
-				if (SCE_STM_ISREG(entry.d_stat.st_mode))
+				if (SCE_S_ISREG(entry.d_stat.st_mode))
 #else
 				if( entry->d_type == DT_REG )
 #endif
@@ -515,7 +515,7 @@ bool TVPCheckExistentLocalFile(const ttstr &name)
 #if defined(__vita__)
 		SceIoStat st;
 		if( sceIoGetstat( filename.c_str(), &st) >= 0)
-			if( SCE_STM_ISREG(st.st_mode) )
+			if( SCE_S_ISREG(st.st_mode) )
 #else
 		struct stat st;
 		if( stat( filename.c_str(), &st) == 0)
@@ -540,7 +540,7 @@ bool TVPCheckExistentLocalFolder(const ttstr &name)
 #if defined(__vita__)
 		SceIoStat st;
 		if( sceIoGetstat( filename.c_str(), &st) >= 0)
-			if( SCE_STM_ISDIR(st.st_mode) )
+			if( SCE_S_ISDIR(st.st_mode) )
 #else
 		struct stat st;
 		if( stat( filename.c_str(), &st) == 0)
@@ -665,7 +665,7 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
 #endif
 	written = false;
 #if defined(__vita__)
-	SceIoMode mode = SCE_O_RDONLY;
+	int mode = SCE_O_RDONLY;
 #else
 	const char* mode = "rb";
 #endif
