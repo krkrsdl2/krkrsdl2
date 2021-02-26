@@ -658,7 +658,11 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
 	const ttstr &localname, tjs_uint32 flag)
 {
 	tjs_uint32 access = flag & TJS_BS_ACCESS_MASK;
+#if defined(__vita__)
+	io_handle = -1;
+#else
 	io_handle = NULL;
+#endif
 	written = false;
 #if defined(__vita__)
 	SceIoMode mode = SCE_O_RDONLY;
@@ -673,9 +677,9 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
 	case TJS_BS_WRITE:
 		mode = SCE_O_WRONLY | SCE_O_CREAT | SCE_O_TRUNC;		break;
 	case TJS_BS_APPEND:
-		mode = SCE_O_APPEND | SCE_O_CREAT;		break;
+		mode = SCE_O_WRONLY | SCE_O_CREAT | SCE_O_APPEND;		break;
 	case TJS_BS_UPDATE:
-		mode = SCE_O_RDWR | SCE_O_CREAT;		break;
+		mode = SCE_O_RDWR;		break;
 #else
 	case TJS_BS_READ:
 		mode = "rb";		break;
@@ -805,11 +809,19 @@ void TJS_INTF_METHOD tTVPLocalFileStream::SetEndOfStorage()
 //---------------------------------------------------------------------------
 tjs_uint64 TJS_INTF_METHOD tTVPLocalFileStream::GetSize()
 {
-#if defined(__vita__)
+#if 0
 	tjs_uint64 oldpos = Seek(0, TJS_BS_SEEK_CUR);
 	tjs_uint64 retpos = Seek(0, TJS_BS_SEEK_END);
 	Seek(oldpos, TJS_BS_SEEK_SET);
 	return retpos;
+#endif
+#if defined(__vita__)
+	SceIoStat st;
+	if (sceIoGetstatByFd(io_handle, &st) < 0)
+	{
+		TVPThrowExceptionMessage(TVPSeekError);
+	}
+	return (tjs_uint64)st.st_size;
 #else
 	Sint64 low = SDL_RWsize(io_handle);
 	if (low < 0)
