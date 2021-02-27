@@ -16,13 +16,13 @@
 		<liveitem>
 			<lang>ja</lang>
 			<text valign="center" align="center" text-align="center" margin-top="15" margin-bottom="15" word-wrap="off" ellipsis="on">
-				<str size="20" color="#000000" shadow="on">プレイステーションヴィータ用吉里吉里</str>
+				<str size="20" color="#000000" shadow="on">吉里吉里SDL2</str>
 			</text>
 		</liveitem>
 		<liveitem>
 			<exclude-lang>ja</exclude-lang>
 			<text valign="center" align="center" text-align="center" margin-top="15" margin-bottom="15" word-wrap="off" ellipsis="on">
-				<str size="20" color="#000000" shadow="on">Kirikiri for Playstation Vita</str>
+				<str size="20" color="#000000" shadow="on">Kirikiri SDL2</str>
 			</text>
 		</liveitem>
 	</frame>
@@ -47,14 +47,14 @@
 	<frame id="frame6" multi="o" autoflip="0">
 		<liveitem>
 			<lang>ja</lang>
-			<target>https://github.com/uyjulian/krkrv</target>
+			<target>https://github.com/krkrsdl2/krkrsdl2</target>
 			<text valign="center" align="center" text-align="center" margin-top="15" margin-bottom="15" word-wrap="off" ellipsis="on">
 				<str size="30" color="#0000FF" shadow="on" underline="on">プロジェクトのWebページに移動</str>
 			</text>
 		</liveitem>
 		<liveitem>
 			<exclude-lang>ja</exclude-lang>
-			<target>https://github.com/uyjulian/krkrv</target>
+			<target>https://github.com/krkrsdl2/krkrsdl2</target>
 			<text valign="center" align="center" text-align="center" margin-top="15" margin-bottom="15" word-wrap="off" ellipsis="on">
 				<str size="30" color="#0000FF" shadow="on" underline="on">Go to project webpage</str>
 			</text>

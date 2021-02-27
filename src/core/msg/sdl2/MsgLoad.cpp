@@ -80,7 +80,7 @@ void TVPLoadMessage()
 	TJSNotSupportedUnpackP.AssignMessage(TJS_W("Not supported unpack \'P\'"));
 	TVPVersionInformation.AssignMessage(TJS_W("Kirikiri SDL2 Executable core /%1 (Compiled on %DATE% %TIME%) TJS2/%2 Copyright (C) 1997-2013 W.Dee and contributors All rights reserved."));
 	TVPVersionInformation2.AssignMessage(TJS_W("The details of version information can be perused if -about is attached and started. "));
-	TVPDownloadPageURL.AssignMessage(TJS_W("https://github.com/uyjulian/krkrsdl2"));
+	TVPDownloadPageURL.AssignMessage(TJS_W("https://github.com/krkrsdl2/krkrsdl2"));
 	TVPInternalError.AssignMessage(TJS_W("Internal Error: at %1 line %2"));
 	TVPInvalidParam.AssignMessage(TJS_W("Invalid Parameter"));
 	TVPWarnDebugOptionEnabled.AssignMessage(TJS_W("Debug option enabled"));
