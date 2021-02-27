@@ -10,7 +10,7 @@ class iTVPMemoryAllocator {
 public:
 	virtual ~iTVPMemoryAllocator() {};
 	virtual void* allocate( size_t size ) = 0;
-	virtual void free( void* mem ) = 0;
+	virtual void free( void* mem, size_t size ) = 0;
 };
 //---------------------------------------------------------------------------
 // heap allocation functions for bitmap bits
@@ -24,6 +24,7 @@ class tTVPBitmapBitsAlloc {
 	struct tTVPLayerBitmapMemoryRecord
 	{
 		void * alloc_ptr; // allocated pointer
+		tjs_uint orig_size; // original bmp bits size, in bytes
 		tjs_uint size; // original bmp bits size, in bytes
 		tjs_uint32 sentinel_backup1; // sentinel value 1
 		tjs_uint32 sentinel_backup2; // sentinel value 2

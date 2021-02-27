@@ -7,140 +7,43 @@
 #include "EventIntf.h"
 #include "DebugIntf.h"
 
+#if defined(__APPLE__) || defined(__linux__) || defined(ANDROID) || defined(__ANDROID__)
+#define USE_MMAP_FOR_ALLOCATION
+#endif
+
+#ifdef USE_MMAP_FOR_ALLOCATION
+#include <sys/mman.h>
+#endif
+
 class BasicAllocator : public iTVPMemoryAllocator
 {
 public:
-	BasicAllocator() {
-		TVPAddLog( TJS_W("(info) Use malloc for Bitmap") );
-	}
-	void* allocate( size_t size ) { return malloc(size); }	// Windowsでは ::HeapAlloc( _get_heap_handle(), 0, size ); と同じはず
-	void free( void* mem ) { ::free( mem ); }
-};
-#ifdef WIN32
-class GlobalAllocAllocator : public iTVPMemoryAllocator
-{
-public:
-	GlobalAllocAllocator() {
-		TVPAddLog( TJS_W("(info) Use GlobalAlloc allocater for Bitmap") );
-	}
-	void* allocate( size_t size ) { return GlobalAlloc(GMEM_FIXED,size); }
-	void free( void* mem ) { GlobalFree((HGLOBAL)mem ); }
-};
-class HeapAllocAllocator : public iTVPMemoryAllocator
-{
-	static const DWORD HeapFlag = 0;
-
-	HANDLE HeapHandle;
-public:
-	HeapAllocAllocator() : HeapHandle(NULL) {
-		tTJSVariant val;
-		tjs_uint64 size = 0;
-		if(TVPGetCommandLine(TJS_W("-bitmapheapsize"), &val)) {
-			ttstr str(val);
-			if(str == TJS_W("auto")) {
-				size = 0;
-			} else {
-				size = (tjs_int64)val;
-				if( size == 0 ) {
-					HeapHandle = ::HeapCreate( HeapFlag, 0, 0 );
-				}
-				size *= 1024*1024;
-			}
-		}
-		if( HeapHandle == NULL ) {
-			if( size == 0 ) {
-				MEMORYSTATUSEX status = { sizeof(MEMORYSTATUSEX) };
-				::GlobalMemoryStatusEx(&status);
-				if( status.ullAvailVirtual < status.ullTotalPhys ) {
-					size = status.ullAvailVirtual / 2;
-				} else {
-					size = status.ullTotalPhys / 2;
-				}
-			}
-			while( HeapHandle == NULL && size > (1024*1024) ) {
-				HeapHandle = ::HeapCreate( HeapFlag, (SIZE_T)size, 0 );
-				if( HeapHandle == NULL ) {
-					size /= 2;
-				}
-			} 
-		}
-
-		if( HeapHandle ) {
-			ULONG HeapInformation = 2;
-			BOOL lfhenable = ::HeapSetInformation( HeapHandle, HeapCompatibilityInformation, &HeapInformation, sizeof(HeapInformation) );
-		}
-		TVPAddLog( TJS_W("(info) Use separate heap allocater for Bitmap") );
-	}
-	virtual ~HeapAllocAllocator() {
-		if( HeapHandle ) ::HeapDestroy(HeapHandle);
-		HeapHandle = NULL;
-	}
-	void* allocate( size_t size ) {
-		if( HeapHandle == NULL ) return NULL;
-		void* result = ::HeapAlloc( HeapHandle, HeapFlag, size );
-		if( result == NULL ) {
-			::HeapCompact( HeapHandle, HeapFlag );	// try compact
-			result = ::HeapAlloc( HeapHandle, HeapFlag, size ); // retry
-		}
-		return result;
-	}
-	void free( void* mem ) {
-		if( HeapHandle ) {
-			BOOL ret = ::HeapFree( HeapHandle, HeapFlag, mem );
-			::HeapCompact( HeapHandle, HeapFlag );
-		}
-	}
-};
-class ProcessHeapAllocAllocator : public iTVPMemoryAllocator
-{
-public:
-	ProcessHeapAllocAllocator() {
-		TVPAddLog( TJS_W("(info) Use Process HeadAlloc allocater for Bitmap") );
-	}
-	void* allocate( size_t size ) {
-		void* result = ::HeapAlloc( ::GetProcessHeap(), 0, size );
-		if( result == NULL ) {
-			::HeapCompact( ::GetProcessHeap(), 0 );	// try compact
-			result = ::HeapAlloc( ::GetProcessHeap(), 0, size ); // retry
-		}
-		return result;
-	}
-	void free( void* mem ) {
-		::HeapFree(::GetProcessHeap(), 0, mem);
-	}
-};
+	BasicAllocator() {}
+	void* allocate(size_t size)
+	{
+#ifdef USE_MMAP_FOR_ALLOCATION
+		return mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+#else
+		return malloc(size);
 #endif
+	}
+	void free(void* mem, size_t size)
+	{
+#ifdef USE_MMAP_FOR_ALLOCATION
+		munmap(mem, size);
+#else
+		::free( mem );
+#endif
+	}
+};
 
 iTVPMemoryAllocator* tTVPBitmapBitsAlloc::Allocator = NULL;
 tTJSCriticalSection tTVPBitmapBitsAlloc::AllocCS;
 
 void tTVPBitmapBitsAlloc::InitializeAllocator() {
-	if( Allocator == NULL ) {
-#if 0
-		tTJSVariant val;
-		if(TVPGetCommandLine(TJS_W("-bitmapallocator"), &val)) {
-			ttstr str(val);
-#ifdef WIN32
-			if(str == TJS_W("globalalloc"))
-				Allocator = new GlobalAllocAllocator();
-			else if(str == TJS_W("separateheap"))
-				Allocator = new HeapAllocAllocator();
-			else if(str == TJS_W("processheap"))
-				Allocator = new ProcessHeapAllocAllocator();
-			else    // malloc
-#endif
-#endif
-				Allocator = new BasicAllocator();
-#if 0
-		} else {
-#ifdef WIN32
-			//Allocator = new GlobalAllocAllocator();
-			Allocator = new ProcessHeapAllocAllocator();
-#else
-			Allocator = new BasicAllocator();
-#endif
-		}
-#endif
+	if (Allocator == NULL)
+	{
+		Allocator = new BasicAllocator();
 	}
 }
 void tTVPBitmapBitsAlloc::FreeAllocator() {
@@ -150,9 +53,6 @@ void tTVPBitmapBitsAlloc::FreeAllocator() {
 static tTVPAtExit
 	TVPUninitMessageLoad(TVP_ATEXIT_PRI_CLEANUP, tTVPBitmapBitsAlloc::FreeAllocator);
 
-#if 0
-extern void TVPHeapDump();
-#endif
 void* tTVPBitmapBitsAlloc::Alloc( tjs_uint size, tjs_uint width, tjs_uint height ) {
 	if(size == 0) return NULL;
 	tTJSCriticalSectionHolder Lock(AllocCS);	// Lock
@@ -165,22 +65,8 @@ void* tTVPBitmapBitsAlloc::Alloc( tjs_uint size, tjs_uint width, tjs_uint height
 	if(!ptr) {
 		// Do GC
 		TVPDeliverCompactEvent(TVP_COMPACT_LEVEL_MAX);
-#ifdef WIN32
-		// Do compact CRT and Global Heap
-		HANDLE hHeap = ::GetProcessHeap();
-		if( hHeap ) {
-			::HeapCompact( hHeap, 0 );
-		}
-		HANDLE hCrtHeap = (HANDLE)_get_heap_handle();
-		if( hCrtHeap && hCrtHeap != hHeap ) {
-			::HeapCompact( hCrtHeap, 0 );
-		}
-#endif
 		ptr = ptrorg = (tjs_uint8*)Allocator->allocate(allocbytes);
 		if(!ptr) {
-#if 0
-			TVPHeapDump();
-#endif
 			TVPThrowExceptionMessage(TVPCannotAllocateBitmapBits,
 				TJS_W("at TVPAllocBitmapBits"), ttstr((tjs_int)allocbytes) + TJS_W("(") +
 				ttstr((int)width) + TJS_W("x") + ttstr((int)height) + TJS_W(")"));
@@ -197,6 +83,7 @@ void* tTVPBitmapBitsAlloc::Alloc( tjs_uint size, tjs_uint width, tjs_uint height
 
 	// fill memory allocation record
 	record->alloc_ptr = (void *)ptrorg;
+	record->orig_size = allocbytes;
 	record->size = size;
 	record->sentinel_backup1 = rand() + (rand() << 16);
 	record->sentinel_backup2 = rand() + (rand() << 16);
@@ -230,7 +117,7 @@ void tTVPBitmapBitsAlloc::Free( void* ptr ) {
 		if(~(*(tjs_uint32*)(bptr + record->size      )) != record->sentinel_backup2)
 			TVPAddLog( ttstr(TVPLayerBitmapBufferOverrunDetectedCheckYourDrawingCode) );
 
-		Allocator->free( record->alloc_ptr );
+		Allocator->free( record->alloc_ptr, record->orig_size );
 	}
 }
 
