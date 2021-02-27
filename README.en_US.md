@@ -79,5 +79,5 @@ Members of the Kirikiri SDL2 project can be found in the [#krkrsdl2 channel on f
 
 ## License
 
-This code is based on a modified 3-clause BSD license. Please read `LICENSE` for more information.  
+The code of the Kirikiri SDL2 source (inside the `src` directory) is licensed under the MIT license. Please read `LICENSE` for more information.  
 This project contains third-party components. Please view the license file in each component for more information.
