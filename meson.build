@@ -9,7 +9,7 @@ project('krkrsdl2',
 		'warning_level=0',
 		'default_library=static',
 	],
-	version: 'unknown'
+	version: 'unknown',
 )
 
 cxx = meson.get_compiler('cpp')
@@ -49,10 +49,14 @@ endif
 krkrsdl2_cflags = []
 if get_option('warning_level') == '0'
 	if cxx.get_id() == 'gcc'
-		krkrsdl2_cflags += ['-w']
+		krkrsdl2_cflags += [
+			'-w',
+		]
 	endif
 	if cxx.get_id() == 'clang' or cxx.get_id() == 'clang-cl' or cxx.get_id() == 'emscripten'
-		krkrsdl2_cflags += ['-Wno-everything']
+		krkrsdl2_cflags += [
+			'-Wno-everything',
+		]
 	endif
 endif
 krkrsdl2_cflags += [
@@ -93,11 +97,15 @@ krkrsdl2_cppflags += [
 	'-Wno-non-virtual-dtor',
 ]
 if cxx.get_id() == 'gcc'
-	krkrsdl2_cppflags += ['-fno-delete-null-pointer-checks']
+	krkrsdl2_cppflags += [
+		'-fno-delete-null-pointer-checks',
+	]
 endif
 krkrsdl2_ldflags = []
 if target_machine.system() == 'linux'
-	krkrsdl2_ldflags += ['-pthread']
+	krkrsdl2_ldflags += [
+		'-pthread',
+	]
 endif
 if target_machine.system() == 'emscripten'
 	krkrsdl2_ldflags += [
@@ -203,7 +211,7 @@ krkrsdl2 = executable(
 	include_directories: include_directories(krkrsdl2_includes),
 	dependencies: krkrsdl2_dependson,
 	install: true,
-	override_options: krkrsdl2_override_options
+	override_options: krkrsdl2_override_options,
 )
 if target_machine.system() == 'emscripten'
 	conf_data = configuration_data()
@@ -211,7 +219,7 @@ if target_machine.system() == 'emscripten'
 	krkrsdl2_html = configure_file(
 		input: 'src/config/index.html.in',
 		output: 'index.html',
-		configuration: conf_data
+		configuration: conf_data,
 	)
 	krkrsdl2_dependson += krkrsdl2_html
 endif
