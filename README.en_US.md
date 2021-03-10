@@ -72,6 +72,7 @@ Code from this project is based on the following projects:
 * [varfile](https://github.com/wtnbgo/varfile)
 * [simde](https://github.com/simd-everywhere/simde)
 * [SDL](https://github.com/libsdl-org/SDL)
+* [krglhwebp](https://github.com/uyjulian/krglhwebp)
 
 ## IRC Channel
 

@@ -31,3 +31,6 @@
 [submodule "external/fstat"]
 	path = external/fstat
 	url = ../fstat
+[submodule "external/krglhwebp"]
+	path = external/krglhwebp
+	url = ../krglhwebp

@@ -49,6 +49,13 @@ option(
 )
 
 option(
+	'builtin_plugin_enable_krglhwebp',
+	type: 'boolean',
+	value: true,
+	description: 'Enable the krglhwebp plugin.'
+)
+
+option(
 	'enable_async_image_load',
 	type: 'boolean',
 	value: true,

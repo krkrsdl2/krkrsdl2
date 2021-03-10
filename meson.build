@@ -41,6 +41,10 @@ endif
 if get_option('builtin_plugin_enable_varfile') == true
 	krkrsdl2_src += run_command('cat', files('src/config/src_list/varfile/sources.txt')).stdout().strip().split('\n')
 endif
+if get_option('builtin_plugin_enable_krglhwebp') == true
+	krkrsdl2_src += run_command('cat', files('src/config/src_list/krglhwebp/sources.txt')).stdout().strip().split('\n')
+	krkrsdl2_includes += run_command('cat', files('src/config/src_list/krglhwebp/includes.txt')).stdout().strip().split('\n')
+endif
 if target_machine.system() == 'emscripten'
 	krkrsdl2_src += [
 		'src/plugins/kremscripten.cpp',
