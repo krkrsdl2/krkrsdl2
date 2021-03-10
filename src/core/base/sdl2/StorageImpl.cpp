@@ -32,6 +32,13 @@
 #include <unistd.h>
 #endif
 
+#if defined(__vita__)
+#include <psp2/io/devctl.h>
+#include <psp2/io/dirent.h>
+#include <psp2/io/fcntl.h>
+#include <psp2/io/stat.h>
+#endif
+
 //---------------------------------------------------------------------------
 // tTVPFileMedia
 //---------------------------------------------------------------------------
@@ -658,29 +665,11 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
 	const ttstr &localname, tjs_uint32 flag)
 {
 	tjs_uint32 access = flag & TJS_BS_ACCESS_MASK;
-#if defined(__vita__)
-	io_handle = -1;
-#else
 	io_handle = NULL;
-#endif
 	written = false;
-#if defined(__vita__)
-	int mode = SCE_O_RDONLY;
-#else
 	const char* mode = "rb";
-#endif
 	switch(access)
 	{
-#if defined(__vita__)
-	case TJS_BS_READ:
-		mode = SCE_O_RDONLY;		break;
-	case TJS_BS_WRITE:
-		mode = SCE_O_WRONLY | SCE_O_CREAT | SCE_O_TRUNC;		break;
-	case TJS_BS_APPEND:
-		mode = SCE_O_WRONLY | SCE_O_CREAT | SCE_O_APPEND;		break;
-	case TJS_BS_UPDATE:
-		mode = SCE_O_RDWR;		break;
-#else
 	case TJS_BS_READ:
 		mode = "rb";		break;
 	case TJS_BS_WRITE:
@@ -689,7 +678,6 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
 		mode = "ab";		break;
 	case TJS_BS_UPDATE:
 		mode = "rb+";		break;
-#endif
 	}
 
 	tjs_int trycount = 0;
@@ -697,13 +685,8 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
 	TVPUtf16ToUtf8( filename, localname.AsStdString() );
 
 retry:
-#if defined(__vita__)
-	io_handle = sceIoOpen( filename.c_str(), mode, 0777 );
-	if(io_handle < 0)
-#else
 	io_handle = SDL_RWFromFile(filename.c_str(), mode);
 	if(io_handle == nullptr)
-#endif
 	{
 		if(trycount == 0 && access == TJS_BS_WRITE)
 		{
@@ -728,17 +711,10 @@ retry:
 //---------------------------------------------------------------------------
 tTVPLocalFileStream::~tTVPLocalFileStream()
 {
-#if defined(__vita__)
-	if (io_handle >= 0)
-	{
-		sceIoClose(io_handle);
-	}
-#else
 	if (io_handle != nullptr)
 	{
 		SDL_RWclose(io_handle);
 	}
-#endif
 
 	// push current tick as an environment noise
 	// (timing information from file accesses may be good noises)
@@ -756,49 +732,30 @@ tjs_uint64 TJS_INTF_METHOD tTVPLocalFileStream::Seek(tjs_int64 offset, tjs_int w
 	int dwmm;
 	switch(whence)
 	{
-#if defined(__vita__)
-	case TJS_BS_SEEK_SET:	dwmm = SCE_SEEK_SET;	break;
-	case TJS_BS_SEEK_CUR:	dwmm = SCE_SEEK_CUR;	break;
-	case TJS_BS_SEEK_END:	dwmm = SCE_SEEK_END;	break;
-	default:				dwmm = SCE_SEEK_SET;	break; // may be enough
-#else
 	case TJS_BS_SEEK_SET:	dwmm = RW_SEEK_SET;	break;
 	case TJS_BS_SEEK_CUR:	dwmm = RW_SEEK_CUR;	break;
 	case TJS_BS_SEEK_END:	dwmm = RW_SEEK_END;	break;
 	default:				dwmm = RW_SEEK_SET;	break; // may be enough
-#endif
 	}
 
-#if defined(__vita__)
-	return sceIoLseek( io_handle, offset, dwmm );
-#else
 	Sint64 low = SDL_RWseek(io_handle, offset, dwmm);
 	if (low < 0)
 	{
 		TVPThrowExceptionMessage(TVPSeekError);
 	}
 	return (tjs_uint64)low;
-#endif
 }
 //---------------------------------------------------------------------------
 tjs_uint TJS_INTF_METHOD tTVPLocalFileStream::Read(void *buffer, tjs_uint read_size)
 {
-#if defined(__vita__)
-	size_t ret = sceIoRead( io_handle, buffer, read_size );
-#else
 	size_t ret = SDL_RWread(io_handle, buffer, 1, read_size);
-#endif
 	return (tjs_uint)ret;
 }
 //---------------------------------------------------------------------------
 tjs_uint TJS_INTF_METHOD tTVPLocalFileStream::Write(const void *buffer, tjs_uint write_size)
 {
 	written = true;
-#if defined(__vita__)
-	size_t ret = sceIoWrite( io_handle, buffer, write_size );
-#else
 	size_t ret = SDL_RWwrite(io_handle, buffer, 1, write_size);
-#endif
 	return (tjs_uint)ret;
 }
 //---------------------------------------------------------------------------
@@ -815,21 +772,12 @@ tjs_uint64 TJS_INTF_METHOD tTVPLocalFileStream::GetSize()
 	Seek(oldpos, TJS_BS_SEEK_SET);
 	return retpos;
 #endif
-#if defined(__vita__)
-	SceIoStat st;
-	if (sceIoGetstatByFd(io_handle, &st) < 0)
-	{
-		TVPThrowExceptionMessage(TVPSeekError);
-	}
-	return (tjs_uint64)st.st_size;
-#else
 	Sint64 low = SDL_RWsize(io_handle);
 	if (low < 0)
 	{
 		TVPThrowExceptionMessage(TVPSeekError);
 	}
 	return (tjs_uint64)low;
-#endif
 }
 //---------------------------------------------------------------------------
 
