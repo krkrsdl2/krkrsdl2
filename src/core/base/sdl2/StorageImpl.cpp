@@ -784,6 +784,7 @@ tjs_uint64 TJS_INTF_METHOD tTVPLocalFileStream::GetSize()
 
 
 
+#if 0
 //---------------------------------------------------------------------------
 // tTVPPluginHolder
 //---------------------------------------------------------------------------
@@ -821,6 +822,7 @@ const ttstr & tTVPPluginHolder::GetLocalName() const
 	return LocalPath;
 }
 //---------------------------------------------------------------------------
+#endif
 
 
 
