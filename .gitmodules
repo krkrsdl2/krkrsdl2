@@ -34,3 +34,6 @@
 [submodule "external/krglhwebp"]
 	path = external/krglhwebp
 	url = ../krglhwebp
+[submodule "external/zlib"]
+	path = external/zlib
+	url = https://github.com/madler/zlib.git

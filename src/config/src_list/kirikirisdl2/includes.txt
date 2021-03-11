@@ -32,7 +32,7 @@ external/krkrz/external/opus/silk/fixed
 external/krkrz/external/opus/silk/float
 external/krkrz/external/opusfile/include
 external/krkrz/external/opusfile/src
-external/krkrz/external/zlib
 external/simde
+external/zlib
 src/config
 src/plugins
