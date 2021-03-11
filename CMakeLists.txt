@@ -6,6 +6,7 @@ if((NOT ANDROID) AND (NOT IOS) AND (NOT VITA) AND (NOT NSWITCH) AND (NOT (APPLE 
 message(WARN "The CMake file is provided for platforms that do not support Meson well. Please try the Meson build system first.")
 endif()
 
+option(OPTION_ENABLE_CASEINSENSITIVITY "Enable case insensitivity. May malfunction if directories in the path are not listable." ON)
 option(BUILTIN_PLUGIN_ENABLE_KAGPARSER "Enable the KAGParser plugin." ON)
 option(BUILTIN_PLUGIN_ENABLE_EXTRANS "Enable the extrans plugin." ON)
 option(BUILTIN_PLUGIN_ENABLE_WUTCWF "Enable the wutcwf plugin." ON)
@@ -17,6 +18,11 @@ option(BUILTIN_PLUGIN_ENABLE_KRGLHWEBP "Enable the krglhwebp plugin." ON)
 
 if(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif()
+
+# iOS does not support case insensitivity properly.
+if(IOS)
+set(OPTION_ENABLE_CASEINSENSITIVITY OFF CACHE BOOL "" FORCE)
 endif()
 
 if(IOS AND (NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET))
@@ -119,6 +125,12 @@ list(APPEND KRKRSDL2_CXXFLAGS ${KRKRSDL2_CFLAGS})
 list(APPEND KRKRSDL2_CXXFLAGS
 	-Wno-non-virtual-dtor
 )
+
+if(OPTION_ENABLE_CASEINSENSITIVITY)
+list(APPEND KRKRSDL2_CXXFLAGS
+	-DKRKRZ_CASE_INSENSITIVE
+)
+endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 list(APPEND KRKRSDL2_CXXFLAGS
