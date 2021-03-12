@@ -66,6 +66,17 @@ tjs_string TVPNativeDataPath;
 bool TVPProjectDirSelected = false;
 //---------------------------------------------------------------------------
 
+//---------------------------------------------------------------------------
+// Platform specific method to increase heap
+//---------------------------------------------------------------------------
+#ifdef __vita__
+extern "C"
+{
+	int _newlib_heap_size_user = 192 * 1024 * 1024;
+}
+#endif
+//---------------------------------------------------------------------------
+
 
 
 
@@ -1027,6 +1038,8 @@ void TVPBeforeSystemInit()
 
 		sysctl(darwin_sysctl_args, 2, &darwin_physical_memory, &darwin_physical_memory_arg_length, NULL, 0);
 		TVPTotalPhysMemory = darwin_physical_memory;
+#elif defined(__vita__)
+		TVPTotalPhysMemory = _newlib_heap_size_user;
 #else
 		TVPTotalPhysMemory = SDL_GetSystemRAM() * 1024 * 1024;
 #endif
