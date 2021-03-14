@@ -349,6 +349,8 @@ bool TVPShellExecute(const ttstr &target, const ttstr &param)
 			TVPAddImportantLog(TJS_W("TVPShellExecute() with parameters is not supported in Linux"));
 		}
 		return system(ntarget.c_str()) == 0;
+#elif defined(__vita__)
+		return SDL_OpenURL(ntarget.c_str()) == 0;
 #endif
 	}
 	else
