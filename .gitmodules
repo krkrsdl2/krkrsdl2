@@ -1,39 +1,39 @@
 [submodule "external/krkrz"]
 	path = external/krkrz
-	url = ../krkrz
+	url = https://github.com/krkrsdl2/krkrz.git
 [submodule "external/SamplePlugin"]
 	path = external/SamplePlugin
-	url = ../SamplePlugin
+	url = https://github.com/krkrsdl2/SamplePlugin.git
 [submodule "external/KAGParser"]
 	path = external/KAGParser
-	url = ../KAGParser
+	url = https://github.com/krkrsdl2/KAGParser.git
 [submodule "external/wuvorbis"]
 	path = external/wuvorbis
-	url = ../wuvorbis
+	url = https://github.com/krkrsdl2/wuvorbis.git
 [submodule "external/simde"]
 	path = external/simde
 	url = https://github.com/simd-everywhere/simde.git
 [submodule "external/meson_toolchains"]
 	path = external/meson_toolchains
-	url = ../meson_toolchains
+	url = https://github.com/krkrsdl2/meson_toolchains.git
 [submodule "SDL-upstream"]
 	path = external/SDL
 	url = https://github.com/libsdl-org/SDL.git
 [submodule "external/ncbind"]
 	path = external/ncbind
-	url = ../ncbind
+	url = https://github.com/krkrsdl2/ncbind.git
 [submodule "external/varfile"]
 	path = external/varfile
-	url = ../varfile
+	url = https://github.com/krkrsdl2/varfile.git
 [submodule "external/json"]
 	path = external/json
-	url = ../json
+	url = https://github.com/krkrsdl2/json.git
 [submodule "external/fstat"]
 	path = external/fstat
-	url = ../fstat
+	url = https://github.com/krkrsdl2/fstat.git
 [submodule "external/krglhwebp"]
 	path = external/krglhwebp
-	url = ../krglhwebp
+	url = https://github.com/krkrsdl2/krglhwebp.git
 [submodule "external/zlib"]
 	path = external/zlib
 	url = https://github.com/madler/zlib.git
