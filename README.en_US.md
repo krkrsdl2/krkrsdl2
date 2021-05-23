@@ -76,7 +76,7 @@ Code from this project is based on the following projects:
 
 ## IRC Channel
 
-Members of the Kirikiri SDL2 project can be found in the [#krkrsdl2 channel on freenode](https://webchat.freenode.net/?channel=#krkrsdl2).
+Members of the Kirikiri SDL2 project can be found in the [#krkrsdl2 channel on libera.chat](https://libera.chat/).
 
 ## License
 
