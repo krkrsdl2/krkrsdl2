@@ -76,7 +76,8 @@ Mesonツールチェーンファイルは、[Emscripten](https://emscripten.org/
 
 ## IRCチャンネル
 
-吉里吉里SDL2プロジェクトのメンバーは、[libera.chatの#krkrsdl2チャンネル](https://libera.chat/)で見つけることができます。
+吉里吉里SDL2プロジェクトのメンバーは、[libera.chatの#krkrsdl2チャンネル](https://web.libera.chat/#krkrsdl2)で見つけることができます。  
+マトリックスブリッジチャネルは[#krkrsdl2:matrix.org](https://matrix.to/#/#krkrsdl2:matrix.org)でも利用できます。  
 
 ## ライセンス
 
