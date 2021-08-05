@@ -8,6 +8,11 @@ For more details, please see the following location: https://github.com/krkrsdl2
 Kirikiri SDL2 can also be compiled to [WebAssembly](https://webassembly.org/) with [Emscripten](https://emscripten.org/).  
 A demonstration project playable in your web browser is available here: https://krkrsdl2.github.io/krkrsdl2/  
 
+## A note on running commercial games
+
+Running unmodified commercial games using this project is not supported.  
+Please use [Wine](https://www.winehq.org/) or [Kirikiroid2](https://play.google.com/store/apps/details?id=org.tvp.kirikiri2) instead.  
+
 ## Download
 
 The following builds are automatically built from the latest source code by Github Actions.  

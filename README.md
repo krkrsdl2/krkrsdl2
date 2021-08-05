@@ -8,6 +8,11 @@
 吉里吉里SDL2は[Emscripten](https://emscripten.org/)を使用して[WebAssembly](https://webassembly.org/)にコンパイルすることも可能です。  
 Webブラウザーでプレイできるデモはここにあります：https://krkrsdl2.github.io/krkrsdl2/  
 
+## 商用ゲームの実行に関する注意
+
+このプロジェクトを使用して変更されていない商用ゲームを実行することはサポートされていません。  
+代わりに[Wine](https://www.winehq.org/)または[Kirikiroid2](https://play.google.com/store/apps/details?id=org.tvp.kirikiri2)を使用してください。    
+
 ## ダウンロード
 
 以下のビルドは、Github Actionsによって最新のソースコードから自動的に構築されます。
