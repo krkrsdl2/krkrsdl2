@@ -22,6 +22,7 @@ static emscripten::val js_curry_get_property = emscripten::val::undefined();
 static emscripten::val js_curry_set_property = emscripten::val::undefined();
 static emscripten::val js_curry_get_own_property_descriptor = emscripten::val::undefined();
 static emscripten::val js_new_proxy = emscripten::val::undefined();
+static emscripten::val js_clone_uint8array = emscripten::val::undefined();
 
 static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::val vthis = emscripten::val::null());
 static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v);
@@ -364,6 +365,7 @@ static void init_js_callbacks()
 	js_curry_set_property = js_wrap_exception(js_eval(std::string("(function(a,b){return function(c,d,e){return Module.internal_TJS2JS_set_object_property(a,b,d,e);};})")));
 	js_curry_get_own_property_descriptor = js_wrap_exception(js_eval(std::string("(function(a,b){return function(c,d){return (d == '__internal_JS2TJS_wrapper') ? {__internal_JS2TJS_wrapper:true,obj:a,objthis:b} : undefined;};})")));
 	js_new_proxy = js_wrap_exception(js_eval(std::string("(function(f,g){return new Proxy(f,g);})")));
+	js_clone_uint8array = js_wrap_exception(js_eval(std::string("(function(src){var dst = new ArrayBuffer(src.byteLength);new Uint8Array(dst).set(new Uint8Array(src));return dst;})")));
 	// Work around RuntimeError: memory access out of bounds on first exception catch
 #if !defined(__EMSCRIPTEN_PTHREADS__)
 	tTJS *script_engine = TVPGetScriptEngine();
@@ -497,6 +499,123 @@ emscripten::val evalTJSFromJS(tjs_string v)
 	return emscripten::val(tjs_string(TJS_W("")));
 }
 
+emscripten::val getLayerBitmapUInt8Array(emscripten::val v, bool for_write)
+{
+	emscripten::val r = emscripten::val::undefined();
+	TJS2JS_EXCEPTION_HANDLER_GUARD({
+		iTJSDispatch2 *global = TVPGetScriptDispatch();
+		if (global)
+		{
+			tTJSVariant layer_val;
+			static ttstr Layer_name(TJS_W("Layer"));
+			global->PropGet(0, Layer_name.c_str(), Layer_name.GetHint(), &layer_val, global);
+			tTJSVariantClosure layer_valclosure = layer_val.AsObjectClosureNoAddRef();
+			tTJSVariant layer_variant = emscripten_val_to_tjs_variant(v);
+			if (layer_variant.Type() == tvtObject)
+			{
+				tTJSVariantClosure clo = layer_variant.AsObjectClosureNoAddRef();
+				tjs_int bmppitch = 0;
+				tjs_int bmpheight = 0;
+				tjs_uint8* bmpdata = NULL;
+				if (layer_valclosure.Object && clo.Object)
+				{
+					tTJSVariant val;
+					{
+						static ttstr mainImageBufferPitch_name(TJS_W("mainImageBufferPitch"));
+						if (TJS_FAILED(layer_valclosure.PropGet(0, mainImageBufferPitch_name.c_str(), mainImageBufferPitch_name.GetHint(), &val, clo.Object)))
+						{
+							static ttstr bufferPitch_name(TJS_W("bufferPitch"));
+							clo.PropGet(0, bufferPitch_name.c_str(), bufferPitch_name.GetHint(), &val, clo.Object);
+						}
+						bmppitch = (tjs_int)val;
+					}
+					{
+						static ttstr imageHeight_name(TJS_W("imageHeight"));
+						if (TJS_FAILED(layer_valclosure.PropGet(0, imageHeight_name.c_str(), imageHeight_name.GetHint(), &val, clo.Object)))
+						{
+							static ttstr height(TJS_W("height"));
+							clo.PropGet(0, height.c_str(), height.GetHint(), &val, clo.Object);
+						}
+						bmpheight = (tjs_uint)(tTVInteger)val;
+					}
+					{
+						if (for_write)
+						{
+							static ttstr mainImageBufferForWrite_name(TJS_W("mainImageBufferForWrite"));
+							if (TJS_FAILED(layer_valclosure.PropGet(0, mainImageBufferForWrite_name.c_str(), mainImageBufferForWrite_name.GetHint(), &val, clo.Object)))
+							{
+								static ttstr bufferForWrite_name(TJS_W("bufferForWrite"));
+								clo.PropGet(0, bufferForWrite_name.c_str(), bufferForWrite_name.GetHint(), &val, clo.Object);
+							}
+						}
+						else
+						{
+							static ttstr mainImageBuffer_name(TJS_W("mainImageBuffer"));
+							if (TJS_FAILED(layer_valclosure.PropGet(0, mainImageBuffer_name.c_str(), mainImageBuffer_name.GetHint(), &val, clo.Object)))
+							{
+								static ttstr buffer_name(TJS_W("buffer"));
+								clo.PropGet(0, buffer_name.c_str(), buffer_name.GetHint(), &val, clo.Object);
+							}
+						}
+						bmpdata = reinterpret_cast<tjs_uint8*>((tjs_intptr_t)(tjs_int64)val);
+					}
+				}
+				if (bmppitch * bmpheight != 0 && bmpdata != NULL)
+				{
+					r = emscripten::val(emscripten::typed_memory_view((size_t)bmppitch * bmpheight, bmpdata));
+				}
+			}
+		}
+	});
+	return r;
+}
+
+emscripten::val getStorageUInt8Array(tjs_string v)
+{
+	emscripten::val r = emscripten::val::undefined();
+	TJS2JS_EXCEPTION_HANDLER_GUARD({
+		tTJSBinaryStream * Stream = TVPCreateStream(ttstr(v), TJS_BS_READ);
+		if (Stream)
+		{
+			tjs_uint size = (tjs_uint)(Stream->GetSize());
+			tjs_uint8 *nbuf = new tjs_uint8[size];
+			try
+			{
+				Stream->ReadBuffer(nbuf, size);
+				r = js_clone_uint8array(emscripten::typed_memory_view(size, nbuf));
+			}
+			catch(...)
+			{
+				delete [] nbuf;
+				throw;
+			}
+			delete [] nbuf;
+		}
+	});
+	return r;
+}
+
+emscripten::val getStorageString(tjs_string place, tjs_string modestr)
+{
+	emscripten::val r = emscripten::val::undefined();
+	TJS2JS_EXCEPTION_HANDLER_GUARD({
+		iTJSTextReadStream * stream = TVPCreateTextStreamForRead(place, modestr);
+		ttstr buffer;
+		try
+		{
+			stream->Read(buffer, 0);
+		}
+		catch(...)
+		{
+			stream->Destruct();
+			throw;
+		}
+		stream->Destruct();
+		r = emscripten::val(buffer.AsStdString());
+	});
+	return r;
+}
+
 emscripten::val internal_TJS2JS_call_function(tjs_uint32 ptr_function, emscripten::val args_array)
 {
 	iTJSDispatch2 *func = (iTJSDispatch2 *)ptr_function;
@@ -621,6 +740,9 @@ void internal_TJS2JS_throw_val_as_TJS_exception(emscripten::val v)
 EMSCRIPTEN_BINDINGS(KirikiriEmscriptenInterface)
 {
 	emscripten::function("evalTJS", &evalTJSFromJS);
+	emscripten::function("getLayerBitmapUInt8Array", &getLayerBitmapUInt8Array);
+	emscripten::function("getStorageUInt8Array", &getStorageUInt8Array);
+	emscripten::function("getStorageString", &getStorageString);
 	emscripten::function("internal_TJS2JS_call_function", &internal_TJS2JS_call_function);
 	emscripten::function("internal_TJS2JS_get_object_property", &internal_TJS2JS_get_object_property);
 	emscripten::function("internal_TJS2JS_set_object_property", &internal_TJS2JS_set_object_property);
