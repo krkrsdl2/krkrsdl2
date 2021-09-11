@@ -17,6 +17,7 @@
 #include "StorageIntf.h"
 #include "SDLBitmapCompletion.h"
 #include "ScriptMgnIntf.h"
+#include "SystemControl.h"
 #ifdef KRKRZ_ENABLE_CANVAS
 #include "OpenGLScreenSDL2.h"
 #endif
@@ -532,7 +533,9 @@ public:
 	virtual void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) override;
 	virtual void OnKeyUp(tjs_uint16 vk, int shift) override;
 	virtual void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) override;
+	bool should_try_parent_window(SDL_Event event);
 	void window_receive_event(SDL_Event event);
+	bool window_receive_event_input(SDL_Event event);
 };
 
 TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
@@ -1596,11 +1599,8 @@ void TVPWindowLayer::OnKeyUp(tjs_uint16 vk, int shift) {
 void TVPWindowLayer::OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) {
 	TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, vk));
 }
-void TVPWindowLayer::window_receive_event(SDL_Event event) {
-	if (isBeingDeleted) {
-		delete this;
-		return;
-	}
+bool TVPWindowLayer::should_try_parent_window(SDL_Event event)
+{
 	if (window && _prevWindow) {
 		uint32_t windowID = SDL_GetWindowID(window);
 		bool tryParentWindow = false;
@@ -1638,186 +1638,29 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 				tryParentWindow = false;
 				break;
 		}
-		if (tryParentWindow) {
-			if (!in_mode_) {
-				_prevWindow->window_receive_event(event);
-			}
-			return;
+		return tryParentWindow;
+	}
+	return false;
+}
+
+void TVPWindowLayer::window_receive_event(SDL_Event event) {
+	if (isBeingDeleted) {
+		delete this;
+		return;
+	}
+	if (this->should_try_parent_window(event))
+	{
+		if (!in_mode_)
+		{
+			_prevWindow->window_receive_event(event);
 		}
+		return;
 	}
 	if (window && hasDrawn) {
 		tjs_uint32 s = TVP_TShiftState_To_uint32(GetShiftState());
 		s |= GetMouseButtonState();
 		if (TJSNativeInstance->CanDeliverEvents()) {
-			switch (event.type) { 
-				case SDL_MOUSEMOTION: {
-					RestoreMouseCursor();
-					last_mouse_x = event.motion.x;
-					last_mouse_y = event.motion.y;
-					TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, s));
-					return;
-				}
-				case SDL_MOUSEBUTTONDOWN:
-				case SDL_MOUSEBUTTONUP: {
-					if (SDL_IsTextInputActive() && ime_composition != nullptr)
-					{
-						return;
-					}
-					tTVPMouseButton btn;
-					bool hasbtn = true;
-					switch(event.button.button) {
-						case SDL_BUTTON_RIGHT:
-							btn = tTVPMouseButton::mbRight;
-							break;
-						case SDL_BUTTON_MIDDLE:
-							btn = tTVPMouseButton::mbMiddle;
-							break;
-						case SDL_BUTTON_LEFT:
-							btn = tTVPMouseButton::mbLeft;
-							break;
-						case SDL_BUTTON_X1:
-							btn = tTVPMouseButton::mbX1;
-							break;
-						case SDL_BUTTON_X2:
-							btn = tTVPMouseButton::mbX2;
-							break;
-						default:
-							hasbtn = false;
-							break;
-					}
-					if (hasbtn) {
-						last_mouse_x = event.button.x;
-						last_mouse_y = event.button.y;
-						TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, s));
-						switch (event.type) {
-							case SDL_MOUSEBUTTONDOWN:
-								TVPPostInputEvent(new tTVPOnMouseDownInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, btn, s));
-								break;
-							case SDL_MOUSEBUTTONUP:
-								if (event.button.clicks >= 2)
-								{
-									TVPPostInputEvent(new tTVPOnDoubleClickInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y));
-								}
-								else
-								{
-									TVPPostInputEvent(new tTVPOnClickInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y));
-								}
-								TVPPostInputEvent(new tTVPOnMouseUpInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, btn, s));
-								break;
-						}
-					}
-					return;
-				}
-				case SDL_FINGERMOTION: {
-					TVPPostInputEvent(new tTVPOnTouchMoveInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
-					return;
-				}
-				case SDL_FINGERDOWN:
-				case SDL_FINGERUP: {
-					switch (event.tfinger.type) {
-						case SDL_FINGERDOWN:
-							TVPPostInputEvent(new tTVPOnTouchDownInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
-							break;
-						case SDL_FINGERUP:
-							TVPPostInputEvent(new tTVPOnTouchUpInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
-							break;
-					}
-					return;
-				}
-				case SDL_MULTIGESTURE: {
-					TVPPostInputEvent(new tTVPOnTouchScalingInputEvent(TJSNativeInstance, 0, event.mgesture.dDist, event.mgesture.x, event.mgesture.y, 0));
-					TVPPostInputEvent(new tTVPOnTouchRotateInputEvent(TJSNativeInstance, 0, event.mgesture.dTheta, event.mgesture.dDist, event.mgesture.x, event.mgesture.y, 0));
-					return;
-				}
-				case SDL_CONTROLLERBUTTONDOWN:
-				case SDL_CONTROLLERBUTTONUP: {
-					switch (event.cbutton.state) {
-						case SDL_PRESSED:
-							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, sdl_gamecontrollerbutton_to_vk_key(event.cbutton.button), s));
-							break;
-						case SDL_RELEASED:
-							if (!SDL_IsTextInputActive())
-							{
-								TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, sdl_gamecontrollerbutton_to_vk_key(event.cbutton.button)));
-							}
-							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, sdl_gamecontrollerbutton_to_vk_key(event.cbutton.button), s));
-							break;
-					}
-					return;
-				}
-				case SDL_KEYDOWN: {
-					if (SDL_IsTextInputActive())
-					{
-						if (ime_composition != nullptr)
-						{
-							return;
-						}
-					}
-					if (event.key.repeat) s |= TVP_SS_REPEAT;
-					tjs_uint unified_vk_key = 0;
-					switch (event.key.keysym.sym)
-					{
-						case SDLK_LSHIFT:
-						case SDLK_RSHIFT:
-							unified_vk_key = VK_SHIFT;
-							break;
-						case SDLK_LCTRL:
-						case SDLK_RCTRL:
-							unified_vk_key = VK_CONTROL;
-							break;
-						case SDLK_LALT:
-						case SDLK_RALT:
-							unified_vk_key = VK_MENU;
-							break;
-					}
-					TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym), s));
-					if (unified_vk_key)
-					{
-						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, unified_vk_key, s));
-					}
-					SDL_SetTextInputRect(&attention_point_rect);
-					return;
-				}
-				case SDL_KEYUP: {
-					if (SDL_IsTextInputActive())
-					{
-						if (ime_composition != nullptr)
-						{
-							return;
-						}
-					}
-					tjs_uint unified_vk_key = 0;
-					switch (event.key.keysym.sym)
-					{
-						case SDLK_LSHIFT:
-						case SDLK_RSHIFT:
-							unified_vk_key = VK_SHIFT;
-							break;
-						case SDLK_LCTRL:
-						case SDLK_RCTRL:
-							unified_vk_key = VK_CONTROL;
-							break;
-						case SDLK_LALT:
-						case SDLK_RALT:
-							unified_vk_key = VK_MENU;
-							break;
-					}
-					if (!SDL_IsTextInputActive())
-					{
-						TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym)));
-						if (unified_vk_key)
-						{
-							TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, unified_vk_key));
-						}
-					}
-					TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym), s));
-					if (unified_vk_key)
-					{
-						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, unified_vk_key, s));
-					}
-					SDL_SetTextInputRect(&attention_point_rect);
-					return;
-				}
+			switch (event.type) {
 				case SDL_TEXTINPUT:
 				case SDL_TEXTEDITING: {
 					if (!SDL_IsTextInputActive())
@@ -1911,10 +1754,6 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 					}
 					return;
 				}
-				case SDL_MOUSEWHEEL: {
-					TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(TJSNativeInstance, event.wheel.x, event.wheel.y, last_mouse_x, last_mouse_y));
-					return;
-				}
 				case SDL_DROPBEGIN: {
 					if (!file_drop_array)
 					{
@@ -2001,11 +1840,214 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 					return;
 				}
 				default: {
+#if !(defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__))
+					this->window_receive_event_input(event);
+#endif
 					return;
 				}
 			}
 		}
 	}
+}
+
+bool TVPWindowLayer::window_receive_event_input(SDL_Event event) {
+	if (isBeingDeleted) {
+		delete this;
+		return false;
+	}
+	if (this->should_try_parent_window(event))
+	{
+		if (!in_mode_)
+		{
+			return _prevWindow->window_receive_event_input(event);
+		}
+		return false;
+	}
+	if (window && hasDrawn) {
+		tjs_uint32 s = TVP_TShiftState_To_uint32(GetShiftState());
+		s |= GetMouseButtonState();
+		if (TJSNativeInstance->CanDeliverEvents()) {
+			switch (event.type) {
+				case SDL_MOUSEMOTION: {
+					RestoreMouseCursor();
+					last_mouse_x = event.motion.x;
+					last_mouse_y = event.motion.y;
+					TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, s));
+					return true;
+				}
+				case SDL_MOUSEBUTTONDOWN:
+				case SDL_MOUSEBUTTONUP: {
+					if (SDL_IsTextInputActive() && ime_composition != nullptr)
+					{
+						return false;
+					}
+					tTVPMouseButton btn;
+					bool hasbtn = true;
+					switch(event.button.button) {
+						case SDL_BUTTON_RIGHT:
+							btn = tTVPMouseButton::mbRight;
+							break;
+						case SDL_BUTTON_MIDDLE:
+							btn = tTVPMouseButton::mbMiddle;
+							break;
+						case SDL_BUTTON_LEFT:
+							btn = tTVPMouseButton::mbLeft;
+							break;
+						case SDL_BUTTON_X1:
+							btn = tTVPMouseButton::mbX1;
+							break;
+						case SDL_BUTTON_X2:
+							btn = tTVPMouseButton::mbX2;
+							break;
+						default:
+							hasbtn = false;
+							break;
+					}
+					if (hasbtn) {
+						last_mouse_x = event.button.x;
+						last_mouse_y = event.button.y;
+						TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, s));
+						switch (event.type) {
+							case SDL_MOUSEBUTTONDOWN:
+								TVPPostInputEvent(new tTVPOnMouseDownInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, btn, s));
+								break;
+							case SDL_MOUSEBUTTONUP:
+								if (event.button.clicks >= 2)
+								{
+									TVPPostInputEvent(new tTVPOnDoubleClickInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y));
+								}
+								else
+								{
+									TVPPostInputEvent(new tTVPOnClickInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y));
+								}
+								TVPPostInputEvent(new tTVPOnMouseUpInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, btn, s));
+								break;
+						}
+						return true;
+					}
+					return false;
+				}
+				case SDL_MOUSEWHEEL: {
+					TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(TJSNativeInstance, event.wheel.x, event.wheel.y, last_mouse_x, last_mouse_y));
+					return true;
+				}
+				case SDL_FINGERMOTION: {
+					TVPPostInputEvent(new tTVPOnTouchMoveInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
+					return true;
+				}
+				case SDL_FINGERDOWN:
+				case SDL_FINGERUP: {
+					switch (event.tfinger.type) {
+						case SDL_FINGERDOWN:
+							TVPPostInputEvent(new tTVPOnTouchDownInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
+							break;
+						case SDL_FINGERUP:
+							TVPPostInputEvent(new tTVPOnTouchUpInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
+							break;
+					}
+					return true;
+				}
+				case SDL_MULTIGESTURE: {
+					TVPPostInputEvent(new tTVPOnTouchScalingInputEvent(TJSNativeInstance, 0, event.mgesture.dDist, event.mgesture.x, event.mgesture.y, 0));
+					TVPPostInputEvent(new tTVPOnTouchRotateInputEvent(TJSNativeInstance, 0, event.mgesture.dTheta, event.mgesture.dDist, event.mgesture.x, event.mgesture.y, 0));
+					return true;
+				}
+				case SDL_CONTROLLERBUTTONDOWN:
+				case SDL_CONTROLLERBUTTONUP: {
+					switch (event.cbutton.state) {
+						case SDL_PRESSED:
+							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, sdl_gamecontrollerbutton_to_vk_key(event.cbutton.button), s));
+							break;
+						case SDL_RELEASED:
+							if (!SDL_IsTextInputActive())
+							{
+								TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, sdl_gamecontrollerbutton_to_vk_key(event.cbutton.button)));
+							}
+							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, sdl_gamecontrollerbutton_to_vk_key(event.cbutton.button), s));
+							break;
+					}
+					return true;
+				}
+				case SDL_KEYDOWN: {
+					if (SDL_IsTextInputActive())
+					{
+						if (ime_composition != nullptr)
+						{
+							return false;
+						}
+					}
+					if (event.key.repeat) s |= TVP_SS_REPEAT;
+					tjs_uint unified_vk_key = 0;
+					switch (event.key.keysym.sym)
+					{
+						case SDLK_LSHIFT:
+						case SDLK_RSHIFT:
+							unified_vk_key = VK_SHIFT;
+							break;
+						case SDLK_LCTRL:
+						case SDLK_RCTRL:
+							unified_vk_key = VK_CONTROL;
+							break;
+						case SDLK_LALT:
+						case SDLK_RALT:
+							unified_vk_key = VK_MENU;
+							break;
+					}
+					TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym), s));
+					if (unified_vk_key)
+					{
+						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, unified_vk_key, s));
+					}
+					SDL_SetTextInputRect(&attention_point_rect);
+					return true;
+				}
+				case SDL_KEYUP: {
+					if (SDL_IsTextInputActive())
+					{
+						if (ime_composition != nullptr)
+						{
+							return false;
+						}
+					}
+					tjs_uint unified_vk_key = 0;
+					switch (event.key.keysym.sym)
+					{
+						case SDLK_LSHIFT:
+						case SDLK_RSHIFT:
+							unified_vk_key = VK_SHIFT;
+							break;
+						case SDLK_LCTRL:
+						case SDLK_RCTRL:
+							unified_vk_key = VK_CONTROL;
+							break;
+						case SDLK_LALT:
+						case SDLK_RALT:
+							unified_vk_key = VK_MENU;
+							break;
+					}
+					if (!SDL_IsTextInputActive())
+					{
+						TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym)));
+						if (unified_vk_key)
+						{
+							TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, unified_vk_key));
+						}
+					}
+					TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, sdl_key_to_vk_key(event.key.keysym.sym), s));
+					if (unified_vk_key)
+					{
+						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, unified_vk_key, s));
+					}
+					SDL_SetTextInputRect(&attention_point_rect);
+					return true;
+				}
+				default: {
+					return false;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 void sdl_process_events()
@@ -2036,6 +2078,30 @@ void sdl_process_events()
 		}
 	}
 }
+
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
+static int sdl_event_watch(void *userdata, SDL_Event *in_event)
+{
+	SDL_Event event;
+	memcpy(&event, in_event, sizeof(SDL_Event));
+	if (event.type != NativeEventQueueImplement::native_event_queue_custom_event_type)
+	{
+		if (_currentWindowLayer)
+		{
+			if (_currentWindowLayer->window_receive_event_input(event))
+			{
+				if (TVPSystemControl)
+				{
+					// process events now
+					// Some JS functions will only work in e.g. mouse down callback due to browser restruction
+					TVPSystemControl->ApplicationIdle();
+				}
+			}
+		}
+	}
+	return 1;
+}
+#endif
 
 #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 static void process_events()
@@ -2123,6 +2189,10 @@ extern "C" int main(int argc, char **argv)
 
 #ifdef TVP_LOG_TO_COMMANDLINE_CONSOLE
 	SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
+#endif
+
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
+	SDL_AddEventWatch(sdl_event_watch, NULL);
 #endif
 
 	::Application = new tTVPApplication();
