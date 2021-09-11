@@ -43,48 +43,20 @@ struct iTVPFunctionExporter
 
 
 //---------------------------------------------------------------------------
-#if 0
 struct ITSSModule;
 struct IWaveUnpacker;
 struct ITSSStorageProvider;
 extern "C"
 {
-	iTVPFunctionExporter * __stdcall TVPGetFunctionExporter();
+	iTVPFunctionExporter * TVPGetFunctionExporter();
 
 	// V2 plug-in
-	typedef HRESULT (_stdcall * tTVPV2LinkProc)(iTVPFunctionExporter *);
-	typedef HRESULT (_stdcall * tTVPV2UnlinkProc)();
-
-	// TSS
-	typedef HRESULT (_stdcall * tTVPGetModuleInstanceProc)(ITSSModule **out,
-		ITSSStorageProvider *provider, IStream * config, HWND mainwin);
-	typedef ULONG (_stdcall * tTVPGetModuleThreadModelProc)(void);
-	typedef HRESULT (_stdcall * tTVPShowConfigWindowProc)(HWND parentwin,
-		IStream * storage );
-	typedef ULONG (_stdcall * tTVPCanUnloadNowProc)(void);
-
-#ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
-	// WaveUnpacker
-	typedef HRESULT (_stdcall * tTVPCreateWaveUnpackerProc)(IStream *storage,long size,
-		char *name,IWaveUnpacker **out); // old WaveUnpacker stuff
-#endif
+	typedef tjs_error (* tTVPV2LinkProc)(iTVPFunctionExporter *);
+	typedef tjs_error (* tTVPV2UnlinkProc)();
 }
-#endif
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-#if 0
-struct ITSSWaveDecoder;
-extern ITSSWaveDecoder * TVPSearchAvailTSSWaveDecoder(const ttstr & storage, const ttstr & extension);
-#endif
-#ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
-class IWaveUnpacker;
-extern IWaveUnpacker * TVPSearchAvailWaveUnpacker(const ttstr & storage, IStream **stream);
-#endif
-#ifdef TVP_SUPPORT_KPI
-extern void * TVPSearchAvailKMPWaveDecoder(const ttstr & storage, KMPMODULE ** module,
-	SOUNDINFO * info);
-#endif
 extern void TVPAddExportFunction(const tjs_char *name, void *ptr);
 extern void TVPAddExportFunction(const char *name, void *ptr);
 TJS_EXP_FUNC_DEF(void, TVPThrowPluginUnboundFunctionError, (const char *funcname));
@@ -121,9 +93,9 @@ TJS_EXP_FUNC_DEF(void, TVP_md5_finish, (TVP_md5_state_t *pms, tjs_uint8 *digest)
 
 #if 0
 TJS_EXP_FUNC_DEF(HWND, TVPGetApplicationWindowHandle, ());
+#endif
 TJS_EXP_FUNC_DEF(void, TVPProcessApplicationMessages, ());
 TJS_EXP_FUNC_DEF(void, TVPHandleApplicationMessage, ());
-#endif
 
 TJS_EXP_FUNC_DEF(bool, TVPRegisterGlobalObject, (const tjs_char *name, iTJSDispatch2 * dsp));
 TJS_EXP_FUNC_DEF(bool, TVPRemoveGlobalObject, (const tjs_char *name));

@@ -77,6 +77,13 @@ option(
 )
 
 option(
+	'enable_external_plugins',
+	type: 'boolean',
+	value: false,
+	description: 'Enable external plugins. This will make Plugins.link load a plugin instead of a no-op.'
+)
+
+option(
 	'enable_sdl_threads',
 	type: 'boolean',
 	value: false,

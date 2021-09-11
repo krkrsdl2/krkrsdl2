@@ -198,6 +198,12 @@ if get_option('enable_sdl_threads') == true
 	]
 endif
 
+if get_option('enable_external_plugins') == true
+	krkrsdl2_cppflags += [
+		'-DKRKRSDL2_ENABLE_PLUGINS',
+	]
+endif
+
 krkrsdl2_override_options = []
 if target_machine.system() == 'emscripten'
 	krkrsdl2_override_options += [
