@@ -58,4 +58,8 @@ extern void TVPUnloadPictureSPI(HINSTANCE inst);
 //---------------------------------------------------------------------------
 #endif
 
+bool TVPLoadEmscriptenPreloadedData(void* formatdata, void *callbackdata, tTVPGraphicSizeCallback sizecallback,
+	tTVPGraphicScanLineCallback scanlinecallback, tTVPMetaInfoPushCallback metainfopushcallback,
+	const ttstr &name, tjs_int keyidx, tTVPGraphicLoadMode mode);
+
 #endif

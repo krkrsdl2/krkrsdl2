@@ -23,6 +23,11 @@
 #include "LayerBitmapIntf.h"
 #include "MsgIntf.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+#include "CharacterSet.h"
+
 #if 0
 // move to intf
 void tTVPGraphicHandlerType::Load( void* formatdata, void *callbackdata, tTVPGraphicSizeCallback sizecallback, tTVPGraphicScanLineCallback scanlinecallback,
@@ -405,4 +410,58 @@ void TVPUnloadPictureSPI(HINSTANCE inst)
 }
 //---------------------------------------------------------------------------
 #endif
+
+bool TVPLoadEmscriptenPreloadedData(void* formatdata, void *callbackdata, tTVPGraphicSizeCallback sizecallback,
+	tTVPGraphicScanLineCallback scanlinecallback, tTVPMetaInfoPushCallback metainfopushcallback,
+	const ttstr &name, tjs_int keyidx, tTVPGraphicLoadMode mode)
+{
+#ifdef __EMSCRIPTEN__
+	// We don't handle key or palette at the moment
+	if (keyidx != -1 || mode == glmPalettized)
+	{
+		return false;
+	}
+
+	ttstr localname = TVPGetLocallyAccessibleName(name);
+	if (localname.IsEmpty())
+	{
+		return false;
+	}
+
+	std::string filename;
+	TVPUtf16ToUtf8(filename, localname.AsStdString());
+
+	int w, h;
+	char *data;
+	data = emscripten_get_preloaded_image_data(filename.c_str(), &w, &h);
+	if (data != NULL)
+	{
+		int size_pixel = (glmNormal != mode) ? sizeof(tjs_uint8) : sizeof(tjs_uint32);
+		// emscripten_get_preloaded_image_data result should always be 32 bit
+		tjs_int pitch = w * sizeof(tjs_uint32);
+		sizecallback(callbackdata, w, h);
+		for (int y = 0; y < h; y += 1)
+		{
+			void *scanline = scanlinecallback(callbackdata, y);
+			if (NULL == scanline)
+			{
+				break;
+			}
+			if (sizeof(tjs_uint32) == size_pixel)
+			{
+				memcpy(scanline, (const void*)&data[y * pitch], w * size_pixel);
+			}
+			else if (sizeof(tjs_uint8) == size_pixel)
+			{
+				TVPBLConvert32BitTo8Bit((tjs_uint8*)scanline, (const tjs_uint32*)(tjs_uint8*)&data[y * pitch], w * size_pixel);
+			}
+			scanlinecallback(callbackdata, -1);
+		}
+		free(data);
+		return true;
+	}
+#endif
+
+	return false;
+}
 
