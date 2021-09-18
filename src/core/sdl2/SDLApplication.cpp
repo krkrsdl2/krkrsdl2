@@ -50,6 +50,10 @@ static void process_events();
 static bool process_events();
 #endif
 
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
+static int sdl_event_watch(void *userdata, SDL_Event *in_event);
+#endif
+
 static void refresh_controllers()
 {
 #if defined(__IPHONEOS__)
@@ -660,6 +664,13 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 			TVPAddLog(ttstr("Cannot create SDL renderer: ") + ttstr(SDL_GetError()));
 		}
 #endif
+
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
+		// move the event watch to after the SDL_RendererEventWatch to ensure transformed values are received
+		SDL_DelEventWatch(sdl_event_watch, NULL);
+		SDL_AddEventWatch(sdl_event_watch, NULL);
+#endif
+
 		bitmap_completion = new TVPSDLBitmapCompletion();
 		if (renderer == nullptr)
 		{
