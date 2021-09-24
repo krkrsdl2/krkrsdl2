@@ -268,15 +268,9 @@ static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v)
 		}
 		else if (obj->IsInstanceOf(0, nullptr, nullptr, TJS_W("Function"), nullptr) == TJS_S_TRUE)
 		{
-			emscripten::val jsvthis = emscripten::val::null();
-			if (objthis != nullptr && objthis->IsInstanceOf(0, nullptr, nullptr, TJS_W("__internal_TJS2JS_wrapper"), nullptr) == TJS_S_TRUE)
-			{
-				iTJSDispatch2WrapperForEmscripten *objthis_wrap = (iTJSDispatch2WrapperForEmscripten *)objthis;
-				jsvthis = objthis_wrap->get_val();
-			}
 			emscripten::val proxy_traps = emscripten::val::object();
 			proxy_traps.set(std::string("getOwnPropertyDescriptor"), js_curry_get_own_property_descriptor((tjs_uint32)obj, (tjs_uint32)objthis));
-			return js_new_proxy(js_curry_function((tjs_uint32)obj, jsvthis), proxy_traps);
+			return js_new_proxy(js_curry_function((tjs_uint32)obj, (tjs_uint32)objthis), proxy_traps);
 		}
 		else
 		{
@@ -348,7 +342,7 @@ static void init_js_callbacks()
 	js_set = js_wrap_exception(js_eval(std::string("(function(a,b,c){a[b]=c;})")));
 	js_new_apply = js_wrap_exception(js_eval(std::string("(function(a,b){return new (Function.prototype.bind.apply(b,[null].concat(a)));})")));
 	js_call_apply = js_wrap_exception(js_eval(std::string("(function(a,b,c){return a.apply(c,b);})")));
-	js_curry_function = js_wrap_exception(js_eval(std::string("(function(a,b){return function(...c){return Module.internal_TJS2JS_call_function.call(b,a,[...c]);};})")));
+	js_curry_function = js_wrap_exception(js_eval(std::string("(function(a,b){return function(...c){return Module.internal_TJS2JS_call_function(a,b,[...c]);};})")));
 	js_curry_get_property = js_wrap_exception(js_eval(std::string("(function(a,b){return function(c,d){return Module.internal_TJS2JS_get_object_property(a,b,d);};})")));
 	js_curry_set_property = js_wrap_exception(js_eval(std::string("(function(a,b){return function(c,d,e){return Module.internal_TJS2JS_set_object_property(a,b,d,e);};})")));
 	js_curry_get_own_property_descriptor = js_wrap_exception(js_eval(std::string("(function(a,b){return function(c,d){return (d == '__internal_JS2TJS_wrapper') ? {__internal_JS2TJS_wrapper:true,obj:a,objthis:b} : undefined;};})")));
@@ -604,10 +598,15 @@ emscripten::val getStorageString(tjs_string place, tjs_string modestr)
 	return r;
 }
 
-emscripten::val internal_TJS2JS_call_function(tjs_uint32 ptr_function, emscripten::val args_array)
+emscripten::val internal_TJS2JS_call_function(tjs_uint32 ptr_object, tjs_uint32 ptr_objectthis, emscripten::val args_array)
 {
-	iTJSDispatch2 *func = (iTJSDispatch2 *)ptr_function;
-	if (func == nullptr)
+	iTJSDispatch2 *obj = (iTJSDispatch2 *)ptr_object;
+	if (obj == nullptr)
+	{
+		return emscripten::val::undefined();
+	}
+	iTJSDispatch2 *objthis = (iTJSDispatch2 *)ptr_objectthis;
+	if (obj == nullptr)
 	{
 		return emscripten::val::undefined();
 	}
@@ -620,7 +619,7 @@ emscripten::val internal_TJS2JS_call_function(tjs_uint32 ptr_function, emscripte
 	}
 	TJS2JS_EXCEPTION_HANDLER_GUARD({
 		tTJSVariant r;
-		if (TJS_SUCCEEDED(func->FuncCall(0, nullptr, nullptr, &r, argc, argv, nullptr)))
+		if (TJS_SUCCEEDED(obj->FuncCall(0, nullptr, nullptr, &r, argc, argv, objthis)))
 		{
 			delete[] argv;
 			return tjs_variant_to_emscripten_val(r);
