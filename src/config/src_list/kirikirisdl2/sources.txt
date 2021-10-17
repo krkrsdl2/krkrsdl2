@@ -434,6 +434,7 @@ external/zlib/trees.c
 external/zlib/uncompr.c
 external/zlib/zutil.c
 external/ncbind/ncbind.cpp
+src/core/base/sdl2/AndroidAssetManager.c
 src/core/base/sdl2/EventImpl.cpp
 src/core/base/sdl2/FileSelector.cpp
 src/core/base/sdl2/FuncStubs.cpp

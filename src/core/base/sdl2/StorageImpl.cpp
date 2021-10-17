@@ -39,6 +39,13 @@
 #include <psp2/io/stat.h>
 #endif
 
+#if defined(__ANDROID__)
+#include <android/log.h>
+#include <android/configuration.h>
+#include <android/asset_manager_jni.h>
+#include "AndroidAssetManager.h"
+#endif
+
 //---------------------------------------------------------------------------
 // tTVPFileMedia
 //---------------------------------------------------------------------------
@@ -47,8 +54,22 @@ class tTVPFileMedia : public iTVPStorageMedia
 	tjs_uint RefCount;
 
 public:
-	tTVPFileMedia() { RefCount = 1; }
-	~tTVPFileMedia() {;}
+	tTVPFileMedia()
+	{
+		RefCount = 1;
+#if defined(__ANDROID__)
+		if (!AndroidAssetManager_Create_AssetManager())
+		{
+			TVPThrowExceptionMessage(TJS_W("Couldn't create asset manager"));
+		}
+#endif
+	}
+	~tTVPFileMedia()
+	{
+#if defined(__ANDROID__)
+		AndroidAssetManager_Destroy_AssetManager();
+#endif
+	}
 
 	void TJS_INTF_METHOD AddRef() { RefCount ++; }
 	void TJS_INTF_METHOD Release()
@@ -134,6 +155,10 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 	tjs_string wname(name.AsStdString());
 	std::string nname;
 	if( TVPUtf16ToUtf8(nname, wname) ) {
+#if defined(__ANDROID__)
+		AAssetDir* android_dr;
+		AndroidAssetManager_Create_AssetManager();
+#endif
 #if defined(__vita__)
 		SceUID dr;
 		if( ( dr = sceIoDopen(nname.c_str()) ) >= 0 )
@@ -183,6 +208,32 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 			closedir( dr );
 #endif
 		}
+#if defined(__ANDROID__)
+		else if ( (android_dr = AAssetManager_openDir( asset_manager, nname.c_str() )) )
+		{
+			const char* filename = nullptr;
+			do {
+				filename = AAssetDir_getNextFileName( android_dr );
+				if( filename ) {
+					tjs_char fname[256];
+					tjs_int count = TVPUtf8ToWideCharString( filename, fname );
+					fname[count] = TJS_W('\0');
+					ttstr file( fname );
+#ifdef KRKRZ_CASE_INSENSITIVE
+					tjs_char *p = file.Independ();
+					while(*p) {
+						// make all characters small
+						if(*p >= TJS_W('A') && *p <= TJS_W('Z'))
+							*p += TJS_W('a') - TJS_W('A');
+						p++;
+					}
+#endif
+					lister->Add( file );
+				}
+			} while( filename );
+			AAssetDir_close( android_dr );
+		}
+#endif
 	}
 }
 //---------------------------------------------------------------------------
@@ -213,6 +264,10 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 		}
 	}
 	name = newname;
+#endif
+
+#if defined(__ANDROID__)
+	AndroidAssetManager_Create_AssetManager();
 #endif
 
 	std::string nnewname;
@@ -249,6 +304,9 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 		}
 
 		DIR *dirp;
+#if defined(__ANDROID__)
+		AAssetDir* android_dr;
+#endif
 		struct dirent *direntp;
 		if ((path_entries != 2) || (path_entries == 2 && domain_name != "?"))
 		{
@@ -279,6 +337,29 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 				break;
 			}
 		}
+#if defined(__ANDROID__)
+		else if ( (android_dr = AAssetManager_openDir( asset_manager, nnewname.c_str() )) )
+		{
+			const char* filename = nullptr;
+			bool found = false;
+			bool is_directory = false;
+			while (found == false && (filename = AAssetDir_getNextFileName( android_dr )) != nullptr)
+			{
+				if (!strcasecmp(nwalker.c_str(), filename))
+				{
+					nnewname += filename;
+					found = true;
+					break;
+				}
+			}
+			AAssetDir_close( android_dr );
+			if (!found)
+			{
+				nnewname += ptr_cur;
+				break;
+			}
+		}
+#endif
 		else
 		{
 			if (errno == EPERM || errno == EACCES) // Most likely inside the iOS sandbox, so just append the name
@@ -519,6 +600,9 @@ bool TVPCheckExistentLocalFile(const ttstr &name)
 {
 	std::string filename;
 	if( TVPUtf16ToUtf8( filename, name.AsStdString() ) ) {
+#if defined(__ANDROID__)
+		AndroidAssetManager_Create_AssetManager();
+#endif
 #if defined(__vita__)
 		SceIoStat st;
 		if( sceIoGetstat( filename.c_str(), &st) >= 0)
@@ -529,6 +613,15 @@ bool TVPCheckExistentLocalFile(const ttstr &name)
 			if( S_ISREG(st.st_mode) )
 #endif
 				return true;
+#if defined(__ANDROID__)
+		AAsset* asset = AAssetManager_open( asset_manager, filename.c_str(), AASSET_MODE_UNKNOWN);
+		bool result = asset != NULL;
+		if ( result )
+		{
+			AAsset_close( asset );
+			return result;
+		}
+#endif
 	}
 	return false;
 }
@@ -544,6 +637,9 @@ bool TVPCheckExistentLocalFolder(const ttstr &name)
 {
 	std::string filename;
 	if( TVPUtf16ToUtf8( filename, name.AsStdString() ) ) {
+#if defined(__ANDROID__)
+		AndroidAssetManager_Create_AssetManager();
+#endif
 #if defined(__vita__)
 		SceIoStat st;
 		if( sceIoGetstat( filename.c_str(), &st) >= 0)
@@ -554,6 +650,15 @@ bool TVPCheckExistentLocalFolder(const ttstr &name)
 			if( S_ISDIR(st.st_mode) )
 #endif
 				return true;
+#if defined(__ANDROID__)
+		AAssetDir* asset = AAssetManager_openDir( asset_manager, filename.c_str() );
+		bool result = asset != NULL;
+		if ( result )
+		{
+			AAssetDir_close( asset );
+			return result;
+		}
+#endif
 	}
 	return false;
 }

@@ -144,6 +144,12 @@ list(APPEND KRKRSDL2_LDFLAGS
 )
 endif()
 
+if(ANDROID)
+list(APPEND KRKRSDL2_LIBS
+	android
+)
+endif()
+
 if(IOS)
 set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
 add_subdirectory(external/SDL)
