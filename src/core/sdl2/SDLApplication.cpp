@@ -2148,9 +2148,7 @@ static bool process_events()
 #endif
 }
 
-#if defined(USE_SDL_MAIN) && defined(__IPHONEOS__)
-static int SDL_actual_main(int argc, char **argv)
-#elif defined(USE_SDL_MAIN)
+#if defined(USE_SDL_MAIN)
 extern "C" int SDL_main(int argc, char **argv)
 #else
 extern "C" int main(int argc, char **argv)
@@ -2219,13 +2217,6 @@ extern "C" int main(int argc, char **argv)
 #endif
 	return 0;
 }
-
-#if defined(USE_SDL_MAIN) && defined(__IPHONEOS__)
-extern "C" int SDL_main(int argc, char **argv)
-{
-	return SDL_UIKitRunApp(argc, argv, SDL_actual_main);
-}
-#endif
 
 bool TVPGetKeyMouseAsyncState(tjs_uint keycode, bool getcurrent)
 {
