@@ -181,26 +181,18 @@ list(APPEND KRKRSDL2_CXXFLAGS
 	-DUSE_SDL_MAIN
 )
 elseif(VITA)
-include_directories($ENV{VITASDK}/arm-vita-eabi/include/SDL2)
+set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
+add_subdirectory(external/SDL)
+find_library(SDL2 NAMES SDL2-static)
 
 list(APPEND KRKRSDL2_LIBS
 	stdc++
 	pthread
 	stdc++
 
-	SDL2
-	SceAppMgr_stub
+	SDL2-static
 	SceAppUtil_stub
 	SceShellSvc_stub
-	SceDisplay_stub
-	SceCtrl_stub
-	SceAudio_stub
-	SceSysmodule_stub
-	SceGxm_stub
-	SceCommonDialog_stub
-	SceTouch_stub
-	SceHid_stub
-	SceMotion_stub
 	m
 	z
 )
