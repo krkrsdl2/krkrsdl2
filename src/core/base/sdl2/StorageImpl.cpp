@@ -209,7 +209,8 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 #endif
 		}
 #if defined(__ANDROID__)
-		else if ( (android_dr = AAssetManager_openDir( asset_manager, nname.c_str() )) )
+		// Skip the leading slash.
+		else if ( nname.length() > 0 && nname[0] == '/' && (android_dr = AAssetManager_openDir( asset_manager, nname.c_str() + 1 )) )
 		{
 			const char* filename = nullptr;
 			do {
@@ -338,7 +339,8 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 			}
 		}
 #if defined(__ANDROID__)
-		else if ( (android_dr = AAssetManager_openDir( asset_manager, nnewname.c_str() )) )
+		// Skip the leading slash.
+		else if ( nnewname.length() > 0 && nnewname[0] == '/' && (android_dr = AAssetManager_openDir( asset_manager, nnewname.c_str() + 1 )) )
 		{
 			const char* filename = nullptr;
 			bool found = false;
@@ -614,12 +616,16 @@ bool TVPCheckExistentLocalFile(const ttstr &name)
 #endif
 				return true;
 #if defined(__ANDROID__)
-		AAsset* asset = AAssetManager_open( asset_manager, filename.c_str(), AASSET_MODE_UNKNOWN);
-		bool result = asset != NULL;
-		if ( result )
+		// Skip the leading slash.
+		if (filename.length() > 0 && filename[0] == '/')
 		{
-			AAsset_close( asset );
-			return result;
+			AAsset* asset = AAssetManager_open( asset_manager, filename.c_str() + 1, AASSET_MODE_UNKNOWN);
+			bool result = asset != NULL;
+			if ( result )
+			{
+				AAsset_close( asset );
+				return result;
+			}
 		}
 #endif
 	}
@@ -651,12 +657,16 @@ bool TVPCheckExistentLocalFolder(const ttstr &name)
 #endif
 				return true;
 #if defined(__ANDROID__)
-		AAssetDir* asset = AAssetManager_openDir( asset_manager, filename.c_str() );
-		bool result = asset != NULL;
-		if ( result )
+		// Skip the leading slash.
+		if (filename.length() > 0 && filename[0] == '/')
 		{
-			AAssetDir_close( asset );
-			return result;
+			AAssetDir* asset = AAssetManager_openDir( asset_manager, filename.c_str() + 1 );
+			bool result = asset != NULL;
+			if ( result )
+			{
+				AAssetDir_close( asset );
+				return result;
+			}
 		}
 #endif
 	}
@@ -801,6 +811,17 @@ retry:
 			if(TVPCreateFolders(TVPLocalExtractFilePath(localname)))
 				goto retry;
 		}
+#ifdef __ANDROID__
+		// Special case for Android and reading the asset filesystem from AAssetManager
+		if (trycount == 0 && access == TJS_BS_READ && filename.length() > 0 && filename[0] == '/')
+		{
+			trycount++;
+
+			// retry after removing the leading slash
+			filename.erase(0, 1);
+			goto retry;
+		}
+#endif
 		TVPThrowExceptionMessage(TVPCannotOpenStorage, origname);
 	}
 

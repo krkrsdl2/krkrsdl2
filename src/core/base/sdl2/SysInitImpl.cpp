@@ -1288,6 +1288,13 @@ void TVPBeforeSystemInit()
 		base_path_utf8 = base_path;
 		SDL_free(base_path);
 	}
+#ifdef __ANDROID__
+	// Special case for Android when SDL_GetBasePath returns NULL.
+	if (base_path_utf8.length() == 0)
+	{
+		base_path_utf8 = "/";
+	}
+#endif
 	tjs_string base_path_utf16;
 	TVPUtf8ToUtf16(base_path_utf16, base_path_utf8);
 	if (base_path_utf16.length() != 0 && !TVPGetCommandLine(TJS_W("-nosel")))
