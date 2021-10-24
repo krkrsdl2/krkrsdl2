@@ -11,3 +11,4 @@ build_*
 build
 .externalNativeBuild
 .gradle
+android-project/app/.cxx/
