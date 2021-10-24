@@ -86,7 +86,7 @@ android {
             {
                 architecture = in_abi_filters[0]
             }
-            outputFileName = "${app_name}_${variant.variantData.variantConfiguration.buildType.name}_${architecture}.apk"
+            outputFileName = "${app_name}_${architecture}.apk"
         }
     }
 }
