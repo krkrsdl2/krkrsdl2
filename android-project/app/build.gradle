@@ -7,6 +7,23 @@ else {
     apply plugin: 'com.android.library'
 }
 
+def in_abi_filters = []
+if (project.hasProperty("armeabi-v7a")) {
+    in_abi_filters.add('armeabi-v7a')
+}
+if (project.hasProperty("arm64-v8a")) {
+    in_abi_filters.add('arm64-v8a')
+}
+if (project.hasProperty("x86")) {
+    in_abi_filters.add('x86')
+}
+if (project.hasProperty("x86_64")) {
+    in_abi_filters.add('x86_64')
+}
+if (!project.hasProperty("armeabi-v7a") && !project.hasProperty("arm64-v8a") && !project.hasProperty("x86") && !project.hasProperty("x86_64")) {
+    in_abi_filters = ['armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64']
+}
+
 android {
     compileSdkVersion 26
     defaultConfig {
@@ -20,17 +37,8 @@ android {
         externalNativeBuild {
             cmake {
                 arguments "-DANDROID_APP_PLATFORM=android-16", "-DANDROID_STL=c++_static"
-                if (project.hasProperty("armeabi-v7a")) {
-                    abiFilters 'armeabi-v7a'
-                } else if (project.hasProperty("arm64-v8a")) {
-                    abiFilters 'arm64-v8a'
-                } else if (project.hasProperty("x86")) {
-                    abiFilters 'x86'
-                } else if (project.hasProperty("x86_64")) {
-                    abiFilters 'x86_64'
-                } else {
-                    abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-                }
+                abiFilters = []
+                abiFilters.addAll(in_abi_filters)
             }
         }
     }
@@ -67,6 +75,18 @@ android {
                     output.outputFile = new File(outputFile.parent, fileName);
                 }
             }
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def app_name = "krkrsdl2"
+            def architecture = "universal"
+            if (in_abi_filters.size() == 1)
+            {
+                architecture = in_abi_filters[0]
+            }
+            outputFileName = "${app_name}_${variant.variantData.variantConfiguration.buildType.name}_${architecture}.apk"
         }
     }
 }
