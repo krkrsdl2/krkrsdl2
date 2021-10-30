@@ -21,9 +21,9 @@ extern "C" {
 #include <android/asset_manager_jni.h>
 #include <stdbool.h>
 
-extern AAssetManager *asset_manager;
 extern bool AndroidAssetManager_Create_AssetManager(void);
 extern void AndroidAssetManager_Destroy_AssetManager(void);
+extern AAssetManager *AndroidAssetManager_Get_AssetManager(void);
 #endif
 
 #ifdef __cplusplus

@@ -1,8 +1,9 @@
 
 #if defined(__ANDROID__)
+
 #include "AndroidAssetManager.h"
 
-AAssetManager *asset_manager = NULL;
+static AAssetManager *asset_manager = NULL;
 static jobject javaAssetManagerRef = 0;
 
 bool AndroidAssetManager_Create_AssetManager(void)
@@ -13,6 +14,10 @@ bool AndroidAssetManager_Create_AssetManager(void)
 	}
 
 	JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+	if (env == NULL)
+	{
+		return false;
+	}
 	jobject context = (jobject)SDL_AndroidGetActivity();
 
 	/* javaAssetManager = context.getAssets(); */
@@ -41,10 +46,17 @@ void AndroidAssetManager_Destroy_AssetManager(void)
 {
 	JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
 
-	if (asset_manager != NULL)
+	if (env != NULL && asset_manager != NULL)
 	{
 		(*env)->DeleteGlobalRef(env, javaAssetManagerRef);
 		asset_manager = NULL;
 	}
 }
+
+AAssetManager *AndroidAssetManager_Get_AssetManager(void)
+{
+	AndroidAssetManager_Create_AssetManager();
+	return asset_manager;
+}
+
 #endif

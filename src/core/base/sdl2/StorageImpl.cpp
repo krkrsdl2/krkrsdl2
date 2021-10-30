@@ -57,12 +57,6 @@ public:
 	tTVPFileMedia()
 	{
 		RefCount = 1;
-#if defined(__ANDROID__)
-		if (!AndroidAssetManager_Create_AssetManager())
-		{
-			TVPThrowExceptionMessage(TJS_W("Couldn't create asset manager"));
-		}
-#endif
 	}
 	~tTVPFileMedia()
 	{
@@ -156,8 +150,8 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 	std::string nname;
 	if( TVPUtf16ToUtf8(nname, wname) ) {
 #if defined(__ANDROID__)
+		AAssetManager *asset_manager = AndroidAssetManager_Get_AssetManager();
 		AAssetDir* android_dr;
-		AndroidAssetManager_Create_AssetManager();
 #endif
 #if defined(__vita__)
 		SceUID dr;
@@ -210,7 +204,7 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 		}
 #if defined(__ANDROID__)
 		// Skip the leading slash.
-		else if ( nname.length() > 0 && nname[0] == '/' && (android_dr = AAssetManager_openDir( asset_manager, nname.c_str() + 1 )) )
+		else if ( asset_manager != NULL && nname.length() > 0 && nname[0] == '/' && (android_dr = AAssetManager_openDir( asset_manager, nname.c_str() + 1 )) )
 		{
 			const char* filename = nullptr;
 			do {
@@ -268,7 +262,7 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 #endif
 
 #if defined(__ANDROID__)
-	AndroidAssetManager_Create_AssetManager();
+	AAssetManager *asset_manager = AndroidAssetManager_Get_AssetManager();
 #endif
 
 	std::string nnewname;
@@ -340,7 +334,7 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 		}
 #if defined(__ANDROID__)
 		// Skip the leading slash.
-		else if ( nnewname.length() > 0 && nnewname[0] == '/' && (android_dr = AAssetManager_openDir( asset_manager, nnewname.c_str() + 1 )) )
+		else if ( asset_manager != NULL && nnewname.length() > 0 && nnewname[0] == '/' && (android_dr = AAssetManager_openDir( asset_manager, nnewname.c_str() + 1 )) )
 		{
 			const char* filename = nullptr;
 			bool found = false;
@@ -602,9 +596,6 @@ bool TVPCheckExistentLocalFile(const ttstr &name)
 {
 	std::string filename;
 	if( TVPUtf16ToUtf8( filename, name.AsStdString() ) ) {
-#if defined(__ANDROID__)
-		AndroidAssetManager_Create_AssetManager();
-#endif
 #if defined(__vita__)
 		SceIoStat st;
 		if( sceIoGetstat( filename.c_str(), &st) >= 0)
@@ -616,8 +607,9 @@ bool TVPCheckExistentLocalFile(const ttstr &name)
 #endif
 				return true;
 #if defined(__ANDROID__)
+		AAssetManager *asset_manager = AndroidAssetManager_Get_AssetManager();
 		// Skip the leading slash.
-		if (filename.length() > 0 && filename[0] == '/')
+		if (asset_manager != NULL && filename.length() > 0 && filename[0] == '/')
 		{
 			AAsset* asset = AAssetManager_open( asset_manager, filename.c_str() + 1, AASSET_MODE_UNKNOWN);
 			bool result = asset != NULL;
@@ -643,9 +635,6 @@ bool TVPCheckExistentLocalFolder(const ttstr &name)
 {
 	std::string filename;
 	if( TVPUtf16ToUtf8( filename, name.AsStdString() ) ) {
-#if defined(__ANDROID__)
-		AndroidAssetManager_Create_AssetManager();
-#endif
 #if defined(__vita__)
 		SceIoStat st;
 		if( sceIoGetstat( filename.c_str(), &st) >= 0)
@@ -657,8 +646,9 @@ bool TVPCheckExistentLocalFolder(const ttstr &name)
 #endif
 				return true;
 #if defined(__ANDROID__)
+		AAssetManager *asset_manager = AndroidAssetManager_Get_AssetManager();
 		// Skip the leading slash.
-		if (filename.length() > 0 && filename[0] == '/')
+		if (asset_manager != NULL && filename.length() > 0 && filename[0] == '/')
 		{
 			AAssetDir* asset = AAssetManager_openDir( asset_manager, filename.c_str() + 1 );
 			bool result = asset != NULL;
