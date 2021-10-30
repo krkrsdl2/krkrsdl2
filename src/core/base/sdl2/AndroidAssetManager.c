@@ -59,4 +59,16 @@ AAssetManager *AndroidAssetManager_Get_AssetManager(void)
 	return asset_manager;
 }
 
+bool AndroidAssetManager_Check_Directory_Existent(AAssetManager *asset_manager, const char *path)
+{
+	AAssetDir * asset_dir = AAssetManager_openDir(asset_manager, path);
+	if (asset_dir != NULL)
+	{
+		bool r = AAssetDir_getNextFileName(asset_dir) != NULL;
+		AAssetDir_close(asset_dir);
+		return r;
+	}
+	return false;
+}
+
 #endif

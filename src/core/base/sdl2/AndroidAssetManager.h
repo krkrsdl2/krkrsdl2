@@ -24,6 +24,7 @@ extern "C" {
 extern bool AndroidAssetManager_Create_AssetManager(void);
 extern void AndroidAssetManager_Destroy_AssetManager(void);
 extern AAssetManager *AndroidAssetManager_Get_AssetManager(void);
+extern bool AndroidAssetManager_Check_Directory_Existent(AAssetManager *asset_manager, const char *path);
 #endif
 
 #ifdef __cplusplus

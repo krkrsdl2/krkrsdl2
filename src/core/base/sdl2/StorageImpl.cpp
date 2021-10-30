@@ -204,7 +204,7 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 		}
 #if defined(__ANDROID__)
 		// Skip the leading slash.
-		else if ( asset_manager != NULL && nname.length() > 0 && nname[0] == '/' && (android_dr = AAssetManager_openDir( asset_manager, nname.c_str() + 1 )) )
+		else if ( asset_manager != NULL && nname.length() > 0 && nname[0] == '/' && (AndroidAssetManager_Check_Directory_Existent(asset_manager, nname.c_str() + 1)) && (android_dr = AAssetManager_openDir( asset_manager, nname.c_str() + 1 )) )
 		{
 			const char* filename = nullptr;
 			do {
@@ -334,7 +334,7 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 		}
 #if defined(__ANDROID__)
 		// Skip the leading slash.
-		else if ( asset_manager != NULL && nnewname.length() > 0 && nnewname[0] == '/' && (android_dr = AAssetManager_openDir( asset_manager, nnewname.c_str() + 1 )) )
+		else if ( asset_manager != NULL && nnewname.length() > 0 && nnewname[0] == '/' && (AndroidAssetManager_Check_Directory_Existent(asset_manager, nnewname.c_str() + 1)) && (android_dr = AAssetManager_openDir( asset_manager, nnewname.c_str() + 1 )) )
 		{
 			const char* filename = nullptr;
 			bool found = false;
@@ -651,10 +651,9 @@ bool TVPCheckExistentLocalFolder(const ttstr &name)
 		if (asset_manager != NULL && filename.length() > 0 && filename[0] == '/')
 		{
 			AAssetDir* asset = AAssetManager_openDir( asset_manager, filename.c_str() + 1 );
-			bool result = asset != NULL;
+			bool result = AndroidAssetManager_Check_Directory_Existent(asset_manager, filename.c_str() + 1);
 			if ( result )
 			{
-				AAssetDir_close( asset );
 				return result;
 			}
 		}
