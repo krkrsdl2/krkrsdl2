@@ -13,6 +13,11 @@ Webブラウザーでプレイできるデモはここにあります：https://
 このプロジェクトを使用して変更されていない商用ゲームを実行することはサポートされていません。  
 代わりに[Wine](https://www.winehq.org/)または[Kirikiroid2](https://play.google.com/store/apps/details?id=org.tvp.kirikiri2)を使用してください。    
 
+## IRCチャンネル
+
+吉里吉里SDL2プロジェクトのメンバーは、[libera.chatの#krkrsdl2チャンネル](https://web.libera.chat/#krkrsdl2)で見つけることができます。  
+マトリックスブリッジチャネルは[#krkrsdl2:matrix.org](https://matrix.to/#/#krkrsdl2:matrix.org)でも利用できます。  
+
 ## ダウンロード
 
 以下のビルドは、Github Actionsによって最新のソースコードから自動的に構築されます。
@@ -78,11 +83,6 @@ Mesonツールチェーンファイルは、[Emscripten](https://emscripten.org/
 * [simde](https://github.com/simd-everywhere/simde)
 * [SDL](https://github.com/libsdl-org/SDL)
 * [krglhwebp](https://github.com/uyjulian/krglhwebp)
-
-## IRCチャンネル
-
-吉里吉里SDL2プロジェクトのメンバーは、[libera.chatの#krkrsdl2チャンネル](https://web.libera.chat/#krkrsdl2)で見つけることができます。  
-マトリックスブリッジチャネルは[#krkrsdl2:matrix.org](https://matrix.to/#/#krkrsdl2:matrix.org)でも利用できます。  
 
 ## ライセンス
 

@@ -13,6 +13,11 @@ A demonstration project playable in your web browser is available here: https://
 Running unmodified commercial games using this project is not supported.  
 Please use [Wine](https://www.winehq.org/) or [Kirikiroid2](https://play.google.com/store/apps/details?id=org.tvp.kirikiri2) instead.  
 
+## IRC Channel
+
+Members of the Kirikiri SDL2 project can be found in the [#krkrsdl2 channel on libera.chat](https://web.libera.chat/#krkrsdl2).  
+A Matrix bridged channel is also available at [#krkrsdl2:matrix.org](https://matrix.to/#/#krkrsdl2:matrix.org).  
+
 ## Download
 
 The following builds are automatically built from the latest source code by Github Actions.  
@@ -78,11 +83,6 @@ Code from this project is based on the following projects:
 * [simde](https://github.com/simd-everywhere/simde)
 * [SDL](https://github.com/libsdl-org/SDL)
 * [krglhwebp](https://github.com/uyjulian/krglhwebp)
-
-## IRC Channel
-
-Members of the Kirikiri SDL2 project can be found in the [#krkrsdl2 channel on libera.chat](https://web.libera.chat/#krkrsdl2).  
-A Matrix bridged channel is also available at [#krkrsdl2:matrix.org](https://matrix.to/#/#krkrsdl2:matrix.org).  
 
 ## License
 
