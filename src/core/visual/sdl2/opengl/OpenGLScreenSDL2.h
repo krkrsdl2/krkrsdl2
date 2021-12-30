@@ -24,6 +24,7 @@ public:
 
 	EGLint GetSurfaceWidth() const;
 	EGLint GetSurfaceHeight() const;
+	void GetDrawableSize(EGLint &w, EGLint &h) const;
 
 	static bool CheckGLErrorAndLog(const tjs_char* funcname=nullptr);
 
