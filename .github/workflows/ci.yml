@@ -112,13 +112,13 @@ jobs:
     container: 
       image: vitasdk/vitasdk:latest
     steps:
+      - name: Install dependencies
+        run: |
+          apk update 
+          apk add cmake make ninja git
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - name: Install CMake and GNU Make
-        run: |
-          apk update 
-          apk add cmake make ninja
       - run: cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake
       - run: cmake --build build
       - uses: actions/upload-artifact@master
