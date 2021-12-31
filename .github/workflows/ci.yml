@@ -107,6 +107,24 @@ jobs:
         with:
           name: krkrsdl2-android
           path: android-project/app/build/outputs/apk/release/krkrsdl2_*.apk
+  build-vita:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - container: 
+        image: vitasdk/vitasdk:latest
+      - name: Install CMake and GNU Make
+        run: |
+          apk update 
+          apk add cmake make ninja
+      - run: cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake
+      - run: cmake --build build
+      - uses: actions/upload-artifact@master
+        with:
+          name: krkrsdl2-vita
+          path: build/krkrsdl2.vpk
   build-macos:
     runs-on: macos-10.15
     steps:
@@ -158,7 +176,7 @@ jobs:
           path: build/krkrsdl2-macos-appbundle.zip
 
   create-release:
-    needs: [build-web, build-ubuntu, build-android, build-macos, build-macos-cmake]
+    needs: [build-web, build-ubuntu, build-android, build-macos, build-macos-cmake, build-vita]
     runs-on: ubuntu-20.04
     if: github.ref == 'refs/heads/main'
     steps:
@@ -177,6 +195,11 @@ jobs:
       with:
         name: krkrsdl2-android
 
+    - name: Download vita artifact
+      uses: actions/download-artifact@v1
+      with:
+        name: krkrsdl2-vita
+
     - name: Download macos artifact
       uses: actions/download-artifact@v1
       with:
@@ -192,6 +215,7 @@ jobs:
         7z a -tzip krkrsdl2-web.zip krkrsdl2-web/*
         7z a -tzip krkrsdl2-ubuntu.zip krkrsdl2-ubuntu/*
         cp krkrsdl2-android/krkrsdl2_*.apk krkrsdl2-android.apk
+        cp krkrsdl2-vita/krkrsdl2.vpk krkrsdl2-vita.vpk
         7z a -tzip krkrsdl2-macos.zip krkrsdl2-macos/*
         cp krkrsdl2-macos-appbundle/krkrsdl2-macos-appbundle.zip krkrsdl2-macos-appbundle.zip
 
@@ -207,5 +231,6 @@ jobs:
           krkrsdl2-web.zip
           krkrsdl2-ubuntu.zip
           krkrsdl2-android.apk
+          krkrsdl2-vita.vpk
           krkrsdl2-macos.zip
           krkrsdl2-macos-appbundle.zip
