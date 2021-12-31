@@ -109,12 +109,12 @@ jobs:
           path: android-project/app/build/outputs/apk/release/krkrsdl2_*.apk
   build-vita:
     runs-on: ubuntu-20.04
+    container: 
+      image: vitasdk/vitasdk:latest
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - container: 
-        image: vitasdk/vitasdk:latest
       - name: Install CMake and GNU Make
         run: |
           apk update 
