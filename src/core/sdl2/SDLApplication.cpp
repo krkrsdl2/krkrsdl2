@@ -81,21 +81,24 @@ static void refresh_controllers()
 		sdl_controllers = NULL;
 	}
 	sdl_controller_num = SDL_NumJoysticks();
-	sdl_controllers = (SDL_GameController**)malloc(sizeof(SDL_GameController*) * sdl_controller_num);
-	if (!sdl_controllers)
+	if (sdl_controller_num != 0)
 	{
-		sdl_controller_num = 0;
-		TVPAddLog(ttstr("Could not allocate SDL controller memory"));
-		return;
-	}
-	for (int i = 0; i < sdl_controller_num; i += 1)
-	{
-		if (SDL_IsGameController(i))
+		sdl_controllers = (SDL_GameController**)malloc(sizeof(SDL_GameController*) * sdl_controller_num);
+		if (!sdl_controllers)
 		{
-			sdl_controllers[i] = SDL_GameControllerOpen(i);
-			if (!sdl_controllers[i])
+			sdl_controller_num = 0;
+			TVPAddLog(ttstr("Could not allocate SDL controller memory"));
+			return;
+		}
+		for (int i = 0; i < sdl_controller_num; i += 1)
+		{
+			if (SDL_IsGameController(i))
 			{
-				TVPAddLog(ttstr("Could not open controller: ") + ttstr(SDL_GetError()));
+				sdl_controllers[i] = SDL_GameControllerOpen(i);
+				if (!sdl_controllers[i])
+				{
+					TVPAddLog(ttstr("Could not open controller: ") + ttstr(SDL_GetError()));
+				}
 			}
 		}
 	}
@@ -2259,11 +2262,14 @@ bool TVPGetKeyMouseAsyncState(tjs_uint keycode, bool getcurrent)
 bool TVPGetJoyPadAsyncState(tjs_uint keycode, bool getcurrent)
 {
 	bool is_pressed = false;
-	for (int i = 0; i < sdl_controller_num; i += 1)
+	if (sdl_controllers != NULL)
 	{
-		if (sdl_controllers[i])
+		for (int i = 0; i < sdl_controller_num; i += 1)
 		{
-			is_pressed |= !!SDL_GameControllerGetButton(sdl_controllers[i], (SDL_GameControllerButton)vk_key_to_sdl_gamecontrollerbutton(keycode));
+			if (sdl_controllers[i] && sdl_controllers[i] != NULL)
+			{
+				is_pressed |= !!SDL_GameControllerGetButton(sdl_controllers[i], (SDL_GameControllerButton)vk_key_to_sdl_gamecontrollerbutton(keycode));
+			}
 		}
 	}
 	return is_pressed;
