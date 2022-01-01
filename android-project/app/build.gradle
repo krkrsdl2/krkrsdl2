@@ -39,6 +39,7 @@ android {
                 arguments "-DANDROID_APP_PLATFORM=android-16", "-DANDROID_STL=c++_static"
                 abiFilters = []
                 abiFilters.addAll(in_abi_filters)
+                version "3.18.1"
             }
         }
     }
