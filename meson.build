@@ -8,6 +8,8 @@ project('krkrsdl2',
 		'debug=true',
 		'warning_level=0',
 		'default_library=static',
+		'c_std=c11',
+		'cpp_std=c++11',
 	],
 	version: 'unknown',
 )
@@ -211,6 +213,16 @@ if target_machine.system() == 'emscripten'
 		'debug=false',
 	]
 endif
+krkrsdl2_precompiled_headers_c = []
+krkrsdl2_precompiled_headers_cpp = []
+if target_machine.system() != 'emscripten'
+	krkrsdl2_precompiled_headers_c += [
+		'src/core/sdl2/SDLPrecompiledHeader.h',
+	]
+	krkrsdl2_precompiled_headers_cpp += [
+		'src/core/sdl2/SDLPrecompiledHeader.hpp',
+	]
+endif
 krkrsdl2 = executable(
 	'krkrsdl2',
 	sources: krkrsdl2_src,
@@ -222,8 +234,8 @@ krkrsdl2 = executable(
 	dependencies: krkrsdl2_dependson,
 	install: true,
 	override_options: krkrsdl2_override_options,
-	c_pch: 'src/core/sdl2/SDLPrecompiledHeader.h',
-	cpp_pch: 'src/core/sdl2/SDLPrecompiledHeader.hpp',
+	c_pch: krkrsdl2_precompiled_headers_c,
+	cpp_pch: krkrsdl2_precompiled_headers_cpp,
 )
 if target_machine.system() == 'emscripten'
 	conf_data = configuration_data()
