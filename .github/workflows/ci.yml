@@ -132,8 +132,8 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          apk update 
-          apk add cmake make ninja git
+          apt-get -y update
+          apt-get -y install cmake make ninja-build git
       - uses: actions/checkout@v2
         with:
           submodules: recursive
