@@ -125,6 +125,24 @@ jobs:
         with:
           name: krkrsdl2-vita
           path: build/krkrsdl2.vpk
+  build-switch:
+    runs-on: ubuntu-20.04
+    container: 
+      image: devkitpro/devkita64:20210726
+    steps:
+      - name: Install dependencies
+        run: |
+          apk update 
+          apk add cmake make ninja git
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - run: cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake
+      - run: cmake --build build
+      - uses: actions/upload-artifact@master
+        with:
+          name: krkrsdl2-switch
+          path: build/krkrsdl2.nro
   build-macos:
     runs-on: macos-10.15
     steps:
@@ -176,7 +194,7 @@ jobs:
           path: build/krkrsdl2-macos-appbundle.zip
 
   create-release:
-    needs: [build-web, build-ubuntu, build-android, build-macos, build-macos-cmake, build-vita]
+    needs: [build-web, build-ubuntu, build-android, build-macos, build-macos-cmake, build-vita, build-switch]
     runs-on: ubuntu-20.04
     if: github.ref == 'refs/heads/main'
     steps:
@@ -200,6 +218,11 @@ jobs:
       with:
         name: krkrsdl2-vita
 
+    - name: Download switch artifact
+      uses: actions/download-artifact@v1
+      with:
+        name: krkrsdl2-switch
+
     - name: Download macos artifact
       uses: actions/download-artifact@v1
       with:
@@ -216,6 +239,7 @@ jobs:
         7z a -tzip krkrsdl2-ubuntu.zip krkrsdl2-ubuntu/*
         cp krkrsdl2-android/krkrsdl2_*.apk krkrsdl2-android.apk
         cp krkrsdl2-vita/krkrsdl2.vpk krkrsdl2-vita.vpk
+        cp krkrsdl2-switch/krkrsdl2.nro krkrsdl2-switch.nro
         7z a -tzip krkrsdl2-macos.zip krkrsdl2-macos/*
         cp krkrsdl2-macos-appbundle/krkrsdl2-macos-appbundle.zip krkrsdl2-macos-appbundle.zip
 
@@ -232,5 +256,6 @@ jobs:
           krkrsdl2-ubuntu.zip
           krkrsdl2-android.apk
           krkrsdl2-vita.vpk
+          krkrsdl2-switch.nro
           krkrsdl2-macos.zip
           krkrsdl2-macos-appbundle.zip
