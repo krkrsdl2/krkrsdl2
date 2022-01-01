@@ -222,6 +222,8 @@ krkrsdl2 = executable(
 	dependencies: krkrsdl2_dependson,
 	install: true,
 	override_options: krkrsdl2_override_options,
+	c_pch: 'src/core/sdl2/SDLPrecompiledHeader.h',
+	cpp_pch: 'src/core/sdl2/SDLPrecompiledHeader.hpp',
 )
 if target_machine.system() == 'emscripten'
 	conf_data = configuration_data()
