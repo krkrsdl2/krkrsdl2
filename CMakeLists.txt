@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(krkrsdl2)
 
-if((NOT ANDROID) AND (NOT IOS) AND (NOT VITA) AND (NOT NSWITCH) AND (NOT (APPLE AND NOT IOS)))
+if((NOT ANDROID) AND (NOT IOS) AND (NOT VITA) AND (NOT NINTENDO_SWITCH) AND (NOT (APPLE AND NOT IOS)))
 message(WARN "The CMake file is provided for platforms that do not support Meson well. Please try the Meson build system first.")
 endif()
 
@@ -48,7 +48,7 @@ set(VITA_VERSION  "02.00")
 endif()
 endif()
 
-if(NSWITCH)
+if(NINTENDO_SWITCH)
 if(NOT SWITCH_APP_NAME)
 set(SWITCH_APP_NAME "Kirikiri SDL2")
 endif()
@@ -199,7 +199,7 @@ list(APPEND KRKRSDL2_LIBS
 list(APPEND KRKRSDL2_CXXFLAGS
 	-DKRKRZ_USE_SDL_THREADS
 )
-elseif(NSWITCH)
+elseif(NINTENDO_SWITCH)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
 
@@ -291,7 +291,7 @@ vita_create_vpk(${KRKRSDL2_NAME}.vpk ${VITA_TITLEID} ${KRKRSDL2_NAME}.self
 )
 endif()
 
-if(NSWITCH)
+if(NINTENDO_SWITCH)
 add_custom_target(${KRKRSDL2_NAME}.nacp
     COMMAND $ENV{DEVKITPRO}/tools/bin/nacptool
         --create
