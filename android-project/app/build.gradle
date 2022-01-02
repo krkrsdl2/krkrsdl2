@@ -90,6 +90,10 @@ android {
             outputFileName = "${app_name}_${architecture}.apk"
         }
     }
+
+    aaptOptions {
+        noCompress '*.xp3'
+    }
 }
 
 dependencies {
