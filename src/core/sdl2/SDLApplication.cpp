@@ -1639,6 +1639,10 @@ static void TVPDoReductionNumerAndDenom(tjs_int &n, tjs_int &d)
 
 void TVPWindowLayer::UpdateActualZoom(void)
 {
+	if (renderer == NULL)
+	{
+		return;
+	}
 	// determine fullscreen zoom factor and client size
 	int sb_w, sb_h, zoom_d, zoom_n, output_w, output_h;
 	SDL_GetRendererOutputSize(renderer, &output_w, &output_h);
