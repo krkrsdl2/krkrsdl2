@@ -464,10 +464,27 @@ protected:
 	int last_mouse_x;
 	int last_mouse_y;
 
+	tTVPRect FullScreenDestRect;
+	tTVPRect LastSentDrawDeviceDestRect;
+
+	//-- layer position / size
+	tjs_int LayerLeft = 0;
+	tjs_int LayerTop = 0;
+	tjs_int LayerWidth = 32;
+	tjs_int LayerHeight = 32;
+	tjs_int ZoomDenom = 1; // Zooming factor denominator (setting)
+	tjs_int ZoomNumer = 1; // Zooming factor numerator (setting)
+	tjs_int ActualZoomDenom = 1; // Zooming factor denominator (actual)
+	tjs_int ActualZoomNumer = 1; // Zooming factor numerator (actual)
+	tjs_int InnerWidth = 32;
+	tjs_int InnerHeight = 32;
+
 public:
 	TVPWindowLayer(tTJSNI_Window *w);
 	virtual ~TVPWindowLayer();
 	virtual void SetPaintBoxSize(tjs_int w, tjs_int h) override;
+	void TranslateWindowToDrawArea(int &x, int &y);
+	void TranslateDrawAreaToWindow(int &x, int &y);
 	virtual bool GetFormEnabled() override;
 	virtual void SetDefaultMouseCursor() override;
 	virtual void SetMouseCursor(tjs_int handle) override;
@@ -540,6 +557,18 @@ public:
 	virtual void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) override;
 	virtual void OnKeyUp(tjs_uint16 vk, int shift) override;
 	virtual void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) override;
+	void UpdateActualZoom(void);
+	void SetDrawDeviceDestRect(void);
+	virtual void SetZoom(tjs_int numer, tjs_int denom, bool set_logical = true) override;
+	virtual void SetZoomNumer(tjs_int n) override;
+	virtual tjs_int GetZoomNumer() const override;
+	virtual void SetZoomDenom(tjs_int d) override;
+	virtual tjs_int GetZoomDenom() const override;
+	virtual void SetInnerWidth(tjs_int v) override;
+	virtual void SetInnerHeight(tjs_int v) override;
+	virtual void SetInnerSize(tjs_int w, tjs_int h) override;
+	virtual tjs_int GetInnerWidth() override;
+	virtual tjs_int GetInnerHeight() override;
 	bool should_try_parent_window(SDL_Event event);
 	void window_receive_event(SDL_Event event);
 	bool window_receive_event_input(SDL_Event event);
@@ -735,6 +764,8 @@ TVPWindowLayer::~TVPWindowLayer() {
 }
 
 void TVPWindowLayer::SetPaintBoxSize(tjs_int w, tjs_int h) {
+	LayerWidth = w;
+	LayerHeight = h;
 	if (renderer)
 	{
 		if (texture)
@@ -760,14 +791,9 @@ void TVPWindowLayer::SetPaintBoxSize(tjs_int w, tjs_int h) {
 		}
 		bitmap_completion->surface = surface;
 	}
-	SDL_Rect cliprect;
-	cliprect.x = 0;
-	cliprect.y = 0;
-	cliprect.w = w;
-	cliprect.h = h;
 	if (renderer)
 	{
-		SDL_RenderSetLogicalSize(renderer, w, h);
+		UpdateActualZoom();
 	}
 	if( TJSNativeInstance )
 	{
@@ -781,6 +807,28 @@ void TVPWindowLayer::SetPaintBoxSize(tjs_int w, tjs_int h) {
 		TJSNativeInstance->GetDrawDevice()->SetDestRectangle(r);
 	}
 }
+
+static int MulDiv(int nNumber, int nNumerator, int nDenominator)
+{
+	return (int)(((int64_t)nNumber * (int64_t)nNumerator) / nDenominator);
+}
+
+void TVPWindowLayer::TranslateWindowToDrawArea(int &x, int &y)
+{
+	x -= LastSentDrawDeviceDestRect.left;
+	y -= LastSentDrawDeviceDestRect.top;
+	x = MulDiv(x, InnerWidth, LastSentDrawDeviceDestRect.get_width());
+	y = MulDiv(y, InnerHeight, LastSentDrawDeviceDestRect.get_height());
+}
+
+void TVPWindowLayer::TranslateDrawAreaToWindow(int &x, int &y)
+{
+	x = MulDiv(x, LastSentDrawDeviceDestRect.get_width(), InnerWidth);
+	y = MulDiv(y, LastSentDrawDeviceDestRect.get_height(), InnerHeight);
+	x += LastSentDrawDeviceDestRect.left;
+	y += LastSentDrawDeviceDestRect.top;
+}
+
 bool TVPWindowLayer::GetFormEnabled() {
 	if (window)
 	{
@@ -879,21 +927,7 @@ void TVPWindowLayer::GetCursorPos(tjs_int &x, tjs_int &y) {
 		tjs_int new_x = 0;
 		tjs_int new_y = 0;
 		SDL_GetMouseState(&new_x, &new_y);
-
-		float scale_x, scale_y;
-		SDL_Rect viewport;
-		int window_w, window_h;
-		int output_w, output_h;
-		SDL_RenderGetScale(renderer, &scale_x, &scale_y);
-		SDL_RenderGetViewport(renderer, &viewport);
-		SDL_GetWindowSize(window, &window_w, &window_h);
-		SDL_GetRendererOutputSize(renderer, &output_w, &output_h);
-		float dpi_scale_x = (float)window_w / output_w;
-		float dpi_scale_y = (float)window_h / output_h;
-		new_x -= (int)(viewport.x * dpi_scale_x);
-		new_y -= (int)(viewport.y * dpi_scale_y);
-		new_x = (int)(new_x / (scale_x * dpi_scale_x));
-		new_y = (int)(new_y / (scale_x * dpi_scale_y));
+		TranslateWindowToDrawArea(new_x, new_y);
 		x = new_x;
 		y = new_y;
 		return;
@@ -912,21 +946,8 @@ void TVPWindowLayer::SetCursorPos(tjs_int x, tjs_int y) {
 	{
 		tjs_int new_x = x;
 		tjs_int new_y = y;
-		float scale_x, scale_y;
-		SDL_Rect viewport;
-		int window_w, window_h;
-		int output_w, output_h;
-		SDL_RenderGetScale(renderer, &scale_x, &scale_y);
-		SDL_RenderGetViewport(renderer, &viewport);
-		SDL_GetWindowSize(window, &window_w, &window_h);
-		SDL_GetRendererOutputSize(renderer, &output_w, &output_h);
-		float dpi_scale_x = (float)window_w / output_w;
-		float dpi_scale_y = (float)window_h / output_h;
-		new_x = (int)(new_x * (scale_x * dpi_scale_x));
-		new_y = (int)(new_y * (scale_x * dpi_scale_y));
-		new_x += (int)(viewport.x * dpi_scale_x);
-		new_y += (int)(viewport.y * dpi_scale_y);
-	    SDL_WarpMouseInWindow(window, new_x, new_y);
+		TranslateDrawAreaToWindow(new_x, new_y);
+		SDL_WarpMouseInWindow(window, new_x, new_y);
 	}
 	else if (window)
 	{
@@ -938,6 +959,7 @@ void TVPWindowLayer::SetAttentionPoint(tjs_int left, tjs_int top, const struct t
 	attention_point_rect.y = top;
 	attention_point_rect.w = 0;
 	attention_point_rect.h = font->Height;
+	TranslateDrawAreaToWindow(attention_point_rect.x, attention_point_rect.y);
 	SDL_SetTextInputRect(&attention_point_rect);
 }
 void TVPWindowLayer::BringToFront() {
@@ -1099,7 +1121,7 @@ void TVPWindowLayer::SetWidth(tjs_int w) {
 		}
 	}
 #endif
-	UpdateWindow(utNormal);
+	UpdateActualZoom();
 }
 void TVPWindowLayer::SetHeight(tjs_int h) {
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
@@ -1120,7 +1142,7 @@ void TVPWindowLayer::SetHeight(tjs_int h) {
 		}
 	}
 #endif
-	UpdateWindow(utNormal);
+	UpdateActualZoom();
 }
 void TVPWindowLayer::SetSize(tjs_int w, tjs_int h) {
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
@@ -1139,7 +1161,7 @@ void TVPWindowLayer::SetSize(tjs_int w, tjs_int h) {
 		}
 	}
 #endif
-	UpdateWindow(utNormal);
+	UpdateActualZoom();
 }
 void TVPWindowLayer::GetSize(tjs_int &w, tjs_int &h) {
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
@@ -1151,7 +1173,7 @@ void TVPWindowLayer::GetSize(tjs_int &w, tjs_int &h) {
 #endif
 	if (renderer)
 	{
-		SDL_RenderGetLogicalSize(renderer, &w, &h);
+		SDL_GetRendererOutputSize(renderer, &w, &h);
 		return;
 	}
 	w = 0;
@@ -1169,7 +1191,7 @@ tjs_int TVPWindowLayer::GetWidth() const {
 	if (renderer)
 	{
 		int w, h;
-		SDL_RenderGetLogicalSize(renderer, &w, &h);
+		SDL_GetRendererOutputSize(renderer, &w, &h);
 		return w;
 	}
 	return 0;
@@ -1186,7 +1208,7 @@ tjs_int TVPWindowLayer::GetHeight() const {
 	if (renderer)
 	{
 		int w, h;
-		SDL_RenderGetLogicalSize(renderer, &w, &h);
+		SDL_GetRendererOutputSize(renderer, &w, &h);
 		return h;
 	}
 	return 0;
@@ -1231,7 +1253,7 @@ tjs_int TVPWindowLayer::GetMinWidth() {
 	if (renderer)
 	{
 		int w, h;
-		SDL_RenderGetLogicalSize(renderer, &w, &h);
+		SDL_GetRendererOutputSize(renderer, &w, &h);
 		return w;
 	}
 	return 0;
@@ -1248,7 +1270,7 @@ tjs_int TVPWindowLayer::GetMaxWidth() {
 	if (renderer)
 	{
 		int w, h;
-		SDL_RenderGetLogicalSize(renderer, &w, &h);
+		SDL_GetRendererOutputSize(renderer, &w, &h);
 		return w;
 	}
 	return 0;
@@ -1265,7 +1287,7 @@ tjs_int TVPWindowLayer::GetMinHeight() {
 	if (renderer)
 	{
 		int w, h;
-		SDL_RenderGetLogicalSize(renderer, &w, &h);
+		SDL_GetRendererOutputSize(renderer, &w, &h);
 		return h;
 	}
 	return 0;
@@ -1282,7 +1304,7 @@ tjs_int TVPWindowLayer::GetMaxHeight() {
 	if (renderer)
 	{
 		int w, h;
-		SDL_RenderGetLogicalSize(renderer, &w, &h);
+		SDL_GetRendererOutputSize(renderer, &w, &h);
 		return h;
 	}
 	return 0;
@@ -1367,15 +1389,7 @@ void TVPWindowLayer::TickBeat() {
 			rect.y = bitmap_completion->update_rect.top;
 			rect.w = bitmap_completion->update_rect.get_width();
 			rect.h = bitmap_completion->update_rect.get_height();
-			SDL_Rect logical_rect;
-			SDL_RenderGetLogicalSize(renderer, &(logical_rect.w), &(logical_rect.h));
-			if (logical_rect.w == rect.w && logical_rect.h == rect.h)
-			{
-				// Clear extra artifacts
-				SDL_RenderSetLogicalSize(renderer, 0, 0);
-				SDL_RenderFillRect(renderer, NULL);
-				SDL_RenderSetLogicalSize(renderer, logical_rect.w, logical_rect.h);
-			}
+			SDL_RenderFillRect(renderer, NULL);
 			if (texture && surface)
 			{
 				if ((rect.w + rect.x) > surface->w)
@@ -1387,20 +1401,19 @@ void TVPWindowLayer::TickBeat() {
 					rect.h = surface->h;
 				}
 				SDL_UpdateTexture(texture, &rect, surface->pixels, surface->pitch);
-				SDL_RenderCopy(renderer, texture, &rect, &rect);
+				SDL_Rect destrect;
+				destrect.x = LastSentDrawDeviceDestRect.left;
+				destrect.y = LastSentDrawDeviceDestRect.top;
+				destrect.w = LastSentDrawDeviceDestRect.get_width();
+				destrect.h = LastSentDrawDeviceDestRect.get_height();
+				SDL_Rect srcrect;
+				srcrect.x = 0;
+				srcrect.y = 0;
+				srcrect.w = InnerWidth;
+				srcrect.h = InnerHeight;
+				SDL_RenderCopy(renderer, texture, &srcrect, &destrect);
 			}
 			SDL_RenderPresent(renderer);
-			if (logical_rect.w == rect.w && logical_rect.h == rect.h)
-			{
-				// Clear extra artifacts (for the back buffer)
-				SDL_RenderSetLogicalSize(renderer, 0, 0);
-				SDL_RenderFillRect(renderer, NULL);
-				SDL_RenderSetLogicalSize(renderer, logical_rect.w, logical_rect.h);
-			}
-			if (texture)
-			{
-				SDL_RenderCopy(renderer, texture, &rect, &rect);
-			}
 			hasDrawn = true;
 		}
 		else if (window && surface)
@@ -1590,16 +1603,10 @@ void TVPWindowLayer::ResetImeMode() {
 void TVPWindowLayer::UpdateWindow(tTVPUpdateType type) {
 	if (TJSNativeInstance) {
 		tTVPRect r;
-		r.clear();
-		if (renderer)
-		{
-			SDL_RenderGetLogicalSize(renderer, &(r.right), &(r.bottom));
-			SDL_RenderSetLogicalSize(renderer, r.right, r.bottom);
-		}
-		else if (window)
-		{
-			SDL_GetWindowSize(window, &(r.right), &(r.bottom));
-		}
+		r.left = 0;
+		r.top = 0;
+		r.right = LayerWidth;
+		r.bottom = LayerHeight;
 		TJSNativeInstance->NotifyWindowExposureToLayer(r);
 		TVPDeliverWindowUpdateEvents();
 	}
@@ -1613,6 +1620,195 @@ void TVPWindowLayer::OnKeyUp(tjs_uint16 vk, int shift) {
 void TVPWindowLayer::OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) {
 	TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, vk));
 }
+
+//---------------------------------------------------------------------------
+//! @brief	do reduction for numer over denom
+static void TVPDoReductionNumerAndDenom(tjs_int &n, tjs_int &d)
+{
+	tjs_int a = n;
+	tjs_int b = d;
+	while(b)
+	{
+		tjs_int t = b;
+		b = a % b;
+		a = t;
+	}
+	n = n / a;
+	d = d / a;
+}
+
+void TVPWindowLayer::UpdateActualZoom(void)
+{
+	// determine fullscreen zoom factor and client size
+	int sb_w, sb_h, zoom_d, zoom_n, output_w, output_h;
+	SDL_GetRendererOutputSize(renderer, &output_w, &output_h);
+
+	float layer_aspect = (float)InnerWidth / InnerHeight;
+	float output_aspect = (float)output_w / output_h;
+
+	// 0=letterbox, 1=crop
+	int scale_policy = 0;
+	SDL_Rect viewport;
+	if (SDL_fabs(layer_aspect - output_aspect) < 0.0001)
+	{
+		zoom_n = 1;
+		zoom_d = 1;
+		viewport.x = 0;
+		viewport.y = 0;
+		viewport.w = InnerWidth;
+		viewport.h = InnerHeight;
+	}
+	else if (layer_aspect > output_aspect)
+	{
+		if (scale_policy == 1)
+		{
+			// Crop left and right
+			zoom_n = output_h;
+			zoom_d = InnerHeight;
+			TVPDoReductionNumerAndDenom(zoom_n, zoom_d);
+			viewport.y = 0;
+			viewport.h = output_h;
+			viewport.w = MulDiv(InnerWidth, zoom_n, zoom_d);
+			viewport.x = (output_w - viewport.w) / 2;
+		}
+		else
+		{
+			// Top and bottom black bars (letterbox)
+			zoom_n = output_w;
+			zoom_d = InnerWidth;
+			TVPDoReductionNumerAndDenom(zoom_n, zoom_d);
+			viewport.x = 0;
+			viewport.w = output_w;
+			viewport.h = MulDiv(InnerHeight, zoom_n, zoom_d);
+			viewport.y = (output_h - viewport.h) / 2;
+		}
+	}
+	else
+	{
+		if (scale_policy == 1)
+		{
+			// Crop top and bottom
+			zoom_n = output_w;
+			zoom_d = InnerWidth;
+			TVPDoReductionNumerAndDenom(zoom_n, zoom_d);
+			viewport.x = 0;
+			viewport.w = output_w;
+			viewport.h = MulDiv(InnerHeight, zoom_n, zoom_d);
+			viewport.y = (output_h - viewport.h) / 2;
+		}
+		else
+		{
+			// Left and right black bars (letterbox)
+			zoom_n = output_h;
+			zoom_d = InnerHeight;
+			TVPDoReductionNumerAndDenom(zoom_n, zoom_d);
+			viewport.y = 0;
+			viewport.h = output_h;
+			viewport.w = MulDiv(InnerWidth, zoom_n, zoom_d);
+			viewport.x = (output_w - viewport.w) / 2;
+		}
+	}
+	FullScreenDestRect.set_size(viewport.w, viewport.h);
+	FullScreenDestRect.set_offsets(viewport.x, viewport.y);
+
+	ActualZoomNumer = zoom_n;
+	ActualZoomDenom = zoom_d;
+	SetDrawDeviceDestRect();
+}
+
+void TVPWindowLayer::SetDrawDeviceDestRect(void)
+{
+	tTVPRect destrect;
+	tjs_int w = MulDiv(InnerWidth,  ActualZoomNumer, ActualZoomDenom);
+	tjs_int h = MulDiv(InnerHeight, ActualZoomNumer, ActualZoomDenom);
+	if (w < 1)
+	{
+		w = 1;
+	}
+	if (h < 1)
+	{
+		h = 1;
+	}
+	{
+		destrect.left = FullScreenDestRect.left;
+		destrect.top = FullScreenDestRect.top;
+		destrect.right = destrect.left + w;
+		destrect.bottom = destrect.top + h;
+	}
+
+	if (LastSentDrawDeviceDestRect != destrect)
+	{
+		LastSentDrawDeviceDestRect = destrect;
+		UpdateWindow(utNormal);
+	}
+}
+
+void TVPWindowLayer::SetZoom(tjs_int numer, tjs_int denom, bool set_logical)
+{
+	bool ischanged = false;
+	// set layer zooming factor;
+	// the zooming factor is passed in numerator/denoiminator style.
+	// we must find GCM to optimize numer/denium via Euclidean algorithm.
+	TVPDoReductionNumerAndDenom(numer, denom);
+	if( set_logical )
+	{
+		if( ZoomNumer != numer || ZoomDenom != denom )
+		{
+			ischanged = true;
+		}
+		ZoomNumer = numer;
+		ZoomDenom = denom;
+	}
+	UpdateActualZoom();
+}
+
+void TVPWindowLayer::SetZoomNumer(tjs_int n)
+{
+	SetZoom(n, ZoomDenom);
+}
+
+tjs_int TVPWindowLayer::GetZoomNumer() const
+{
+	return ZoomNumer;
+}
+
+void TVPWindowLayer::SetZoomDenom(tjs_int d)
+{
+	SetZoom(ZoomNumer, d);
+}
+
+tjs_int TVPWindowLayer::GetZoomDenom() const
+{
+	return ZoomDenom;
+}
+
+void TVPWindowLayer::SetInnerWidth(tjs_int v)
+{
+	SetInnerSize(v, InnerHeight);
+}
+
+void TVPWindowLayer::SetInnerHeight(tjs_int v)
+{
+	SetInnerSize(InnerWidth, v);
+}
+
+void TVPWindowLayer::SetInnerSize(tjs_int w, tjs_int h)
+{
+	InnerWidth = w;
+	InnerHeight = h;
+	UpdateActualZoom();
+}
+
+tjs_int TVPWindowLayer::GetInnerWidth()
+{
+	return InnerWidth;
+}
+
+tjs_int TVPWindowLayer::GetInnerHeight()
+{
+	return InnerHeight;
+}
+
 bool TVPWindowLayer::should_try_parent_window(SDL_Event event)
 {
 	if (window && _prevWindow) {
@@ -1822,7 +2018,7 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 						case SDL_WINDOWEVENT_RESTORED:
 						case SDL_WINDOWEVENT_RESIZED:
 						case SDL_WINDOWEVENT_SIZE_CHANGED: {
-							UpdateWindow(utNormal);
+							UpdateActualZoom();
 							TVPPostInputEvent(new tTVPOnResizeInputEvent(TJSNativeInstance), TVP_EPT_REMOVE_POST);
 							return;
 						}
@@ -1886,6 +2082,7 @@ bool TVPWindowLayer::window_receive_event_input(SDL_Event event) {
 					RestoreMouseCursor();
 					last_mouse_x = event.motion.x;
 					last_mouse_y = event.motion.y;
+					TranslateWindowToDrawArea(last_mouse_x, last_mouse_y);
 					TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, s));
 					return true;
 				}
@@ -1920,6 +2117,7 @@ bool TVPWindowLayer::window_receive_event_input(SDL_Event event) {
 					if (hasbtn) {
 						last_mouse_x = event.button.x;
 						last_mouse_y = event.button.y;
+						TranslateWindowToDrawArea(last_mouse_x, last_mouse_y);
 						TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, s));
 						switch (event.type) {
 							case SDL_MOUSEBUTTONDOWN:
@@ -1942,21 +2140,28 @@ bool TVPWindowLayer::window_receive_event_input(SDL_Event event) {
 					return false;
 				}
 				case SDL_MOUSEWHEEL: {
+					TranslateWindowToDrawArea(last_mouse_x, last_mouse_y);
 					TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(TJSNativeInstance, event.wheel.x, event.wheel.y, last_mouse_x, last_mouse_y));
 					return true;
 				}
 				case SDL_FINGERMOTION: {
-					TVPPostInputEvent(new tTVPOnTouchMoveInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
+					last_mouse_x = event.tfinger.x;
+					last_mouse_y = event.tfinger.y;
+					TranslateWindowToDrawArea(last_mouse_x, last_mouse_y);
+					TVPPostInputEvent(new tTVPOnTouchMoveInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, 1, 1, event.tfinger.fingerId));
 					return true;
 				}
 				case SDL_FINGERDOWN:
 				case SDL_FINGERUP: {
+					last_mouse_x = event.tfinger.x;
+					last_mouse_y = event.tfinger.y;
+					TranslateWindowToDrawArea(last_mouse_x, last_mouse_y);
 					switch (event.tfinger.type) {
 						case SDL_FINGERDOWN:
-							TVPPostInputEvent(new tTVPOnTouchDownInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
+							TVPPostInputEvent(new tTVPOnTouchDownInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, 1, 1, event.tfinger.fingerId));
 							break;
 						case SDL_FINGERUP:
-							TVPPostInputEvent(new tTVPOnTouchUpInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
+							TVPPostInputEvent(new tTVPOnTouchUpInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, 1, 1, event.tfinger.fingerId));
 							break;
 					}
 					return true;

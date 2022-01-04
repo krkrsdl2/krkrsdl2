@@ -396,15 +396,20 @@ public:
 	virtual void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) = 0;
 	virtual void OnKeyUp(tjs_uint16 vk, int shift) = 0;
 	virtual void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) = 0;
+	virtual void SetZoom(tjs_int numer, tjs_int denom, bool set_logical = true) = 0;
+	virtual void SetZoomNumer(tjs_int n) = 0;
+	virtual tjs_int GetZoomNumer() const = 0;
+	virtual void SetZoomDenom(tjs_int d) = 0;
+	virtual tjs_int GetZoomDenom() const = 0;
+	virtual void SetInnerWidth(tjs_int v) = 0;
+	virtual void SetInnerHeight(tjs_int v) = 0;
+	virtual void SetInnerSize(tjs_int w, tjs_int h) = 0;
+	virtual tjs_int GetInnerWidth() = 0;
+	virtual tjs_int GetInnerHeight() = 0;
 
 	// dummy function
-	void SetInnerWidth(tjs_int v) { SetWidth(v); }
-	void SetInnerHeight(tjs_int v) { SetHeight(v); }
-	void SetInnerSize(tjs_int w, tjs_int h) { SetSize(w, h); }
-	void SetStayOnTop(bool) {}
-	tjs_int GetInnerWidth() { return GetWidth(); }
-	tjs_int GetInnerHeight() { return GetHeight(); }
 	void SetVisibleFromScript(bool b) { SetVisible(b); };
+	void SetStayOnTop(bool b) {}
 	bool GetStayOnTop() { return false; }
 	void SetTrapKey(bool b) {}
 	bool GetTrapKey() const { return false; }
@@ -425,11 +430,6 @@ public:
 	void ResetMouseVelocity() {};
 	void ResetTouchVelocity(tjs_int id) {};
 	bool GetMouseVelocity(float& x, float& y, float& speed) const { return false; };
-	void SetZoom(tjs_int numer, tjs_int denom) {};
-	void SetZoomNumer(tjs_int n) {}
-	tjs_int GetZoomNumer() const { return 1; }
-	void SetZoomDenom(tjs_int d) {}
-	tjs_int GetZoomDenom() const { return 1; }
 	void ZoomRectangle(tjs_int & left, tjs_int & top, tjs_int & right, tjs_int & bottom) {};
 	void SetHintText(iTJSDispatch2* sender, const ttstr &text) {}
 	void DisableAttentionPoint() {}
