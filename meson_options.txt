@@ -98,6 +98,13 @@ option(
 )
 
 option(
+	'emscripten_enable_bigint',
+	type: 'boolean',
+	value: true,
+	description: 'Enable BigInt support for the Emscripten build.'
+)
+
+option(
 	'emscripten_enable_wasm_simd',
 	type: 'boolean',
 	value: false,

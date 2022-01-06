@@ -131,6 +131,11 @@ if target_machine.system() == 'emscripten'
 			'-s', 'WASM=2',
 		]
 	endif
+	if get_option('emscripten_enable_bigint') == true
+		krkrsdl2_ldflags += [
+			'-s', 'WASM_BIGINT=1',
+		]
+	endif
 	if get_option('emscripten_enable_threads') == true
 		krkrsdl2_ldflags += [
 			'-s', 'USE_PTHREADS=1',
