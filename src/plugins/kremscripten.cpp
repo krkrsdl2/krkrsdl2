@@ -85,7 +85,7 @@ static ttstr map_js_string(emscripten::val v)
 			// Check the TJS2JSStringCache hash table just to make sure we didn't receive an invalid value
 			if (r.typeof() == js_string_object && r[js_string_length].as<tjs_int32>() == 2)
 			{
-				ttstr key = *((ttstr *)(r[0].as<tjs_uint32>()));
+				ttstr key = ttstr((tTJSVariantString *)(r[0].as<tjs_uint32>()));
 				tjs_int hash = r[1].as<tjs_int32>();
 				emscripten::val *rr = TJS2JSStringCache.FindAndTouchWithHash(key, hash);
 				if (rr)
@@ -117,7 +117,7 @@ static emscripten::val map_tjs_string(ttstr v)
 		emscripten::val temp_array = emscripten::val::array();
 		if (JS2TJSStringCache != emscripten::val::undefined())
 		{
-			temp_array.call<void>("push", (tjs_uint32)(&v));
+			temp_array.call<void>("push", (tjs_uint32)(v.AsVariantStringNoAddRef()));
 			temp_array.call<void>("push", *(v.GetHint()));
 			JS2TJSStringCache.call<void>("set", r, temp_array);
 		}
