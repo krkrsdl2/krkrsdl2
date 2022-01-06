@@ -102,6 +102,7 @@ class tTVPApplication {
 	bool has_map_report_process_;
 
 	bool should_sync_savedata_;
+	bool syncfs_is_finished_;
 
 #ifdef KRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD
 	class tTVPAsyncImageLoader* image_load_thread_;
@@ -234,6 +235,11 @@ public:
 	void SyncSavedata()
 	{
 		should_sync_savedata_ = true;
+	}
+
+	void FinishedSyncSavedata()
+	{
+		syncfs_is_finished_ = true;
 	}
 };
 #if 0

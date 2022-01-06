@@ -329,6 +329,7 @@ tTVPApplication::tTVPApplication() : is_attach_console_(false), tarminate_(false
 	 , image_load_thread_(NULL), has_map_report_process_(false), console_cache_(1024)
 {
 	should_sync_savedata_ = false;
+	syncfs_is_finished_ = true;
 }
 tTVPApplication::~tTVPApplication() {
 #if 0
@@ -704,6 +705,15 @@ void tTVPApplication::ShowException( const tjs_char* e ) {
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, v_utf8.c_str(), e_utf8.c_str(), nullptr);
 	}
 }
+
+extern "C" void EMSCRIPTEN_KEEPALIVE emscripten_syncfs_is_finished()
+{
+	if (Application)
+	{
+		Application->FinishedSyncSavedata();
+	}
+}
+
 void tTVPApplication::Run() {
 #if 0
 	TVPTerminateCode = 0;
@@ -728,11 +738,12 @@ void tTVPApplication::Run() {
 		tTJSNI_Window *win = TVPGetWindowListAt(i);
 		win->TickBeat();
 	}
-	if (should_sync_savedata_)
+	if (should_sync_savedata_ && syncfs_is_finished_)
 	{
 		should_sync_savedata_ = false;
+		syncfs_is_finished_ = false;
 #ifdef __EMSCRIPTEN__
-		emscripten_run_script("FS.syncfs(false, function (err) {});");
+		emscripten_run_script("FS.syncfs(false, function (err) { Module._" "emscripten_syncfs_is_finished" "(); });");
 #endif
 	}
 	if (done)
