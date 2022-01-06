@@ -231,9 +231,13 @@ class iTJSDispatch2WrapperForEmscripten : public tTJSDispatch
 static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::val vthis)
 {
 	emscripten::val type = v.typeof();
-	if (type == js_string_number || type == js_string_boolean || type == js_string_bigint)
+	if (type == js_string_number || type == js_string_boolean)
 	{
 		return tTJSVariant(v.as<tjs_real>());
+	}
+	else if (type == js_string_bigint)
+	{
+		return tTJSVariant(v.as<tjs_int64>());
 	}
 	else if (type == js_string_string)
 	{
@@ -283,9 +287,13 @@ static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::
 static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v)
 {
 	tTJSVariantType type = v.Type();
-	if (type == tvtInteger || type == tvtReal)
+	if (type == tvtReal)
 	{
 		return emscripten::val(v.AsReal());
+	}
+	else if (type == tvtInteger)
+	{
+		return emscripten::val(v.AsInteger());
 	}
 	else if (type == tvtString)
 	{
