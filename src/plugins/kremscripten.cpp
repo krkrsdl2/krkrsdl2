@@ -39,6 +39,7 @@ static emscripten::val js_curry_delete_property = emscripten::val::undefined();
 static emscripten::val js_curry_get_keys = emscripten::val::undefined();
 static emscripten::val js_curry_get_own_property_descriptor = emscripten::val::undefined();
 static emscripten::val js_new_proxy = emscripten::val::undefined();
+static emscripten::val js_new_map = emscripten::val::undefined();
 static emscripten::val js_empty_function = emscripten::val::undefined();
 static emscripten::val js_empty_class = emscripten::val::undefined();
 static emscripten::val js_clone_uint8array = emscripten::val::undefined();
@@ -70,6 +71,78 @@ static emscripten::val js_string_unknown_error = emscripten::val::undefined();
 
 static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::val vthis = emscripten::val::null());
 static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v);
+
+static tTJSHashTable<ttstr, emscripten::val> TJS2JSStringCache;
+static emscripten::val JS2TJSStringCache = emscripten::val::undefined();
+
+static ttstr map_js_string(emscripten::val v)
+{
+	if (JS2TJSStringCache != emscripten::val::undefined())
+	{
+		emscripten::val r = JS2TJSStringCache.call<emscripten::val>("get", v);
+		if (r != emscripten::val::undefined())
+		{
+			// Check the TJS2JSStringCache hash table just to make sure we didn't receive an invalid value
+			if (r.typeof() == js_string_object && r[js_string_length].as<tjs_int32>() == 2)
+			{
+				ttstr key = *((ttstr *)(r[0].as<tjs_uint32>()));
+				tjs_int hash = r[1].as<tjs_int32>();
+				emscripten::val *rr = TJS2JSStringCache.FindAndTouchWithHash(key, hash);
+				if (rr)
+				{
+					return ttstr(key);
+				}
+			}
+		}
+	}
+	return ttstr(v.as<tjs_string>());
+}
+
+static emscripten::val map_tjs_string(ttstr v)
+{
+	if (!(v.GetHint()) || !(*(v.GetHint())))
+	{
+		goto convert_passed_value;
+	}
+	{
+		emscripten::val *r = TJS2JSStringCache.FindAndTouchWithHash(v, *(v.GetHint()));
+		if (r)
+		{
+			return *r;
+		}
+	}
+	{
+		emscripten::val r = emscripten::val(v.AsStdString());
+		TJS2JSStringCache.AddWithHash(v, *(v.GetHint()), r);
+		emscripten::val temp_array = emscripten::val::array();
+		if (JS2TJSStringCache != emscripten::val::undefined())
+		{
+			temp_array.call<void>("push", (tjs_uint32)(&v));
+			temp_array.call<void>("push", *(v.GetHint()));
+			JS2TJSStringCache.call<void>("set", r, temp_array);
+		}
+		return r;
+	}
+convert_passed_value:
+	return emscripten::val(v.AsStdString());
+}
+
+class tTJS2JSMapCompact : public tTVPCompactEventCallbackIntf
+{
+	void TJS_INTF_METHOD OnCompact(tjs_int level)
+	{
+		// OnCompact method from tTVPCompactEventCallbackIntf
+		// called when the application is idle, deactivated, minimized, or etc...
+		if(level >= TVP_COMPACT_LEVEL_DEACTIVATE)
+		{
+			TJS2JSStringCache.Clear();
+			if (JS2TJSStringCache != emscripten::val::undefined())
+			{
+				JS2TJSStringCache.call<void>("clear");
+			}
+		}
+	}
+} static TJS2JSMapCompact;
 
 class iTJSDispatch2WrapperForEmscripten : public tTJSDispatch
 {
@@ -241,7 +314,7 @@ static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::
 	}
 	else if (type == js_string_string)
 	{
-		return tTJSVariant(v.as<tjs_string>());
+		return tTJSVariant(map_js_string(v));
 	}
 	else if (type == js_string_function || type == js_string_object)
 	{
@@ -297,7 +370,7 @@ static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v)
 	}
 	else if (type == tvtString)
 	{
-		return emscripten::val(tTJSString(v).AsStdString());
+		return map_tjs_string(ttstr(v));
 	}
 	else if (type == tvtOctet)
 	{
@@ -362,7 +435,7 @@ class KirikiriEmscriptenInterface
 {
 	public: static tTJSVariant evalJS(ttstr v)
 	{
-		return emscripten_val_to_tjs_variant(js_eval(v.AsStdString()));
+		return emscripten_val_to_tjs_variant(js_eval(map_tjs_string(v)));
 	}
 
 	public: static tjs_error TJS_INTF_METHOD evalStorageJS(tTJSVariant *result, tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *objthis)
@@ -388,7 +461,7 @@ class KirikiriEmscriptenInterface
 		}
 		stream->Destruct();
 
-		return emscripten_val_to_tjs_variant(js_eval(buffer.AsStdString()));
+		return emscripten_val_to_tjs_variant(js_eval(map_tjs_string(buffer)));
 	}
 };
 
@@ -421,6 +494,7 @@ static void init_js_callbacks()
 	js_curry_get_keys = js_wrap_exception(js_eval(std::string("(function(a,b){return function(c){return Module." internal_TJS2JS_get_object_keys_name "(a,b);};})")));
 	js_curry_get_own_property_descriptor = js_wrap_exception(js_eval(std::string("(function(a,b){return function(c,d){return (d == '" __internal_JS2TJS_wrapper "') ? {" __internal_JS2TJS_wrapper ":true," obj_name ":a," objthis_name ":b} : undefined;};})")));
 	js_new_proxy = js_wrap_exception(js_eval(std::string("(function(f,g){return new Proxy(f,g);})")));
+	js_new_map = js_wrap_exception(js_eval(std::string("(function(){return new Map();})")));
 	js_empty_function = js_wrap_exception(js_eval(std::string("(function() {})")));
 	js_empty_class = js_wrap_exception(js_eval(std::string("(class {})")));
 	js_clone_uint8array = js_wrap_exception(js_eval(std::string("(function(src){var dst = new ArrayBuffer(src.byteLength);new Uint8Array(dst).set(new Uint8Array(src));return dst;})")));
@@ -539,7 +613,7 @@ NCB_POST_REGIST_CALLBACK(init_js_replacements);
 				tTJSVariantType exception_handler_exception_object_type = exception_handler_exception_object.Type(); \
 				if (exception_handler_exception_object_type == tvtString) \
 				{ \
-					emscripten::val(tTJSString(exception_handler_exception_object).AsStdString()).throw_(); \
+					map_tjs_string(exception_handler_exception_object).throw_(); \
 				} \
 				else if (exception_handler_exception_object_type == tvtObject) \
 				{ \
@@ -554,15 +628,15 @@ NCB_POST_REGIST_CALLBACK(init_js_replacements);
 						} \
 					} \
 				} \
-				emscripten::val(e.GetMessage().AsStdString()).throw_(); \
+				map_tjs_string(e.GetMessage()).throw_(); \
 			} \
 			catch(eTJSScriptError &e) \
 			{ \
-				emscripten::val(e.GetMessage().AsStdString()).throw_(); \
+				map_tjs_string(e.GetMessage()).throw_(); \
 			} \
 			catch(eTJS &e)  \
 			{ \
-				emscripten::val(e.GetMessage().AsStdString()).throw_(); \
+				map_tjs_string(e.GetMessage()).throw_(); \
 			} \
 			catch(std::exception &e) \
 			{ \
@@ -570,7 +644,7 @@ NCB_POST_REGIST_CALLBACK(init_js_replacements);
 			} \
 			catch(...) \
 			{ \
-				emscripten::val(js_string_unknown_error).throw_(); \
+				js_string_unknown_error.throw_(); \
 			} \
 		} \
 	}
@@ -701,7 +775,7 @@ emscripten::val getStorageString(tjs_string place, tjs_string modestr)
 			throw;
 		}
 		stream->Destruct();
-		r = emscripten::val(buffer.AsStdString());
+		r = map_tjs_string(buffer);
 	});
 	return r;
 }
@@ -798,7 +872,8 @@ emscripten::val internal_TJS2JS_get_object_property(tjs_uint32 ptr_object, tjs_u
 		else if (type == js_string_string)
 		{
 			tTJSVariant rv;
-			tjs_error hr = obj->PropGet(0, v.as<tjs_string>().c_str(), nullptr, &rv, objthis ? objthis : obj);
+			ttstr pv = map_js_string(v);
+			tjs_error hr = obj->PropGet(0, pv.c_str(), pv.GetHint(), &rv, objthis ? objthis : obj);
 			if (TJS_SUCCEEDED(hr))
 			{
 				r = tjs_variant_to_emscripten_val(rv);
@@ -851,7 +926,8 @@ bool internal_TJS2JS_set_object_property(tjs_uint32 ptr_object, tjs_uint32 ptr_o
 		else if (type == js_string_string)
 		{
 			tTJSVariant rv = emscripten_val_to_tjs_variant(property_value);
-			tjs_error hr = obj->PropSet(TJS_MEMBERENSURE, v.as<tjs_string>().c_str(), nullptr, &rv, objthis ? objthis : obj);
+			ttstr pv = map_js_string(v);
+			tjs_error hr = obj->PropSet(TJS_MEMBERENSURE, pv.c_str(), pv.GetHint(), &rv, objthis ? objthis : obj);
 			if (TJS_SUCCEEDED(hr))
 			{
 				return true;
@@ -884,7 +960,8 @@ bool internal_TJS2JS_has_object_property(tjs_uint32 ptr_object, tjs_uint32 ptr_o
 		else if (type == js_string_string)
 		{
 			tTJSVariant rv;
-			r = obj->PropGet(TJS_MEMBERMUSTEXIST|TJS_IGNOREPROP, v.as<tjs_string>().c_str(), nullptr, &rv, objthis ? objthis : obj) == TJS_S_OK;
+			ttstr pv = map_js_string(v);
+			r = obj->PropGet(TJS_MEMBERMUSTEXIST|TJS_IGNOREPROP, pv.c_str(), pv.GetHint(), &rv, objthis ? objthis : obj) == TJS_S_OK;
 		}
 	});
 	return r;
@@ -907,7 +984,8 @@ bool internal_TJS2JS_delete_object_property(tjs_uint32 ptr_object, tjs_uint32 pt
 		}
 		else if (type == js_string_string)
 		{
-			r = !!TJS_SUCCEEDED(obj->DeleteMember(TJS_MEMBERMUSTEXIST|TJS_IGNOREPROP, v.as<tjs_string>().c_str(), nullptr, objthis ? objthis : obj));
+			ttstr pv = map_js_string(v);
+			r = !!TJS_SUCCEEDED(obj->DeleteMember(TJS_MEMBERMUSTEXIST|TJS_IGNOREPROP, pv.c_str(), pv.GetHint(), objthis ? objthis : obj));
 		}
 	});
 	return r;
@@ -957,7 +1035,7 @@ void internal_TJS2JS_throw_val_as_TJS_exception(emscripten::val v)
 	emscripten::val type = v.typeof();
 	if (type == js_string_string)
 	{
-		msg = v.as<tjs_string>();
+		msg = map_js_string(v);
 	}
 	else if (type == js_string_object)
 	{
@@ -965,7 +1043,7 @@ void internal_TJS2JS_throw_val_as_TJS_exception(emscripten::val v)
 		emscripten::val type2 = v2.typeof();
 		if (type2 == js_string_string)
 		{
-			msg = v2.as<tjs_string>();
+			msg = map_js_string(v2);
 		}
 	}
 	TJS_eTJSScriptException(msg, (tTJSScriptBlock *)nullptr, 0, ve);
