@@ -706,6 +706,7 @@ void tTVPApplication::ShowException( const tjs_char* e ) {
 	}
 }
 
+#ifdef __EMSCRIPTEN__
 extern "C" void EMSCRIPTEN_KEEPALIVE emscripten_syncfs_is_finished()
 {
 	if (Application)
@@ -713,6 +714,7 @@ extern "C" void EMSCRIPTEN_KEEPALIVE emscripten_syncfs_is_finished()
 		Application->FinishedSyncSavedata();
 	}
 }
+#endif
 
 void tTVPApplication::Run() {
 #if 0
