@@ -8,6 +8,8 @@
 #define _ISTREAM_COMPAT_H
 
 #include "StorageIntf.h"
+#include "BinaryStream.h"
+#include "MsgIntf.h"
 
 #define STDMETHODCALLTYPE
 #define ULONG tjs_uint
@@ -67,16 +69,16 @@ public:
 // tTVPIStreamAdapter
 //---------------------------------------------------------------------------
 /*
-	this class provides COM's IStream adapter for tTJSBinaryStream
+	this class provides COM's IStream adapter for iTJSBinaryStream
 */
 class tTVPIStreamAdapter : public IStream
 {
 private:
-	tTJSBinaryStream *Stream;
+	iTJSBinaryStream *Stream;
 	ULONG RefCount;
 
 public:
-	tTVPIStreamAdapter(tTJSBinaryStream *ref)
+	tTVPIStreamAdapter(iTJSBinaryStream *ref)
 	{
 		Stream = ref;
 		RefCount = 1;
@@ -217,10 +219,37 @@ inline IStream * TVPCreateIStream(const ttstr &name, tjs_uint32 flags)
 {
 	// convert tTJSBinaryStream to IStream thru TStream
 
-	tTJSBinaryStream *stream0 = NULL;
+	iTJSBinaryStream *stream0 = NULL;
 	try
 	{
-		stream0 = TVPCreateStream(name, flags);
+		switch (flags & TJS_BS_ACCESS_MASK)
+		{
+			case TJS_BS_READ:
+			{
+				stream0 = TVPCreateBinaryStreamForRead(name, TJS_W(""));
+				break;
+			}
+			case TJS_BS_WRITE:
+			{
+				stream0 = TVPCreateBinaryStreamForWrite(name, TJS_W(""));
+				break;
+			}
+			case TJS_BS_APPEND:
+			{
+				TVPThrowExceptionMessage(TJS_W("Can't create IStream in append mode"));
+				break;
+			}
+			case TJS_BS_UPDATE:
+			{
+				stream0 = TVPCreateBinaryStreamForWrite(name, TJS_W("o0"));
+				break;
+			}
+			default:
+			{
+				TVPThrowExceptionMessage(TJS_W("Unknown access flag"));
+				break;
+			}
+		}
 	}
 	catch(...)
 	{
