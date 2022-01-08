@@ -1,6 +1,7 @@
 
 #include "tjsCommHead.h"
 
+#ifdef KRKRZ_ENABLE_CANVAS
 #include <SDL.h>
 #include "OpenGLHeaderSDL2.h"
 
@@ -526,11 +527,13 @@ void TVPInitializeOpenGLPlatform()
 
 	TVPANGLEInit = true;
 }
+#endif
 
-// Avoid get proc address for now, since dead code elimination doesn't work on it
-#if 0
 void* TVPeglGetProcAddress(const char *procname)
 {
+#ifdef KRKRZ_ENABLE_CANVAS
+	return SDL_GL_GetProcAddress(procname);
+#else
 	return NULL;
-}
 #endif
+}

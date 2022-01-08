@@ -17,6 +17,7 @@ external/krkrz/utils
 external/krkrz/visual
 external/krkrz/visual/IA32
 external/krkrz/visual/gl
+external/krkrz/visual/opengl
 external/krkrz/external
 external/krkrz/external/freetype/include
 external/krkrz/external/freetype/src

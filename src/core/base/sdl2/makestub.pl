@@ -16,8 +16,15 @@ use Compress::Zlib;
 use Digest::MD5  qw(md5 md5_hex md5_base64);
 
 
-$output_tpstub_h = "../../../tp_stub.h";
-$output_tpstub_cpp = "../../../tp_stub.cpp";
+$output_tpstub_h = "";
+$output_tpstub_cpp = "";
+if(scalar @ARGV >= 1)
+{
+	# $output_tpstub_h = "../../../tp_stub.h";
+	# $output_tpstub_cpp = "../../../tp_stub.cpp";
+	$output_tpstub_h = "tp_stub.h";
+	$output_tpstub_cpp = "tp_stub.cpp";
+}
 
 ;# This perl script is VERY VERY complicated so I do never want to see again.
 
@@ -316,7 +323,7 @@ sub process_exp_stub
 	local($file);
 	$file = $_[0];
 
-	open FH, $file or die;
+	open(FH, "<", $file) or die;
 	$content = <FH>;
 
 	while($content =~ /\/\*\[\*\/(.*?)\/\*\]\*\//gs)
@@ -344,7 +351,7 @@ sub process_exp_stub
 undef($/);
 @func_list = ();
 
-open(OFH, ">FuncStubs.~h") or die;
+open(OFH, ">:raw", "FuncStubs.h") or die;
 
 print OFH $copyright;
 
@@ -354,7 +361,7 @@ extern void TVPExportFunctions();
 
 EOF
 
-open(OFH, ">FuncStubs.~cpp") or die;
+open(OFH, ">:raw", "FuncStubs.cpp") or die;
 
 print OFH $copyright;
 
@@ -372,7 +379,7 @@ print OFH <<EOF;
 EOF
 
 
-open(FH, "../../tjs2/tjsVariant.h") or die;
+open(FH, "<", "../../tjs2/tjsVariant.h") or die;
 $content = <FH>;
 $content =~ /\/\*start-of-tTJSVariant\*\/(.*?)\/\*end-of-tTJSVariant\*\//s;
 @h_stub = ();
@@ -384,14 +391,14 @@ $content =~ /\/\*start-of-tTJSVariantOctet\*\/(.*?)\/\*end-of-tTJSVariantOctet\*
 &list_func_stub("TJS", $1, "tTJSVariantOctet");
 @variantoctet = @h_stub;
 
-open(FH, "../../tjs2/tjsString.h") or die;
+open(FH, "<", "../../tjs2/tjsString.h") or die;
 $content = <FH>;
 $content =~ /\/\*start-of-tTJSString\*\/(.*?)\/\*end-of-tTJSString\*\//s;
 @h_stub = ();
 &list_func_stub("TJS", $1, "tTJSString");
 @string = @h_stub;
 
-open(FH, "../../tjs2/tjsVariantString.h") or die;
+open(FH, "<", "../../tjs2/tjsVariantString.h") or die;
 $content = <FH>;
 $content =~ /\/\*start-of-tTJSVariantString\*\/(.*?)\/\*end-of-tTJSVariantString\*\//s;
 @h_stub = ();
@@ -667,8 +674,22 @@ EOF
 
 ;# stub library for plugin
 
-open(OHFH, ">$output_tpstub_h") or die;
-open(OCFH, ">$output_tpstub_cpp") or die;
+if ($output_tpstub_h eq "")
+{
+	open(OHFH, "+>", undef) or die;
+}
+else
+{
+	open(OHFH, "+>", $output_tpstub_h) or die;
+}
+if ($output_tpstub_cpp eq "")
+{
+	open(OCFH, "+>", undef) or die;
+}
+else
+{
+	open(OCFH, "+>", $output_tpstub_cpp) or die;
+}
 
 print OHFH $copyright;
 print OCFH $copyright;
@@ -742,7 +763,7 @@ print OHFH <<EOF;
 
 EOF
 
-open(FH, "../../tjs2/tjsVariantString.h") or die;
+open(FH, "<", "../../tjs2/tjsVariantString.h") or die;
 $content = <FH>;
 
 
@@ -778,7 +799,7 @@ print OHFH <<EOF;
 
 EOF
 
-open(FH, "../../tjs2/tjsVariant.h") or die;
+open(FH, "<", "../../tjs2/tjsVariant.h") or die;
 $content = <FH>;
 
 
@@ -816,7 +837,7 @@ print OHFH <<EOF;
 
 EOF
 
-open(FH, "../../tjs2/tjsVariant.h") or die;
+open(FH, "<", "../../tjs2/tjsVariant.h") or die;
 $content = <FH>;
 
 
@@ -852,7 +873,7 @@ print OHFH <<EOF;
 
 EOF
 
-open(FH, "../../tjs2/tjsString.h") or die;
+open(FH, "<", "../../tjs2/tjsString.h") or die;
 $content = <FH>;
 
 
@@ -1001,8 +1022,6 @@ extern tjs_int TVPPluginGlobalRefCount;
 
 EOF
 
-close OCFH;
-close OHFH;
 
 
 
@@ -1013,10 +1032,9 @@ close OHFH;
 ;# currently only for iTJSDispatch2
 
 ;# read the header
-open OHFH, "$output_tpstub_h" or die;
+seek(OHFH, 0, 0) or die;
 undef $/;
 $oh = <OHFH>;
-close OHFH;
 
 ;# extract iTJSDispatch2 declaration
 die if($oh !~ /class\s+iTJSDispatch2\s+\{(.*?)\}/s);
@@ -1111,7 +1129,7 @@ while($class_iTJSDispatch2 =~
 }
 
 
-open OHFH,">>$output_tpstub_h" or die;
+seek(OHFH, 0, 2) or die;
 print OHFH <<EOF;
 //---------------------------------------------------------------------------
 // exception protected function stub
@@ -1123,9 +1141,8 @@ print OHFH <<EOF;
 
 #endif
 EOF
-close OHFH;
 
-open OCFH,">>$output_tpstub_cpp" or die;
+seek(OCFH, 0, 2) or die;
 print OCFH <<EOF;
 //---------------------------------------------------------------------------
 // exception protected function stub

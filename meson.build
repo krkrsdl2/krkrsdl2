@@ -176,12 +176,10 @@ if get_option('enable_canvas') == true
 		'external/krkrz/visual/opengl/TextureIntf.cpp',
 		'external/krkrz/visual/opengl/VertexBinderIntf.cpp',
 		'external/krkrz/visual/opengl/VertexBufferIntf.cpp',
-		'src/core/visual/sdl2/opengl/OpenGLPlatformSDL2.cpp',
 		'src/core/visual/sdl2/opengl/OpenGLScreenSDL2.cpp',
 	]
 	krkrsdl2_includes += [
 		'src/core/visual/sdl2/opengl',
-		'external/krkrz/visual/opengl',
 		'external/krkrz/external/angle/include',
 		'external/krkrz/external/glm',
 	]
