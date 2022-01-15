@@ -815,10 +815,12 @@ static int MulDiv(int nNumber, int nNumerator, int nDenominator)
 
 void TVPWindowLayer::TranslateWindowToDrawArea(int &x, int &y)
 {
+#ifdef KRKRZ_ENABLE_CANVAS
 	if (context != NULL)
 	{
 		return;
 	}
+#endif
 	x -= LastSentDrawDeviceDestRect.left;
 	y -= LastSentDrawDeviceDestRect.top;
 	x = MulDiv(x, InnerWidth, LastSentDrawDeviceDestRect.get_width());
@@ -827,10 +829,12 @@ void TVPWindowLayer::TranslateWindowToDrawArea(int &x, int &y)
 
 void TVPWindowLayer::TranslateDrawAreaToWindow(int &x, int &y)
 {
+#ifdef KRKRZ_ENABLE_CANVAS
 	if (context != NULL)
 	{
 		return;
 	}
+#endif
 	x = MulDiv(x, LastSentDrawDeviceDestRect.get_width(), InnerWidth);
 	y = MulDiv(y, LastSentDrawDeviceDestRect.get_height(), InnerHeight);
 	x += LastSentDrawDeviceDestRect.left;
@@ -1647,10 +1651,16 @@ static void TVPDoReductionNumerAndDenom(tjs_int &n, tjs_int &d)
 
 void TVPWindowLayer::UpdateActualZoom(void)
 {
-	if (renderer == NULL || context != NULL)
+	if (renderer == NULL)
 	{
 		return;
 	}
+#ifdef KRKRZ_ENABLE_CANVAS
+	if (context != NULL)
+	{
+		return;
+	}
+#endif
 	// determine fullscreen zoom factor and client size
 	int sb_w, sb_h, zoom_d, zoom_n, output_w, output_h;
 	SDL_GetRendererOutputSize(renderer, &output_w, &output_h);
