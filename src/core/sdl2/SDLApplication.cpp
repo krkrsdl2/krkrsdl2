@@ -815,6 +815,10 @@ static int MulDiv(int nNumber, int nNumerator, int nDenominator)
 
 void TVPWindowLayer::TranslateWindowToDrawArea(int &x, int &y)
 {
+	if (context != NULL)
+	{
+		return;
+	}
 	x -= LastSentDrawDeviceDestRect.left;
 	y -= LastSentDrawDeviceDestRect.top;
 	x = MulDiv(x, InnerWidth, LastSentDrawDeviceDestRect.get_width());
@@ -823,6 +827,10 @@ void TVPWindowLayer::TranslateWindowToDrawArea(int &x, int &y)
 
 void TVPWindowLayer::TranslateDrawAreaToWindow(int &x, int &y)
 {
+	if (context != NULL)
+	{
+		return;
+	}
 	x = MulDiv(x, LastSentDrawDeviceDestRect.get_width(), InnerWidth);
 	y = MulDiv(y, LastSentDrawDeviceDestRect.get_height(), InnerHeight);
 	x += LastSentDrawDeviceDestRect.left;
@@ -1639,7 +1647,7 @@ static void TVPDoReductionNumerAndDenom(tjs_int &n, tjs_int &d)
 
 void TVPWindowLayer::UpdateActualZoom(void)
 {
-	if (renderer == NULL)
+	if (renderer == NULL || context != NULL)
 	{
 		return;
 	}
