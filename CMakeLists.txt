@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(krkrsdl2)
 
-if((NOT ANDROID) AND (NOT IOS) AND (NOT VITA) AND (NOT NINTENDO_SWITCH) AND (NOT (APPLE AND NOT IOS)))
+if((NOT ANDROID) AND (NOT IOS) AND (NOT VITA) AND (NOT NINTENDO_SWITCH) AND (NOT (APPLE AND NOT IOS)) AND (NOT (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")))
 message(WARN "The CMake file is provided for platforms that do not support Meson well. Please try the Meson build system first.")
 endif()
 
@@ -120,6 +120,15 @@ list(APPEND KRKRSDL2_CFLAGS
 	-DPNG_ARM_NEON_OPT=0
 )
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+list(APPEND KRKRSDL2_LDFLAGS
+	-pthread
+)
+list(APPEND KRKRSDL2_CFLAGS
+	-pthread
+)
+endif()
+
 list(APPEND KRKRSDL2_CXXFLAGS ${KRKRSDL2_CFLAGS})
 
 list(APPEND KRKRSDL2_CXXFLAGS
@@ -135,12 +144,6 @@ endif()
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 list(APPEND KRKRSDL2_CXXFLAGS
 	-fno-delete-null-pointer-checks
-)
-endif()
-
-if(LINUX OR ANDROID)
-list(APPEND KRKRSDL2_LDFLAGS
-	-pthread
 )
 endif()
 
@@ -161,7 +164,7 @@ list(APPEND KRKRSDL2_LIBS
 list(APPEND KRKRSDL2_CXXFLAGS
 	-DUSE_SDL_MAIN
 )
-elseif(APPLE AND NOT IOS)
+elseif((APPLE AND NOT IOS) OR (${CMAKE_SYSTEM_NAME} STREQUAL "Linux"))
 set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
 add_subdirectory(external/SDL)
 find_library(SDL2 NAMES SDL2-static)
@@ -232,6 +235,7 @@ target_sources(${KRKRSDL2_NAME} PRIVATE ${KRKRSDL2_SRC})
 target_compile_options(${KRKRSDL2_NAME} PUBLIC $<$<COMPILE_LANGUAGE:C>:${KRKRSDL2_CFLAGS}>)
 target_compile_options(${KRKRSDL2_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${KRKRSDL2_CXXFLAGS}>)
 target_include_directories(${KRKRSDL2_NAME} PUBLIC ${KRKRSDL2_INCLUDES})
+target_link_options(${KRKRSDL2_NAME} PUBLIC ${KRKRSDL2_LDFLAGS})
 target_link_libraries(${KRKRSDL2_NAME} ${KRKRSDL2_LIBS})
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
 target_precompile_headers(${KRKRSDL2_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/core/sdl2/SDLPrecompiledHeader.h)
