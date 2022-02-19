@@ -1819,6 +1819,7 @@ void TVPWindowLayer::SetInnerSize(tjs_int w, tjs_int h)
 	InnerWidth = w;
 	InnerHeight = h;
 	UpdateActualZoom();
+	SetSize(w, h);
 }
 
 tjs_int TVPWindowLayer::GetInnerWidth()
