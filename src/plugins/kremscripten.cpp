@@ -308,10 +308,12 @@ static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::
 	{
 		return tTJSVariant(v.as<tjs_real>());
 	}
+#if 0
 	else if (type == js_string_bigint)
 	{
 		return tTJSVariant(v.as<tjs_int64>());
 	}
+#endif
 	else if (type == js_string_string)
 	{
 		return tTJSVariant(map_js_string(v));
@@ -360,14 +362,16 @@ static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::
 static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v)
 {
 	tTJSVariantType type = v.Type();
-	if (type == tvtReal)
+	if (type == tvtReal || type == tvtInteger)
 	{
 		return emscripten::val(v.AsReal());
 	}
+#if 0
 	else if (type == tvtInteger)
 	{
 		return emscripten::val(v.AsInteger());
 	}
+#endif
 	else if (type == tvtString)
 	{
 		return map_tjs_string(ttstr(v));
