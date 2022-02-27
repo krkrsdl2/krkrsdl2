@@ -2168,23 +2168,17 @@ bool TVPWindowLayer::window_receive_event_input(SDL_Event event) {
 					return true;
 				}
 				case SDL_FINGERMOTION: {
-					last_mouse_x = event.tfinger.x;
-					last_mouse_y = event.tfinger.y;
-					TranslateWindowToDrawArea(last_mouse_x, last_mouse_y);
-					TVPPostInputEvent(new tTVPOnTouchMoveInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, 1, 1, event.tfinger.fingerId));
+					TVPPostInputEvent(new tTVPOnTouchMoveInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
 					return true;
 				}
 				case SDL_FINGERDOWN:
 				case SDL_FINGERUP: {
-					last_mouse_x = event.tfinger.x;
-					last_mouse_y = event.tfinger.y;
-					TranslateWindowToDrawArea(last_mouse_x, last_mouse_y);
 					switch (event.tfinger.type) {
 						case SDL_FINGERDOWN:
-							TVPPostInputEvent(new tTVPOnTouchDownInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, 1, 1, event.tfinger.fingerId));
+							TVPPostInputEvent(new tTVPOnTouchDownInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
 							break;
 						case SDL_FINGERUP:
-							TVPPostInputEvent(new tTVPOnTouchUpInputEvent(TJSNativeInstance, last_mouse_x, last_mouse_y, 1, 1, event.tfinger.fingerId));
+							TVPPostInputEvent(new tTVPOnTouchUpInputEvent(TJSNativeInstance, event.tfinger.x, event.tfinger.y, 1, 1, event.tfinger.fingerId));
 							break;
 					}
 					return true;
