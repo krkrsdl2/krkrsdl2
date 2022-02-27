@@ -464,6 +464,7 @@ protected:
 	int last_mouse_x;
 	int last_mouse_y;
 
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	tTVPRect FullScreenDestRect;
 	tTVPRect LastSentDrawDeviceDestRect;
 
@@ -478,6 +479,7 @@ protected:
 	tjs_int ActualZoomNumer = 1; // Zooming factor numerator (actual)
 	tjs_int InnerWidth = 32;
 	tjs_int InnerHeight = 32;
+#endif
 
 public:
 	TVPWindowLayer(tTJSNI_Window *w);
@@ -764,8 +766,10 @@ TVPWindowLayer::~TVPWindowLayer() {
 }
 
 void TVPWindowLayer::SetPaintBoxSize(tjs_int w, tjs_int h) {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	LayerWidth = w;
 	LayerHeight = h;
+#endif
 	if (renderer)
 	{
 		if (texture)
@@ -791,9 +795,20 @@ void TVPWindowLayer::SetPaintBoxSize(tjs_int w, tjs_int h) {
 		}
 		bitmap_completion->surface = surface;
 	}
+#ifndef KRKRSDL2_ENABLE_ZOOM
+	SDL_Rect cliprect;
+	cliprect.x = 0;
+	cliprect.y = 0;
+	cliprect.w = w;
+	cliprect.h = h;
+#endif
 	if (renderer)
 	{
+#ifdef KRKRSDL2_ENABLE_ZOOM
 		UpdateActualZoom();
+#else
+		SDL_RenderSetLogicalSize(renderer, w, h);
+#endif
 	}
 	if( TJSNativeInstance )
 	{
@@ -815,6 +830,7 @@ static int MulDiv(int nNumber, int nNumerator, int nDenominator)
 
 void TVPWindowLayer::TranslateWindowToDrawArea(int &x, int &y)
 {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 #ifdef KRKRZ_ENABLE_CANVAS
 	if (context != NULL)
 	{
@@ -825,10 +841,12 @@ void TVPWindowLayer::TranslateWindowToDrawArea(int &x, int &y)
 	y -= LastSentDrawDeviceDestRect.top;
 	x = MulDiv(x, InnerWidth, LastSentDrawDeviceDestRect.get_width());
 	y = MulDiv(y, InnerHeight, LastSentDrawDeviceDestRect.get_height());
+#endif
 }
 
 void TVPWindowLayer::TranslateDrawAreaToWindow(int &x, int &y)
 {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 #ifdef KRKRZ_ENABLE_CANVAS
 	if (context != NULL)
 	{
@@ -839,6 +857,7 @@ void TVPWindowLayer::TranslateDrawAreaToWindow(int &x, int &y)
 	y = MulDiv(y, LastSentDrawDeviceDestRect.get_height(), InnerHeight);
 	x += LastSentDrawDeviceDestRect.left;
 	y += LastSentDrawDeviceDestRect.top;
+#endif
 }
 
 bool TVPWindowLayer::GetFormEnabled() {
@@ -939,7 +958,24 @@ void TVPWindowLayer::GetCursorPos(tjs_int &x, tjs_int &y) {
 		tjs_int new_x = 0;
 		tjs_int new_y = 0;
 		SDL_GetMouseState(&new_x, &new_y);
+#ifdef KRKRSDL2_ENABLE_ZOOM
 		TranslateWindowToDrawArea(new_x, new_y);
+#else
+		float scale_x, scale_y;
+		SDL_Rect viewport;
+		int window_w, window_h;
+		int output_w, output_h;
+		SDL_RenderGetScale(renderer, &scale_x, &scale_y);
+		SDL_RenderGetViewport(renderer, &viewport);
+		SDL_GetWindowSize(window, &window_w, &window_h);
+		SDL_GetRendererOutputSize(renderer, &output_w, &output_h);
+		float dpi_scale_x = (float)window_w / output_w;
+		float dpi_scale_y = (float)window_h / output_h;
+		new_x -= (int)(viewport.x * dpi_scale_x);
+		new_y -= (int)(viewport.y * dpi_scale_y);
+		new_x = (int)(new_x / (scale_x * dpi_scale_x));
+		new_y = (int)(new_y / (scale_x * dpi_scale_y));
+#endif
 		x = new_x;
 		y = new_y;
 		return;
@@ -958,7 +994,24 @@ void TVPWindowLayer::SetCursorPos(tjs_int x, tjs_int y) {
 	{
 		tjs_int new_x = x;
 		tjs_int new_y = y;
+#ifdef KRKRSDL2_ENABLE_ZOOM
 		TranslateDrawAreaToWindow(new_x, new_y);
+#else
+		float scale_x, scale_y;
+		SDL_Rect viewport;
+		int window_w, window_h;
+		int output_w, output_h;
+		SDL_RenderGetScale(renderer, &scale_x, &scale_y);
+		SDL_RenderGetViewport(renderer, &viewport);
+		SDL_GetWindowSize(window, &window_w, &window_h);
+		SDL_GetRendererOutputSize(renderer, &output_w, &output_h);
+		float dpi_scale_x = (float)window_w / output_w;
+		float dpi_scale_y = (float)window_h / output_h;
+		new_x = (int)(new_x * (scale_x * dpi_scale_x));
+		new_y = (int)(new_y * (scale_x * dpi_scale_y));
+		new_x += (int)(viewport.x * dpi_scale_x);
+		new_y += (int)(viewport.y * dpi_scale_y);
+#endif
 		SDL_WarpMouseInWindow(window, new_x, new_y);
 	}
 	else if (window)
@@ -1133,7 +1186,11 @@ void TVPWindowLayer::SetWidth(tjs_int w) {
 		}
 	}
 #endif
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	UpdateActualZoom();
+#else
+	UpdateWindow(utNormal);
+#endif
 }
 void TVPWindowLayer::SetHeight(tjs_int h) {
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
@@ -1154,7 +1211,11 @@ void TVPWindowLayer::SetHeight(tjs_int h) {
 		}
 	}
 #endif
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	UpdateActualZoom();
+#else
+	UpdateWindow(utNormal);
+#endif
 }
 void TVPWindowLayer::SetSize(tjs_int w, tjs_int h) {
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
@@ -1173,7 +1234,11 @@ void TVPWindowLayer::SetSize(tjs_int w, tjs_int h) {
 		}
 	}
 #endif
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	UpdateActualZoom();
+#else
+	UpdateWindow(utNormal);
+#endif
 }
 void TVPWindowLayer::GetSize(tjs_int &w, tjs_int &h) {
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
@@ -1185,7 +1250,11 @@ void TVPWindowLayer::GetSize(tjs_int &w, tjs_int &h) {
 #endif
 	if (renderer)
 	{
+#ifdef KRKRSDL2_ENABLE_ZOOM
 		SDL_GetRendererOutputSize(renderer, &w, &h);
+#else
+		SDL_RenderGetLogicalSize(renderer, &w, &h);
+#endif
 		return;
 	}
 	w = 0;
@@ -1203,7 +1272,11 @@ tjs_int TVPWindowLayer::GetWidth() const {
 	if (renderer)
 	{
 		int w, h;
+#ifdef KRKRSDL2_ENABLE_ZOOM
 		SDL_GetRendererOutputSize(renderer, &w, &h);
+#else
+		SDL_RenderGetLogicalSize(renderer, &w, &h);
+#endif
 		return w;
 	}
 	return 0;
@@ -1220,7 +1293,11 @@ tjs_int TVPWindowLayer::GetHeight() const {
 	if (renderer)
 	{
 		int w, h;
+#ifdef KRKRSDL2_ENABLE_ZOOM
 		SDL_GetRendererOutputSize(renderer, &w, &h);
+#else
+		SDL_RenderGetLogicalSize(renderer, &w, &h);
+#endif
 		return h;
 	}
 	return 0;
@@ -1265,7 +1342,11 @@ tjs_int TVPWindowLayer::GetMinWidth() {
 	if (renderer)
 	{
 		int w, h;
+#ifdef KRKRSDL2_ENABLE_ZOOM
 		SDL_GetRendererOutputSize(renderer, &w, &h);
+#else
+		SDL_RenderGetLogicalSize(renderer, &w, &h);
+#endif
 		return w;
 	}
 	return 0;
@@ -1282,7 +1363,11 @@ tjs_int TVPWindowLayer::GetMaxWidth() {
 	if (renderer)
 	{
 		int w, h;
+#ifdef KRKRSDL2_ENABLE_ZOOM
 		SDL_GetRendererOutputSize(renderer, &w, &h);
+#else
+		SDL_RenderGetLogicalSize(renderer, &w, &h);
+#endif
 		return w;
 	}
 	return 0;
@@ -1299,7 +1384,11 @@ tjs_int TVPWindowLayer::GetMinHeight() {
 	if (renderer)
 	{
 		int w, h;
+#ifdef KRKRSDL2_ENABLE_ZOOM
 		SDL_GetRendererOutputSize(renderer, &w, &h);
+#else
+		SDL_RenderGetLogicalSize(renderer, &w, &h);
+#endif
 		return h;
 	}
 	return 0;
@@ -1316,7 +1405,11 @@ tjs_int TVPWindowLayer::GetMaxHeight() {
 	if (renderer)
 	{
 		int w, h;
+#ifdef KRKRSDL2_ENABLE_ZOOM
 		SDL_GetRendererOutputSize(renderer, &w, &h);
+#else
+		SDL_RenderGetLogicalSize(renderer, &w, &h);
+#endif
 		return h;
 	}
 	return 0;
@@ -1401,7 +1494,19 @@ void TVPWindowLayer::TickBeat() {
 			rect.y = bitmap_completion->update_rect.top;
 			rect.w = bitmap_completion->update_rect.get_width();
 			rect.h = bitmap_completion->update_rect.get_height();
+#ifdef KRKRSDL2_ENABLE_ZOOM
 			SDL_RenderFillRect(renderer, NULL);
+#else
+			SDL_Rect logical_rect;
+			SDL_RenderGetLogicalSize(renderer, &(logical_rect.w), &(logical_rect.h));
+			if (logical_rect.w == rect.w && logical_rect.h == rect.h)
+			{
+				// Clear extra artifacts
+				SDL_RenderSetLogicalSize(renderer, 0, 0);
+				SDL_RenderFillRect(renderer, NULL);
+				SDL_RenderSetLogicalSize(renderer, logical_rect.w, logical_rect.h);
+			}
+#endif
 			if (texture && surface)
 			{
 				if ((rect.w + rect.x) > surface->w)
@@ -1413,6 +1518,7 @@ void TVPWindowLayer::TickBeat() {
 					rect.h = surface->h;
 				}
 				SDL_UpdateTexture(texture, &rect, surface->pixels, surface->pitch);
+#ifdef KRKRSDL2_ENABLE_ZOOM
 				SDL_Rect destrect;
 				destrect.x = LastSentDrawDeviceDestRect.left;
 				destrect.y = LastSentDrawDeviceDestRect.top;
@@ -1424,8 +1530,24 @@ void TVPWindowLayer::TickBeat() {
 				srcrect.w = InnerWidth;
 				srcrect.h = InnerHeight;
 				SDL_RenderCopy(renderer, texture, &srcrect, &destrect);
+#else
+				SDL_RenderCopy(renderer, texture, &rect, &rect);
+#endif
 			}
 			SDL_RenderPresent(renderer);
+#ifndef KRKRSDL2_ENABLE_ZOOM
+			if (logical_rect.w == rect.w && logical_rect.h == rect.h)
+			{
+				// Clear extra artifacts (for the back buffer)
+				SDL_RenderSetLogicalSize(renderer, 0, 0);
+				SDL_RenderFillRect(renderer, NULL);
+				SDL_RenderSetLogicalSize(renderer, logical_rect.w, logical_rect.h);
+			}
+			if (texture)
+			{
+				SDL_RenderCopy(renderer, texture, &rect, &rect);
+			}
+#endif
 			hasDrawn = true;
 		}
 		else if (window && surface)
@@ -1615,10 +1737,23 @@ void TVPWindowLayer::ResetImeMode() {
 void TVPWindowLayer::UpdateWindow(tTVPUpdateType type) {
 	if (TJSNativeInstance) {
 		tTVPRect r;
+#ifdef KRKRSDL2_ENABLE_ZOOM
 		r.left = 0;
 		r.top = 0;
 		r.right = LayerWidth;
 		r.bottom = LayerHeight;
+#else
+		r.clear();
+		if (renderer)
+		{
+			SDL_RenderGetLogicalSize(renderer, &(r.right), &(r.bottom));
+			SDL_RenderSetLogicalSize(renderer, r.right, r.bottom);
+		}
+		else if (window)
+		{
+			SDL_GetWindowSize(window, &(r.right), &(r.bottom));
+		}
+#endif
 		TJSNativeInstance->NotifyWindowExposureToLayer(r);
 		TVPDeliverWindowUpdateEvents();
 	}
@@ -1633,6 +1768,7 @@ void TVPWindowLayer::OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bo
 	TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, vk));
 }
 
+#ifdef KRKRSDL2_ENABLE_ZOOM
 //---------------------------------------------------------------------------
 //! @brief	do reduction for numer over denom
 static void TVPDoReductionNumerAndDenom(tjs_int &n, tjs_int &d)
@@ -1648,9 +1784,11 @@ static void TVPDoReductionNumerAndDenom(tjs_int &n, tjs_int &d)
 	n = n / a;
 	d = d / a;
 }
+#endif
 
 void TVPWindowLayer::UpdateActualZoom(void)
 {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	if (renderer == NULL)
 	{
 		return;
@@ -1736,10 +1874,12 @@ void TVPWindowLayer::UpdateActualZoom(void)
 	ActualZoomNumer = zoom_n;
 	ActualZoomDenom = zoom_d;
 	SetDrawDeviceDestRect();
+#endif
 }
 
 void TVPWindowLayer::SetDrawDeviceDestRect(void)
 {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	tTVPRect destrect;
 	tjs_int w = MulDiv(InnerWidth,  ActualZoomNumer, ActualZoomDenom);
 	tjs_int h = MulDiv(InnerHeight, ActualZoomNumer, ActualZoomDenom);
@@ -1763,10 +1903,12 @@ void TVPWindowLayer::SetDrawDeviceDestRect(void)
 		LastSentDrawDeviceDestRect = destrect;
 		UpdateWindow(utNormal);
 	}
+#endif
 }
 
 void TVPWindowLayer::SetZoom(tjs_int numer, tjs_int denom, bool set_logical)
 {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	bool ischanged = false;
 	// set layer zooming factor;
 	// the zooming factor is passed in numerator/denoiminator style.
@@ -1782,54 +1924,85 @@ void TVPWindowLayer::SetZoom(tjs_int numer, tjs_int denom, bool set_logical)
 		ZoomDenom = denom;
 	}
 	UpdateActualZoom();
+#endif
 }
 
 void TVPWindowLayer::SetZoomNumer(tjs_int n)
 {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	SetZoom(n, ZoomDenom);
+#endif
 }
 
 tjs_int TVPWindowLayer::GetZoomNumer() const
 {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	return ZoomNumer;
+#else
+	return 1;
+#endif
 }
 
 void TVPWindowLayer::SetZoomDenom(tjs_int d)
 {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	SetZoom(ZoomNumer, d);
+#endif
 }
 
 tjs_int TVPWindowLayer::GetZoomDenom() const
 {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	return ZoomDenom;
+#else
+	return 1;
+#endif
 }
 
 void TVPWindowLayer::SetInnerWidth(tjs_int v)
 {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	SetInnerSize(v, InnerHeight);
+#else
+	SetWidth(v);
+#endif
 }
 
 void TVPWindowLayer::SetInnerHeight(tjs_int v)
 {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	SetInnerSize(InnerWidth, v);
+#else
+	SetHeight(v);
+#endif
 }
 
 void TVPWindowLayer::SetInnerSize(tjs_int w, tjs_int h)
 {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	InnerWidth = w;
 	InnerHeight = h;
 	UpdateActualZoom();
+#endif
 	SetSize(w, h);
 }
 
 tjs_int TVPWindowLayer::GetInnerWidth()
 {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	return InnerWidth;
+#else
+	return GetWidth();
+#endif
 }
 
 tjs_int TVPWindowLayer::GetInnerHeight()
 {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 	return InnerHeight;
+#else
+	return GetHeight();
+#endif
 }
 
 bool TVPWindowLayer::should_try_parent_window(SDL_Event event)
@@ -2041,7 +2214,11 @@ void TVPWindowLayer::window_receive_event(SDL_Event event) {
 						case SDL_WINDOWEVENT_RESTORED:
 						case SDL_WINDOWEVENT_RESIZED:
 						case SDL_WINDOWEVENT_SIZE_CHANGED: {
+#ifdef KRKRSDL2_ENABLE_ZOOM
 							UpdateActualZoom();
+#else
+							UpdateWindow(utNormal);
+#endif
 							TVPPostInputEvent(new tTVPOnResizeInputEvent(TJSNativeInstance), TVP_EPT_REMOVE_POST);
 							return;
 						}
