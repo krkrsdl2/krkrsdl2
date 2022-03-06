@@ -103,7 +103,9 @@ void* tTVPBitmapBitsAlloc::Alloc( tjs_uint size, tjs_uint width, tjs_uint height
 void tTVPBitmapBitsAlloc::Free( void* ptr ) {
 	if(ptr)
 	{
+#if 0
 		tTJSCriticalSectionHolder Lock(AllocCS);	// Lock
+#endif
 
 		// get memory allocation record pointer
 		tjs_uint8 *bptr = (tjs_uint8*)ptr;
