@@ -51,7 +51,7 @@ Webバージョンの場合は、[Releaser](https://krkrz.github.io/krkr2doc/kr2
 リポジトリのクローンを作成するには、ターミナルで次のコマンドを使用してください：
 
 ```bash
-git clone --recursive -b main https://github.com/krkrsdl2/krkrsdl2
+git clone --recursive -b main https://github.com/krkrsdl2/krkrsdl2.git
 ```
 プロジェクトがGitサブモジュールを使用するため、上記のコマンドを正しく使用しない場合、ソースファイルが欠落します。
 

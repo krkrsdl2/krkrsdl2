@@ -51,7 +51,7 @@ For the web version, place the files from the Web build and `data.xp3` created b
 To clone the repository, please use the following command in a terminal:
 
 ```bash
-git clone --recursive -b main https://github.com/krkrsdl2/krkrsdl2
+git clone --recursive -b main https://github.com/krkrsdl2/krkrsdl2.git
 ```
 If you do not use the exact command above, source files will be missing files since the project uses Git submodules.
 
