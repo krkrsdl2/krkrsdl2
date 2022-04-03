@@ -216,7 +216,7 @@ public:
 #ifdef __EMSCRIPTEN__
 		_spec.samples = 16384;
 #else
-		_spec.samples = 4096;
+		_spec.samples = 2048;
 #endif
 		_spec.format = AUDIO_S16;
 		_spec.size = 4;
