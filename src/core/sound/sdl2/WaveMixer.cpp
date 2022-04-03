@@ -218,7 +218,7 @@ public:
 #else
 		_spec.samples = 2048;
 #endif
-		_spec.format = AUDIO_S16;
+		_spec.format = AUDIO_S16SYS;
 		_spec.size = 4;
 		_frame_size = 4;
 		if (TVPGetCommandLine(TJS_W("-wsbits"), &val))
@@ -226,7 +226,7 @@ public:
 			ttstr sval(val);
 			if (sval == TJS_W("f32"))
 			{
-				_spec.format = AUDIO_F32;
+				_spec.format = AUDIO_F32SYS;
 				_spec.size = 8;
 			}
 			else if (sval == TJS_W("i8") || sval == TJS_W("s8"))
@@ -241,17 +241,17 @@ public:
 			}
 			else if (sval == TJS_W("i16") || sval == TJS_W("s16"))
 			{
-				_spec.format = AUDIO_S16;
+				_spec.format = AUDIO_S16SYS;
 				_spec.size = 4;
 			}
 			else if (sval == TJS_W("u16"))
 			{
-				_spec.format = AUDIO_U16;
+				_spec.format = AUDIO_U16SYS;
 				_spec.size = 4;
 			}
 			else if (sval == TJS_W("i32") || sval == TJS_W("s32"))
 			{
-				_spec.format = AUDIO_S32;
+				_spec.format = AUDIO_S32SYS;
 				_spec.size = 8;
 			}
 		}
@@ -274,9 +274,9 @@ public:
 
 	FAudioMix *DoMixAudio;
 	void SetupMixer() {
-		if (_spec.format == AUDIO_S16LSB) {
+		if (_spec.format == AUDIO_S16SYS) {
 			DoMixAudio = _AudioMixS16[_spec.channels - 1];
-		} else if (_spec.format == AUDIO_F32LSB) {
+		} else if (_spec.format == AUDIO_F32SYS) {
 			DoMixAudio = _AudioMixF32[_spec.channels - 1];
 		} else {
 			DoMixAudio = [](void *dst, const void *src, int samples, int16_t *volume) {};
