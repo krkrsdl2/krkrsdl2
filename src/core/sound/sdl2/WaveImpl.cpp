@@ -2975,14 +2975,9 @@ void tTJSNI_WaveSoundBuffer::ResetLastCheckedDecodePos(DWORD pp)
 	if (!SoundBuffer) return;
 
 	int offset, rblock;
-	if (SoundBuffer->GetRemainBuffers() == 0) {
+	{
 		rblock = SoundBufferWritePos;
 		offset = 0;
-	} else {
-		offset = SoundBuffer->GetCurrentPlaySamples();
-		rblock = offset / AccessUnitSamples;
-		offset %= AccessUnitSamples;
-		rblock %= L1BufferUnits;
 	}
 	if (L1BufferDecodeSamplePos[rblock] != -1)
 	{
@@ -3280,14 +3275,9 @@ tjs_uint64 tTJSNI_WaveSoundBuffer::GetSamplePosition()
 #endif
 
 	int offset, rblock;
-	if (SoundBuffer->GetRemainBuffers() == 0) {
+	{
 		rblock = SoundBufferWritePos;
 		offset = 0;
-	} else {
-		offset = SoundBuffer->GetCurrentPlaySamples();
-		rblock = offset / AccessUnitSamples;
-		offset %= AccessUnitSamples;
-		rblock %= L1BufferUnits;
 	}
 #if 0
 	tjs_int rblock = pp / AccessUnitBytes;
