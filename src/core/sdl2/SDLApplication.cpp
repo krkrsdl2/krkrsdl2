@@ -2729,129 +2729,50 @@ TShiftState TVP_TShiftState_From_uint32(tjs_uint32 state){
 	return result;
 }
 
-#include <dirent.h>
-extern void TVPInitializeFont();
+void TVPGetAllFontList(std::vector<tjs_string>& list) {}
+
+const tjs_char *TVPGetDefaultFontName()
+{
+	if (!TVPGetCommandLine(TJS_W("-deffont"), NULL))
+	{
+		TVPSetCommandLine(TJS_W("-deffont"), TJS_W("Noto Sans CJK JP"));
+	}
+	static tjs_int ArgumentGeneration = 0;
+	if (ArgumentGeneration != TVPGetCommandLineArgumentGeneration())
+	{
+		ArgumentGeneration = TVPGetCommandLineArgumentGeneration();
+		// Use that font, if specified on the command line
+		tTJSVariant opt;
+		if(TVPGetCommandLine(TJS_W("-deffont"), &opt))
+		{
+			ttstr str(opt);
+			TVPDefaultFontName.AssignMessage(str.c_str());
+		}
+	}
+	return TVPDefaultFontName;
+}
+
+void TVPSetDefaultFontName(const tjs_char * name)
+{
+	TVPSetCommandLine(TJS_W("-deffont"), name);
+}
 
 static ttstr TVPDefaultFaceNames;
-extern void TVPAddSystemFontToFreeType( const std::string& storage, std::vector<tjs_string>* faces );
-extern void TVPGetSystemFontListFromFreeType( std::vector<tjs_string>& faces );
-static bool TVPIsGetAllFontList = false;
-static ttstr TVPDefaultFontNameX;
-void TVPGetAllFontList( std::vector<tjs_string>& list ) {
-	TVPInitializeFont();
-	if( TVPIsGetAllFontList ) {
-		TVPGetSystemFontListFromFreeType( list );
+const ttstr &TVPGetDefaultFaceNames()
+{
+	static tjs_int ArgumentGeneration = 0;
+	if (ArgumentGeneration != TVPGetCommandLineArgumentGeneration())
+	{
+		ArgumentGeneration = TVPGetCommandLineArgumentGeneration();
+		TVPDefaultFaceNames = TJS_W("");
 	}
-
-#if defined(__APPLE__) && defined(__MACH__)
-	DIR* dr;
-	if( ( dr = opendir("/System/Library/Fonts/") ) != nullptr ) {
-		struct dirent* entry;
-		while( ( entry = readdir( dr ) ) != nullptr ) {
-			if( entry->d_type == DT_REG ) {
-				std::string path(entry->d_name);
-				std::string::size_type extp = path.find_last_of(".");
-				if( extp != std::string::npos ) {
-					std::string ext = path.substr(extp);
-					if( ext == std::string(".ttf") || ext == std::string(".ttc") || ext == std::string(".otf") ) {
-						// .ttf | .ttc | .otf
-						std::string fullpath( std::string("/System/Library/Fonts/") + path );
-						TVPAddSystemFontToFreeType( fullpath, &list );
-					}
-				}
-			}
-		}
-		closedir( dr );
-		TVPIsGetAllFontList = true;
-	}
-#endif
-#if 0
-	for( std::list<std::string>::const_iterator i = fontfiles.begin(); i != fontfiles.end(); ++i ) {
-		FT_Face face = nullptr;
-		std::string fullpath( std::string("/system/fonts/") + *i );
-		FT_Open_Args args;
-		memset(&args, 0, sizeof(args));
-		args.flags = FT_OPEN_PATHNAME;
-		args.pathname = fullpath.c_str();
-		tjs_uint face_num = 1;
-		std::list<std::string> facenames;
-		for( tjs_uint f = 0; f < face_num; f++ ) {
-			FT_Error err = FT_Open_Face( FreeTypeLibrary, &args, 0, &face);
-			if( err == 0 ) {
-				facenames.push_back( std::string(face->family_name) );
-				std::string(face->style_name);	// スタイル名
-				if( face->face_flags & FT_FACE_FLAG_SCALABLE ) {
-					// 可変サイズフォントのみ採用
-					if( face->num_glyphs > 2965 ) {
-						// JIS第一水準漢字以上のグリフ数
-						if( face->style_flags & FT_STYLE_FLAG_ITALIC ) {}
-						if( face->style_flags & FT_STYLE_FLAG_BOLD ) {}
-						face_num = face->num_faces;
-						int numcharmap = face->num_charmaps;
-						for( int c = 0; c < numcharmap; c++ ) {
-							FT_Encoding enc = face->charmaps[c]->encoding;
-							if( enc == FT_ENCODING_SJIS ) {
-								// mybe japanese
-							}
-							if( enc == FT_ENCODING_UNICODE ) {
-							}
-						}
-					}
-				}
-			}
-			if(face) FT_Done_Face(face), face = nullptr;
-		}
-	}
-#endif
-}
-static bool IsInitDefalutFontName = false;
-static bool SelectFont( const std::vector<tjs_string>& faces, tjs_string& face ) {
-	std::vector<tjs_string> fonts;
-	TVPGetAllFontList( fonts );
-	for( auto i = faces.begin(); i != faces.end(); ++i ) {
-		auto found = std::find( fonts.begin(), fonts.end(), *i );
-		if( found != fonts.end() ) {
-			face = *i;
-			return true;
-		}
-	}
-	return false;
-}
-const tjs_char *TVPGetDefaultFontName() {
-	if( IsInitDefalutFontName ) {
-		return TVPDefaultFontNameX.c_str();
-	}
-	TVPDefaultFontNameX = TJS_W("Noto Sans CJK JP");
-	IsInitDefalutFontName =  true;
-
-	// コマンドラインで指定がある場合、そのフォントを使用する
-	tTJSVariant opt;
-	if(TVPGetCommandLine(TJS_W("-deffont"), &opt)) {
-		ttstr str(opt);
-		TVPDefaultFontNameX = str;
-	} else {
-		tjs_string face;
-		std::vector<tjs_string> facenames{tjs_string(TJS_W("Noto Sans CJK JP"))};
-		if( SelectFont( facenames, face ) ) {
-			TVPDefaultFontNameX = face;
-		}
-	}
-	return TVPDefaultFontNameX.c_str();
-}
-void TVPSetDefaultFontName( const tjs_char * name ) {
-	TVPDefaultFontNameX = name;
-}
-const ttstr &TVPGetDefaultFaceNames() {
-	static ttstr default_facenames = "Noto Sans,MotoyaLMaru,Roboto";
-#if 0
-	if( !TVPDefaultFaceNames.IsEmpty() ) {
-		return TVPDefaultFaceNames;
-	} else {
-		TVPDefaultFaceNames = ttstr( TVPGetDefaultFontName() );
+	if( !TVPDefaultFaceNames.IsEmpty() )
+	{
 		return TVPDefaultFaceNames;
 	}
-#endif
-	return default_facenames;
+	else
+	{
+		TVPDefaultFaceNames = ttstr(TVPGetDefaultFontName());
+		return TVPDefaultFaceNames;
+	}
 }
-
-
