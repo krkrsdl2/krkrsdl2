@@ -29,6 +29,7 @@ env:
 jobs:
   build-web:
     runs-on: ubuntu-20.04
+    timeout-minutes: 20
     env:
       EM_VERSION: 2.0.9
       EM_CACHE_FOLDER: 'emsdk-cache'
@@ -69,6 +70,7 @@ jobs:
             build/index.html
   build-ubuntu:
     runs-on: ubuntu-20.04
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v2
         with:
@@ -93,6 +95,7 @@ jobs:
           path: build/krkrsdl2
   build-android:
     runs-on: ubuntu-20.04
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v2
         with:
@@ -111,6 +114,7 @@ jobs:
           path: android-project/app/build/outputs/apk/release/krkrsdl2_*.apk
   build-vita:
     runs-on: ubuntu-20.04
+    timeout-minutes: 20
     container: 
       image: vitasdk/vitasdk:latest
     steps:
@@ -129,6 +133,7 @@ jobs:
           path: build/krkrsdl2.vpk
   build-switch:
     runs-on: ubuntu-20.04
+    timeout-minutes: 20
     container: 
       image: devkitpro/devkita64:20210726
     steps:
@@ -147,6 +152,7 @@ jobs:
           path: build/krkrsdl2.nro
   build-macos:
     runs-on: macos-10.15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v2
         with:
@@ -171,6 +177,7 @@ jobs:
           path: build/krkrsdl2
   build-macos-cmake:
     runs-on: macos-10.15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v2
         with:
@@ -198,6 +205,7 @@ jobs:
   create-release:
     needs: [build-web, build-ubuntu, build-android, build-macos, build-macos-cmake, build-vita, build-switch]
     runs-on: ubuntu-20.04
+    timeout-minutes: 20
     if: github.ref == 'refs/heads/main'
     steps:
     - name: Download web artifact
