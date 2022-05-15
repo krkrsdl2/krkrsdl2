@@ -1,271 +1,418 @@
-name: Continuous Integration
-on:
-  push:
-    paths:
-      - "**.c"
-      - "**.h"
-      - "**.cpp"
-      - "**.hpp"
-      - "**.build"
-      - "**.in"
-      - "**.yml"
-      - "**.gradle"
-      - "CMakeLists.txt"
-  pull_request:
-    paths:
-      - "**.c"
-      - "**.h"
-      - "**.cpp"
-      - "**.hpp"
-      - "**.build"
-      - "**.in"
-      - "**.yml"
-      - "**.gradle"
-      - "CMakeLists.txt"
-
-env:
-  CMAKE_GENERATOR: Ninja
-
-jobs:
-  build-web:
-    runs-on: ubuntu-20.04
-    timeout-minutes: 20
-    env:
-      EM_VERSION: 2.0.9
-      EM_CACHE_FOLDER: 'emsdk-cache'
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - run: sudo apt-get update
-      - run: sudo apt-get install build-essential libsdl2-dev git
-      - name: Setup cache
-        id: cache-system-libraries
-        uses: actions/cache@v2
-        with:
-          path: ${{env.EM_CACHE_FOLDER}}
-          key: ${{env.EM_VERSION}}-${{ runner.os }}
-      - uses: mymindstorm/setup-emsdk@v7
-        with:
-          version: ${{env.EM_VERSION}}
-          actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
-      - uses: actions/setup-python@v1
-        with:
-          python-version: '3.x'
-      - uses: actions/cache@v1
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip
-          restore-keys: |
-            ${{ runner.os }}-pip
-      - run: python -m pip install --upgrade meson ninja
-      - run: meson setup build/ --cross-file ./external/meson_toolchains/emscripten_meson.ini
-      - run: meson compile -C build
-      - uses: actions/upload-artifact@master
-        with:
-          name: krkrsdl2-web
-          path: |
-            build/krkrsdl2.wasm
-            build/krkrsdl2.js
-            build/index.html
-  build-ubuntu:
-    runs-on: ubuntu-20.04
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - run: sudo apt-get update
-      - run: sudo apt-get install build-essential libsdl2-dev
-      - uses: actions/setup-python@v1
-        with:
-          python-version: '3.x'
-      - uses: actions/cache@v1
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip
-          restore-keys: |
-            ${{ runner.os }}-pip
-      - run: python -m pip install --upgrade meson ninja
-      - run: meson setup build/
-      - run: meson compile -C build
-      - uses: actions/upload-artifact@master
-        with:
-          name: krkrsdl2-ubuntu
-          path: build/krkrsdl2
-  build-android:
-    runs-on: ubuntu-20.04
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - name: set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-      - name: build
-        run: |
-          cd android-project
-          ./gradlew assembleRelease
-      - uses: actions/upload-artifact@master
-        with:
-          name: krkrsdl2-android
-          path: android-project/app/build/outputs/apk/release/krkrsdl2_*.apk
-  build-vita:
-    runs-on: ubuntu-20.04
-    timeout-minutes: 20
-    container: 
-      image: vitasdk/vitasdk:latest
-    steps:
-      - name: Install dependencies
-        run: |
-          apk update 
-          apk add cmake make ninja git
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - run: cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake
-      - run: cmake --build build
-      - uses: actions/upload-artifact@master
-        with:
-          name: krkrsdl2-vita
-          path: build/krkrsdl2.vpk
-  build-switch:
-    runs-on: ubuntu-20.04
-    timeout-minutes: 20
-    container: 
-      image: devkitpro/devkita64:20210726
-    steps:
-      - name: Install dependencies
-        run: |
-          apt-get -y update
-          apt-get -y install cmake make ninja-build git
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - run: cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake
-      - run: cmake --build build
-      - uses: actions/upload-artifact@master
-        with:
-          name: krkrsdl2-switch
-          path: build/krkrsdl2.nro
-  build-macos:
-    runs-on: macos-10.15
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - run: brew update
-      - run: brew install sdl2
-      - uses: actions/setup-python@v1
-        with:
-          python-version: '3.x'
-      - uses: actions/cache@v1
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip
-          restore-keys: |
-            ${{ runner.os }}-pip
-      - run: python -m pip install --upgrade meson ninja
-      - run: meson setup build/
-      - run: meson compile -C build
-      - uses: actions/upload-artifact@master
-        with:
-          name: krkrsdl2-macos
-          path: build/krkrsdl2
-  build-macos-cmake:
-    runs-on: macos-10.15
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - run: brew update
-      - run: brew install sdl2
-      - uses: actions/setup-python@v1
-        with:
-          python-version: '3.x'
-      - uses: actions/cache@v1
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip
-          restore-keys: |
-            ${{ runner.os }}-pip
-      - run: python -m pip install --upgrade ninja
-      - run: cmake -S . -B build
-      - run: cmake --build build
-      - run: ditto -ck --rsrc --sequesterRsrc --keepParent build/krkrsdl2.app build/krkrsdl2-macos-appbundle.zip
-      - uses: actions/upload-artifact@master
-        with:
-          name: krkrsdl2-macos-appbundle
-          path: build/krkrsdl2-macos-appbundle.zip
-
-  create-release:
-    needs: [build-web, build-ubuntu, build-android, build-macos, build-macos-cmake, build-vita, build-switch]
-    runs-on: ubuntu-20.04
-    timeout-minutes: 20
-    if: github.ref == 'refs/heads/main'
-    steps:
-    - name: Download web artifact
-      uses: actions/download-artifact@v1
-      with:
-        name: krkrsdl2-web
-
-    - name: Download ubuntu artifact
-      uses: actions/download-artifact@v1
-      with:
-        name: krkrsdl2-ubuntu
-
-    - name: Download android artifact
-      uses: actions/download-artifact@v1
-      with:
-        name: krkrsdl2-android
-
-    - name: Download vita artifact
-      uses: actions/download-artifact@v1
-      with:
-        name: krkrsdl2-vita
-
-    - name: Download switch artifact
-      uses: actions/download-artifact@v1
-      with:
-        name: krkrsdl2-switch
-
-    - name: Download macos artifact
-      uses: actions/download-artifact@v1
-      with:
-        name: krkrsdl2-macos
-
-    - name: Download macos-appbundle artifact
-      uses: actions/download-artifact@v1
-      with:
-        name: krkrsdl2-macos-appbundle
-
-    - name: Prepare artifacts for release
-      run: |
-        7z a -tzip krkrsdl2-web.zip krkrsdl2-web/*
-        7z a -tzip krkrsdl2-ubuntu.zip krkrsdl2-ubuntu/*
-        cp krkrsdl2-android/krkrsdl2_*.apk krkrsdl2-android.apk
-        cp krkrsdl2-vita/krkrsdl2.vpk krkrsdl2-vita.vpk
-        cp krkrsdl2-switch/krkrsdl2.nro krkrsdl2-switch.nro
-        7z a -tzip krkrsdl2-macos.zip krkrsdl2-macos/*
-        cp krkrsdl2-macos-appbundle/krkrsdl2-macos-appbundle.zip krkrsdl2-macos-appbundle.zip
-
-    - name: Create prerelease
-      if: github.ref == 'refs/heads/main'
-      uses: marvinpinto/action-automatic-releases@latest
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: true
-        automatic_release_tag: "latest"
-        title: "Latest development builds"
-        files: |
-          krkrsdl2-web.zip
-          krkrsdl2-ubuntu.zip
-          krkrsdl2-android.apk
-          krkrsdl2-vita.vpk
-          krkrsdl2-switch.nro
-          krkrsdl2-macos.zip
-          krkrsdl2-macos-appbundle.zip
+{
+  "name" : "Continuous Integration",
+  "on" : {
+    "push" : {
+      "paths" : [
+        "**.c",
+        "**.h",
+        "**.cpp",
+        "**.hpp",
+        "**.build",
+        "**.in",
+        "**.yml",
+        "**.gradle",
+        "CMakeLists.txt"
+      ]
+    },
+    "pull_request" : {
+      "paths" : [
+        "**.c",
+        "**.h",
+        "**.cpp",
+        "**.hpp",
+        "**.build",
+        "**.in",
+        "**.yml",
+        "**.gradle",
+        "CMakeLists.txt"
+      ]
+    }
+  },
+  "env" : {
+    "CMAKE_GENERATOR" : "Ninja"
+  },
+  "jobs" : {
+    "build-web" : {
+      "runs-on" : "ubuntu-20.04",
+      "timeout-minutes" : "20",
+      "env" : {
+        "EM_VERSION" : "2.0.9",
+        "EM_CACHE_FOLDER" : "emsdk-cache"
+      },
+      "steps" : [
+        {
+          "uses" : "actions/checkout@v2",
+          "with" : {
+            "submodules" : "recursive"
+          }
+        },
+        {
+          "run" : "sudo apt-get update"
+        },
+        {
+          "run" : "sudo apt-get install build-essential libsdl2-dev git"
+        },
+        {
+          "name" : "Setup cache",
+          "id" : "cache-system-libraries",
+          "uses" : "actions/cache@v2",
+          "with" : {
+            "path" : "${{env.EM_CACHE_FOLDER}}",
+            "key" : "${{env.EM_VERSION}}-${{ runner.os }}"
+          }
+        },
+        {
+          "uses" : "mymindstorm/setup-emsdk@v7",
+          "with" : {
+            "version" : "${{env.EM_VERSION}}",
+            "actions-cache-folder" : "${{env.EM_CACHE_FOLDER}}"
+          }
+        },
+        {
+          "uses" : "actions/setup-python@v1",
+          "with" : {
+            "python-version" : "3.x"
+          }
+        },
+        {
+          "uses" : "actions/cache@v1",
+          "with" : {
+            "path" : "~/.cache/pip",
+            "key" : "${{ runner.os }}-pip",
+            "restore-keys" : "${{ runner.os }}-pip"
+          }
+        },
+        {
+          "run" : "python -m pip install --upgrade meson ninja"
+        },
+        {
+          "run" : "meson setup build/ --cross-file ./external/meson_toolchains/emscripten_meson.ini"
+        },
+        {
+          "run" : "meson compile -C build"
+        },
+        {
+          "uses" : "actions/upload-artifact@master",
+          "with" : {
+            "name" : "krkrsdl2-web",
+            "path" : "build/krkrsdl2.wasm\nbuild/krkrsdl2.js\nbuild/index.html\n"
+          }
+        }
+      ]
+    },
+    "build-ubuntu" : {
+      "runs-on" : "ubuntu-20.04",
+      "timeout-minutes" : "20",
+      "steps" : [
+        {
+          "uses" : "actions/checkout@v2",
+          "with" : {
+            "submodules" : "recursive"
+          }
+        },
+        {
+          "run" : "sudo apt-get update"
+        },
+        {
+          "run" : "sudo apt-get install build-essential libsdl2-dev"
+        },
+        {
+          "uses" : "actions/setup-python@v1",
+          "with" : {
+            "python-version" : "3.x"
+          }
+        },
+        {
+          "uses" : "actions/cache@v1",
+          "with" : {
+            "path" : "~/.cache/pip",
+            "key" : "${{ runner.os }}-pip",
+            "restore-keys" : "${{ runner.os }}-pip"
+          }
+        },
+        {
+          "run" : "python -m pip install --upgrade meson ninja"
+        },
+        {
+          "run" : "meson setup build/"
+        },
+        {
+          "run" : "meson compile -C build"
+        },
+        {
+          "uses" : "actions/upload-artifact@master",
+          "with" : {
+            "name" : "krkrsdl2-ubuntu",
+            "path" : "build/krkrsdl2"
+          }
+        }
+      ]
+    },
+    "build-android" : {
+      "runs-on" : "ubuntu-20.04",
+      "timeout-minutes" : "20",
+      "steps" : [
+        {
+          "uses" : "actions/checkout@v2",
+          "with" : {
+            "submodules" : "recursive"
+          }
+        },
+        {
+          "name" : "set up JDK 1.8",
+          "uses" : "actions/setup-java@v1",
+          "with" : {
+            "java-version" : "1.8"
+          }
+        },
+        {
+          "name" : "build",
+          "run" : "cd android-project\n./gradlew assembleRelease\n"
+        },
+        {
+          "uses" : "actions/upload-artifact@master",
+          "with" : {
+            "name" : "krkrsdl2-android",
+            "path" : "android-project/app/build/outputs/apk/release/krkrsdl2_*.apk"
+          }
+        }
+      ]
+    },
+    "build-vita" : {
+      "runs-on" : "ubuntu-20.04",
+      "timeout-minutes" : "20",
+      "container" : {
+        "image" : "vitasdk/vitasdk:latest"
+      },
+      "steps" : [
+        {
+          "name" : "Install dependencies",
+          "run" : "apk update\napk add cmake make ninja git\n"
+        },
+        {
+          "uses" : "actions/checkout@v2",
+          "with" : {
+            "submodules" : "recursive"
+          }
+        },
+        {
+          "run" : "cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake"
+        },
+        {
+          "run" : "cmake --build build"
+        },
+        {
+          "uses" : "actions/upload-artifact@master",
+          "with" : {
+            "name" : "krkrsdl2-vita",
+            "path" : "build/krkrsdl2.vpk"
+          }
+        }
+      ]
+    },
+    "build-switch" : {
+      "runs-on" : "ubuntu-20.04",
+      "timeout-minutes" : "20",
+      "container" : {
+        "image" : "devkitpro/devkita64:20210726"
+      },
+      "steps" : [
+        {
+          "name" : "Install dependencies",
+          "run" : "apt-get -y update\napt-get -y install cmake make ninja-build git\n"
+        },
+        {
+          "uses" : "actions/checkout@v2",
+          "with" : {
+            "submodules" : "recursive"
+          }
+        },
+        {
+          "run" : "cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake"
+        },
+        {
+          "run" : "cmake --build build"
+        },
+        {
+          "uses" : "actions/upload-artifact@master",
+          "with" : {
+            "name" : "krkrsdl2-switch",
+            "path" : "build/krkrsdl2.nro"
+          }
+        }
+      ]
+    },
+    "build-macos" : {
+      "runs-on" : "macos-10.15",
+      "timeout-minutes" : "20",
+      "steps" : [
+        {
+          "uses" : "actions/checkout@v2",
+          "with" : {
+            "submodules" : "recursive"
+          }
+        },
+        {
+          "run" : "brew update"
+        },
+        {
+          "run" : "brew install sdl2"
+        },
+        {
+          "uses" : "actions/setup-python@v1",
+          "with" : {
+            "python-version" : "3.x"
+          }
+        },
+        {
+          "uses" : "actions/cache@v1",
+          "with" : {
+            "path" : "~/.cache/pip",
+            "key" : "${{ runner.os }}-pip",
+            "restore-keys" : "${{ runner.os }}-pip"
+          }
+        },
+        {
+          "run" : "python -m pip install --upgrade meson ninja"
+        },
+        {
+          "run" : "meson setup build/"
+        },
+        {
+          "run" : "meson compile -C build"
+        },
+        {
+          "uses" : "actions/upload-artifact@master",
+          "with" : {
+            "name" : "krkrsdl2-macos",
+            "path" : "build/krkrsdl2"
+          }
+        }
+      ]
+    },
+    "build-macos-cmake" : {
+      "runs-on" : "macos-10.15",
+      "timeout-minutes" : "20",
+      "steps" : [
+        {
+          "uses" : "actions/checkout@v2",
+          "with" : {
+            "submodules" : "recursive"
+          }
+        },
+        {
+          "run" : "brew update"
+        },
+        {
+          "run" : "brew install sdl2"
+        },
+        {
+          "uses" : "actions/setup-python@v1",
+          "with" : {
+            "python-version" : "3.x"
+          }
+        },
+        {
+          "uses" : "actions/cache@v1",
+          "with" : {
+            "path" : "~/.cache/pip",
+            "key" : "${{ runner.os }}-pip",
+            "restore-keys" : "${{ runner.os }}-pip"
+          }
+        },
+        {
+          "run" : "python -m pip install --upgrade ninja"
+        },
+        {
+          "run" : "cmake -S . -B build"
+        },
+        {
+          "run" : "cmake --build build"
+        },
+        {
+          "run" : "ditto -ck --rsrc --sequesterRsrc --keepParent build/krkrsdl2.app build/krkrsdl2-macos-appbundle.zip"
+        },
+        {
+          "uses" : "actions/upload-artifact@master",
+          "with" : {
+            "name" : "krkrsdl2-macos-appbundle",
+            "path" : "build/krkrsdl2-macos-appbundle.zip"
+          }
+        }
+      ]
+    },
+    "create-release" : {
+      "needs" : ["build-web", "build-ubuntu", "build-android", "build-macos", "build-macos-cmake", "build-vita", "build-switch"],
+      "runs-on" : "ubuntu-20.04",
+      "timeout-minutes" : "20",
+      "if" : "github.ref == 'refs/heads/main'",
+      "steps" : [
+        {
+          "name" : "Download web artifact",
+          "uses" : "actions/download-artifact@v1",
+          "with" : {
+            "name" : "krkrsdl2-web"
+          }
+        },
+        {
+          "name" : "Download ubuntu artifact",
+          "uses" : "actions/download-artifact@v1",
+          "with" : {
+            "name" : "krkrsdl2-ubuntu"
+          }
+        },
+        {
+          "name" : "Download android artifact",
+          "uses" : "actions/download-artifact@v1",
+          "with" : {
+            "name" : "krkrsdl2-android"
+          }
+        },
+        {
+          "name" : "Download vita artifact",
+          "uses" : "actions/download-artifact@v1",
+          "with" : {
+            "name" : "krkrsdl2-vita"
+          }
+        },
+        {
+          "name" : "Download switch artifact",
+          "uses" : "actions/download-artifact@v1",
+          "with" : {
+            "name" : "krkrsdl2-switch"
+          }
+        },
+        {
+          "name" : "Download macos artifact",
+          "uses" : "actions/download-artifact@v1",
+          "with" : {
+            "name" : "krkrsdl2-macos"
+          }
+        },
+        {
+          "name" : "Download macos-appbundle artifact",
+          "uses" : "actions/download-artifact@v1",
+          "with" : {
+            "name" : "krkrsdl2-macos-appbundle"
+          }
+        },
+        {
+          "name" : "Prepare artifacts for release",
+          "run" : "7z a -tzip krkrsdl2-web.zip krkrsdl2-web/*\n7z a -tzip krkrsdl2-ubuntu.zip krkrsdl2-ubuntu/*\ncp krkrsdl2-android/krkrsdl2_*.apk krkrsdl2-android.apk\ncp krkrsdl2-vita/krkrsdl2.vpk krkrsdl2-vita.vpk\ncp krkrsdl2-switch/krkrsdl2.nro krkrsdl2-switch.nro\n7z a -tzip krkrsdl2-macos.zip krkrsdl2-macos/*\ncp krkrsdl2-macos-appbundle/krkrsdl2-macos-appbundle.zip krkrsdl2-macos-appbundle.zip\n"
+        },
+        {
+          "name" : "Create prerelease",
+          "if" : "github.ref == 'refs/heads/main'",
+          "uses" : "marvinpinto/action-automatic-releases@latest",
+          "with" : {
+            "repo_token" : "${{ secrets.GITHUB_TOKEN }}",
+            "prerelease" : "true",
+            "automatic_release_tag" : "latest",
+            "title" : "Latest development builds",
+            "files" : "krkrsdl2-web.zip\nkrkrsdl2-ubuntu.zip\nkrkrsdl2-android.apk\nkrkrsdl2-vita.vpk\nkrkrsdl2-switch.nro\nkrkrsdl2-macos.zip\nkrkrsdl2-macos-appbundle.zip\n"
+          }
+        }
+      ]
+    }
+  }
+}
