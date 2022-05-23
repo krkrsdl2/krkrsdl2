@@ -438,9 +438,7 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 #endif
 	TVPTerminateCode = 0;
 
-#if 0
 	CheckConsole();
-#endif
 
 	// try starting the program!
 	bool engine_init = false;
@@ -558,11 +556,11 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 
 	return true;
 }
-#if 0
 /**
  * コンソールからの起動か確認し、コンソールからの起動の場合は、標準出力を割り当てる
  */
 void tTVPApplication::CheckConsole() {
+#if 0
 #ifdef TVP_LOG_TO_COMMANDLINE_CONSOLE
 	if( has_map_report_process_ ) return; // 書き出し用子プロセスして起動されていた時はコンソール接続しない
 	HANDLE hin  = ::GetStdHandle(STD_INPUT_HANDLE);
@@ -595,8 +593,18 @@ void tTVPApplication::CheckConsole() {
 	}
 	is_attach_console_ = attachedConsole;
 #endif
+#endif
+#ifndef __ANDROID__
+	is_attach_console_ = isatty(fileno(stdout)) != 0;
+	for( int i = 0; i < ArgC; i++ ) {
+		if(!TJS_strcmp(ArgV[i], TJS_W("-forceoutputlogtoconsole"))) {
+			is_attach_console_ = true;
+		}
+	}
+#endif
 }
 
+#if 0
 void tTVPApplication::CloseConsole() {
 	tjs_char buf[100];
 	DWORD len = TJS_snprintf(buf, 100, TVPExitCode, TVPTerminateCode);
@@ -643,7 +651,7 @@ void tTVPApplication::PrintConsole( const tjs_char* mes, unsigned long len, bool
 		SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "%s", &(console_cache_[0]) );
 	}
 #else
-	if (isatty(fileno(stdout)))
+	if (is_attach_console_)
 	{
 		if( iserror ) {
 			fprintf(stdout, "%s\n", &(console_cache_[0]) );

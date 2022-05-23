@@ -116,8 +116,8 @@ class tTVPApplication {
 	std::vector<char> console_cache_;
 
 private:
-#if 0
 	void CheckConsole();
+#if 0
 	void CloseConsole();
 	void CheckDigitizer();
 #endif
