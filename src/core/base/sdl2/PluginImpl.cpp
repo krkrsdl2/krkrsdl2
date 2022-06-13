@@ -159,14 +159,66 @@ struct tTVPPlugin
 //---------------------------------------------------------------------------
 tTVPPlugin::tTVPPlugin(const ttstr & name) : Name(name)
 {
-	Holder = new tTVPPluginHolder(name);
-	std::string filename;
-	if( TVPUtf16ToUtf8( filename, Holder->GetLocalName().AsStdString() ) )
+	if (TJS_strstr(TJS_W(":"), name.c_str()) != NULL)
 	{
-		if( TVPCheckExistentLocalFile(Holder->GetLocalName()) ) {
+		// Absolute path
+		Holder = new tTVPPluginHolder(name);
+		std::string filename;
+		if (TVPUtf16ToUtf8(filename, Holder->GetLocalName().AsStdString()))
+		{
 			Instance = SDL_LoadObject(filename.c_str());
 		}
 	}
+	else
+	{
+		// Relative path
+		std::string filename;
+		bool converted = false;
+		tjs_int len = name.GetLen();
+		if (len > 3 && name[len - 1] == TJS_W('l') && name[len - 2] == TJS_W('l') && name[len - 3] == TJS_W('d'))
+		{
+			tjs_string extso = ChangeFileExt(name.AsStdString(), TJS_W("so"));
+			converted = TVPUtf16ToUtf8(filename, extso);
+		}
+		else
+		{
+			converted = TVPUtf16ToUtf8(filename, name.AsStdString());
+		}
+		if (converted)
+		{
+			std::string searchpath;
+			char *searchpath_cstr = SDL_getenv("KRKRSDL2_PATH");
+			if (searchpath_cstr != NULL)
+			{
+				searchpath = searchpath_cstr;
+			}
+			if (!searchpath.empty())
+			{
+				size_t searchpath_pos = 0;
+				std::string searchpath_single;
+				std::string colon = ":";
+				while ((searchpath_pos = searchpath.find(colon)) != std::string::npos)
+				{
+					searchpath_single = searchpath.substr(0, searchpath_pos);
+					{
+						if (searchpath_single.empty())
+						{
+							searchpath_single = ".";
+						}
+						searchpath_single += "/";
+						searchpath_single += filename;
+						Instance = SDL_LoadObject(searchpath_single.c_str());
+						if (Instance)
+						{
+							break;
+						}
+					}
+					searchpath.erase(0, searchpath_pos + colon.length());
+				}
+			}
+		}
+	}
+
 	if(!Instance)
 	{
 		delete Holder;
