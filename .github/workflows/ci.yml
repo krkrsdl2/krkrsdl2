@@ -341,8 +341,53 @@
         }
       ]
     },
+    "build-ios-cmake" : {
+      "runs-on" : "macos-10.15",
+      "timeout-minutes" : 20,
+      "steps" : [
+        {
+          "uses" : "actions/checkout@v2",
+          "with" : {
+            "submodules" : "recursive"
+          }
+        },
+        {
+          "uses" : "actions/setup-python@v1",
+          "with" : {
+            "python-version" : "3.x"
+          }
+        },
+        {
+          "uses" : "actions/cache@v1",
+          "with" : {
+            "path" : "~/.cache/pip",
+            "key" : "${{ runner.os }}-pip",
+            "restore-keys" : "${{ runner.os }}-pip"
+          }
+        },
+        {
+          "run" : "python -m pip install --upgrade ninja"
+        },
+        {
+          "run" : "cmake -S . -B build -GXcode -DCMAKE_SYSTEM_NAME=iOS"
+        },
+        {
+          "run" : "cmake --build build"
+        },
+        {
+          "run" : "ditto -ck --rsrc --sequesterRsrc --keepParent build/Debug-iphoneos/krkrsdl2.app build/krkrsdl2-ios-appbundle.zip"
+        },
+        {
+          "uses" : "actions/upload-artifact@master",
+          "with" : {
+            "name" : "krkrsdl2-ios-appbundle",
+            "path" : "build/krkrsdl2-ios-appbundle.zip"
+          }
+        }
+      ]
+    },
     "create-release" : {
-      "needs" : ["build-web", "build-ubuntu", "build-android", "build-macos", "build-macos-cmake", "build-vita", "build-switch"],
+      "needs" : ["build-web", "build-ubuntu", "build-android", "build-macos", "build-macos-cmake", "build-ios-cmake", "build-vita", "build-switch"],
       "runs-on" : "ubuntu-20.04",
       "timeout-minutes" : 20,
       "if" : "github.ref == 'refs/heads/main'",
@@ -397,6 +442,13 @@
           }
         },
         {
+          "name" : "Download ios-appbundle artifact",
+          "uses" : "actions/download-artifact@v1",
+          "with" : {
+            "name" : "krkrsdl2-ios-appbundle"
+          }
+        },
+        {
           "name" : "Prepare artifacts for release",
           "run" : "7z a -tzip krkrsdl2-web.zip krkrsdl2-web/*\n7z a -tzip krkrsdl2-ubuntu.zip krkrsdl2-ubuntu/*\ncp krkrsdl2-android/krkrsdl2_*.apk krkrsdl2-android.apk\ncp krkrsdl2-vita/krkrsdl2.vpk krkrsdl2-vita.vpk\ncp krkrsdl2-switch/krkrsdl2.nro krkrsdl2-switch.nro\n7z a -tzip krkrsdl2-macos.zip krkrsdl2-macos/*\ncp krkrsdl2-macos-appbundle/krkrsdl2-macos-appbundle.zip krkrsdl2-macos-appbundle.zip\n"
         },
@@ -409,7 +461,7 @@
             "prerelease" : "true",
             "automatic_release_tag" : "latest",
             "title" : "Latest development builds",
-            "files" : "krkrsdl2-web.zip\nkrkrsdl2-ubuntu.zip\nkrkrsdl2-android.apk\nkrkrsdl2-vita.vpk\nkrkrsdl2-switch.nro\nkrkrsdl2-macos.zip\nkrkrsdl2-macos-appbundle.zip\n"
+            "files" : "krkrsdl2-web.zip\nkrkrsdl2-ubuntu.zip\nkrkrsdl2-android.apk\nkrkrsdl2-vita.vpk\nkrkrsdl2-switch.nro\nkrkrsdl2-macos.zip\nkrkrsdl2-macos-appbundle.zip\nkrkrsdl2-ios-appbundle.zip\n"
           }
         }
       ]
