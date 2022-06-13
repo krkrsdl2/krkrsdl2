@@ -166,6 +166,7 @@ endif()
 
 if(IOS)
 set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
+set(SDL_SHARED OFF)
 add_subdirectory(external/SDL)
 find_library(SDL2 NAMES SDL2-static SDL2main)
 list(APPEND KRKRSDL2_LIBS
