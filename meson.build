@@ -66,6 +66,7 @@ if get_option('warning_level') == '0'
 	endif
 endif
 krkrsdl2_cflags += [
+	'-DTVP_COMPILING_KRKRSDL2',
 	'-DTVP_OPUS_DECODER_IMPLEMENT',
 	'-DTVP_LOG_TO_COMMANDLINE_CONSOLE',
 	'-DHAVE_CONFIG_H',
