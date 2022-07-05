@@ -187,7 +187,7 @@
       "steps" : [
         {
           "name" : "Install dependencies",
-          "run" : "apk update\napk add cmake make ninja git\n"
+          "run" : "apk update\napk add cmake make ninja git curl\n"
         },
         {
           "uses" : "actions/checkout@v2",
@@ -196,7 +196,11 @@
           }
         },
         {
-          "run" : "cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake"
+          "name" : "Download krkrsdl2-kag3-demo build",
+          "run" : "curl -LOC - https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
+        },
+        {
+          "run" : "cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DEMBED_DATA_PATH=data.xp3"
         },
         {
           "run" : "cmake --build build"
@@ -219,7 +223,7 @@
       "steps" : [
         {
           "name" : "Install dependencies",
-          "run" : "apt-get -y update\napt-get -y install cmake make ninja-build git\n"
+          "run" : "apt-get -y update\napt-get -y install cmake make ninja-build git curl\n"
         },
         {
           "uses" : "actions/checkout@v2",
@@ -228,7 +232,11 @@
           }
         },
         {
-          "run" : "cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake"
+          "name" : "Download krkrsdl2-kag3-demo build",
+          "run" : "curl -LOC - https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
+        },
+        {
+          "run" : "cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake -DEMBED_DATA_PATH=data.xp3"
         },
         {
           "run" : "cmake --build build"
@@ -301,6 +309,10 @@
           }
         },
         {
+          "name" : "Download krkrsdl2-kag3-demo build",
+          "run" : "curl -LOC - https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
+        },
+        {
           "run" : "brew update"
         },
         {
@@ -324,7 +336,7 @@
           "run" : "python -m pip install --upgrade ninja"
         },
         {
-          "run" : "cmake -S . -B build"
+          "run" : "cmake -S . -B build -DEMBED_DATA_PATH=data.xp3"
         },
         {
           "run" : "cmake --build build"
@@ -352,6 +364,10 @@
           }
         },
         {
+          "name" : "Download krkrsdl2-kag3-demo build",
+          "run" : "curl -LOC - https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
+        },
+        {
           "uses" : "actions/setup-python@v1",
           "with" : {
             "python-version" : "3.x"
@@ -369,7 +385,7 @@
           "run" : "python -m pip install --upgrade ninja"
         },
         {
-          "run" : "cmake -S . -B build -GXcode -DCMAKE_SYSTEM_NAME=iOS"
+          "run" : "cmake -S . -B build -GXcode -DCMAKE_SYSTEM_NAME=iOS -DEMBED_DATA_PATH=data.xp3"
         },
         {
           "run" : "cmake --build build"
