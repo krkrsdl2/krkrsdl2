@@ -43,18 +43,28 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/out/library)
 set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
 endif()
 
+if(APPLE AND IOS)
+set(IOS_RESOURCES_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/ios-resources)
+endif()
+
+if(APPLE AND NOT IOS)
+set(MACOS_RESOURCES_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/macos-resources)
+endif()
+
 if(VITA)
 include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "Kirikiri SDL2" CACHE STRING "The application name to use for the VPK.")
 set(VITA_TITLEID  "KRKR00001"     CACHE STRING "The title ID to use for the VPK.")
 set(VITA_VERSION  "02.00"         CACHE STRING "The version to use for the VPK.")
+set(VITA_RESOURCES_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/vita-resources)
 endif()
 
 if(NINTENDO_SWITCH)
 set(SWITCH_APP_NAME "Kirikiri SDL2" CACHE STRING "The application name to use for the NRO.")
 set(SWITCH_AUTHOR   "uyjulian"      CACHE STRING "The author to use for the NRO.")
 set(SWITCH_VERSION  "v2.0.0"        CACHE STRING "The version to use for the NRO.")
+set(SWITCH_RESOURCES_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/nswitch-resources)
 endif()
 
 file(STRINGS src/config/src_list/kirikirisdl2/sources.txt KIRIKIRISDL2_SRC)
@@ -258,12 +268,12 @@ set_target_properties(${KRKRSDL2_NAME} PROPERTIES
 	XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
 )
 set_property(
-	SOURCE data ${CMAKE_CURRENT_SOURCE_DIR}/src/ios-resources/Images.xcassets
+	SOURCE data ${IOS_RESOURCES_ROOT}/Images.xcassets
 	PROPERTY MACOSX_PACKAGE_LOCATION "Resources"
 )
 target_sources(${KRKRSDL2_NAME} PRIVATE 
 	data
-	${CMAKE_CURRENT_SOURCE_DIR}/src/ios-resources/Images.xcassets
+	${IOS_RESOURCES_ROOT}/Images.xcassets
 )
 endif()
 
@@ -277,12 +287,12 @@ set_target_properties(${KRKRSDL2_NAME} PROPERTIES
 	XCODE_ATTRIBUTE_INSTALL_PATH "/Applications"
 )
 set_property(
-	SOURCE data ${CMAKE_CURRENT_SOURCE_DIR}/src/macos-resources/krkrsdl2.icns
+	SOURCE data ${MACOS_RESOURCES_ROOT}/krkrsdl2.icns
 	PROPERTY MACOSX_PACKAGE_LOCATION "Resources"
 )
 target_sources(${KRKRSDL2_NAME} PRIVATE 
 	data
-	${CMAKE_CURRENT_SOURCE_DIR}/src/macos-resources/krkrsdl2.icns
+	${MACOS_RESOURCES_ROOT}/krkrsdl2.icns
 )
 endif()
 
@@ -294,10 +304,10 @@ set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -s CATEGORY=gdb")
 vita_create_vpk(${KRKRSDL2_NAME}.vpk ${VITA_TITLEID} ${KRKRSDL2_NAME}.self
     VERSION ${VITA_VERSION}
     NAME ${VITA_APP_NAME}
-    FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/vita-resources/sce_sys/icon0.png sce_sys/icon0.png
-    FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/vita-resources/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
-    FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/vita-resources/sce_sys/livearea/contents/icon.png sce_sys/livearea/contents/icon.png
-    FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/vita-resources/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+    FILE ${VITA_RESOURCES_ROOT}/sce_sys/icon0.png sce_sys/icon0.png
+    FILE ${VITA_RESOURCES_ROOT}/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+    FILE ${VITA_RESOURCES_ROOT}/sce_sys/livearea/contents/icon.png sce_sys/livearea/contents/icon.png
+    FILE ${VITA_RESOURCES_ROOT}/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
     FILE data data
 )
 endif()
@@ -315,9 +325,9 @@ add_custom_target(${KRKRSDL2_NAME}.nro ALL
     COMMAND $ENV{DEVKITPRO}/tools/bin/elf2nro
         ${KRKRSDL2_NAME}
         ${KRKRSDL2_NAME}.nro
-        --icon=${CMAKE_CURRENT_SOURCE_DIR}/src/nswitch-resources/icon.jpg
+        --icon=${SWITCH_RESOURCES_ROOT}/icon.jpg
         --nacp=${KRKRSDL2_NAME}.nacp
-    DEPENDS ${KRKRSDL2_NAME}.nacp ${KRKRSDL2_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/nswitch-resources/icon.jpg
+    DEPENDS ${KRKRSDL2_NAME}.nacp ${KRKRSDL2_NAME} ${SWITCH_RESOURCES_ROOT}/icon.jpg
 )
 endif()
 
