@@ -179,7 +179,7 @@ list(APPEND KRKRSDL2_CXXFLAGS
 )
 elseif((APPLE AND NOT IOS) OR (${CMAKE_SYSTEM_NAME} STREQUAL "Linux"))
 set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
-add_subdirectory(external/SDL)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/SDL)
 find_library(SDL2 NAMES SDL2-static)
 list(APPEND KRKRSDL2_LIBS
 	SDL2-static
@@ -187,7 +187,7 @@ list(APPEND KRKRSDL2_LIBS
 elseif(ANDROID)
 set(SDL_SHARED_ENABLED_BY_DEFAULT ON)
 set(SDL_STATIC_ENABLED_BY_DEFAULT OFF)
-add_subdirectory(external/SDL)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/SDL)
 find_library(SDL2 NAMES SDL2 SDL2main)
 list(APPEND KRKRSDL2_LIBS
 	SDL2
@@ -198,7 +198,7 @@ list(APPEND KRKRSDL2_CXXFLAGS
 )
 elseif(VITA)
 set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
-add_subdirectory(external/SDL)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/SDL)
 find_library(SDL2 NAMES SDL2-static)
 
 list(APPEND KRKRSDL2_LIBS
@@ -272,12 +272,12 @@ set_target_properties(${KRKRSDL2_NAME} PROPERTIES
 	XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
 )
 set_property(
-	SOURCE data src/ios-resources/Images.xcassets
+	SOURCE data ${CMAKE_CURRENT_SOURCE_DIR}/src/ios-resources/Images.xcassets
 	PROPERTY MACOSX_PACKAGE_LOCATION "Resources"
 )
 target_sources(${KRKRSDL2_NAME} PRIVATE 
 	data
-	src/ios-resources/Images.xcassets
+	${CMAKE_CURRENT_SOURCE_DIR}/src/ios-resources/Images.xcassets
 )
 endif()
 
@@ -291,12 +291,12 @@ set_target_properties(${KRKRSDL2_NAME} PROPERTIES
 	XCODE_ATTRIBUTE_INSTALL_PATH "/Applications"
 )
 set_property(
-	SOURCE data src/macos-resources/krkrsdl2.icns
+	SOURCE data ${CMAKE_CURRENT_SOURCE_DIR}/src/macos-resources/krkrsdl2.icns
 	PROPERTY MACOSX_PACKAGE_LOCATION "Resources"
 )
 target_sources(${KRKRSDL2_NAME} PRIVATE 
 	data
-	src/macos-resources/krkrsdl2.icns
+	${CMAKE_CURRENT_SOURCE_DIR}/src/macos-resources/krkrsdl2.icns
 )
 endif()
 
@@ -308,10 +308,10 @@ set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -s CATEGORY=gdb")
 vita_create_vpk(${KRKRSDL2_NAME}.vpk ${VITA_TITLEID} ${KRKRSDL2_NAME}.self
     VERSION ${VITA_VERSION}
     NAME ${VITA_APP_NAME}
-    FILE src/vita-resources/sce_sys/icon0.png sce_sys/icon0.png
-    FILE src/vita-resources/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
-    FILE src/vita-resources/sce_sys/livearea/contents/icon.png sce_sys/livearea/contents/icon.png
-    FILE src/vita-resources/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+    FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/vita-resources/sce_sys/icon0.png sce_sys/icon0.png
+    FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/vita-resources/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+    FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/vita-resources/sce_sys/livearea/contents/icon.png sce_sys/livearea/contents/icon.png
+    FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/vita-resources/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
     FILE data data
 )
 endif()
@@ -329,9 +329,9 @@ add_custom_target(${KRKRSDL2_NAME}.nro ALL
     COMMAND $ENV{DEVKITPRO}/tools/bin/elf2nro
         ${KRKRSDL2_NAME}
         ${KRKRSDL2_NAME}.nro
-        --icon=${CMAKE_SOURCE_DIR}/src/nswitch-resources/icon.jpg
+        --icon=${CMAKE_CURRENT_SOURCE_DIR}/src/nswitch-resources/icon.jpg
         --nacp=${KRKRSDL2_NAME}.nacp
-    DEPENDS ${KRKRSDL2_NAME}.nacp ${KRKRSDL2_NAME} ${CMAKE_SOURCE_DIR}/src/nswitch-resources/icon.jpg
+    DEPENDS ${KRKRSDL2_NAME}.nacp ${KRKRSDL2_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/nswitch-resources/icon.jpg
 )
 endif()
 
