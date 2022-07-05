@@ -67,6 +67,9 @@ set(SWITCH_VERSION  "v2.0.0"        CACHE STRING "The version to use for the NRO
 set(SWITCH_RESOURCES_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/nswitch-resources)
 endif()
 
+set(EMBED_DATA_PATH ${CMAKE_CURRENT_SOURCE_DIR}/data)
+get_filename_component(EMBED_DATA_PATH_BASENAME ${EMBED_DATA_PATH} NAME)
+
 file(STRINGS src/config/src_list/kirikirisdl2/sources.txt KIRIKIRISDL2_SRC)
 file(STRINGS src/config/src_list/kirikirisdl2/includes.txt KIRIKIRISDL2_INCLUDES)
 
@@ -268,11 +271,11 @@ set_target_properties(${KRKRSDL2_NAME} PROPERTIES
 	XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
 )
 set_property(
-	SOURCE data ${IOS_RESOURCES_ROOT}/Images.xcassets
+	SOURCE ${EMBED_DATA_PATH} ${IOS_RESOURCES_ROOT}/Images.xcassets
 	PROPERTY MACOSX_PACKAGE_LOCATION "Resources"
 )
 target_sources(${KRKRSDL2_NAME} PRIVATE 
-	data
+	${EMBED_DATA_PATH}
 	${IOS_RESOURCES_ROOT}/Images.xcassets
 )
 endif()
@@ -287,11 +290,11 @@ set_target_properties(${KRKRSDL2_NAME} PROPERTIES
 	XCODE_ATTRIBUTE_INSTALL_PATH "/Applications"
 )
 set_property(
-	SOURCE data ${MACOS_RESOURCES_ROOT}/krkrsdl2.icns
+	SOURCE ${EMBED_DATA_PATH} ${MACOS_RESOURCES_ROOT}/krkrsdl2.icns
 	PROPERTY MACOSX_PACKAGE_LOCATION "Resources"
 )
 target_sources(${KRKRSDL2_NAME} PRIVATE 
-	data
+	${EMBED_DATA_PATH}
 	${MACOS_RESOURCES_ROOT}/krkrsdl2.icns
 )
 endif()
@@ -308,7 +311,7 @@ vita_create_vpk(${KRKRSDL2_NAME}.vpk ${VITA_TITLEID} ${KRKRSDL2_NAME}.self
     FILE ${VITA_RESOURCES_ROOT}/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
     FILE ${VITA_RESOURCES_ROOT}/sce_sys/livearea/contents/icon.png sce_sys/livearea/contents/icon.png
     FILE ${VITA_RESOURCES_ROOT}/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
-    FILE data data
+    FILE ${EMBED_DATA_PATH} ${EMBED_DATA_PATH_BASENAME}
 )
 endif()
 
