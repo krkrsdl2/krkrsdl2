@@ -1332,11 +1332,11 @@
 #ifndef _mm_slli_pi64
 #define _mm_slli_pi64 simde_mm_slli_pi64
 #endif
-#if defined(_mm_slli_si128) && !defined(simde_mm_slli_si128)
+#if defined(_mm_slli_si128) && !defined(simde_mm_bslli_si128)
 #undef _mm_slli_si128
 #endif
 #ifndef _mm_slli_si128
-#define _mm_slli_si128 simde_mm_slli_si128
+#define _mm_slli_si128 simde_mm_bslli_si128
 #endif
 #if defined(_mm_slli_si64) && !defined(simde_mm_slli_si64)
 #undef _mm_slli_si64
@@ -1398,11 +1398,11 @@
 #ifndef _mm_srli_pi64
 #define _mm_srli_pi64 simde_mm_srli_pi64
 #endif
-#if defined(_mm_srli_si128) && !defined(simde_mm_srli_si128)
+#if defined(_mm_srli_si128) && !defined(simde_mm_bsrli_si128)
 #undef _mm_srli_si128
 #endif
 #ifndef _mm_srli_si128
-#define _mm_srli_si128 simde_mm_srli_si128
+#define _mm_srli_si128 simde_mm_bsrli_si128
 #endif
 #if defined(_mm_srli_si64) && !defined(simde_mm_srli_si64)
 #undef _mm_srli_si64
