@@ -1,9 +1,7 @@
 
 #include "tjsCommHead.h"
 #include "WindowImpl.h"
-#ifndef _WIN32
 #include "VirtualKey.h"
-#endif
 #include "Application.h"
 #include "SystemImpl.h"
 #include "TVPWindow.h"
@@ -24,6 +22,9 @@
 #include <SDL.h>
 #ifdef USE_SDL_MAIN
 #include <SDL_main.h>
+#endif
+#ifdef _WIN32
+#include <shellapi.h>
 #endif
 
 #include <unistd.h>
@@ -142,6 +143,15 @@ static tjs_uint sdl_gamecontrollerbutton_to_vk_key(Uint8 key)
 	return 0;
 }
 
+#ifdef MK_SHIFT
+#undef MK_SHIFT
+#endif
+#ifdef MK_CONTROL
+#undef MK_CONTROL
+#endif
+#ifdef MK_ALT
+#undef MK_ALT
+#endif
 #define MK_SHIFT 4
 #define MK_CONTROL 8
 #define MK_ALT (0x20)
@@ -823,10 +833,12 @@ void TVPWindowLayer::SetPaintBoxSize(tjs_int w, tjs_int h) {
 	}
 }
 
+#ifndef _WIN32
 static int MulDiv(int nNumber, int nNumerator, int nDenominator)
 {
 	return (int)(((int64_t)nNumber * (int64_t)nNumerator) / nDenominator);
 }
+#endif
 
 void TVPWindowLayer::TranslateWindowToDrawArea(int &x, int &y)
 {
@@ -2552,10 +2564,16 @@ static bool process_events()
 
 #if defined(USE_SDL_MAIN)
 extern "C" int SDL_main(int argc, char **argv)
+#elif defined(_WIN32) && defined(_UNICODE)
+extern "C" int wmain(int argc, wchar_t **argv)
 #else
 extern "C" int main(int argc, char **argv)
 #endif
 {
+#ifdef _WIN32
+	_argc = argc;
+	_wargv = argv;
+#else
 	_argc = argc;
 	_wargv = new tjs_char*[argc];
 
@@ -2593,8 +2611,11 @@ extern "C" int main(int argc, char **argv)
 		warg_copy[v_utf16.length()] = '\0';
 		_wargv[i] = warg_copy;
 	}
+#endif
 
+#ifndef _WIN32
 	setenv("DBUS_FATAL_WARNINGS", "0", 1);
+#endif
 
 	TVPLoadMessage();
 

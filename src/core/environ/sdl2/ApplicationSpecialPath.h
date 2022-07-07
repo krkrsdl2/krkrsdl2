@@ -7,6 +7,7 @@
 #endif
 #include "FilePathUtil.h"
 #include "StorageIntf.h"
+#include "CharacterSet.h"
 #include <SDL.h>
 
 class ApplicationSpecialPath {

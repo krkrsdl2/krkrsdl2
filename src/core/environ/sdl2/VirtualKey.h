@@ -7,6 +7,578 @@
 #include <android/keycodes.h>
 #endif
 
+#ifdef _WIN32
+#include <winuser.h>
+#endif
+
+#ifdef VK_LBUTTON
+#undef VK_LBUTTON
+#endif
+#ifdef VK_RBUTTON
+#undef VK_RBUTTON
+#endif
+#ifdef VK_CANCEL
+#undef VK_CANCEL
+#endif
+#ifdef VK_MBUTTON
+#undef VK_MBUTTON
+#endif
+#ifdef VK_XBUTTON1
+#undef VK_XBUTTON1
+#endif
+#ifdef VK_XBUTTON2
+#undef VK_XBUTTON2
+#endif
+#ifdef VK_BACK
+#undef VK_BACK
+#endif
+#ifdef VK_TAB
+#undef VK_TAB
+#endif
+#ifdef VK_CLEAR
+#undef VK_CLEAR
+#endif
+#ifdef VK_RETURN
+#undef VK_RETURN
+#endif
+#ifdef VK_SHIFT
+#undef VK_SHIFT
+#endif
+#ifdef VK_CONTROL
+#undef VK_CONTROL
+#endif
+#ifdef VK_MENU
+#undef VK_MENU
+#endif
+#ifdef VK_PAUSE
+#undef VK_PAUSE
+#endif
+#ifdef VK_CAPITAL
+#undef VK_CAPITAL
+#endif
+#ifdef VK_KANA
+#undef VK_KANA
+#endif
+#ifdef VK_HANGEUL
+#undef VK_HANGEUL
+#endif
+#ifdef VK_HANGUL
+#undef VK_HANGUL
+#endif
+#ifdef VK_JUNJA
+#undef VK_JUNJA
+#endif
+#ifdef VK_FINAL
+#undef VK_FINAL
+#endif
+#ifdef VK_HANJA
+#undef VK_HANJA
+#endif
+#ifdef VK_KANJI
+#undef VK_KANJI
+#endif
+#ifdef VK_ESCAPE
+#undef VK_ESCAPE
+#endif
+#ifdef VK_CONVERT
+#undef VK_CONVERT
+#endif
+#ifdef VK_NONCONVERT
+#undef VK_NONCONVERT
+#endif
+#ifdef VK_ACCEPT
+#undef VK_ACCEPT
+#endif
+#ifdef VK_MODECHANGE
+#undef VK_MODECHANGE
+#endif
+#ifdef VK_SPACE
+#undef VK_SPACE
+#endif
+#ifdef VK_PRIOR
+#undef VK_PRIOR
+#endif
+#ifdef VK_NEXT
+#undef VK_NEXT
+#endif
+#ifdef VK_END
+#undef VK_END
+#endif
+#ifdef VK_HOME
+#undef VK_HOME
+#endif
+#ifdef VK_LEFT
+#undef VK_LEFT
+#endif
+#ifdef VK_UP
+#undef VK_UP
+#endif
+#ifdef VK_RIGHT
+#undef VK_RIGHT
+#endif
+#ifdef VK_DOWN
+#undef VK_DOWN
+#endif
+#ifdef VK_SELECT
+#undef VK_SELECT
+#endif
+#ifdef VK_PRINT
+#undef VK_PRINT
+#endif
+#ifdef VK_EXECUTE
+#undef VK_EXECUTE
+#endif
+#ifdef VK_SNAPSHOT
+#undef VK_SNAPSHOT
+#endif
+#ifdef VK_INSERT
+#undef VK_INSERT
+#endif
+#ifdef VK_DELETE
+#undef VK_DELETE
+#endif
+#ifdef VK_HELP
+#undef VK_HELP
+#endif
+#ifdef VK_0
+#undef VK_0
+#endif
+#ifdef VK_1
+#undef VK_1
+#endif
+#ifdef VK_2
+#undef VK_2
+#endif
+#ifdef VK_3
+#undef VK_3
+#endif
+#ifdef VK_4
+#undef VK_4
+#endif
+#ifdef VK_5
+#undef VK_5
+#endif
+#ifdef VK_6
+#undef VK_6
+#endif
+#ifdef VK_7
+#undef VK_7
+#endif
+#ifdef VK_8
+#undef VK_8
+#endif
+#ifdef VK_9
+#undef VK_9
+#endif
+#ifdef VK_A
+#undef VK_A
+#endif
+#ifdef VK_B
+#undef VK_B
+#endif
+#ifdef VK_C
+#undef VK_C
+#endif
+#ifdef VK_D
+#undef VK_D
+#endif
+#ifdef VK_E
+#undef VK_E
+#endif
+#ifdef VK_F
+#undef VK_F
+#endif
+#ifdef VK_G
+#undef VK_G
+#endif
+#ifdef VK_H
+#undef VK_H
+#endif
+#ifdef VK_I
+#undef VK_I
+#endif
+#ifdef VK_J
+#undef VK_J
+#endif
+#ifdef VK_K
+#undef VK_K
+#endif
+#ifdef VK_L
+#undef VK_L
+#endif
+#ifdef VK_M
+#undef VK_M
+#endif
+#ifdef VK_N
+#undef VK_N
+#endif
+#ifdef VK_O
+#undef VK_O
+#endif
+#ifdef VK_P
+#undef VK_P
+#endif
+#ifdef VK_Q
+#undef VK_Q
+#endif
+#ifdef VK_R
+#undef VK_R
+#endif
+#ifdef VK_S
+#undef VK_S
+#endif
+#ifdef VK_T
+#undef VK_T
+#endif
+#ifdef VK_U
+#undef VK_U
+#endif
+#ifdef VK_V
+#undef VK_V
+#endif
+#ifdef VK_W
+#undef VK_W
+#endif
+#ifdef VK_X
+#undef VK_X
+#endif
+#ifdef VK_Y
+#undef VK_Y
+#endif
+#ifdef VK_Z
+#undef VK_Z
+#endif
+#ifdef VK_LWIN
+#undef VK_LWIN
+#endif
+#ifdef VK_RWIN
+#undef VK_RWIN
+#endif
+#ifdef VK_APPS
+#undef VK_APPS
+#endif
+#ifdef VK_SLEEP
+#undef VK_SLEEP
+#endif
+#ifdef VK_NUMPAD0
+#undef VK_NUMPAD0
+#endif
+#ifdef VK_NUMPAD1
+#undef VK_NUMPAD1
+#endif
+#ifdef VK_NUMPAD2
+#undef VK_NUMPAD2
+#endif
+#ifdef VK_NUMPAD3
+#undef VK_NUMPAD3
+#endif
+#ifdef VK_NUMPAD4
+#undef VK_NUMPAD4
+#endif
+#ifdef VK_NUMPAD5
+#undef VK_NUMPAD5
+#endif
+#ifdef VK_NUMPAD6
+#undef VK_NUMPAD6
+#endif
+#ifdef VK_NUMPAD7
+#undef VK_NUMPAD7
+#endif
+#ifdef VK_NUMPAD8
+#undef VK_NUMPAD8
+#endif
+#ifdef VK_NUMPAD9
+#undef VK_NUMPAD9
+#endif
+#ifdef VK_MULTIPLY
+#undef VK_MULTIPLY
+#endif
+#ifdef VK_ADD
+#undef VK_ADD
+#endif
+#ifdef VK_SEPARATOR
+#undef VK_SEPARATOR
+#endif
+#ifdef VK_SUBTRACT
+#undef VK_SUBTRACT
+#endif
+#ifdef VK_DECIMAL
+#undef VK_DECIMAL
+#endif
+#ifdef VK_DIVIDE
+#undef VK_DIVIDE
+#endif
+#ifdef VK_F1
+#undef VK_F1
+#endif
+#ifdef VK_F2
+#undef VK_F2
+#endif
+#ifdef VK_F3
+#undef VK_F3
+#endif
+#ifdef VK_F4
+#undef VK_F4
+#endif
+#ifdef VK_F5
+#undef VK_F5
+#endif
+#ifdef VK_F6
+#undef VK_F6
+#endif
+#ifdef VK_F7
+#undef VK_F7
+#endif
+#ifdef VK_F8
+#undef VK_F8
+#endif
+#ifdef VK_F9
+#undef VK_F9
+#endif
+#ifdef VK_F10
+#undef VK_F10
+#endif
+#ifdef VK_F11
+#undef VK_F11
+#endif
+#ifdef VK_F12
+#undef VK_F12
+#endif
+#ifdef VK_F13
+#undef VK_F13
+#endif
+#ifdef VK_F14
+#undef VK_F14
+#endif
+#ifdef VK_F15
+#undef VK_F15
+#endif
+#ifdef VK_F16
+#undef VK_F16
+#endif
+#ifdef VK_F17
+#undef VK_F17
+#endif
+#ifdef VK_F18
+#undef VK_F18
+#endif
+#ifdef VK_F19
+#undef VK_F19
+#endif
+#ifdef VK_F20
+#undef VK_F20
+#endif
+#ifdef VK_F21
+#undef VK_F21
+#endif
+#ifdef VK_F22
+#undef VK_F22
+#endif
+#ifdef VK_F23
+#undef VK_F23
+#endif
+#ifdef VK_F24
+#undef VK_F24
+#endif
+#ifdef VK_NUMLOCK
+#undef VK_NUMLOCK
+#endif
+#ifdef VK_SCROLL
+#undef VK_SCROLL
+#endif
+#ifdef VK_LSHIFT
+#undef VK_LSHIFT
+#endif
+#ifdef VK_RSHIFT
+#undef VK_RSHIFT
+#endif
+#ifdef VK_LCONTROL
+#undef VK_LCONTROL
+#endif
+#ifdef VK_RCONTROL
+#undef VK_RCONTROL
+#endif
+#ifdef VK_LMENU
+#undef VK_LMENU
+#endif
+#ifdef VK_RMENU
+#undef VK_RMENU
+#endif
+#ifdef VK_BROWSER_BACK
+#undef VK_BROWSER_BACK
+#endif
+#ifdef VK_BROWSER_FORWARD
+#undef VK_BROWSER_FORWARD
+#endif
+#ifdef VK_BROWSER_REFRESH
+#undef VK_BROWSER_REFRESH
+#endif
+#ifdef VK_BROWSER_STOP
+#undef VK_BROWSER_STOP
+#endif
+#ifdef VK_BROWSER_SEARCH
+#undef VK_BROWSER_SEARCH
+#endif
+#ifdef VK_BROWSER_FAVORITES
+#undef VK_BROWSER_FAVORITES
+#endif
+#ifdef VK_BROWSER_HOME
+#undef VK_BROWSER_HOME
+#endif
+#ifdef VK_VOLUME_MUTE
+#undef VK_VOLUME_MUTE
+#endif
+#ifdef VK_VOLUME_DOWN
+#undef VK_VOLUME_DOWN
+#endif
+#ifdef VK_VOLUME_UP
+#undef VK_VOLUME_UP
+#endif
+#ifdef VK_MEDIA_NEXT_TRACK
+#undef VK_MEDIA_NEXT_TRACK
+#endif
+#ifdef VK_MEDIA_PREV_TRACK
+#undef VK_MEDIA_PREV_TRACK
+#endif
+#ifdef VK_MEDIA_STOP
+#undef VK_MEDIA_STOP
+#endif
+#ifdef VK_MEDIA_PLAY_PAUSE
+#undef VK_MEDIA_PLAY_PAUSE
+#endif
+#ifdef VK_LAUNCH_MAIL
+#undef VK_LAUNCH_MAIL
+#endif
+#ifdef VK_LAUNCH_MEDIA_SELECT
+#undef VK_LAUNCH_MEDIA_SELECT
+#endif
+#ifdef VK_LAUNCH_APP1
+#undef VK_LAUNCH_APP1
+#endif
+#ifdef VK_LAUNCH_APP2
+#undef VK_LAUNCH_APP2
+#endif
+#ifdef VK_OEM_1
+#undef VK_OEM_1
+#endif
+#ifdef VK_OEM_PLUS
+#undef VK_OEM_PLUS
+#endif
+#ifdef VK_OEM_COMMA
+#undef VK_OEM_COMMA
+#endif
+#ifdef VK_OEM_MINUS
+#undef VK_OEM_MINUS
+#endif
+#ifdef VK_OEM_PERIOD
+#undef VK_OEM_PERIOD
+#endif
+#ifdef VK_OEM_2
+#undef VK_OEM_2
+#endif
+#ifdef VK_OEM_3
+#undef VK_OEM_3
+#endif
+#ifdef VK_OEM_4
+#undef VK_OEM_4
+#endif
+#ifdef VK_OEM_5
+#undef VK_OEM_5
+#endif
+#ifdef VK_OEM_6
+#undef VK_OEM_6
+#endif
+#ifdef VK_OEM_7
+#undef VK_OEM_7
+#endif
+#ifdef VK_OEM_8
+#undef VK_OEM_8
+#endif
+#ifdef VK_OEM_102
+#undef VK_OEM_102
+#endif
+#ifdef VK_ICO_HELP
+#undef VK_ICO_HELP
+#endif
+#ifdef VK_ICO_00
+#undef VK_ICO_00
+#endif
+#ifdef VK_PROCESSKEY
+#undef VK_PROCESSKEY
+#endif
+#ifdef VK_ICO_CLEAR
+#undef VK_ICO_CLEAR
+#endif
+#ifdef VK_PACKET
+#undef VK_PACKET
+#endif
+#ifdef VK_OEM_RESET
+#undef VK_OEM_RESET
+#endif
+#ifdef VK_OEM_JUMP
+#undef VK_OEM_JUMP
+#endif
+#ifdef VK_OEM_PA1
+#undef VK_OEM_PA1
+#endif
+#ifdef VK_OEM_PA2
+#undef VK_OEM_PA2
+#endif
+#ifdef VK_OEM_PA3
+#undef VK_OEM_PA3
+#endif
+#ifdef VK_OEM_WSCTRL
+#undef VK_OEM_WSCTRL
+#endif
+#ifdef VK_OEM_CUSEL
+#undef VK_OEM_CUSEL
+#endif
+#ifdef VK_OEM_ATTN
+#undef VK_OEM_ATTN
+#endif
+#ifdef VK_OEM_FINISH
+#undef VK_OEM_FINISH
+#endif
+#ifdef VK_OEM_COPY
+#undef VK_OEM_COPY
+#endif
+#ifdef VK_OEM_AUTO
+#undef VK_OEM_AUTO
+#endif
+#ifdef VK_OEM_ENLW
+#undef VK_OEM_ENLW
+#endif
+#ifdef VK_OEM_BACKTAB
+#undef VK_OEM_BACKTAB
+#endif
+#ifdef VK_ATTN
+#undef VK_ATTN
+#endif
+#ifdef VK_CRSEL
+#undef VK_CRSEL
+#endif
+#ifdef VK_EXSEL
+#undef VK_EXSEL
+#endif
+#ifdef VK_EREOF
+#undef VK_EREOF
+#endif
+#ifdef VK_PLAY
+#undef VK_PLAY
+#endif
+#ifdef VK_ZOOM
+#undef VK_ZOOM
+#endif
+#ifdef VK_NONAME
+#undef VK_NONAME
+#endif
+#ifdef VK_PA1
+#undef VK_PA1
+#endif
+#ifdef VK_OEM_CLEAR
+#undef VK_OEM_CLEAR
+#endif
+
 /**
  * システム定義のキーコード
  * Windowsと同じ値

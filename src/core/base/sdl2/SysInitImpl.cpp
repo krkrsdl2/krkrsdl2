@@ -1360,6 +1360,24 @@ void TVPBeforeSystemInit()
 #if !defined(__vita__)
 	if (!TVPProjectDirSelected)
 	{
+		tjs_string dir_utf16;
+#ifdef _WIN32
+		DWORD size = GetCurrentDirectoryW(0, nullptr);
+		tjs_char *buf = nullptr;
+		if (size != 0)
+		{
+			buf = (tjs_char *)malloc(size * sizeof(tjs_char));
+			if (buf != nullptr)
+			{
+				DWORD written_size = GetCurrentDirectory(size, buf);
+				if (size == (written_size + 1))
+				{
+					dir_utf16 = buf;
+				}
+			}
+		}
+		
+#else
 		size_t size = 512;
 		char *buf = (char *)malloc(size);
 		char *dir = getcwd(buf, size);
@@ -1374,8 +1392,8 @@ void TVPBeforeSystemInit()
 		{
 			dir_utf8 = dir;
 		}
-		tjs_string dir_utf16;
 		TVPUtf8ToUtf16( dir_utf16, dir_utf8 );
+#endif
 		if (buf)
 		{
 			free(buf);

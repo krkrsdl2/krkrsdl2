@@ -16,6 +16,10 @@
 #include <functional>
 #include <SDL.h>
 
+#ifdef _WIN32
+#include <objidl.h> // for IStream
+#endif
+
 //---------------------------------------------------------------------------
 // tTVPLocalFileStream
 //---------------------------------------------------------------------------
@@ -54,6 +58,117 @@ TJS_EXP_FUNC_DEF(bool, TVPCheckExistentLocalFile, (const ttstr &name));
 TJS_EXP_FUNC_DEF(bool, TVPCreateFolders, (const ttstr &folder));
 	/* make folders recursively, like mkdir -p. folder must be OS NATIVE folder name */
 //---------------------------------------------------------------------------
+
+
+
+
+#ifdef _WIN32
+//---------------------------------------------------------------------------
+// tTVPIStreamAdapter
+//---------------------------------------------------------------------------
+/*
+	this class provides COM's IStream adapter for tTJSBinaryStream
+*/
+class tTVPIStreamAdapter : public IStream
+{
+private:
+	tTJSBinaryStream *Stream;
+	ULONG RefCount;
+
+public:
+	tTVPIStreamAdapter(tTJSBinaryStream *ref);
+	/*
+		the stream passed by argument here is freed by this instance'
+		destruction.
+	*/
+
+	~tTVPIStreamAdapter();
+
+
+	// IUnknown
+	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid,
+		void **ppvObject);
+	ULONG STDMETHODCALLTYPE AddRef(void);
+	ULONG STDMETHODCALLTYPE Release(void);
+
+	// ISequentialStream
+	HRESULT STDMETHODCALLTYPE Read(void *pv, ULONG cb, ULONG *pcbRead);
+	HRESULT STDMETHODCALLTYPE Write(const void *pv, ULONG cb,
+		ULONG *pcbWritten);
+
+	// IStream
+	HRESULT STDMETHODCALLTYPE Seek(LARGE_INTEGER dlibMove,
+		DWORD dwOrigin, ULARGE_INTEGER *plibNewPosition);
+	HRESULT STDMETHODCALLTYPE SetSize(ULARGE_INTEGER libNewSize);
+	HRESULT STDMETHODCALLTYPE CopyTo(IStream *pstm, ULARGE_INTEGER cb,
+		ULARGE_INTEGER *pcbRead, ULARGE_INTEGER *pcbWritten);
+	HRESULT STDMETHODCALLTYPE Commit(DWORD grfCommitFlags);
+	HRESULT STDMETHODCALLTYPE Revert(void);
+	HRESULT STDMETHODCALLTYPE LockRegion(ULARGE_INTEGER libOffset,
+		ULARGE_INTEGER cb, DWORD dwLockType);
+	HRESULT STDMETHODCALLTYPE UnlockRegion(ULARGE_INTEGER libOffset,
+		ULARGE_INTEGER cb, DWORD dwLockType);
+	HRESULT STDMETHODCALLTYPE Stat(STATSTG *pstatstg, DWORD grfStatFlag);
+	HRESULT STDMETHODCALLTYPE Clone(IStream **ppstm);
+
+	void ClearStream() {
+		Stream = NULL;
+	}
+};
+//---------------------------------------------------------------------------
+
+
+
+
+//---------------------------------------------------------------------------
+// IStream creator
+//---------------------------------------------------------------------------
+TJS_EXP_FUNC_DEF(IStream *, TVPCreateIStream, (const ttstr &name, tjs_uint32 flags));
+//---------------------------------------------------------------------------
+
+
+
+
+//---------------------------------------------------------------------------
+// tTVPBinaryStreamAdapter
+//---------------------------------------------------------------------------
+/*
+	this class provides tTJSBinaryStream adapter for IStream
+*/
+class tTVPBinaryStreamAdapter : public tTJSBinaryStream
+{
+	typedef tTJSBinaryStream inherited;
+
+private:
+	IStream *Stream;
+
+public:
+	tTVPBinaryStreamAdapter(IStream *ref);
+	/*
+		the stream passed by argument here is freed by this instance'
+		destruction.
+	*/
+
+	~tTVPBinaryStreamAdapter();
+
+	tjs_uint64 TJS_INTF_METHOD Seek(tjs_int64 offset, tjs_int whence);
+	tjs_uint TJS_INTF_METHOD Read(void *buffer, tjs_uint read_size);
+	tjs_uint TJS_INTF_METHOD Write(const void *buffer, tjs_uint write_size);
+	tjs_uint64 TJS_INTF_METHOD GetSize();
+	void TJS_INTF_METHOD SetEndOfStorage();
+};
+//---------------------------------------------------------------------------
+
+
+
+
+//---------------------------------------------------------------------------
+// tTVPBinaryStreamAdapter creator
+//---------------------------------------------------------------------------
+TJS_EXP_FUNC_DEF(tTJSBinaryStream *, TVPCreateBinaryStreamAdapter, (IStream *refstream));
+//---------------------------------------------------------------------------
+#endif
+
 
 
 //---------------------------------------------------------------------------

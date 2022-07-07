@@ -19,7 +19,9 @@
 #include <mmsystem.h>
 #endif
 #include <algorithm>
-#define ZeroMemory(p,n) memset(p, 0, n);
+#ifndef ZeroMemory
+#define ZeroMemory(p,n) memset(p, 0, n)
+#endif
 
 //---------------------------------------------------------------------------
 // オプション
