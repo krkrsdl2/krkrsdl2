@@ -1583,7 +1583,7 @@ void TVPWindowLayer::InvalidateClose() {
 	delete this;
 }
 bool TVPWindowLayer::GetWindowActive() {
-	return _currentWindowLayer == this;
+	return _currentWindowLayer == this && SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
 }
 void TVPWindowLayer::OnClose(CloseAction& action) {
 	if (modal_result_ == 0)
