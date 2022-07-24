@@ -2614,7 +2614,7 @@ extern "C" int main(int argc, char **argv)
 #endif
 
 #ifndef _WIN32
-	setenv("DBUS_FATAL_WARNINGS", "0", 1);
+	setenv("DBUS_FATAL_WARNINGS", "0", 0);
 #endif
 
 	TVPLoadMessage();
