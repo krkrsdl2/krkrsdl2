@@ -394,7 +394,7 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 			bool is_directory = false;
 			while (found == false && (direntp = readdir(dirp)) != nullptr)
 			{
-				if (!strcasecmp(nwalker.c_str(), direntp->d_name))
+				if (!SDL_strcasecmp(nwalker.c_str(), direntp->d_name))
 				{
 					nnewname += direntp->d_name;
 					found = true;
@@ -417,7 +417,7 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 			bool is_directory = false;
 			while (found == false && (filename = AAssetDir_getNextFileName( android_dr )) != nullptr)
 			{
-				if (!strcasecmp(nwalker.c_str(), filename))
+				if (!SDL_strcasecmp(nwalker.c_str(), filename))
 				{
 					nnewname += filename;
 					found = true;

@@ -146,12 +146,12 @@ tjs_string ExePath() {
 	if (exepath.empty())
 	{
 		size_t size = 256;
-		char *buf = (char *)malloc(size);
+		char *buf = (char *)SDL_malloc(size);
 		ssize_t retsize = readlink("/proc/self/exe", buf, size);
 		while (retsize != -1 && retsize == size && buf != nullptr)
 		{
 			size *= 2;
-			buf = (char *)realloc(buf, size);
+			buf = (char *)SDL_realloc(buf, size);
 			retsize = readlink("/proc/self/exe", buf, size);
 		}
 		if (buf)
@@ -159,7 +159,7 @@ tjs_string ExePath() {
 			buf[retsize] = 0;
 			std::string nbuf = buf;
 			TVPUtf8ToUtf16(exepath, nbuf);
-			free(buf);
+			SDL_free(buf);
 		}
 	}
 #endif

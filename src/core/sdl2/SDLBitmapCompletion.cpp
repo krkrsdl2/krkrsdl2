@@ -64,7 +64,7 @@ void TVPSDLBitmapCompletion::NotifyBitmapCompleted(iTVPLayerManager * manager,
 			{
 				const void *srcp = src_p + src_pitch * src_y + src_x * 4;
 				void *destp = (tjs_uint8*)surface->pixels + surface->pitch * dest_y + dest_x * 4;
-				memcpy(destp, srcp, width_bytes);
+				SDL_memcpy(destp, srcp, width_bytes);
 			}
 			SDL_UnlockSurface(surface);
 		}

@@ -78,13 +78,13 @@ static void refresh_controllers()
 			}
 		}
 		sdl_controller_num = 0;
-		free(sdl_controllers);
+		SDL_free(sdl_controllers);
 		sdl_controllers = NULL;
 	}
 	sdl_controller_num = SDL_NumJoysticks();
 	if (sdl_controller_num != 0)
 	{
-		sdl_controllers = (SDL_GameController**)malloc(sizeof(SDL_GameController*) * sdl_controller_num);
+		sdl_controllers = (SDL_GameController**)SDL_malloc(sizeof(SDL_GameController*) * sdl_controller_num);
 		if (!sdl_controllers)
 		{
 			sdl_controller_num = 0;
@@ -674,7 +674,7 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 	}
 #if defined(__EMSCRIPTEN__) && defined(KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE)
 	EmscriptenFullscreenStrategy strategy;
-	memset(&strategy, 0, sizeof(strategy));
+	SDL_memset(&strategy, 0, sizeof(strategy));
 	strategy.scaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF;
 	strategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
 	emscripten_enter_soft_fullscreen("#canvas", &strategy);
@@ -2508,7 +2508,7 @@ void sdl_process_events()
 static int sdl_event_watch(void *userdata, SDL_Event *in_event)
 {
 	SDL_Event event;
-	memcpy(&event, in_event, sizeof(SDL_Event));
+	SDL_memcpy(&event, in_event, sizeof(SDL_Event));
 	if (event.type != NativeEventQueueImplement::native_event_queue_custom_event_type)
 	{
 		if (_currentWindowLayer)
@@ -2607,7 +2607,7 @@ extern "C" int main(int argc, char **argv)
 		}
 #endif
 		tjs_char* warg_copy = new tjs_char[v_utf16.length() + 1];
-		memcpy(warg_copy, v_utf16.c_str(), sizeof(tjs_char) * (v_utf16.length()));
+		SDL_memcpy(warg_copy, v_utf16.c_str(), sizeof(tjs_char) * (v_utf16.length()));
 		warg_copy[v_utf16.length()] = '\0';
 		_wargv[i] = warg_copy;
 	}

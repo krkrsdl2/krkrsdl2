@@ -1366,7 +1366,7 @@ void TVPBeforeSystemInit()
 		tjs_char *buf = nullptr;
 		if (size != 0)
 		{
-			buf = (tjs_char *)malloc(size * sizeof(tjs_char));
+			buf = (tjs_char *)SDL_malloc(size * sizeof(tjs_char));
 			if (buf != nullptr)
 			{
 				DWORD written_size = GetCurrentDirectory(size, buf);
@@ -1379,12 +1379,12 @@ void TVPBeforeSystemInit()
 		
 #else
 		size_t size = 512;
-		char *buf = (char *)malloc(size);
+		char *buf = (char *)SDL_malloc(size);
 		char *dir = getcwd(buf, size);
 		while (dir == nullptr && buf != nullptr && errno == ERANGE)
 		{
 			size *= 2;
-			buf = (char *)realloc(buf, size);
+			buf = (char *)SDL_realloc(buf, size);
 			dir = getcwd(buf, size);
 		}
 		std::string dir_utf8;
@@ -1396,7 +1396,7 @@ void TVPBeforeSystemInit()
 #endif
 		if (buf)
 		{
-			free(buf);
+			SDL_free(buf);
 		}
 		if (dir_utf16.length() != 0)
 		{

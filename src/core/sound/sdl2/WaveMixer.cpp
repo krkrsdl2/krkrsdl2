@@ -156,7 +156,7 @@ public:
 			int buflen = _frame_size * _buffer_size;
 			_cvt->len = buflen;
 			while (inlen > buflen) { // fill _buffer_size samples to fit 48k/44.1k
-				memcpy(_cvt->buf, inbuf, buflen);
+				SDL_memcpy(_cvt->buf, inbuf, buflen);
 				SDL_ConvertAudio(_cvt);
 				buffer.insert(buffer.end(), _cvt->buf, _cvt->buf + _cvt->len_cvt);
 				inlen -= buflen;
@@ -164,7 +164,7 @@ public:
 			}
 			if (inlen > 0) {
 				int buflen = inlen;
-				memcpy(_cvt->buf, inbuf, buflen);
+				SDL_memcpy(_cvt->buf, inbuf, buflen);
 				_cvt->len = buflen;
 				SDL_ConvertAudio(_cvt);
 				buffer.insert(buffer.end(), _cvt->buf, _cvt->buf + _cvt->len_cvt);
@@ -205,7 +205,7 @@ protected:
 public:
 	tTVPAudioRenderer() {
 		_streams_mtx = SDL_CreateMutex();
-		memset(&_spec, 0, sizeof(_spec));
+		SDL_memset(&_spec, 0, sizeof(_spec));
 		tTJSVariant val;
 		_spec.freq = 44100;
 		if (TVPGetCommandLine(TJS_W("-wsfreq"), &val))
@@ -257,7 +257,7 @@ public:
 		}
 		_spec.channels = 2;
 		_spec.callback = [](void *p, Uint8 *s, int l) {
-			memset(s, 0, l);
+			SDL_memset(s, 0, l);
 			((tTVPAudioRenderer*)p)->FillBuffer(s, l);
 		};
 		_spec.userdata = this;
@@ -299,7 +299,7 @@ public:
 
 	virtual tTVPSoundBuffer* CreateStream(tTVPWaveFormat &fmt, int bufcount) {
 		SDL_AudioSpec spec;
-		memset(&spec, 0, sizeof(spec));
+		SDL_memset(&spec, 0, sizeof(spec));
 		spec.freq = fmt.SamplesPerSec;
 		spec.channels = fmt.Channels;
 		if (fmt.IsFloat) {
@@ -387,7 +387,7 @@ void tTVPSoundBuffer::FillBuffer(uint8_t *out, int len)
 	while (len > 0 && !_buffers.empty()) {
 		std::vector<uint8_t> &buf = _buffers.front();
 		if (buf.size() > _sendedFrontBuffer) {
-			int n = std::min((size_t)len, buf.size() - _sendedFrontBuffer);
+			int n = SDL_min((size_t)len, buf.size() - _sendedFrontBuffer);
 			int samples = TVPAudioRenderer->MixAudio(out, &buf.front() + _sendedFrontBuffer, n, _volume_raw);
 			_sendedSamples += samples;
 			_inCachedSamples -= samples;
