@@ -2613,6 +2613,7 @@ extern "C" int main(int argc, char **argv)
 	}
 #endif
 
+	SDL_setenv("VITA_DISABLE_TOUCH_BACK", "1", 1);
 	SDL_setenv("DBUS_FATAL_WARNINGS", "0", 0);
 
 	TVPLoadMessage();
