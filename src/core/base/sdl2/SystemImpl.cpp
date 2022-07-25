@@ -336,7 +336,9 @@ bool TVPShellExecute(const ttstr &target, const ttstr &param)
 	std::string ntarget;
 	if( TVPUtf16ToUtf8(ntarget, wtarget) ) {
 		if (param.IsEmpty()) {
+#if SDL_VERSION_ATLEAST(2, 0, 14)
 			return SDL_OpenURL(ntarget.c_str()) == 0;
+#endif
 		} else {
 #if defined(__APPLE__)
 #if TARGET_OS_MAC && !TARGET_OS_IPHONE
