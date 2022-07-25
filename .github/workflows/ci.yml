@@ -251,7 +251,7 @@
       ]
     },
     "build-macos" : {
-      "runs-on" : "macos-10.15",
+      "runs-on" : "macos-11",
       "timeout-minutes" : 20,
       "steps" : [
         {
@@ -299,7 +299,7 @@
       ]
     },
     "build-macos-cmake" : {
-      "runs-on" : "macos-10.15",
+      "runs-on" : "macos-11",
       "timeout-minutes" : 20,
       "steps" : [
         {
@@ -354,7 +354,7 @@
       ]
     },
     "build-ios-cmake" : {
-      "runs-on" : "macos-10.15",
+      "runs-on" : "macos-11",
       "timeout-minutes" : 20,
       "steps" : [
         {
