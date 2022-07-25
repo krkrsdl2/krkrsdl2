@@ -335,23 +335,17 @@ bool TVPShellExecute(const ttstr &target, const ttstr &param)
 	tjs_string wtarget(target.AsStdString());
 	std::string ntarget;
 	if( TVPUtf16ToUtf8(ntarget, wtarget) ) {
+		if (param.IsEmpty()) {
+			return SDL_OpenURL(ntarget.c_str()) == 0;
+		} else {
 #if defined(__APPLE__)
 #if TARGET_OS_MAC && !TARGET_OS_IPHONE
-		auto cmd = TJS_W("open ") + target;
-		if (!param.IsEmpty()) {
+			auto cmd = TJS_W("open ") + target;
 			cmd += TJS_W(" --args ") + param;
-		}
-		return system(ntarget.c_str()) == 0;
+			return system(ntarget.c_str()) == 0;
 #endif
-#elif defined(__linux__) // TODO: support other *nix-platforms
-		auto cmd = TJS_W("xdg-open ") + target;
-		if (!param.IsEmpty()) {
-			TVPAddImportantLog(TJS_W("TVPShellExecute() with parameters is not supported in Linux"));
-		}
-		return system(ntarget.c_str()) == 0;
-#elif defined(__vita__)
-		return SDL_OpenURL(ntarget.c_str()) == 0;
 #endif
+		}
 	}
 	else
 	{
