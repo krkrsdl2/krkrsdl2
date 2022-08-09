@@ -19,7 +19,7 @@ host_system = host_machine.system()
 
 sdl2_dep = dependency('sdl2', method: 'auto')
 
-krkrsdl2_src = run_command('cat', files('src/config/src_list/kirikirisdl2/sources.txt')).stdout().strip().split('\n')
+krkrsdl2_src = run_command('cat', files('src/config/src_list/kirikirisdl2/sources.txt'), files('src/config/src_list/kirikirisdl2/sources_sse2.txt'), files('src/config/src_list/kirikirisdl2/sources_avx2.txt')).stdout().strip().split('\n')
 krkrsdl2_includes = run_command('cat', files('src/config/src_list/kirikirisdl2/includes.txt')).stdout().strip().split('\n')
 if get_option('builtin_plugin_enable_kagparser') == true
 	krkrsdl2_src += run_command('cat', files('src/config/src_list/kagparser/sources.txt')).stdout().strip().split('\n')

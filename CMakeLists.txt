@@ -79,9 +79,13 @@ set(EMBED_DATA_PATH ${CMAKE_CURRENT_SOURCE_DIR}/data CACHE FILEPATH "The path to
 get_filename_component(EMBED_DATA_PATH_BASENAME ${EMBED_DATA_PATH} NAME)
 
 file(STRINGS src/config/src_list/kirikirisdl2/sources.txt KIRIKIRISDL2_SRC)
+file(STRINGS src/config/src_list/kirikirisdl2/sources_sse2.txt KIRIKIRISDL2_SSE2_SRC)
+file(STRINGS src/config/src_list/kirikirisdl2/sources_avx2.txt KIRIKIRISDL2_AVX2_SRC)
 file(STRINGS src/config/src_list/kirikirisdl2/includes.txt KIRIKIRISDL2_INCLUDES)
 
 list(APPEND KRKRSDL2_SRC ${KIRIKIRISDL2_SRC})
+list(APPEND KRKRSDL2_SRC ${KIRIKIRISDL2_SSE2_SRC})
+list(APPEND KRKRSDL2_SRC ${KIRIKIRISDL2_AVX2_SRC})
 list(APPEND KRKRSDL2_INCLUDES ${KIRIKIRISDL2_INCLUDES})
 
 if(${BUILTIN_PLUGIN_ENABLE_KAGPARSER})
@@ -156,6 +160,8 @@ list(APPEND KRKRSDL2_CFLAGS
 list(APPEND KRKRSDL2_LDFLAGS
 	-municode
 )
+set_source_files_properties(${KIRIKIRISDL2_SSE2_SRC} PROPERTIES COMPILE_FLAGS -msse2)
+set_source_files_properties(${KIRIKIRISDL2_AVX2_SRC} PROPERTIES COMPILE_FLAGS -mavx2)
 endif()
 
 list(APPEND KRKRSDL2_CXXFLAGS ${KRKRSDL2_CFLAGS})

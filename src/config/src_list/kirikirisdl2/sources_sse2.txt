@@ -1,0 +1,12 @@
+external/krkrz/sound/MathAlgorithms_SSE.cpp
+external/krkrz/sound/RealFFT_SSE.cpp
+external/krkrz/sound/WaveFormatConverter_SSE.cpp
+external/krkrz/visual/gl/ResampleImageSSE2.cpp
+external/krkrz/visual/gl/adjust_color_sse2.cpp
+external/krkrz/visual/gl/blend_function_sse2.cpp
+external/krkrz/visual/gl/boxblur_sse2.cpp
+external/krkrz/visual/gl/colorfill_sse2.cpp
+external/krkrz/visual/gl/colormap_sse2.cpp
+external/krkrz/visual/gl/pixelformat_sse2.cpp
+external/krkrz/visual/gl/tlg_sse2.cpp
+external/krkrz/visual/gl/univtrans_sse2.cpp

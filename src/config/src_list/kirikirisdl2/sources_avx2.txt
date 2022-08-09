@@ -1,0 +1,3 @@
+external/krkrz/visual/gl/ResampleImageAVX2.cpp
+external/krkrz/visual/gl/blend_function_avx2.cpp
+external/krkrz/visual/gl/x86simdutilAVX2.cpp
