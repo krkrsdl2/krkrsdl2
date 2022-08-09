@@ -148,6 +148,94 @@
         }
       ]
     },
+    "build-win32" : {
+      "runs-on" : "ubuntu-20.04",
+      "timeout-minutes" : 20,
+      "env" : {
+        "HOMEBREW_NO_ANALYTICS" : "1",
+        "HOMEBREW_NO_AUTO_UPDATE" : "1",
+        "HOMEBREW_NO_INSTALL_UPGRADE" : "1",
+        "HOMEBREW_NO_INSTALL_CLEANUP" : "1"
+      },
+      "strategy" : {
+        "fail-fast" : false,
+        "matrix" : {
+          "platform" : [
+            {
+              "triplet" : "i686-w64-mingw32",
+              "cmake-system-compiler" : "i686",
+              "compiler" : "gcc"
+            },
+            {
+              "triplet" : "x86_64-w64-mingw32",
+              "cmake-system-compiler" : "amd64",
+              "compiler" : "gcc"
+            },
+            {
+              "triplet" : "i686-w64-mingw32",
+              "cmake-system-compiler" : "i686",
+              "compiler" : "clang"
+            },
+            {
+              "triplet" : "x86_64-w64-mingw32",
+              "cmake-system-compiler" : "amd64",
+              "compiler" : "clang"
+            },
+            {
+              "triplet" : "armv7-w64-mingw32",
+              "cmake-system-compiler" : "arm",
+              "compiler" : "clang"
+            },
+            {
+              "triplet" : "aarch64-w64-mingw32",
+              "cmake-system-compiler" : "arm64",
+              "compiler" : "clang"
+            }
+          ]
+        }
+      },
+      "steps" : [
+        {
+          "uses" : "actions/checkout@v2",
+          "with" : {
+            "submodules" : "recursive"
+          }
+        },
+        {
+          "name" : "Set up base environment",
+          "run" : "sudo apt-get install build-essential"
+        },
+        {
+          "name" : "Set up default build tools",
+          "run" : "brew install make nasm ninja cmake"
+        },
+        {
+          "name" : "Set up mingw-w64 for GCC",
+          "if" : "matrix.platform.compiler == 'gcc'",
+          "run" : "brew install mingw-w64"
+        },
+        {
+          "name" : "Set up mingw-w64 for Clang",
+          "if" : "matrix.platform.compiler == 'clang'",
+          "run" : "curl -LO https://github.com/mstorsjo/llvm-mingw/releases/download/20220323/llvm-mingw-20220323-msvcrt-ubuntu-18.04-x86_64.tar.xz\ntar xvf llvm-mingw-20220323-msvcrt-ubuntu-18.04-x86_64.tar.xz\nmv llvm-mingw-20220323-msvcrt-ubuntu-18.04-x86_64 /opt/llvm-mingw\nexport PATH=\"/opt/llvm-mingw/bin:$PATH\"\necho \"/opt/llvm-mingw/bin\" >> $GITHUB_PATH"
+        },
+        {
+          "name" : "Configure project",
+          "run" : "cmake -S . -B build -GNinja -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.platform.cmake-system-compiler }} -DCMAKE_FIND_ROOT_PATH=/dev/null -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY -DCMAKE_C_COMPILER=${{ matrix.platform.triplet }}-gcc -DCMAKE_CXX_COMPILER=${{ matrix.platform.triplet }}-g++ -DCMAKE_RC_COMPILER=${{ matrix.platform.triplet }}-windres -DCMAKE_BUILD_TYPE=Release"
+        },
+        {
+          "name" : "Build project",
+          "run" : "cmake --build build"
+        },
+        {
+          "uses" : "actions/upload-artifact@master",
+          "with" : {
+            "name" : "krkrsdl2-win32-${{ matrix.platform.cmake-system-compiler }}",
+            "path" : "build/krkrsdl2.exe"
+          }
+        }
+      ]
+    },
     "build-android" : {
       "runs-on" : "ubuntu-20.04",
       "timeout-minutes" : 20,
