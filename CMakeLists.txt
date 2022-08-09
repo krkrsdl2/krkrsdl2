@@ -20,6 +20,14 @@ if(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
+if(NOT KRKRSDL2_ENABLE_PRECOMPILED_HEADERS)
+if(WIN32)
+set(KRKRSDL2_ENABLE_PRECOMPILED_HEADERS OFF)
+else()
+set(KRKRSDL2_ENABLE_PRECOMPILED_HEADERS ON)
+endif()
+endif()
+
 # Don't code sign by default.
 set(KRKRSDL2_IOS_CODE_SIGN_IDENTITY "" CACHE STRING "The code sign identity to use when building the IPA.")
 
@@ -270,7 +278,9 @@ target_link_options(${KRKRSDL2_NAME} PUBLIC ${KRKRSDL2_LDFLAGS})
 endif()
 target_link_libraries(${KRKRSDL2_NAME} ${KRKRSDL2_LIBS})
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0") 
+if(KRKRSDL2_ENABLE_PRECOMPILED_HEADERS)
 target_precompile_headers(${KRKRSDL2_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/core/sdl2/SDLPrecompiledHeader.h)
+endif()
 endif()
 
 if(IOS)
