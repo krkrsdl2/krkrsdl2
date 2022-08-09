@@ -432,6 +432,7 @@
 #ifndef _mm256_shuffle_epi32
 #define _mm256_shuffle_epi32 simde_mm256_shuffle_epi32
 #endif
+#ifndef __AVX2__
 #if defined(_mm256_shufflehi_epi16) && !defined(simde_mm256_shufflehi_epi16)
 #undef _mm256_shufflehi_epi16
 #endif
@@ -443,6 +444,7 @@
 #endif
 #ifndef _mm256_shufflelo_epi16
 #define _mm256_shufflelo_epi16 simde_mm256_shufflelo_epi16
+#endif
 #endif
 #if defined(_mm256_slli_epi16) && !defined(simde_mm256_slli_epi16)
 #undef _mm256_slli_epi16
