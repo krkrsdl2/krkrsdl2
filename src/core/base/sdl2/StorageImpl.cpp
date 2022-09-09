@@ -32,6 +32,13 @@
 #include <unistd.h>
 #endif
 
+#if defined(__vita__)
+#include <psp2/io/devctl.h>
+#include <psp2/io/dirent.h>
+#include <psp2/io/fcntl.h>
+#include <psp2/io/stat.h>
+#endif
+
 #if defined(__ANDROID__)
 #include <android/log.h>
 #include <android/configuration.h>
@@ -176,20 +183,34 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 		AAssetManager *asset_manager = AndroidAssetManager_Get_AssetManager();
 		AAssetDir* android_dr;
 #endif
+#if defined(__vita__)
+		SceUID dr;
+		if( ( dr = sceIoDopen(nname.c_str()) ) >= 0 )
+#else
 		DIR* dr;
 		if( ( dr = opendir(nname.c_str()) ) != nullptr )
+#endif
 		{
+#if defined(__vita__)
+			SceIoDirent entry;
+			while( sceIoDread( dr, &entry ) > 0 )
+#else
 			struct dirent* entry;
 			while( ( entry = readdir( dr ) ) != nullptr )
+#endif
 			{
 #if defined(__vita__)
-				if (SCE_S_ISREG(entry->d_stat.st_mode))
+				if (SCE_S_ISREG(entry.d_stat.st_mode))
 #else
 				if( entry->d_type == DT_REG )
 #endif
 				{
 					tjs_char fname[256];
+#if defined(__vita__)
+					tjs_int count = TVPUtf8ToWideCharString( entry.d_name, fname );
+#else
 					tjs_int count = TVPUtf8ToWideCharString( entry->d_name, fname );
+#endif
 					fname[count] = TJS_W('\0');
 					ttstr file(fname);
 #ifdef KRKRZ_CASE_INSENSITIVE
@@ -205,7 +226,11 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 				}
 				// entry->d_type == DT_UNKNOWN
 			}
+#if defined(__vita__)
+			sceIoDclose( dr );
+#else
 			closedir( dr );
+#endif
 		}
 #if defined(__ANDROID__)
 		// Skip the leading slash.
@@ -568,7 +593,11 @@ bool TVPRemoveFile(const ttstr &name)
 #else
 	std::string filename;
 	if( TVPUtf16ToUtf8( filename, name.AsStdString() ) ) {
+#if defined(__vita__)
+		bool res = 0 == sceIoRemove(filename.c_str());
+#else
 		bool res = 0 == remove(filename.c_str());
+#endif
 		if (res)
 		{
 			Application->SyncSavedata();
@@ -593,7 +622,11 @@ bool TVPRemoveFolder(const ttstr &name)
 #else
 	std::string filename;
 	if( TVPUtf16ToUtf8( filename, name.AsStdString() ) ) {
+#if defined(__vita__)
+		bool res = 0==sceIoRmdir(filename.c_str());
+#else
 		bool res = 0==rmdir(filename.c_str());
+#endif
 		if (res)
 		{
 			Application->SyncSavedata();
@@ -655,9 +688,15 @@ bool TVPCheckExistentLocalFile(const ttstr &name)
 #else
 	std::string filename;
 	if( TVPUtf16ToUtf8( filename, name.AsStdString() ) ) {
+#if defined(__vita__)
+		SceIoStat st;
+		if( sceIoGetstat( filename.c_str(), &st) >= 0)
+			if( SCE_S_ISREG(st.st_mode) )
+#else
 		struct stat st;
 		if( stat( filename.c_str(), &st) == 0)
 			if( S_ISREG(st.st_mode) )
+#endif
 				return true;
 #if defined(__ANDROID__)
 		AAssetManager *asset_manager = AndroidAssetManager_Get_AssetManager();
@@ -696,9 +735,15 @@ bool TVPCheckExistentLocalFolder(const ttstr &name)
 #else
 	std::string filename;
 	if( TVPUtf16ToUtf8( filename, name.AsStdString() ) ) {
+#if defined(__vita__)
+		SceIoStat st;
+		if( sceIoGetstat( filename.c_str(), &st) >= 0)
+			if( SCE_S_ISDIR(st.st_mode) )
+#else
 		struct stat st;
 		if( stat( filename.c_str(), &st) == 0)
 			if( S_ISDIR(st.st_mode) )
+#endif
 				return true;
 #if defined(__ANDROID__)
 		AAssetManager *asset_manager = AndroidAssetManager_Get_AssetManager();
@@ -794,7 +839,11 @@ static bool _TVPCreateFolders(const ttstr &folder)
 	std::string filename;
 	int res = -1;
 	if( TVPUtf16ToUtf8( filename, folder.AsStdString() ) ) {
+#if defined(__vita__)
+		res = sceIoMkdir( filename.c_str(), 0777 );
+#else
 		res = mkdir( filename.c_str(), 0777 );
+#endif
 	}
 	return 0 == res;
 #endif
