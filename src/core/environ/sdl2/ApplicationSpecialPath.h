@@ -61,6 +61,9 @@ public:
 	}
 	static tjs_string GetDataPathDirectory( tjs_string datapath, const tjs_string& exename ) {
 		if (datapath != TJS_W("")) return datapath;
+#if defined(__vita__)
+		return TJS_W("savedata0:/savedata/");
+#else
 		char *pref_path = SDL_GetPrefPath(NULL, "krkrsdl2");
 		std::string pref_path_utf8;
 		if (pref_path)
@@ -80,6 +83,7 @@ public:
 #endif
 		nativeDataPath += TJS_W("/savedata/");
 		return nativeDataPath.AsStdString();
+#endif
 #if 0
 		if(datapath == TJS_W("") ) datapath = tjs_string(TJS_W("$(exepath)\\savedata"));
 
