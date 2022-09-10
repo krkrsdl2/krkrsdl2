@@ -2796,3 +2796,155 @@ const ttstr &TVPGetDefaultFaceNames()
 		return TVPDefaultFaceNames;
 	}
 }
+
+#if defined(__vita__)
+#define KRKRSDL2_OVERRIDE_NEW_ALLOCATOR_FUNCTIONS
+#endif
+
+// Override allocation functions by removing the std::bad_alloc throw and doing garbage collection.
+#ifdef KRKRSDL2_OVERRIDE_NEW_ALLOCATOR_FUNCTIONS
+void * operator new(std::size_t size) noexcept
+{
+	bool has_gced = false;
+
+	if (size == 0)
+		size = 1;
+	void* p;
+	while ((p = ::malloc(size)) == 0)
+	{
+		// If malloc fails, try to free up memory.
+		if (!has_gced) {
+			TVPDeliverCompactEvent(TVP_COMPACT_LEVEL_MAX);
+			has_gced = true;
+		}
+		else
+			break;
+	}
+	return p;
+}
+
+void* operator new(size_t size, const std::nothrow_t&) noexcept
+{
+	void* p = 0;
+	p = ::operator new(size);
+	return p;
+}
+
+void* operator new[](size_t size) noexcept
+{
+	return ::operator new(size);
+}
+
+void* operator new[](size_t size, const std::nothrow_t&) noexcept
+{
+	void* p = 0;
+	p = ::operator new[](size);
+	return p;
+}
+
+void operator delete(void* ptr) noexcept
+{
+	::free(ptr);
+}
+
+void operator delete(void* ptr, const std::nothrow_t&) noexcept
+{
+	::operator delete(ptr);
+}
+
+void operator delete(void* ptr, size_t) noexcept
+{
+	::operator delete(ptr);
+}
+
+void operator delete[] (void* ptr) noexcept
+{
+	::operator delete(ptr);
+}
+
+void operator delete[] (void* ptr, const std::nothrow_t&) noexcept
+{
+	::operator delete[](ptr);
+}
+
+void operator delete[] (void* ptr, size_t) noexcept
+{
+	::operator delete[](ptr);
+}
+
+#ifdef __cpp_aligned_new
+void * operator new(std::size_t size, std::align_val_t alignment) noexcept
+{
+	bool has_gced = false;
+
+	if (size == 0)
+		size = 1;
+	if (static_cast<size_t>(alignment) < sizeof(void*))
+		alignment = std::align_val_t(sizeof(void*));
+	void* p;
+	while (::posix_memalign(&p, static_cast<size_t>(alignment), size) != 0)
+	{
+		// If posix_memalign fails, try to free up memory.
+		if (!has_gced) {
+			TVPDeliverCompactEvent(TVP_COMPACT_LEVEL_MAX);
+			has_gced = true;
+		}
+		else {
+			p = nullptr; // posix_memalign doesn't initialize 'p' on failure
+			break;
+		}
+	}
+	return p;
+}
+
+void* operator new(size_t size, std::align_val_t alignment, const std::nothrow_t&) noexcept
+{
+	void* p = 0;
+	p = ::operator new(size, alignment);
+	return p;
+}
+
+void* operator new[](size_t size, std::align_val_t alignment) noexcept
+{
+	return ::operator new(size, alignment);
+}
+
+void* operator new[](size_t size, std::align_val_t alignment, const std::nothrow_t&) noexcept
+{
+	void* p = 0;
+	p = ::operator new[](size, alignment);
+	return p;
+}
+
+void operator delete(void* ptr, std::align_val_t) noexcept
+{
+	::free(ptr);
+}
+
+void operator delete(void* ptr, std::align_val_t alignment, const std::nothrow_t&) noexcept
+{
+	::operator delete(ptr, alignment);
+}
+
+void operator delete(void* ptr, size_t, std::align_val_t alignment) noexcept
+{
+	::operator delete(ptr, alignment);
+}
+
+void operator delete[] (void* ptr, std::align_val_t alignment) noexcept
+{
+	::operator delete(ptr, alignment);
+}
+
+void operator delete[] (void* ptr, std::align_val_t alignment, const std::nothrow_t&) noexcept
+{
+	::operator delete[](ptr, alignment);
+}
+
+void operator delete[] (void* ptr, size_t, std::align_val_t alignment) noexcept
+{
+	::operator delete[](ptr, alignment);
+}
+#endif
+
+#endif
