@@ -72,7 +72,7 @@ bool TVPProjectDirSelected = false;
 #ifdef __vita__
 extern "C"
 {
-	int _newlib_heap_size_user = 192 * 1024 * 1024;
+	int _newlib_heap_size_user = 330 * 1024 * 1024;
 }
 #endif
 //---------------------------------------------------------------------------
