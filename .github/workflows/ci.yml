@@ -206,6 +206,10 @@
           "run" : "sudo apt-get install build-essential"
         },
         {
+          "name" : "Set up Homebrew environment for Github Actions",
+          "run" : "echo \"/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin\" >> $GITHUB_PATH"
+        },
+        {
           "name" : "Set up default build tools",
           "run" : "brew install make nasm ninja cmake"
         },
