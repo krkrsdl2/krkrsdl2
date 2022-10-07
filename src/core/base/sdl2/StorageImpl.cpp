@@ -18,6 +18,7 @@
 #include "DebugIntf.h"
 #include "Random.h"
 #include "XP3Archive.h"
+#include "FileSelector.h"
 #include "Random.h"
 
 #include "Application.h"
@@ -501,8 +502,6 @@ void TVPPreNormalizeStorageName(ttstr &name)
 	tjs_int namelen = name.GetLen();
 	if(namelen == 0) return;
 
-	tjs_char lastchar = name.GetLastChar();
-
 #if defined(__SWITCH__) || defined(__vita__)
 	// HACK for Switch and Vita: colon in filesystem causes a conflict
 	if ((TJS_strstr(name.c_str(), TJS_W("file:")) == nullptr) && (TJS_strchr(name.c_str(), TJS_W(':')) != nullptr))
@@ -513,6 +512,33 @@ void TVPPreNormalizeStorageName(ttstr &name)
 	}
 #endif
 
+#ifdef _WIN32
+	if(namelen >= 2)
+	{
+		if((name[0] >= TJS_W('a') && name[0]<=TJS_W('z') ||
+			name[0] >= TJS_W('A') && name[0]<=TJS_W('Z') ) &&
+			name[1] == TJS_W(':'))
+		{
+			// Windows drive:path expression
+			ttstr newname(TJS_W("file://./"));
+			newname += name[0];
+			newname += (name.c_str()+2);
+            name = newname;
+			return;
+		}
+	}
+
+	if(namelen>=3)
+	{
+		if(name[0] == TJS_W('\\') && name[1] == TJS_W('\\') ||
+			name[0] == TJS_W('/') && name[1] == TJS_W('/'))
+		{
+			// unc expression
+			name = ttstr(TJS_W("file:")) + name;
+			return;
+		}
+	}
+#else
 	if (namelen >= 1)
 	{
 		if (name[0] == TJS_W('/'))
@@ -522,6 +548,7 @@ void TVPPreNormalizeStorageName(ttstr &name)
 			return;
 		}
 	}
+#endif
 }
 //---------------------------------------------------------------------------
 
@@ -554,12 +581,24 @@ ttstr TVPGetTemporaryName()
 			TVPTempPath = ttstr( "sdmc:/tmp/" );
 #elif defined(__vita__)
 			TVPTempPath = ttstr( "./tmp/" );
+#elif defined(_WIN32)
+			tjs_char tmp[MAX_PATH+1];
+			::GetTempPath(MAX_PATH, tmp);
+			TVPTempPath = tmp;
 #else
 			TVPTempPath = ttstr( "/tmp/" );
 #endif
 
+#ifdef _WIN32
+			if(TVPTempPath.GetLastChar() != TJS_W('/') && TVPTempPath.GetLastChar() != TJS_W('\\')) TVPTempPath += TJS_W("\\");
+#else
 			if(TVPTempPath.GetLastChar() != TJS_W('/')) TVPTempPath += TJS_W("/");
+#endif
+#ifdef _WIN32
+			TVPProcessID = static_cast<tjs_int>( GetCurrentProcessId() );
+#else
 			TVPProcessID = static_cast<tjs_int>( getpid() );
+#endif
 			TVPTempUniqueNum = static_cast<tjs_int>( TVPGetRoughTickCount32() );
 			TVPTempPathInit = true;
 		}
@@ -1454,9 +1493,6 @@ TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(/*object to register*/cls,
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/selectFile)
 {
-#if 1
-	return TJS_E_NOTIMPL;
-#else
 	if(numparams < 1) return TJS_E_BADPARAMCOUNT;
 
 	iTJSDispatch2 * dsp =  param[0]->AsObjectNoAddRef();
@@ -1466,7 +1502,6 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/selectFile)
 	if(result) *result = (tjs_int)res;
 
 	return TJS_S_OK;
-#endif
 }
 TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(/*object to register*/cls,
 	/*func. name*/selectFile)
