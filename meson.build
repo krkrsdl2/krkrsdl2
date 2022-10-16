@@ -100,7 +100,8 @@ krkrsdl2_cppflags += [
 	'-std=c++11',
 	'-Wno-non-virtual-dtor',
 ]
-if cxx.get_id() == 'gcc'
+cxx_has_no_delete_null_pointer_checks = cxx.has_argument('-fno-delete-null-pointer-checks')
+if cxx_has_no_delete_null_pointer_checks == true
 	krkrsdl2_cppflags += [
 		'-fno-delete-null-pointer-checks',
 	]

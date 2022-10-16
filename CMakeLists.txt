@@ -36,6 +36,9 @@ else()
 set(KRKRSDL2_IOS_CODE_SIGNING_ENABLED YES)
 endif()
 
+include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag(-fno-delete-null-pointer-checks KRKRSDL2_COMPILER_SUPPORTS_NO_DELETE_NULL_POINTER_CHECKS)
+
 # iOS does not support case insensitivity properly.
 if(IOS)
 set(OPTION_ENABLE_CASEINSENSITIVITY OFF CACHE BOOL "" FORCE)
@@ -171,7 +174,7 @@ list(APPEND KRKRSDL2_CXXFLAGS
 )
 endif()
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if(KRKRSDL2_COMPILER_SUPPORTS_NO_DELETE_NULL_POINTER_CHECKS)
 list(APPEND KRKRSDL2_CXXFLAGS
 	-fno-delete-null-pointer-checks
 )
