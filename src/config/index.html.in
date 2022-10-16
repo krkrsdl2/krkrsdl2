@@ -678,6 +678,8 @@ function intArrayToString(array) {
                   }
               }
 
+              Module.expectedDataFileDownloads = 1;
+
               var xhr = new XMLHttpRequest();
               xhr.open('GET', url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime(), true);
               xhr.responseType = 'arraybuffer';
