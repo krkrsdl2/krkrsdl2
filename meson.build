@@ -78,7 +78,6 @@ krkrsdl2_cflags += [
 if target_machine.system() == 'emscripten'
 	krkrsdl2_cflags += [
 		'-s', 'DISABLE_EXCEPTION_CATCHING=0',
-		'-s', 'EXIT_RUNTIME=1',
 	]
 	if get_option('emscripten_enable_wasm_simd') == true
 		krkrsdl2_cflags += [
