@@ -4,9 +4,6 @@
 [submodule "external/SamplePlugin"]
 	path = external/SamplePlugin
 	url = https://github.com/krkrsdl2/SamplePlugin.git
-[submodule "external/KAGParser"]
-	path = external/KAGParser
-	url = https://github.com/krkrsdl2/KAGParser.git
 [submodule "external/wuvorbis"]
 	path = external/wuvorbis
 	url = https://github.com/krkrsdl2/wuvorbis.git

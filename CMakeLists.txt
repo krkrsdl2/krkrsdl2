@@ -7,7 +7,6 @@ message(WARN "The CMake file is provided for platforms that do not support Meson
 endif()
 
 option(OPTION_ENABLE_CASEINSENSITIVITY "Enable case insensitivity. May malfunction if directories in the path are not listable." ON)
-option(BUILTIN_PLUGIN_ENABLE_KAGPARSER "Enable the KAGParser plugin." ON)
 option(BUILTIN_PLUGIN_ENABLE_EXTRANS "Enable the extrans plugin." ON)
 option(BUILTIN_PLUGIN_ENABLE_WUTCWF "Enable the wutcwf plugin." ON)
 option(BUILTIN_PLUGIN_ENABLE_WUVORBIS "Enable the wuvorbis plugin." ON)
@@ -88,10 +87,6 @@ list(APPEND KRKRSDL2_SRC ${KIRIKIRISDL2_SSE2_SRC})
 list(APPEND KRKRSDL2_SRC ${KIRIKIRISDL2_AVX2_SRC})
 list(APPEND KRKRSDL2_INCLUDES ${KIRIKIRISDL2_INCLUDES})
 
-if(${BUILTIN_PLUGIN_ENABLE_KAGPARSER})
-file(STRINGS src/config/src_list/kagparser/sources.txt KAGPARSER_SRC)
-list(APPEND KRKRSDL2_SRC ${KAGPARSER_SRC})
-endif()
 if(${BUILTIN_PLUGIN_ENABLE_EXTRANS})
 file(STRINGS src/config/src_list/extrans/sources.txt EXTRANS_SRC)
 list(APPEND KRKRSDL2_SRC ${EXTRANS_SRC})

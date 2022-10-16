@@ -1,12 +1,5 @@
 
 option(
-	'builtin_plugin_enable_kagparser',
-	type: 'boolean',
-	value: true,
-	description: 'Enable the KAGParser plugin.'
-)
-
-option(
 	'builtin_plugin_enable_extrans',
 	type: 'boolean',
 	value: true,
