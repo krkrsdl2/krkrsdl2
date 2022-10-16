@@ -36,7 +36,7 @@
       "runs-on" : "ubuntu-20.04",
       "timeout-minutes" : 20,
       "env" : {
-        "EM_VERSION" : "2.0.9",
+        "EM_VERSION" : "3.1.24",
         "EM_CACHE_FOLDER" : "emsdk-cache"
       },
       "steps" : [
