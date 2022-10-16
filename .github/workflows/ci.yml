@@ -569,7 +569,7 @@
             "prerelease" : "true",
             "automatic_release_tag" : "latest",
             "title" : "Latest development builds",
-            "files" : "krkrsdl2-web.zip\nkrkrsdl2-ubuntu.zip\nkrkrsdl2-android.apk\nkrkrsdl2-vita.vpk\nkrkrsdl2-switch.nro\nkrkrsdl2-macos.zip\nkrkrsdl2-macos-appbundle.zip\nkrkrsdl2-ios-appbundle.zip\n"
+            "files" : "krkrsdl2-web.zip\nkrkrsdl2-ubuntu.zip\nkrkrsdl2-android.apk\nkrkrsdl2-vita.vpk\nkrkrsdl2-switch.nro\nkrkrsdl2-macos.zip\nkrkrsdl2-macos-appbundle.zip\n"
           }
         }
       ]
