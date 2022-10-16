@@ -538,6 +538,8 @@ static void init_js_callbacks()
 		script_engine->SetConsoleOutput(output);
 	}
 #endif
+
+	JS2TJSStringCache = js_new_map();
 }
 
 NCB_PRE_REGIST_CALLBACK(init_js_callbacks);
