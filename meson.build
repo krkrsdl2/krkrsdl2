@@ -78,6 +78,7 @@ krkrsdl2_cflags += [
 if target_machine.system() == 'emscripten'
 	krkrsdl2_cflags += [
 		'-s', 'DISABLE_EXCEPTION_CATCHING=0',
+		'-fPIC',
 	]
 	if get_option('emscripten_enable_wasm_simd') == true
 		krkrsdl2_cflags += [
@@ -121,12 +122,14 @@ if target_machine.system() == 'emscripten'
 		'-s', 'ASSERTIONS=0',
 		'-s', 'STACK_OVERFLOW_CHECK=0',
 		'-s', 'MODULARIZE=1',
+		'-s', 'MAIN_MODULE=1',
 		'-s', 'EXPORT_NAME="instantiate_krkrsdl2_module"',
 		'-s', 'EXPORTED_RUNTIME_METHODS=[\'FS\', \'IDBFS\']',
 		'-O@0@'.format(get_option('optimization')),
 		'-lidbfs.js',
 		'--bind',
 		'--no-heap-copy',
+		'-fPIC',
 	]
 	if get_option('emscripten_enable_js_fallback') == true
 		krkrsdl2_ldflags += [
