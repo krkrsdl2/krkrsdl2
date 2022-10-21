@@ -248,8 +248,6 @@ external/krkrz/external/onig/src/regexec.c
 external/krkrz/external/onig/src/regext.c
 external/krkrz/external/onig/src/reggnu.c
 external/krkrz/external/onig/src/regparse.c
-external/krkrz/external/onig/src/regposerr.c
-external/krkrz/external/onig/src/regposix.c
 external/krkrz/external/onig/src/regsyntax.c
 external/krkrz/external/onig/src/regtrav.c
 external/krkrz/external/onig/src/regversion.c
