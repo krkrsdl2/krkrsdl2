@@ -434,3 +434,6 @@ add_custom_target(${KRKRSDL2_NAME}.nro ALL
 )
 endif()
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+install(${KRKRSDL2_NAME} DESTINATION bin)
+endif()
