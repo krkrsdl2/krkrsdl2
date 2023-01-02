@@ -53,7 +53,7 @@ public:
 	virtual ~tNativeFreeTypeFace();
 
 	virtual FT_Face GetFTFace() const;
-	virtual void GetFaceNameList(std::vector<tjs_string> & dest) const; 
+	virtual void GetFaceNameList(std::vector<tjs_string> & dest) const;
 
 	bool GetIsTTC() const { return IsTTC; }
 	tjs_char GetDefaultChar() const;

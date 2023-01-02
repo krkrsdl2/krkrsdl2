@@ -2798,7 +2798,7 @@ bool tTJSNI_WaveSoundBuffer::FillBuffer(bool firstwrite, bool allowpause)
 	}
 
 	if(Thread->GetRunning() && bufferremain < TVP_WSB_ACCESS_FREQ )
-		Thread->SetPriority(ttpNormal); // buffer remains under 1 sec 
+		Thread->SetPriority(ttpNormal); // buffer remains under 1 sec
 
 	// check buffer playing position
 	tjs_int writepos;
@@ -3589,7 +3589,7 @@ tjs_int tTJSNI_WaveSoundBuffer::GetVisBuffer(tjs_int16 *dest, tjs_int numsamples
 #endif
 	tjs_int buffersamples = BufferBytes / (InputFormat.Channels * InputFormat.BytesPerSample);
 	int offset;
-	
+
 	{
 		tTJSCriticalSectionHolder holder(BufferCS);
 		// the critical section protects only here;
@@ -3684,7 +3684,7 @@ TJS_END_NATIVE_METHOD_DECL_OUTER(/*object to register*/cls,
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/getVisBuffer)
 {
-	// get samples for visualization 
+	// get samples for visualization
 	TJS_GET_NATIVE_INSTANCE(/*var. name*/_this,
 		/*var. type*/tTJSNI_WaveSoundBuffer);
 

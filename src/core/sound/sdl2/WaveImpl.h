@@ -158,7 +158,7 @@ private:
 	tTVPWaveSegmentQueue *L2BufferSegmentQueues;
 
 	tjs_int64 DecodePos; // decoded samples from directsound buffer play
-	tjs_int64 LastCheckedDecodePos; // last sured position (-1 for not checked) and 
+	tjs_int64 LastCheckedDecodePos; // last sured position (-1 for not checked) and
 	tjs_uint64 LastCheckedTick; // last sured tick time
 
 	bool Looping;

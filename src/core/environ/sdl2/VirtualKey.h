@@ -663,7 +663,7 @@ enum {
 	VK_X =0x58,
 	VK_Y =0x59,
 	VK_Z =0x5A,
-	VK_LWIN =0x5B,	// Left Windows key (Natural keyboard) 
+	VK_LWIN =0x5B,	// Left Windows key (Natural keyboard)
 	VK_RWIN =0x5C,	// Right Windows key (Natural keyboard)
 	VK_APPS =0x5D,	// Applications key (Natural keyboard) コンテキストメニューを出すキー。右ALtの隣にあることが多い。
 	VK_SLEEP =0x5F,	// Computer Sleep key
@@ -741,7 +741,7 @@ enum {
 	VK_OEM_MINUS =0xBD,	// For any country/region, the '-' key
 	VK_OEM_PERIOD =0xBE,// For any country/region, the '.' key
 	VK_OEM_2 =0xBF,		// Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '/?' key
-	VK_OEM_3 =0xC0,		// Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '`~' key 
+	VK_OEM_3 =0xC0,		// Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '`~' key
 	VK_OEM_4 =0xDB,		// Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '[{' key
 	VK_OEM_5 =0xDC,		// Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '\|' key
 	VK_OEM_6 =0xDD,		// Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the ']}' key
@@ -754,7 +754,7 @@ enum {
 	VK_PROCESSKEY =0xE5,// IME PROCESS key
 
 	VK_ICO_CLEAR =0xE6,
-	VK_PACKET =0xE7,	// Used to pass Unicode characters as if they were keystrokes. The VK_PACKET key is the low word of a 32-bit Virtual Key value used for non-keyboard input methods. For more information, see Remark in KEYBDINPUT, SendInput, WM_KEYDOWN, and WM_KEYUP 
+	VK_PACKET =0xE7,	// Used to pass Unicode characters as if they were keystrokes. The VK_PACKET key is the low word of a 32-bit Virtual Key value used for non-keyboard input methods. For more information, see Remark in KEYBDINPUT, SendInput, WM_KEYDOWN, and WM_KEYUP
 	VK_OEM_RESET =0xE9,
 	VK_OEM_JUMP =0xEA,
 	VK_OEM_PA1 =0xEB,

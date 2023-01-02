@@ -278,7 +278,7 @@ static void TVPWriteHWELogFile()
 		&written, NULL);
 	for(int i = 0; i < 4; i++)
 		WriteFile(TVPHWExceptionLogHandle, TJS_W("----"), 4*sizeof(tjs_char), &written, NULL);
-		
+
 
 	// write version
 	WriteFile(TVPHWExceptionLogHandle, &TVPVersionMajor,
@@ -543,7 +543,7 @@ void TVPDumpOSContext(const CONTEXT &ctx)
 	TJS_snprintf(buf, BUF_SIZE, TJS_W("Integer Registers : RAX:0x%016lx  RBX:0x%016lx  RCX:0x%016lx  RDX:0x%016lx"),
 		ctx.Rax, ctx.Rbx, ctx.Rcx, ctx.Rdx);
 	TVPAddLog(buf);
-	
+
 	TJS_snprintf(buf, BUF_SIZE, TJS_W("R8 :0x%016lx  R9 :0x%016lx  R10:0x%016lx  R11:0x%016lx"), ctx.R8, ctx.R9, ctx.R10, ctx.R11);
 	TVPAddLog(buf);
 	TJS_snprintf(buf, BUF_SIZE, TJS_W("R12:0x%016lx  R13:0x%016lx  R14:0x%016lx  R15:0x%016lx"), ctx.R12, ctx.R13, ctx.R14, ctx.R15);
@@ -741,7 +741,7 @@ void TVPDumpHWException()
 	TVPHWExcRaised = false;
 
 	TVPOnError();
-	
+
 	static const int BUF_SIZE = 256;
 	tjs_char buf[BUF_SIZE];
 	tTVPHWExceptionData * d = &TVPLastHWExceptionData;
@@ -1015,7 +1015,7 @@ void TVPBeforeSystemInit()
 		// not to hide tool tip hint immediately
 	Application->SetShowHint( false );
 	Application->SetShowHint( true );
-		// to ensure assigning new HintWindow Class defined in HintWindow.cpp 
+		// to ensure assigning new HintWindow Class defined in HintWindow.cpp
 
 #endif
 
@@ -1376,7 +1376,7 @@ void TVPBeforeSystemInit()
 				}
 			}
 		}
-		
+
 #else
 		size_t size = 512;
 		char *buf = (char *)SDL_malloc(size);
@@ -1521,7 +1521,7 @@ void TVPAfterSystemInit()
 	if(totalMemory <= 64*1024*1024)
 		TVPSetFontCacheForLowMem();
 
-//	TVPGraphicCacheSystemLimit = 1*1024*1024; // DEBUG 
+//	TVPGraphicCacheSystemLimit = 1*1024*1024; // DEBUG
 
 
 	// check TVPGraphicSplitOperation option

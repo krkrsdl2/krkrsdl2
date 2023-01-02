@@ -326,7 +326,7 @@ public:
 //-- methods
 	void Close();
 	void OnCloseQueryCalled(bool b);
-	
+
 #ifdef USE_OBSOLETE_FUNCTIONS
 	void BeginMove();
 #endif
@@ -421,7 +421,7 @@ public:
 	tjs_int GetZoomNumer() const;
 	void SetZoomDenom(tjs_int n);
 	tjs_int GetZoomDenom() const;
-	
+
 	void SetTouchScaleThreshold( tjs_real threshold );
 	tjs_real GetTouchScaleThreshold() const;
 	void SetTouchRotateThreshold( tjs_real threshold );
@@ -436,7 +436,7 @@ public:
 	bool GetTouchVelocity( tjs_int id, float& x, float& y, float& speed ) const;
 	bool GetMouseVelocity( float& x, float& y, float& speed ) const;
 	void ResetMouseVelocity();
-	
+
 	void SetHintDelay( tjs_int delay );
 	tjs_int GetHintDelay() const;
 
@@ -445,7 +445,7 @@ public:
 
 	int GetDisplayOrientation();
 	int GetDisplayRotate();
-	
+
 	bool WaitForVBlank( tjs_int* in_vblank, tjs_int* delayed );
 
 	void OnTouchUp( tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id );

@@ -565,7 +565,7 @@ ttstr TVPGetPersonalPath()
 	path = TVPGetSpecialFolderPath(CSIDL_PERSONAL);
 	if(path.IsEmpty())
 		path = TVPGetSpecialFolderPath(CSIDL_APPDATA);
-	
+
 	if(!path.IsEmpty())
 	{
 		path = TVPNormalizeStorageName(path);
@@ -591,7 +591,7 @@ ttstr TVPGetAppDataPath()
 	// If this is not exist, returns application exe path.
 
 	ttstr path = TVPGetSpecialFolderPath(CSIDL_APPDATA);
-	
+
 	if(!path.IsEmpty())
 	{
 		path = TVPNormalizeStorageName(path);

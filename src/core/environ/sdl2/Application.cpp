@@ -309,7 +309,7 @@ int APIENTRY wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstanc
 		MouseCursor::Initialize();
 		Application = new tTVPApplication();
 		Application->StartApplication( __argc, __wargv );
-	
+
 		// delete application and exit forcely
 		// this prevents ugly exception message on exit
 		// アプリケーションを削除し強制終了させる。
@@ -355,8 +355,8 @@ struct SEHException {
 
 int TVPWriteHWEDumpFile( EXCEPTION_POINTERS* pExceptionPointers ) {
 	BOOL bMiniDumpSuccessful;
-	tjs_char szPath[MAX_PATH]; 
-	tjs_char szFileName[MAX_PATH]; 
+	tjs_char szPath[MAX_PATH];
+	tjs_char szFileName[MAX_PATH];
 	const tjs_char* szAppName = TVPKirikiri;
 	const tjs_char* szVersion = TVPGetVersionString().c_str();
 
@@ -464,7 +464,7 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 #if 0
 		if(TVPExecuteUserConfig()) return true;
 #endif
-		
+
 #ifdef KRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD
 		image_load_thread_ = new tTVPAsyncImageLoader();
 #endif
@@ -923,7 +923,7 @@ void tTVPApplication::CheckDigitizer() {
 void tTVPApplication::OnActivate( HWND hWnd )
 {
 	application_activating_ = true;
-	
+
 	TVPRestoreFullScreenWindowAtActivation();
 	TVPResetVolumeToAllSoundBuffer();
 
@@ -935,9 +935,9 @@ void tTVPApplication::OnDeactivate( HWND hWnd )
 	if( hWnd != GetMainWindowHandle() ) return;
 
 	application_activating_ = false;
-	
+
 	TVPMinimizeFullScreenWindowAtInactivation();
-	
+
 	// fire compact event
 	TVPDeliverCompactEvent(TVP_COMPACT_LEVEL_DEACTIVATE);
 

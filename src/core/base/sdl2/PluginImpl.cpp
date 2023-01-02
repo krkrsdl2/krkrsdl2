@@ -410,7 +410,7 @@ void TVPLoadPluigins(void)
 {
 #if 0
 	// This function searches plugins which have an extension of ".tpm"
-	// in the default path: 
+	// in the default path:
 	//    1. a folder which holds kirikiri executable
 	//    2. "plugin" folder of it
 	// Plugin load order is to be decided using its name;

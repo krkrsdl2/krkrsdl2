@@ -148,7 +148,7 @@ bool tTVPBasicDrawDevice::GetDirect3D9Device() {
 	vp.Width = DestWidth != 0 ? DestWidth : D3dPP.BackBufferWidth;
 	vp.Height = DestHeight != 0 ? DestHeight : D3dPP.BackBufferHeight;
 	*/
-	
+
 	D3DVIEWPORT9 vp;
 	vp.X  = 0;
 	vp.Y  = 0;

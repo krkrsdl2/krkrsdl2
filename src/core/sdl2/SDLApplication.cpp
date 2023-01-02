@@ -615,7 +615,7 @@ TVPWindowLayer::TVPWindowLayer(tTJSNI_Window *w)
 	else {
 		TJSNativeInstance = nullptr;
 	}
-	
+
 	if (SDL_WasInit(SDL_INIT_VIDEO) == 0)
 	{
 		if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -1659,7 +1659,7 @@ void TVPWindowLayer::Close() {
 		//tTVPWindow::Close();
 		if (in_mode_) {
 			modal_result_ = mrCancel;
-		} 
+		}
 		else if (OnCloseQuery()) {
 			CloseAction action = caFree;
 			OnClose(action);

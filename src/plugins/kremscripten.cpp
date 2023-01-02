@@ -150,7 +150,7 @@ class iTJSDispatch2WrapperForEmscripten : public tTJSDispatch
 	{
 		this->v = v;
 	}
-	
+
 	public: ~iTJSDispatch2WrapperForEmscripten() {}
 
 	public: tjs_error TJS_INTF_METHOD CreateNew(tjs_uint32 flag, const tjs_char * membername, tjs_uint32 *hint, iTJSDispatch2 **result, tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *objthis)
@@ -451,7 +451,7 @@ class KirikiriEmscriptenInterface
 		{
 			modestr = *param[1];
 		}
-		
+
 		iTJSTextReadStream * stream = TVPCreateTextStreamForRead(place, modestr);
 		ttstr buffer;
 		try
@@ -873,7 +873,7 @@ emscripten::val internal_TJS2JS_get_object_property(tjs_uint32 ptr_object, tjs_u
 			else
 			{
 				TJSThrowFrom_tjs_error(hr);
-			}			
+			}
 		}
 		else if (type == js_string_string)
 		{

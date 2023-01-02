@@ -81,7 +81,7 @@ TJS_EXP_FUNC_DEF(int, ZLIB_compress2, (unsigned char *dest, unsigned long *destl
 // MD5 (RFC 1321) by Aladdin Enterprises.
 //---------------------------------------------------------------------------
 // TVP_md5_init, TVP_md5_append, TVP_md5_finish are exported
-typedef struct TVP_md5_state_s { tjs_uint8 buffer[4*2+8+4*4+8+64]; } TVP_md5_state_t; // md5_state_t 
+typedef struct TVP_md5_state_s { tjs_uint8 buffer[4*2+8+4*4+8+64]; } TVP_md5_state_t; // md5_state_t
 //---------------------------------------------------------------------------
 
 

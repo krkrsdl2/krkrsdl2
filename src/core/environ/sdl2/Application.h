@@ -214,7 +214,7 @@ public:
 	void GetDisableWindowList( std::vector<class TTVPWindowForm*>& win );
 	void GetEnableWindowList( std::vector<class TTVPWindowForm*>& win, class TTVPWindowForm* activeWindow );
 
-	
+
 	void RegisterAcceleratorKey(HWND hWnd, char virt, short key, short cmd);
 	void UnregisterAcceleratorKey(HWND hWnd, short cmd);
 	void DeleteAcceleratorKeyTable( HWND hWnd );

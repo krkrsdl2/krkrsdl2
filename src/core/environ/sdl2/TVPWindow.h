@@ -10,7 +10,7 @@
 #include "SystemImpl.h"
 #include "ImeControl.h"
 
-#ifndef MK_ALT 
+#ifndef MK_ALT
 #define MK_ALT (0x20)
 #endif
 #endif
@@ -90,7 +90,7 @@ protected:
 	enum ModeFlag {
 		FALG_FULLSCREEN = 0x01,
 	};
-	
+
 	unsigned long flags_;
 	void SetFlag( unsigned long f ) {
 		flags_ |= f;
@@ -101,7 +101,7 @@ protected:
 	bool GetFlag( unsigned long f ) {
 		return 0 != (flags_ & f);
 	}
-	
+
 	void UnregisterWindow();
 
 	// window procedure
@@ -195,7 +195,7 @@ public:
 
 	void GetCaption( tjs_string& v ) const;
 	void SetCaption( const tjs_string& v );
-	
+
 	void SetBorderStyle( enum tTVPBorderStyle st);
 	enum tTVPBorderStyle GetBorderStyle() const;
 
@@ -211,7 +211,7 @@ public:
 	void SetTop( int t );
 	int GetTop() const;
 	void SetPosition( int l, int t );
-	
+
 	void SetBounds( int x, int y, int width, int height );
 
 	void SetMinWidth( int v ) {
@@ -268,7 +268,7 @@ public:
 	void SetInnerHeight( int h );
 	int GetInnerHeight() const;
 	void SetInnerSize( int w, int h );
-	
+
 	void BringToFront();
 	void SetStayOnTop( bool b );
 	bool GetStayOnTop() const;
