@@ -16,6 +16,7 @@ import sys
 import io
 import hashlib
 import zlib
+import os
 
 output_tpstub_h = ""
 output_tpstub_cpp = ""
@@ -25,6 +26,94 @@ if len(sys.argv) >= 2:
 	# output_tpstub_cpp = "../../../tp_stub.cpp"
 	output_tpstub_h = "tp_stub.h"
 	output_tpstub_cpp = "tp_stub.cpp"
+
+
+class_stub_round_1 = [
+	"tTJSVariant",
+	"tTJSVariantOctet",
+	"tTJSString",
+	"tTJSVariantString",
+]
+
+class_stub_round_2 = [
+	"tTJSVariantString",
+	"tTJSVariantOctet",
+	"tTJSVariant",
+	"tTJSString",
+]
+
+class_stub_name_to_file = {
+	"tTJSString" : "../../tjs2/tjsString.h",
+	"tTJSVariant" : "../../tjs2/tjsVariant.h",
+	"tTJSVariantOctet" : "../../tjs2/tjsVariant.h",
+	"tTJSVariantString" : "../../tjs2/tjsVariantString.h",
+}
+
+class_stub_do_not_create_directly = [
+	"tTJSVariantOctet",
+	"tTJSVariantString",
+]
+
+func_headers_exports_system = [
+	"../../tjs2/tjsTypes.h",
+	"../../tjs2/tjsConfig.h",
+	"../../tjs2/tjsVariantString.h",
+	"../../tjs2/tjsUtils.h",
+	"../../tjs2/tjsString.h",
+	"../../tjs2/tjsInterface.h",
+	"../../tjs2/tjsErrorDefs.h",
+	"../../tjs2/tjsNative.h",
+	"../../tjs2/tjsVariant.h",
+	"../../tjs2/tjsArray.h",
+	"../../tjs2/tjsDictionary.h",
+	"../../tjs2/tjs.h",
+	"../../tjs2/tjsMessage.h",
+	"../../tjs2/tjsGlobalStringMap.h",
+	"../../tjs2/tjsObject.h",
+	"../../tjs2/tjsObject.cpp",
+]
+
+func_headers_exports_misc = [
+	"../StorageIntf.h",
+	"../TextStream.h",
+	"../CharacterSet.h",
+	"../XP3Archive.h",
+	"../EventIntf.h",
+	"../SystemIntf.h",
+	"./SystemImpl.h",
+	"../ScriptMgnIntf.h",
+	"../BinaryStream.h",
+	"../android/StorageImpl.h",
+	"../android/PluginImpl.h",
+	"../SysInitIntf.h",
+	"../android/SysInitImpl.h",
+	"../../environ/android/DetectCPU.h",
+	"../../utils/ThreadIntf.h",
+	"../../utils/DebugIntf.h",
+	"../../utils/Random.h",
+	"../../utils/ClipboardIntf.h",
+	"../../utils/TickCount.h",
+	"../../msg/MsgIntf.h",
+	"../../sound/WaveIntf.h",
+	"../../visual/GraphicsLoaderIntf.h",
+	"../../visual/tvpfontstruc.h",
+	"../../visual/tvpinputdefs.h",
+	"../../visual/LayerBitmapIntf.h",
+	"../../visual/drawable.h",
+	"../../visual/ComplexRect.h",
+	"../../visual/LayerIntf.h",
+	"../../visual/LayerManager.h",
+	"../../visual/WindowIntf.h",
+	"../../visual/android/WindowImpl.h",
+	# "../../visual/DrawDevice.h",
+	"../../visual/voMode.h",
+	"../../visual/VideoOvlIntf.h",
+	"../../visual/TransIntf.h",
+	"../../visual/transhandler.h",
+	"../../visual/tvpgl.h",
+	# "../../visual/IA32/tvpgl_ia32_intf.h",
+	"../../visual/opengl/OpenGLHeader.h",
+]
 
 # num = 0
 
@@ -77,8 +166,6 @@ def get_ret_type(type_, prefix):
 	if srch != None:
 		return normalize_string(srch.group(1))
 	return normalize_string(type_)
-
-
 
 def make_func_stub(ofh, func_list, h_stub, rettype, name, arg, type_, prefix, isconst, isstatic):
 	rettype = rettype.replace("\n", " ").replace("\t", " ")
@@ -191,7 +278,6 @@ def list_func_stub(ofh, func_list, h_stub, prefix, content, type_):
 	for match_obj in re.finditer(prefix + r"_STATIC_CONST_METHOD_DEF\(\s*(.*?)\s*,\s*(.*?)\s*,\s*\((.*?)\)\s*\)", content, flags=re.S): # g
 		make_func_stub(ofh=ofh, func_list=func_list, h_stub=h_stub, rettype=match_obj.group(1), name=match_obj.group(2), arg=match_obj.group(3), type_=type_, prefix=prefix, isconst=True,  isstatic=True)
 
-
 def make_exp_stub(ofh, func_list, rettype, name, arg):
 	rettype = rettype.replace("\n", " ").replace("\t", " ")
 	name = name.replace("\n", " ").replace("\t", " ")
@@ -276,204 +362,42 @@ ofh.write("""
 
 """)
 
-fh = open("../../tjs2/tjsVariant.h")
-content = fh.read()
-
+class_stub_h_stub = {}
 method_list = []
 
-srch = re.search(r"\/\*start-of-tTJSVariant\*\/(.*?)\/\*end-of-tTJSVariant\*\/", content, flags=re.S)
-variant = []
-list_func_stub(ofh=ofh, func_list=method_list, h_stub=variant, prefix="TJS", content=srch.group(1), type_="tTJSVariant")
+for type_ in class_stub_round_1:
+	entry_file = class_stub_name_to_file[type_]
 
-srch = re.search(r"\/\*start-of-tTJSVariantOctet\*\/(.*?)\/\*end-of-tTJSVariantOctet\*\/", content, flags=re.S)
-variantoctet = []
-list_func_stub(ofh=ofh, func_list=method_list, h_stub=variantoctet, prefix="TJS", content=srch.group(1), type_="tTJSVariantOctet")
+	fh = open(entry_file)
+	content = fh.read()
 
+	h_stub = []
 
-fh = open("../../tjs2/tjsString.h")
-content = fh.read()
-srch = re.search(r"\/\*start-of-tTJSString\*\/(.*?)\/\*end-of-tTJSString\*\/", content, flags=re.S)
-string_ = []
-list_func_stub(ofh=ofh, func_list=method_list, h_stub=string_, prefix="TJS", content=srch.group(1), type_="tTJSString")
+	srch = re.search(r"\/\*start-of-%s\*\/(.*?)\/\*end-of-%s\*\/" % (type_, type_), content, flags=re.S)
+	list_func_stub(ofh=ofh, func_list=method_list, h_stub=h_stub, prefix="TJS", content=srch.group(1), type_=type_)
+	class_stub_h_stub[type_] = h_stub
 
-
-fh = open("../../tjs2/tjsVariantString.h")
-content = fh.read()
-srch = re.search(r"\/\*start-of-tTJSVariantString\*\/(.*?)\/\*end-of-tTJSVariantString\*\/", content, flags=re.S)
-variantstring = []
-list_func_stub(ofh=ofh, func_list=method_list, h_stub=variantstring, prefix="TJS", content=srch.group(1), type_="tTJSVariantString")
-
-
-defs_system = []
 impls = []
 
 func_list = []
 
-ofh.write("#include \"tjsTypes.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsTypes.h")
+defs_system = []
 
-ofh.write("#include \"tjsConfig.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsConfig.h")
-
-ofh.write("#include \"tjsVariantString.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsVariantString.h")
-
-ofh.write("#include \"tjsUtils.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsUtils.h")
-
-ofh.write("#include \"tjsString.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsString.h")
-
-ofh.write("#include \"tjsInterface.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsInterface.h")
-
-ofh.write("#include \"tjsErrorDefs.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsErrorDefs.h")
-
-ofh.write("#include \"tjsNative.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsNative.h")
-
-ofh.write("#include \"tjsVariant.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsVariant.h")
-
-ofh.write("#include \"tjsArray.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsArray.h")
-
-ofh.write("#include \"tjsDictionary.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsDictionary.h")
-
-ofh.write("#include \"tjs.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjs.h")
-
-ofh.write("#include \"tjsMessage.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsMessage.h")
-
-ofh.write("#include \"tjsGlobalStringMap.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsGlobalStringMap.h")
-
-ofh.write("#include \"tjsObject.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsObject.h")
-process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file="../../tjs2/tjsObject.cpp")
+for file in func_headers_exports_system:
+	basename = os.path.basename(file)
+	splitext = os.path.splitext(basename)
+	if len(splitext) >= 2 and splitext[1] == ".h":
+		ofh.write("#include \"%s\"\n" % basename)
+	process_exp_stub(ofh=ofh, defs=defs_system, impls=impls, func_list=func_list, file=file)
 
 defs_misc = []
 
-
-ofh.write("#include \"StorageIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../StorageIntf.h")
-
-ofh.write("#include \"TextStream.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../TextStream.h")
-
-ofh.write("#include \"CharacterSet.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../CharacterSet.h")
-
-ofh.write("#include \"XP3Archive.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../XP3Archive.h")
-
-ofh.write("#include \"EventIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../EventIntf.h")
-
-ofh.write("#include \"SystemIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../SystemIntf.h")
-
-ofh.write("#include \"SystemImpl.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="./SystemImpl.h")
-
-ofh.write("#include \"ScriptMgnIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../ScriptMgnIntf.h")
-
-ofh.write("#include \"BinaryStream.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../BinaryStream.h")
-
-ofh.write("#include \"StorageImpl.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../android/StorageImpl.h")
-
-ofh.write("#include \"PluginImpl.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../android/PluginImpl.h")
-
-ofh.write("#include \"SysInitIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../SysInitIntf.h")
-
-ofh.write("#include \"SysInitImpl.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../android/SysInitImpl.h")
-
-ofh.write("#include \"DetectCPU.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../environ/android/DetectCPU.h")
-
-ofh.write("#include \"ThreadIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../utils/ThreadIntf.h")
-
-ofh.write("#include \"DebugIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../utils/DebugIntf.h")
-
-ofh.write("#include \"Random.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../utils/Random.h")
-
-ofh.write("#include \"ClipboardIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../utils/ClipboardIntf.h")
-
-ofh.write("#include \"TickCount.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../utils/TickCount.h")
-
-ofh.write("#include \"MsgIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../msg/MsgIntf.h")
-
-ofh.write("#include \"WaveIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../sound/WaveIntf.h")
-
-ofh.write("#include \"GraphicsLoaderIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/GraphicsLoaderIntf.h")
-
-ofh.write("#include \"tvpfontstruc.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/tvpfontstruc.h")
-
-ofh.write("#include \"tvpinputdefs.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/tvpinputdefs.h")
-
-ofh.write("#include \"LayerBitmapIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/LayerBitmapIntf.h")
-
-ofh.write("#include \"drawable.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/drawable.h")
-
-ofh.write("#include \"ComplexRect.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/ComplexRect.h")
-
-ofh.write("#include \"LayerIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/LayerIntf.h")
-
-ofh.write("#include \"LayerManager.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/LayerManager.h")
-
-ofh.write("#include \"WindowIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/WindowIntf.h")
-
-ofh.write("#include \"WindowImpl.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/android/WindowImpl.h")
-
-# ofh.write("#include \"DrawDevice.h\"\n")
-# process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/DrawDevice.h")
-
-ofh.write("#include \"voMode.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/voMode.h")
-
-ofh.write("#include \"VideoOvlIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/VideoOvlIntf.h")
-
-ofh.write("#include \"TransIntf.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/TransIntf.h")
-
-ofh.write("#include \"transhandler.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/transhandler.h")
-
-ofh.write("#include \"tvpgl.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/tvpgl.h")
-
-# ofh.write("#include \"tvpgl_ia32_intf.h\"\n")
-# process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/IA32/tvpgl_ia32_intf.h")
-
-ofh.write("#include \"OpenGLHeader.h\"\n")
-process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file="../../visual/opengl/OpenGLHeader.h")
+for file in func_headers_exports_misc:
+	basename = os.path.basename(file)
+	splitext = os.path.splitext(basename)
+	if len(splitext) >= 2 and splitext[1] == ".h":
+		ofh.write("#include \"%s\"\n" % basename)
+	process_exp_stub(ofh=ofh, defs=defs_misc, impls=impls, func_list=func_list, file=file)
 
 all_list = [*method_list, *func_list]
 
@@ -608,124 +532,48 @@ extern void * TVPGetImportFuncPtr(const char *name);
 """)
 
 ohfh.write("".join(["extern void * TVPImportFuncPtr" + pair[5] + ";\n" for pair in all_list]))
+ohfh.write("\n\n")
 
-ohfh.write("""
-
+class_template_1 = """\
 //---------------------------------------------------------------------------
-// tTJSVariantString
+// %s
 //---------------------------------------------------------------------------
 
-""")
+"""
 
-fh = open("../../tjs2/tjsVariantString.h")
-content = fh.read()
-
-ohfh.write("""\
-class tTJSVariantString : protected tTJSVariantString_S
+class_template_2 = """\
+class %s : protected %s_S
 {
-	// do not create an instance of this class directly.
-
+%s
 public:
-""")
+"""
 
-ohfh.write("".join([each + "\n" for each in variantstring]))
+class_template_2_1 = "	// do not create an instance of this class directly.\n"
 
-srch = re.search(r"\/\*start-of-tTJSVariantString\*\/(.*?)\/\*end-of-tTJSVariantString\*\/", content, flags=re.S)
-class_ = srch.group(1)
-
-ohfh.write("".join(["\t" + match_obj.group(1) + "\n\n" for match_obj in re.finditer(r"\/\*m\[\*\/(.*?)\/\*\]m\*\/", class_, flags=re.S)])) # g
-
-ohfh.write("""\
+class_template_3 = """\
 };
-""")
+"""
 
-ohfh.write("""\
-//---------------------------------------------------------------------------
-// tTJSVariantOctet
-//---------------------------------------------------------------------------
+for type_ in class_stub_round_2:
+	entry_file = class_stub_name_to_file[type_]
 
-""")
+	ohfh.write(class_template_1 % type_)
 
-fh = open("../../tjs2/tjsVariant.h")
-content = fh.read()
+	fh = open(entry_file)
+	content = fh.read()
 
+	do_not_create_directly_comment = "" if type_ not in class_stub_do_not_create_directly else class_template_2_1
 
-ohfh.write("""\
-class tTJSVariantOctet : protected tTJSVariantOctet_S
-{
-	// do not create an instance of this class directly.
+	ohfh.write(class_template_2 % (type_, type_, do_not_create_directly_comment))
 
-public:
-""")
+	ohfh.write("".join([each + "\n" for each in class_stub_h_stub[type_]]))
 
-ohfh.write("".join([each + "\n" for each in variantoctet]))
+	srch = re.search(r"\/\*start-of-%s\*\/(.*?)\/\*end-of-%s\*\/" % (type_, type_), content, flags=re.S)
+	class_ = srch.group(1)
 
-srch = re.search(r"\/\*start-of-tTJSVariantOctet\*\/(.*?)\/\*end-of-tTJSVariantOctet\*\/", content, flags=re.S)
-class_ = srch.group(1)
+	ohfh.write("".join(["\t" + match_obj.group(1) + "\n\n" for match_obj in re.finditer(r"\/\*m\[\*\/(.*?)\/\*\]m\*\/", class_, flags=re.S)])) # g
 
-ohfh.write("".join(["\t" + match_obj.group(1) + "\n\n" for match_obj in re.finditer(r"\/\*m\[\*\/(.*?)\/\*\]m\*\/", class_, flags=re.S)])) # g
-
-ohfh.write("""\
-};
-""")
-
-ohfh.write("""\
-//---------------------------------------------------------------------------
-// tTJSVariant
-//---------------------------------------------------------------------------
-
-""")
-
-fh = open("../../tjs2/tjsVariant.h")
-content = fh.read()
-
-
-ohfh.write("""\
-class tTJSVariant : protected tTJSVariant_S
-{
-
-public:
-""")
-
-ohfh.write("".join([each + "\n" for each in variant]))
-
-srch = re.search(r"\/\*start-of-tTJSVariant\*\/(.*?)\/\*end-of-tTJSVariant\*\/", content, flags=re.S)
-class_ = srch.group(1)
-
-ohfh.write("".join(["\t" + match_obj.group(1) + "\n\n" for match_obj in re.finditer(r"\/\*m\[\*\/(.*?)\/\*\]m\*\/", class_, flags=re.S)])) # g
-
-ohfh.write("""\
-};
-""")
-
-ohfh.write("""\
-//---------------------------------------------------------------------------
-// tTJSString
-//---------------------------------------------------------------------------
-
-""")
-
-fh = open("../../tjs2/tjsString.h")
-content = fh.read()
-
-
-ohfh.write("""\
-class tTJSString : protected tTJSString_S
-{
-
-public:
-""")
-
-ohfh.write("".join([each + "\n" for each in string_]))
-
-srch = re.search(r"\/\*start-of-tTJSString\*\/(.*?)\/\*end-of-tTJSString\*\/", content, flags=re.S)
-class_ = srch.group(1)
-
-ohfh.write("".join(["\t" + match_obj.group(1) + "\n\n" for match_obj in re.finditer(r"\/\*m\[\*\/(.*?)\/\*\]m\*\/", class_, flags=re.S)])) # g
-
-ohfh.write("""\
-};
-""")
+	ohfh.write(class_template_3)
 
 
 ohfh.write("""\
