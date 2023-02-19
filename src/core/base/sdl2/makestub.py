@@ -42,8 +42,8 @@ def normalize_string(str_):
 	return ret
 
 def get_arg_names(args):
-	array1 = re.split(r",", args)
-	args = ""
+	array1 = args.split(",")
+	args = []
 	for arg in array1:
 		arg = re.sub(r"^\s*(.*?)\s*$", r"\1", arg)
 		srch = re.search(r"^(.*)=(.*)$", arg)
@@ -51,15 +51,13 @@ def get_arg_names(args):
 			arg = srch.group(1)
 		arg = re.sub(r"^\s*(.*?)\s*$", r"\1", arg)
 		arg = re.search(r"(\w+)$", arg)
-		if args != "":
-			args += ", "
 		if arg != None:
-			args += arg.group(1)
-	return args
+			args.append(arg.group(1))
+	return ", ".join(args)
 
 def except_arg_names(args):
-	array1 = re.split(r",", args)
-	args = ""
+	array1 = args.split(",")
+	args = []
 	for arg in array1:
 		arg = re.sub(r"^\s*(.*?)\s*$", r"\1", arg)
 		srch = re.search(r"^(.*)=(.*)$", arg)
@@ -69,10 +67,8 @@ def except_arg_names(args):
 		arg = re.sub(r"(.*?)(\w+)$", r"\1", arg)
 		arg = re.sub(r"^\s*(.*?)\s*$", r"\1", arg)
 		arg = re.search(r"^\s*(.*?)\s*$", arg)
-		if args != "":
-			args += ","
-		args += normalize_string(arg.group(1))
-	return args
+		args.append(normalize_string(arg.group(1)))
+	return ",".join(args)
 
 def get_ret_type(type_, prefix):
 	if type_ == (prefix + "_METHOD_RET_EMPTY"):
@@ -85,12 +81,9 @@ def get_ret_type(type_, prefix):
 
 
 def make_func_stub(ofh, func_list, h_stub, rettype, name, arg, type_, prefix, isconst, isstatic):
-	rettype = re.sub(r"\n", r" ", rettype, flags=re.S) # g
-	rettype = re.sub(r"\t", r" ", rettype, flags=re.S) # g
-	name = re.sub(r"\n", r" ", name, flags=re.S) # g
-	name = re.sub(r"\t", r" ", name, flags=re.S) # g
-	arg = re.sub(r"\n", r" ", arg, flags=re.S) # g
-	arg = re.sub(r"\t", r" ", arg, flags=re.S) # g
+	rettype = rettype.replace("\n", " ").replace("\t", " ")
+	name = name.replace("\n", " ").replace("\t", " ")
+	arg = arg.replace("\n", " ").replace("\t", " ")
 	
 	func_exp_name = \
 		("" if re.search(r"^" + prefix + r"_METHOD_RET", rettype) != None else normalize_string(rettype) + " ") + \
@@ -200,12 +193,9 @@ def list_func_stub(ofh, func_list, h_stub, prefix, content, type_):
 
 
 def make_exp_stub(ofh, func_list, rettype, name, arg):
-	rettype = re.sub(r"\n", r" ", rettype, flags=re.S) # g
-	rettype = re.sub(r"\t", r" ", rettype, flags=re.S) # g
-	name = re.sub(r"\n", r" ", name, flags=re.S) # g
-	name = re.sub(r"\t", r" ", name, flags=re.S) # g
-	arg = re.sub(r"\n", r" ", arg, flags=re.S) # g
-	arg = re.sub(r"\t", r" ", arg, flags=re.S) # g
+	rettype = rettype.replace("\n", " ").replace("\t", " ")
+	name = name.replace("\n", " ").replace("\t", " ")
+	arg = arg.replace("\n", " ").replace("\t", " ")
 	
 	func_exp_name = normalize_string(rettype) + " " + \
 		"::" + normalize_string(name) + "(" + except_arg_names(arg) + ")";
@@ -489,17 +479,14 @@ all_list = [*method_list, *func_list]
 
 ofh.write("\n#include <zlib.h>")
 
-func_data = b""
-for pair in all_list:
-	func_data += pair[1].encode("ASCII") + b"\x00"
+func_data = b"".join([pair[1].encode("ASCII") + b"\x00" for pair in all_list])
 
 deflateout = b""
 
 deflateout = zlib.compress(func_data)
 
 emitdata = "".join([("0x%02x, " % x) for x in deflateout])
-emitdata = "\n".join([emitdata[i:i + 96] for i in range(0, len(emitdata), 96)])
-emitdata += "\n"
+emitdata = "".join([emitdata[i:i + 96] + "\n" for i in range(0, len(emitdata), 96)])
 # $emitdata =~ s/(.*?), \n/\t__emit__($1);\n/sg;
 
 ofh.write("""
@@ -512,12 +499,7 @@ emitdata + \
 static void * func_ptrs[] = {
 """)
 
-i = 0
-for pair in all_list:
-	ofh.write("\t")
-	ofh.write("(void*)" + pair[0] + ",")
-	ofh.write("\n")
-	i += 1
+ofh.write("".join(["\t(void*)" + pair[0] + ",\n" for pair in all_list]))
 
 ofh.write("""
 };
@@ -531,7 +513,7 @@ void TVPExportFunctions()
 
 ofh.write("\tconst unsigned long compressed_size = " + str(len(deflateout)) + ";\n")
 ofh.write("\tconst unsigned long decompressed_size = " + str(len(func_data)) + ";\n")
-ofh.write("\tconst tjs_int function_count = " + str(i) + ";\n")
+ofh.write("\tconst tjs_int function_count = " + str(len(all_list)) + ";\n")
 
 ofh.write("""\
 	unsigned char * dest = new unsigned char [decompressed_size];
@@ -625,8 +607,7 @@ extern void * TVPGetImportFuncPtr(const char *name);
 
 """)
 
-for pair in all_list:
-	ohfh.write("extern void * TVPImportFuncPtr" + pair[5] + ";\n")
+ohfh.write("".join(["extern void * TVPImportFuncPtr" + pair[5] + ";\n" for pair in all_list]))
 
 ohfh.write("""
 
@@ -647,16 +628,12 @@ class tTJSVariantString : protected tTJSVariantString_S
 public:
 """)
 
-for each in variantstring:
-	ohfh.write(each + "\n")
+ohfh.write("".join([each + "\n" for each in variantstring]))
 
 srch = re.search(r"\/\*start-of-tTJSVariantString\*\/(.*?)\/\*end-of-tTJSVariantString\*\/", content, flags=re.S)
 class_ = srch.group(1)
 
-for match_obj in re.finditer(r"\/\*m\[\*\/(.*?)\/\*\]m\*\/", class_, flags=re.S): # g
-	ohfh.write("\t")
-	ohfh.write(match_obj.group(1))
-	ohfh.write("\n\n")
+ohfh.write("".join(["\t" + match_obj.group(1) + "\n\n" for match_obj in re.finditer(r"\/\*m\[\*\/(.*?)\/\*\]m\*\/", class_, flags=re.S)])) # g
 
 ohfh.write("""\
 };
@@ -681,16 +658,12 @@ class tTJSVariantOctet : protected tTJSVariantOctet_S
 public:
 """)
 
-for each in variantoctet:
-	ohfh.write(each + "\n")
+ohfh.write("".join([each + "\n" for each in variantoctet]))
 
 srch = re.search(r"\/\*start-of-tTJSVariantOctet\*\/(.*?)\/\*end-of-tTJSVariantOctet\*\/", content, flags=re.S)
 class_ = srch.group(1)
 
-for match_obj in re.finditer(r"\/\*m\[\*\/(.*?)\/\*\]m\*\/", class_, flags=re.S): # g
-	ohfh.write("\t")
-	ohfh.write(match_obj.group(1))
-	ohfh.write("\n\n")
+ohfh.write("".join(["\t" + match_obj.group(1) + "\n\n" for match_obj in re.finditer(r"\/\*m\[\*\/(.*?)\/\*\]m\*\/", class_, flags=re.S)])) # g
 
 ohfh.write("""\
 };
@@ -714,16 +687,12 @@ class tTJSVariant : protected tTJSVariant_S
 public:
 """)
 
-for each in variant:
-	ohfh.write(each + "\n")
+ohfh.write("".join([each + "\n" for each in variant]))
 
 srch = re.search(r"\/\*start-of-tTJSVariant\*\/(.*?)\/\*end-of-tTJSVariant\*\/", content, flags=re.S)
 class_ = srch.group(1)
 
-for match_obj in re.finditer(r"\/\*m\[\*\/(.*?)\/\*\]m\*\/", class_, flags=re.S): # g
-	ohfh.write("\t")
-	ohfh.write(match_obj.group(1))
-	ohfh.write("\n\n")
+ohfh.write("".join(["\t" + match_obj.group(1) + "\n\n" for match_obj in re.finditer(r"\/\*m\[\*\/(.*?)\/\*\]m\*\/", class_, flags=re.S)])) # g
 
 ohfh.write("""\
 };
@@ -747,16 +716,12 @@ class tTJSString : protected tTJSString_S
 public:
 """)
 
-for each in string_:
-	ohfh.write(each + "\n")
+ohfh.write("".join([each + "\n" for each in string_]))
 
 srch = re.search(r"\/\*start-of-tTJSString\*\/(.*?)\/\*end-of-tTJSString\*\/", content, flags=re.S)
 class_ = srch.group(1)
 
-for match_obj in re.finditer(r"\/\*m\[\*\/(.*?)\/\*\]m\*\/", class_, flags=re.S): # g
-	ohfh.write("\t")
-	ohfh.write(match_obj.group(1))
-	ohfh.write("\n\n")
+ohfh.write("".join(["\t" + match_obj.group(1) + "\n\n" for match_obj in re.finditer(r"\/\*m\[\*\/(.*?)\/\*\]m\*\/", class_, flags=re.S)])) # g
 
 ohfh.write("""\
 };
@@ -845,8 +810,7 @@ void TVPUninitImportStub()
 
 """)
 
-for pair in all_list:
-	ocfh.write("void * TVPImportFuncPtr" + pair[5] + " = NULL;\n")
+ocfh.write("".join(["void * TVPImportFuncPtr" + pair[5] + " = NULL;\n" for pair in all_list]))
 
 ocfh.write("\n".join(impls) + "\n")
 
@@ -890,16 +854,16 @@ class_iTJSDispatch2 = re.sub(r"//.*?\r?\n", r"", class_iTJSDispatch2, flags=re.S
 class_iTJSDispatch2 = re.sub(r"/\*.*?\*/", r"", class_iTJSDispatch2, flags=re.S) # g
 
 # extract method declarations
-hc = ""
-cc = ""
+hc = []
+cc = []
 
-cc += """
+cc.append("""
 
 static bool TJS_USERENTRY _CatchFuncCall(void *data, const tTVPExceptionDesc & desc)
 {
 	throw desc;
 }
-"""
+""")
 
 
 for match_obj in re.finditer(r"virtual\s+(\w+)\s+TJS_INTF_METHOD\s+(\w+)\s*\(\s*(.*?)\s*\)", class_iTJSDispatch2, flags=re.S): # g
@@ -910,61 +874,61 @@ for match_obj in re.finditer(r"virtual\s+(\w+)\s+TJS_INTF_METHOD\s+(\w+)\s*\(\s*
 	if args[-1] == "":
 		del args[-1]
 
-	hc += \
+	hc.append(\
 		("extern " + ret_type + " Try_iTJSDispatch2_" + method_name + "(" + \
-			", ".join(["iTJSDispatch2 * _this", *args]) + ");\n")
+			", ".join(["iTJSDispatch2 * _this", *args]) + ");\n"))
 
 
-	cc += "struct t_iTJSDispatch2_" + method_name + "\n"
-	cc += "{\n"
+	cc.append("struct t_iTJSDispatch2_" + method_name + "\n")
+	cc.append("{\n")
 	if ret_type != "void":
-		cc += "\t" + ret_type + " _ret;\n"
+		cc.append("\t" + ret_type + " _ret;\n")
 
 	for arg in ["iTJSDispatch2 * _this", *args]:
-		cc += "\t" + arg + ";\n"
+		cc.append("\t" + arg + ";\n")
 
 	arg_names = []
 	for arg in args:
 		srch = re.search(r"(\w+)$", arg)
 		if srch != None:
 			arg_names.append(srch.group(1))
-	cc += "\tt_iTJSDispatch2_" + method_name + "(\n\t\t\t"
-	cc += "_,\n\t\t\t".join(["iTJSDispatch2 * _this", *args])
-	cc += "_\n\t\t\t) :\n\t\t"
+	cc.append("\tt_iTJSDispatch2_" + method_name + "(\n\t\t\t")
+	cc.append("_,\n\t\t\t".join(["iTJSDispatch2 * _this", *args]))
+	cc.append("_\n\t\t\t) :\n\t\t")
 
 	arg_initials = []
 	for arg_name in ["_this", *arg_names]:
 		arg_initials.append(arg_name + "(" + arg_name + "_)")
 
-	cc += ",\n\t\t".join(arg_initials)
-	cc += "\t{;}\n"
+	cc.append(",\n\t\t".join(arg_initials))
+	cc.append("\t{;}\n")
 
-	cc += "\n};\n"
+	cc.append("\n};\n")
 
-	cc += "static void TJS_USERENTRY _Try_iTJSDispatch2_" + method_name + "(void *data)\n"
-	cc += "{\n"
-	cc += "	t_iTJSDispatch2_" + method_name + " * arg = (t_iTJSDispatch2_" + method_name + " *)data;\n"
+	cc.append("static void TJS_USERENTRY _Try_iTJSDispatch2_" + method_name + "(void *data)\n")
+	cc.append("{\n")
+	cc.append("	t_iTJSDispatch2_" + method_name + " * arg = (t_iTJSDispatch2_" + method_name + " *)data;\n")
 	if ret_type != "void":
-		cc += "	arg->_ret = \n"
-	cc += "	arg->_this->" + method_name + "(\n		"
+		cc.append("	arg->_ret = \n")
+	cc.append("	arg->_this->" + method_name + "(\n		")
 	arg_args = []
 	for arg_name in arg_names:
 		arg_args.append("arg->" + arg_name)
 
-	cc += ",\n\t\t".join(arg_args)
-	cc += "\n		);\n"
-	cc += "}\n"
-	cc += \
+	cc.append(",\n\t\t".join(arg_args))
+	cc.append("\n		);\n")
+	cc.append("}\n")
+	cc.append(\
 		(ret_type + " Try_iTJSDispatch2_" + method_name + "(" + \
-			", ".join(["iTJSDispatch2 * _this", *args]) + ")\n")
-	cc += "{\n"
-	cc += "	t_iTJSDispatch2_" + method_name + " arg(\n		"
-	cc += ",\n		".join(["_this", *arg_names])
-	cc += "\n	);\n"
-	cc += "	TVPDoTryBlock(_Try_iTJSDispatch2_" + method_name + ", _CatchFuncCall, NULL, &arg);\n"
+			", ".join(["iTJSDispatch2 * _this", *args]) + ")\n"))
+	cc.append("{\n")
+	cc.append("	t_iTJSDispatch2_" + method_name + " arg(\n		")
+	cc.append(",\n		".join(["_this", *arg_names]))
+	cc.append("\n	);\n")
+	cc.append("	TVPDoTryBlock(_Try_iTJSDispatch2_" + method_name + ", _CatchFuncCall, NULL, &arg);\n")
 	if ret_type != "void":
-		cc += "	return arg._ret;\n"
-	cc += "}\n"
+		cc.append("	return arg._ret;\n")
+	cc.append("}\n")
 
 ohfh.seek(0, 2)
 ohfh.write("""\
@@ -974,7 +938,7 @@ ohfh.write("""\
 
 """)
 
-ohfh.write(hc)
+ohfh.write("".join(hc))
 ohfh.write("""
 #endif
 """)
@@ -986,6 +950,6 @@ ocfh.write("""\
 //---------------------------------------------------------------------------
 """)
 
-ocfh.write(cc)
+ocfh.write("".join(cc))
 
 #---------------------------------------------------------------------------
