@@ -98,20 +98,21 @@ def make_func_stub(rettype, name, arg, type_, prefix, isconst, isstatic):
 	
 	md5 = hashlib.md5(func_exp_name.encode("ASCII")).hexdigest()
 
-	mangled = "TVP_Stub_" + md5 + "\t"
-	mangled += func_exp_name
-	mangled += "\t" + get_ret_type(rettype, prefix) + \
-		"(STDCALL *  __TVP_Stub_" + md5 + ")(" + type_ + " *_this" + (", " if arg != "" else "") + normalize_string(arg) + ")"
-	mangled += "\t" + ("" if re.search(r"^" + prefix + r"_METHOD_RET", rettype) != None else normalize_string(rettype)) + \
-		" " + normalize_string(type_) + "::" + normalize_string(name) + "(" + normalize_string(arg) + ")"
-	mangled += "\tTVP_Stub_" + md5
-	mangled += "\t" + md5
-	mangled += "\t" + get_arg_names(arg)
+	mangled = []
+	mangled.append("TVP_Stub_" + md5)
+	mangled.append(func_exp_name)
+	mangled.append(get_ret_type(rettype, prefix) + \
+		"(STDCALL *  __TVP_Stub_" + md5 + ")(" + type_ + " *_this" + (", " if arg != "" else "") + normalize_string(arg) + ")")
+	mangled.append(("" if re.search(r"^" + prefix + r"_METHOD_RET", rettype) != None else normalize_string(rettype)) + \
+		" " + normalize_string(type_) + "::" + normalize_string(name) + "(" + normalize_string(arg) + ")")
+	mangled.append("TVP_Stub_" + md5)
+	mangled.append(md5)
+	mangled.append(get_arg_names(arg))
 	functype = get_ret_type(rettype, prefix) + \
 		"(STDCALL * __functype)(" + ("const " if isconst else "") + \
 		("" if isstatic else (type_ + " *" + (", " if arg != "" else ""))) + \
 		normalize_string(except_arg_names(arg)) + ")"
-	mangled += "\t" + functype
+	mangled.append(functype)
 
 	noreturn = 0
 	if rettype == prefix + "_METHOD_RET_EMPTY":
@@ -211,17 +212,19 @@ def make_exp_stub(rettype, name, arg):
 
 	md5 = hashlib.md5(func_exp_name.encode("ASCII")).hexdigest()
 
-	mangled = "TVP_Stub_" + md5 + "\t" + func_exp_name;
-	mangled += "\t" + normalize_string(rettype) + \
-		" (STDCALL *" + normalize_string(name) + ")(" + normalize_string(arg) + ")"
-	mangled += "\t" + normalize_string(rettype) + " " + normalize_string(name) + "(" + \
-		normalize_string(arg) + ")"
-	mangled += "\t" + name
-	mangled += "\t" + md5
-	mangled += "\t" + get_arg_names(arg)
-	mangled += "\t" + normalize_string(rettype) + \
-		" (STDCALL * __functype)(" + normalize_string(except_arg_names(arg)) + ")"
-	mangled += "\t" + normalize_string(rettype)
+	mangled = []
+	mangled.append("TVP_Stub_" + md5)
+	mangled.append(func_exp_name)
+	mangled.append(normalize_string(rettype) + \
+		" (STDCALL *" + normalize_string(name) + ")(" + normalize_string(arg) + ")")
+	mangled.append(normalize_string(rettype) + " " + normalize_string(name) + "(" + \
+		normalize_string(arg) + ")")
+	mangled.append(name)
+	mangled.append(md5)
+	mangled.append(get_arg_names(arg))
+	mangled.append(normalize_string(rettype) + \
+		" (STDCALL * __functype)(" + normalize_string(except_arg_names(arg)) + ")")
+	mangled.append(normalize_string(rettype))
 
 	ofh.write("static ")
 	ofh.write(normalize_string(rettype))
@@ -491,8 +494,7 @@ all_list = [*method_list, *func_list]
 ofh.write("\n#include <zlib.h>")
 
 func_data = b""
-for each in all_list:
-	pair = re.split(r"\t", each)
+for pair in all_list:
 	func_data += pair[1].encode("ASCII") + b"\x00"
 
 deflateout = b""
@@ -515,9 +517,8 @@ static void * func_ptrs[] = {
 """)
 
 i = 0
-for each in all_list:
+for pair in all_list:
 	ofh.write("\t")
-	pair = re.split(r"\t", each)
 	ofh.write("(void*)" + pair[0] + ",")
 	ofh.write("\n")
 	i += 1
@@ -628,9 +629,7 @@ extern void * TVPGetImportFuncPtr(const char *name);
 
 """)
 
-for each in all_list:
-	pair = re.split(r"\t", each)
-
+for pair in all_list:
 	ohfh.write("extern void * TVPImportFuncPtr" + pair[5] + ";\n")
 
 ohfh.write("""
@@ -790,9 +789,7 @@ ohfh.write("""\
 
 """)
 
-for each in func_list:
-	pair = re.split(r"\t", each)
-
+for pair in func_list:
 	ohfh.write("inline " + pair[3] + "\n")
 	ohfh.write("{\n")
 	ohfh.write( \
@@ -852,9 +849,7 @@ void TVPUninitImportStub()
 
 """)
 
-for each in all_list:
-	pair = re.split(r"\t", each)
-
+for pair in all_list:
 	ocfh.write("void * TVPImportFuncPtr" + pair[5] + " = NULL;\n")
 
 ocfh.write("\n".join(impls) + "\n")
