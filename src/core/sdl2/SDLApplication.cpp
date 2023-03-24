@@ -41,7 +41,7 @@
 extern void TVPLoadMessage();
 
 class TVPWindowWindow;
-static TVPWindowWindow *_lastWindowLayer, *_currentWindowLayer;
+static TVPWindowWindow *_lastWindowWindow, *_currentWindowWindow;
 static SDL_GameController** sdl_controllers = NULL;
 static int sdl_controller_num = 0;
 
@@ -662,13 +662,13 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 	last_mouse_x = 0;
 	last_mouse_y = 0;
 	_nextWindow = nullptr;
-	_prevWindow = _lastWindowLayer;
-	_lastWindowLayer = this;
+	_prevWindow = _lastWindowWindow;
+	_lastWindowWindow = this;
 	if (_prevWindow) {
 		_prevWindow->_nextWindow = this;
 	}
-	if (!_currentWindowLayer) {
-		_currentWindowLayer = this;
+	if (!_currentWindowWindow) {
+		_currentWindowWindow = this;
 	}
 	if (w) {
 		TJSNativeInstance = w;
@@ -799,11 +799,11 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 }
 
 TVPWindowWindow::~TVPWindowWindow() {
-	if (_lastWindowLayer == this) _lastWindowLayer = _prevWindow;
+	if (_lastWindowWindow == this) _lastWindowWindow = _prevWindow;
 	if (_nextWindow) _nextWindow->_prevWindow = _prevWindow;
 	if (_prevWindow) _prevWindow->_nextWindow = _nextWindow;
-	if (_currentWindowLayer == this) {
-		_currentWindowLayer = _lastWindowLayer;
+	if (_currentWindowWindow == this) {
+		_currentWindowWindow = _lastWindowWindow;
 	}
 	if (bitmap_completion)
 	{
@@ -1105,11 +1105,11 @@ void TVPWindowWindow::SetAttentionPoint(tjs_int left, tjs_int top, const struct 
 	SDL_SetTextInputRect(&attention_point_rect);
 }
 void TVPWindowWindow::BringToFront() {
-	if (_currentWindowLayer != this) {
-		if (_currentWindowLayer) {
-			_currentWindowLayer->TJSNativeInstance->OnReleaseCapture();
+	if (_currentWindowWindow != this) {
+		if (_currentWindowWindow) {
+			_currentWindowWindow->TJSNativeInstance->OnReleaseCapture();
 		}
-		_currentWindowLayer = this;
+		_currentWindowWindow = this;
 	}
 	if (window)
 	{
@@ -1123,7 +1123,7 @@ void TVPWindowWindow::ShowWindowAsModal() {
 	in_mode_ = true;
 	BringToFront();
 	modal_result_ = 0;
-	while (this == _currentWindowLayer && !modal_result_) {
+	while (this == _currentWindowWindow && !modal_result_) {
 		process_events();
 		if (::Application->IsTarminate()) {
 			modal_result_ = mrCancel;
@@ -1159,12 +1159,12 @@ void TVPWindowWindow::SetVisible(bool visible) {
 	{
 		BringToFront();
 	}
-	else if (!visible && _currentWindowLayer == this)
+	else if (!visible && _currentWindowWindow == this)
 	{
-		_currentWindowLayer = _prevWindow ? _prevWindow : _nextWindow;
-		if (_currentWindowLayer)
+		_currentWindowWindow = _prevWindow ? _prevWindow : _nextWindow;
+		if (_currentWindowWindow)
 		{
-			_currentWindowLayer->BringToFront();
+			_currentWindowWindow->BringToFront();
 		}
 	}
 }
@@ -1648,7 +1648,7 @@ void TVPWindowWindow::InvalidateClose() {
 	delete this;
 }
 bool TVPWindowWindow::GetWindowActive() {
-	return _currentWindowLayer == this && SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+	return _currentWindowWindow == this && SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
 }
 void TVPWindowWindow::OnClose(CloseAction& action) {
 	if (modal_result_ == 0)
@@ -2553,9 +2553,9 @@ void sdl_process_events()
 			}
 			else
 			{
-				if (_currentWindowLayer)
+				if (_currentWindowWindow)
 				{
-					_currentWindowLayer->window_receive_event(event);
+					_currentWindowWindow->window_receive_event(event);
 				}
 				else
 				{
@@ -2576,9 +2576,9 @@ static int sdl_event_watch(void *userdata, SDL_Event *in_event)
 	SDL_memcpy(&event, in_event, sizeof(SDL_Event));
 	if (event.type != NativeEventQueueImplement::native_event_queue_custom_event_type)
 	{
-		if (_currentWindowLayer)
+		if (_currentWindowWindow)
 		{
-			if (_currentWindowLayer->window_receive_event_input(event))
+			if (_currentWindowWindow->window_receive_event_input(event))
 			{
 				if (TVPSystemControl)
 				{
