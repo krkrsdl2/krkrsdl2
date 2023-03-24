@@ -1093,6 +1093,10 @@ void TVPWindowWindow::SetCursorPos(tjs_int x, tjs_int y) {
 	}
 }
 void TVPWindowWindow::SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont * font) {
+	if (font == nullptr)
+	{
+		return;
+	}
 	attention_point_rect.x = left;
 	attention_point_rect.y = top;
 	attention_point_rect.w = 0;
