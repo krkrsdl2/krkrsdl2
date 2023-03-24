@@ -494,50 +494,90 @@ protected:
 public:
 	TVPWindowWindow(tTJSNI_Window *w);
 	virtual ~TVPWindowWindow();
+	/* Called from tTJSNI_Window */
 	virtual void SetPaintBoxSize(tjs_int w, tjs_int h) override;
 	void TranslateWindowToDrawArea(int &x, int &y);
 	void TranslateDrawAreaToWindow(int &x, int &y);
+	/* Called from tTJSNI_Window */
 	virtual bool GetFormEnabled() override;
+	/* Called from tTJSNI_Window */
 	virtual void SetDefaultMouseCursor() override;
+	/* Called from tTJSNI_Window */
 	virtual void SetMouseCursor(tjs_int handle) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetMouseCursorState(tTVPMouseCursorState mcs) override;
+	/* Called from tTJSNI_Window */
 	virtual tTVPMouseCursorState GetMouseCursorState() const override;
 	void RestoreMouseCursor();
+	/* Called from tTJSNI_Window */
 	virtual void HideMouseCursor() override;
+	/* Called from tTJSNI_Window */
 	virtual void GetCursorPos(tjs_int &x, tjs_int &y) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetCursorPos(tjs_int x, tjs_int y) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont * font) override;
+	/* Called from tTJSNI_Window */
 	virtual void BringToFront() override;
+	/* Called from tTJSNI_Window */
 	virtual void ShowWindowAsModal() override;
+	/* Called from tTJSNI_Window */
 	virtual bool GetVisible() override;
+	/* Called from member SetVisibleFromScript */
 	virtual void SetVisible(bool visible) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetFullScreenMode(bool fullscreen) override;
+	/* Called from tTJSNI_Window */
 	virtual bool GetFullScreenMode() override;
+	/* Called from tTJSNI_Window */
 	virtual void SetBorderStyle(tTVPBorderStyle bs) override;
+	/* Called from tTJSNI_Window */
 	virtual tTVPBorderStyle GetBorderStyle() const override;
+	/* Called from tTJSNI_Window */
 	virtual tjs_string GetCaption() override;
 	virtual void GetCaption(tjs_string & v) const override;
+	/* Called from tTJSNI_Window */
 	virtual void SetCaption(const tjs_string & v) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetWidth(tjs_int w) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetHeight(tjs_int h) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetSize(tjs_int w, tjs_int h) override;
 	virtual void GetSize(tjs_int &w, tjs_int &h) override;
+	/* Called from tTJSNI_Window */
 	virtual tjs_int GetWidth() const override;
+	/* Called from tTJSNI_Window */
 	virtual tjs_int GetHeight() const override;
+	/* Called from tTJSNI_Window */
 	virtual void SetMinWidth(tjs_int w) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetMaxWidth(tjs_int w) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetMinHeight(tjs_int h) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetMaxHeight(tjs_int h) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetMinSize(tjs_int w, tjs_int h) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetMaxSize(tjs_int w, tjs_int h) override;
+	/* Called from tTJSNI_Window */
 	virtual tjs_int GetMinWidth() override;
+	/* Called from tTJSNI_Window */
 	virtual tjs_int GetMaxWidth() override;
+	/* Called from tTJSNI_Window */
 	virtual tjs_int GetMinHeight() override;
+	/* Called from tTJSNI_Window */
 	virtual tjs_int GetMaxHeight() override;
+	/* Called from tTJSNI_Window */
 	virtual tjs_int GetLeft() override;
+	/* Called from tTJSNI_Window */
 	virtual void SetLeft(tjs_int l) override;
+	/* Called from tTJSNI_Window */
 	virtual tjs_int GetTop() override;
+	/* Called from tTJSNI_Window */
 	virtual void SetTop(tjs_int t) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetPosition(tjs_int l, tjs_int t) override;
 	virtual TVPSDLBitmapCompletion *GetTVPSDLBitmapCompletion() override;
 #ifdef KRKRZ_ENABLE_CANVAS
@@ -547,8 +587,11 @@ public:
 	virtual void Swap() override;
 #endif
 	virtual void Show() override;
+	/* Called from tTJSNI_Window */
 	virtual void TickBeat() override;
+	/* Called from tTJSNI_Window */
 	virtual void InvalidateClose() override;
+	/* Called from tTJSNI_Window */
 	virtual bool GetWindowActive() override;
 	bool Closing = false, ProgramClosing = false, CanCloseWork = false;
 	bool in_mode_ = false; // is modal
@@ -561,25 +604,43 @@ public:
 	};
 	void OnClose(CloseAction& action);
 	bool OnCloseQuery();
+	/* Called from tTJSNI_Window */
 	virtual void Close() override;
+	/* Called from tTJSNI_Window */
 	virtual void OnCloseQueryCalled(bool b) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetImeMode(tTVPImeMode mode) override;
+	/* Called from tTJSNI_Window */
 	virtual void ResetImeMode() override;
+	/* Called from tTJSNI_Window */
 	virtual void UpdateWindow(tTVPUpdateType type) override;
+	/* Called from tTJSNI_Window */
 	virtual void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) override;
+	/* Called from tTJSNI_Window */
 	virtual void OnKeyUp(tjs_uint16 vk, int shift) override;
+	/* Called from tTJSNI_Window */
 	virtual void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) override;
 	void UpdateActualZoom(void);
 	void SetDrawDeviceDestRect(void);
+	/* Called from tTJSNI_Window */
 	virtual void SetZoom(tjs_int numer, tjs_int denom, bool set_logical = true) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetZoomNumer(tjs_int n) override;
+	/* Called from tTJSNI_Window */
 	virtual tjs_int GetZoomNumer() const override;
+	/* Called from tTJSNI_Window */
 	virtual void SetZoomDenom(tjs_int d) override;
+	/* Called from tTJSNI_Window */
 	virtual tjs_int GetZoomDenom() const override;
+	/* Called from tTJSNI_Window */
 	virtual void SetInnerWidth(tjs_int v) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetInnerHeight(tjs_int v) override;
+	/* Called from tTJSNI_Window */
 	virtual void SetInnerSize(tjs_int w, tjs_int h) override;
+	/* Called from tTJSNI_Window */
 	virtual tjs_int GetInnerWidth() override;
+	/* Called from tTJSNI_Window */
 	virtual tjs_int GetInnerHeight() override;
 	bool should_try_parent_window(SDL_Event event);
 	void window_receive_event(SDL_Event event);
