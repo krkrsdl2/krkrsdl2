@@ -11,6 +11,7 @@ option(OPTION_ENABLE_CANVAS "Enable Canvas interface. Requires OpenGL ES or ANGL
 option(OPTION_ENABLE_CASEINSENSITIVITY "Enable case insensitivity. May malfunction if directories in the path are not listable." ON)
 option(OPTION_ENABLE_SDL_THREADS "Enable SDL threads. May be more useful on platforms that do not have a good implementation of std::thread." OFF)
 option(OPTION_ENABLE_EXTERNAL_PLUGINS "Enable external plugins. This will make Plugins.link load a plugin instead of a no-op." OFF)
+option(OPTION_BUILD_MACOS_BUNDLE "Build an application bundle for macOS." ON)
 option(BUILTIN_PLUGIN_ENABLE_EXTRANS "Enable the extrans plugin." ON)
 option(BUILTIN_PLUGIN_ENABLE_WUTCWF "Enable the wutcwf plugin." ON)
 option(BUILTIN_PLUGIN_ENABLE_WUVORBIS "Enable the wuvorbis plugin." ON)
@@ -444,6 +445,7 @@ target_sources(${KRKRSDL2_NAME} PRIVATE
 )
 endif()
 
+if(OPTION_BUILD_MACOS_BUNDLE)
 if(APPLE AND NOT IOS)
 set_target_properties(${KRKRSDL2_NAME} PROPERTIES
 	BUNDLE TRUE
@@ -461,6 +463,7 @@ target_sources(${KRKRSDL2_NAME} PRIVATE
 	${EMBED_DATA_PATH}
 	${MACOS_RESOURCES_ROOT}/krkrsdl2.icns
 )
+endif()
 endif()
 
 if(VITA)
