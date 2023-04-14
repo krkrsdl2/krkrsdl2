@@ -6,7 +6,11 @@ if((NOT ANDROID) AND (NOT IOS) AND (NOT VITA) AND (NOT NINTENDO_SWITCH) AND (NOT
 message(WARN "The CMake file is provided for platforms that do not support Meson well. Please try the Meson build system first.")
 endif()
 
+option(OPTION_ENABLE_ASYNC_IMAGE_LOAD "Enable async image load. Not applicable to Emscripten build." ON)
+option(OPTION_ENABLE_CANVAS "Enable Canvas interface. Requires OpenGL ES or ANGLE at runtime." OFF)
 option(OPTION_ENABLE_CASEINSENSITIVITY "Enable case insensitivity. May malfunction if directories in the path are not listable." ON)
+option(OPTION_ENABLE_SDL_THREADS "Enable SDL threads. May be more useful on platforms that do not have a good implementation of std::thread." OFF)
+option(OPTION_ENABLE_EXTERNAL_PLUGINS "Enable external plugins. This will make Plugins.link load a plugin instead of a no-op." OFF)
 option(BUILTIN_PLUGIN_ENABLE_EXTRANS "Enable the extrans plugin." ON)
 option(BUILTIN_PLUGIN_ENABLE_WUTCWF "Enable the wutcwf plugin." ON)
 option(BUILTIN_PLUGIN_ENABLE_WUVORBIS "Enable the wuvorbis plugin." ON)
@@ -253,9 +257,58 @@ list(APPEND KRKRSDL2_CXXFLAGS
 	-Wno-non-virtual-dtor
 )
 
+if((OPTION_ENABLE_ASYNC_IMAGE_LOAD) AND (NOT (${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")))
+list(APPEND KRKRSDL2_CXXFLAGS
+	-DKRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD
+)
+endif()
+
+if(OPTION_ENABLE_CANVAS)
+list(APPEND KRKRSDL2_CXXFLAGS
+	-DKRKRZ_ENABLE_CANVAS
+)
+list(APPEND KRKRSDL2_SRC
+	external/krkrz/visual/opengl/CanvasIntf.cpp
+	external/krkrz/visual/opengl/DrawCycleTimer.cpp
+	external/krkrz/visual/opengl/GLFrameBufferObject.cpp
+	external/krkrz/visual/opengl/GLShaderUtil.cpp
+	external/krkrz/visual/opengl/Matrix32Intf.cpp
+	external/krkrz/visual/opengl/Matrix44Intf.cpp
+	external/krkrz/visual/opengl/OffscreenIntf.cpp
+	external/krkrz/visual/opengl/ShaderProgramIntf.cpp
+	external/krkrz/visual/opengl/TextureIntf.cpp
+	external/krkrz/visual/opengl/VertexBinderIntf.cpp
+	external/krkrz/visual/opengl/VertexBufferIntf.cpp
+	src/core/visual/sdl2/opengl/OpenGLScreenSDL2.cpp
+)
+list(APPEND KRKRSDL2_INCLUDES
+	src/core/visual/sdl2/opengl
+	external/krkrz/external/angle/include
+	external/krkrz/external/glm
+)
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")
+list(APPEND KRKRSDL2_LDFLAGS
+	-sMAX_WEBGL_VERSION=2
+	-sFULL_ES3=1
+)
+endif()
+endif()
+
 if(OPTION_ENABLE_CASEINSENSITIVITY)
 list(APPEND KRKRSDL2_CXXFLAGS
 	-DKRKRZ_CASE_INSENSITIVE
+)
+endif()
+
+if((OPTION_ENABLE_SDL_THREADS) OR (VITA OR NINTENDO_SWITCH))
+list(APPEND KRKRSDL2_CXXFLAGS
+	-DKRKRZ_USE_SDL_THREADS
+)
+endif()
+
+if((OPTION_ENABLE_EXTERNAL_PLUGINS) AND (NOT (${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")))
+list(APPEND KRKRSDL2_CXXFLAGS
+	-DKRKRSDL2_ENABLE_PLUGINS
 )
 endif()
 
@@ -326,18 +379,12 @@ list(APPEND KRKRSDL2_LIBS
 	m
 	z
 )
-list(APPEND KRKRSDL2_CXXFLAGS
-	-DKRKRZ_USE_SDL_THREADS
-)
 elseif(NINTENDO_SWITCH)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
 
 list(APPEND KRKRSDL2_LIBS
 	PkgConfig::SDL2
-)
-list(APPEND KRKRSDL2_CXXFLAGS
-	-DKRKRZ_USE_SDL_THREADS
 )
 else()
 find_package(SDL2 REQUIRED)
@@ -453,4 +500,13 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 install(${KRKRSDL2_NAME} DESTINATION bin)
+endif()
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")
+configure_file(
+	src/config/index.html.in
+	index.html
+	@ONLY
+	NEWLINE_STYLE UNIX
+)
 endif()
