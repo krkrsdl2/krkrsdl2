@@ -9,8 +9,8 @@
 
 #include "StorageIntf.h"
 #include "BinaryStream.h"
-#include "MsgIntf.h"
 
+#ifndef _WIN32
 #define STDMETHODCALLTYPE
 #define ULONG tjs_uint
 #define ULONGLONG tjs_uint
@@ -19,11 +19,11 @@
 #define HRESULT tjs_error
 #define BYTE tjs_uint8
 #define DWORD tjs_uint32
-#define REFIID void*
 #define STG_E_ACCESSDENIED TJS_E_FAIL
 #define E_FAIL TJS_E_FAIL
 #define E_NOTIMPL TJS_E_FAIL
 #define E_INVALIDARG TJS_E_FAIL
+#define E_NOINTERFACE TJS_E_FAIL
 #define S_TRUE TJS_S_TRUE
 #define S_FALSE TJS_S_FALSE
 #define S_OK TJS_S_OK
@@ -34,6 +34,16 @@
 #define STGC_DEFAULT 0
 #define FAILED(x) (x != S_OK)
 
+typedef struct _GUID {
+	tjs_uint32 Data1;
+	tjs_uint16 Data2;
+	tjs_uint16 Data3;
+	tjs_uint8 Data4[8];
+} GUID;
+typedef GUID IID;
+typedef IID *LPIID;
+#define REFIID const IID &
+
 typedef union _ULARGE_INTEGER {
 	ULONGLONG QuadPart;
 } ULARGE_INTEGER;
@@ -43,16 +53,32 @@ typedef union _LARGE_INTEGER {
 } LARGE_INTEGER;
 
 typedef struct tagSTATSTG {
+#if 0
+	LPOLESTR pwcsName;
+	DWORD type;
+#endif
 	ULARGE_INTEGER cbSize;
+#if 0
+	FILETIME mtime;
+	FILETIME ctime;
+	FILETIME atime;
+	DWORD grfMode;
+	DWORD grfLocksSupported;
+	CLSID clsid;
+	DWORD grfStateBits;
+	DWORD reserved;
+#endif
 } STATSTG;
 
+// 0000000c-0000-0000-c000-000000000046
 class IStream
 {
 public:
 
 	// IUnknown
-	virtual ULONG STDMETHODCALLTYPE AddRef(void) = 0;
-	virtual ULONG STDMETHODCALLTYPE Release(void) = 0;
+	virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) = 0;
+	virtual ULONG STDMETHODCALLTYPE AddRef() = 0;
+	virtual ULONG STDMETHODCALLTYPE Release() = 0;
 
 	// ISequentialStream
 	virtual HRESULT STDMETHODCALLTYPE Read(void *pv, ULONG cb, ULONG *pcbRead) = 0;
@@ -60,323 +86,90 @@ public:
 
 	// IStream
 	virtual HRESULT STDMETHODCALLTYPE Seek(LARGE_INTEGER dlibMove, DWORD dwOrigin, ULARGE_INTEGER *plibNewPosition) = 0;
+	virtual HRESULT STDMETHODCALLTYPE SetSize(ULARGE_INTEGER libNewSize) = 0;
+	virtual HRESULT STDMETHODCALLTYPE CopyTo(IStream *pstm, ULARGE_INTEGER cb, ULARGE_INTEGER *pcbRead, ULARGE_INTEGER *pcbWritten) = 0;
 	virtual HRESULT STDMETHODCALLTYPE Commit(DWORD grfCommitFlags) = 0;
+	virtual HRESULT STDMETHODCALLTYPE Revert() = 0;
+    virtual HRESULT STDMETHODCALLTYPE LockRegion(ULARGE_INTEGER libOffset, ULARGE_INTEGER cb, DWORD dwLockType) = 0;
+	virtual HRESULT STDMETHODCALLTYPE UnlockRegion(ULARGE_INTEGER libOffset, ULARGE_INTEGER cb, DWORD dwLockType) = 0;
 	virtual HRESULT STDMETHODCALLTYPE Stat(STATSTG *pstatstg, DWORD grfStatFlag) = 0;
-
+	virtual HRESULT STDMETHODCALLTYPE Clone(IStream **ppstm) = 0;
 };
+
+#else
+#include <objidl.h>
+#endif
 
 //---------------------------------------------------------------------------
 // tTVPIStreamAdapter
 //---------------------------------------------------------------------------
 /*
-	this class provides COM's IStream adapter for iTJSBinaryStream
+	this class provides COM's IStream adapter for tTJSBinaryStream
 */
 class tTVPIStreamAdapter : public IStream
 {
 private:
+#if 1
+	tTJSBinaryStream *Stream;
+#else
 	iTJSBinaryStream *Stream;
+#endif
+
 	ULONG RefCount;
 
 public:
-	tTVPIStreamAdapter(iTJSBinaryStream *ref)
-	{
-		Stream = ref;
-		RefCount = 1;
-	}
+	tTVPIStreamAdapter(tTJSBinaryStream *ref);
 	/*
 		the stream passed by argument here is freed by this instance'
 		destruction.
 	*/
 
-	~tTVPIStreamAdapter()
-	{
-		delete Stream;
-	}
+	~tTVPIStreamAdapter();
 
 
 	// IUnknown
-	ULONG STDMETHODCALLTYPE AddRef(void)
-	{
-		return ++ RefCount;
-	}
-	ULONG STDMETHODCALLTYPE Release(void)
-	{
-		if(RefCount == 1)
-		{
-			delete this;
-			return 0;
-		}
-		else
-		{
-			return --RefCount;
-		}
-	}
+	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid,
+		void **ppvObject);
+	ULONG STDMETHODCALLTYPE AddRef(void);
+	ULONG STDMETHODCALLTYPE Release(void);
 
 	// ISequentialStream
-	HRESULT STDMETHODCALLTYPE Read(void *pv, ULONG cb, ULONG *pcbRead)
-	{
-		try
-		{
-			ULONG read;
-			read = Stream->Read(pv, cb);
-			if(pcbRead) *pcbRead = read;
-		}
-		catch(...)
-		{
-			return E_FAIL;
-		}
-		return S_OK;
-	}
-	HRESULT STDMETHODCALLTYPE Write(const void *pv, ULONG cb, ULONG *pcbWritten)
-	{
-		try
-		{
-			ULONG written;
-			written = Stream->Write(pv, cb);
-			if(pcbWritten) *pcbWritten = written;
-		}
-		catch(...)
-		{
-			return E_FAIL;
-		}
-		return S_OK;
-	}
+	HRESULT STDMETHODCALLTYPE Read(void *pv, ULONG cb, ULONG *pcbRead);
+	HRESULT STDMETHODCALLTYPE Write(const void *pv, ULONG cb,
+		ULONG *pcbWritten);
 
 	// IStream
-	HRESULT STDMETHODCALLTYPE Seek(LARGE_INTEGER dlibMove, DWORD dwOrigin, ULARGE_INTEGER *plibNewPosition)
-	{
-		try
-		{
-			switch(dwOrigin)
-			{
-			case STREAM_SEEK_SET:
-				if(plibNewPosition)
-					(*plibNewPosition).QuadPart =
-						Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_SET);
-				else
-						Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_SET);
-				break;
-			case STREAM_SEEK_CUR:
-				if(plibNewPosition)
-					(*plibNewPosition).QuadPart =
-						Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_CUR);
-				else
-						Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_CUR);
-				break;
-			case STREAM_SEEK_END:
-				if(plibNewPosition)
-					(*plibNewPosition).QuadPart =
-						Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_END);
-				else
-						Stream->Seek(dlibMove.QuadPart, TJS_BS_SEEK_END);
-				break;
-			default:
-				return E_FAIL;
-			}
-		}
-		catch(...)
-		{
-			return E_FAIL;
-		}
-		return S_OK;
-	}
-	HRESULT STDMETHODCALLTYPE Commit(DWORD grfCommitFlags)
-	{
-		return E_NOTIMPL;
-	}
-	HRESULT STDMETHODCALLTYPE Stat(STATSTG *pstatstg, DWORD grfStatFlag)
-	{
-		// This method imcompletely fills the target structure, because some
-		// informations like access mode or stream name are already lost
-		// at this point.
+	HRESULT STDMETHODCALLTYPE Seek(LARGE_INTEGER dlibMove,
+		DWORD dwOrigin, ULARGE_INTEGER *plibNewPosition);
+	HRESULT STDMETHODCALLTYPE SetSize(ULARGE_INTEGER libNewSize);
+	HRESULT STDMETHODCALLTYPE CopyTo(IStream *pstm, ULARGE_INTEGER cb,
+		ULARGE_INTEGER *pcbRead, ULARGE_INTEGER *pcbWritten);
+	HRESULT STDMETHODCALLTYPE Commit(DWORD grfCommitFlags);
+	HRESULT STDMETHODCALLTYPE Revert(void);
+	HRESULT STDMETHODCALLTYPE LockRegion(ULARGE_INTEGER libOffset,
+		ULARGE_INTEGER cb, DWORD dwLockType);
+	HRESULT STDMETHODCALLTYPE UnlockRegion(ULARGE_INTEGER libOffset,
+		ULARGE_INTEGER cb, DWORD dwLockType);
+	HRESULT STDMETHODCALLTYPE Stat(STATSTG *pstatstg, DWORD grfStatFlag);
+	HRESULT STDMETHODCALLTYPE Clone(IStream **ppstm);
 
-		if(pstatstg)
-		{
-			memset(pstatstg, 0, sizeof(*pstatstg));
-
-			// cbSize
-			pstatstg->cbSize.QuadPart = Stream->GetSize();
-		}
-		else
-		{
-			return E_INVALIDARG;
-		}
-
-		return S_OK;
-	}
-
-	void ClearStream()
-	{
+	void ClearStream() {
 		Stream = NULL;
 	}
 };
 //---------------------------------------------------------------------------
 
+
 //---------------------------------------------------------------------------
 // IStream creator
 //---------------------------------------------------------------------------
-inline IStream * TVPCreateIStream(const ttstr &name, tjs_uint32 flags)
-{
-	// convert tTJSBinaryStream to IStream thru TStream
-
-	iTJSBinaryStream *stream0 = NULL;
-	try
-	{
-		switch (flags & TJS_BS_ACCESS_MASK)
-		{
-			case TJS_BS_READ:
-			{
-				stream0 = TVPCreateBinaryStreamForRead(name, TJS_W(""));
-				break;
-			}
-			case TJS_BS_WRITE:
-			{
-				stream0 = TVPCreateBinaryStreamForWrite(name, TJS_W(""));
-				break;
-			}
-			case TJS_BS_APPEND:
-			{
-				TVPThrowExceptionMessage(TJS_W("Can't create IStream in append mode"));
-				break;
-			}
-			case TJS_BS_UPDATE:
-			{
-				stream0 = TVPCreateBinaryStreamForWrite(name, TJS_W("o0"));
-				break;
-			}
-			default:
-			{
-				TVPThrowExceptionMessage(TJS_W("Unknown access flag"));
-				break;
-			}
-		}
-	}
-	catch(...)
-	{
-		if(stream0) delete stream0;
-		return NULL;
-	}
-
-	IStream *istream = new tTVPIStreamAdapter(stream0);
-
-	return istream;
-}
+TJS_EXP_FUNC_DEF(IStream *, TVPCreateIStream, (const ttstr &name, tjs_uint32 flags));
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-// tTVPBinaryStreamAdapter
+// tTVPBinaryStreamAdapter creator
 //---------------------------------------------------------------------------
-/*
-	this class provides tTJSBinaryStream adapter for IStream
-*/
-class tTVPBinaryStreamAdapter : public tTJSBinaryStream
-{
-	typedef tTJSBinaryStream inherited;
-
-private:
-	IStream *Stream;
-
-public:
-	tTVPBinaryStreamAdapter(IStream *ref)
-	{
-		Stream = ref;
-		Stream->AddRef();
-	}
-	/*
-		the stream passed by argument here is freed by this instance'
-		destruction.
-	*/
-
-	~tTVPBinaryStreamAdapter()
-	{
-		Stream->Release();
-	}
-
-	tjs_uint64 TJS_INTF_METHOD Seek(tjs_int64 offset, tjs_int whence)
-	{
-		DWORD origin;
-
-		switch(whence)
-		{
-		case TJS_BS_SEEK_SET:			origin = STREAM_SEEK_SET;		break;
-		case TJS_BS_SEEK_CUR:			origin = STREAM_SEEK_CUR;		break;
-		case TJS_BS_SEEK_END:			origin = STREAM_SEEK_END;		break;
-		default:						origin = STREAM_SEEK_SET;		break;
-		}
-
-		LARGE_INTEGER ofs;
-		ULARGE_INTEGER newpos;
-
-		ofs.QuadPart = 0;
-		HRESULT hr = Stream->Seek(ofs, STREAM_SEEK_CUR, &newpos);
-		bool orgpossaved;
-		LARGE_INTEGER orgpos;
-		if(FAILED(hr))
-		{
-			orgpossaved = false;
-		}
-		else
-		{
-			orgpossaved = true;
-			*(LARGE_INTEGER*)&orgpos = *(LARGE_INTEGER*)&newpos;
-		}
-
-		ofs.QuadPart = offset;
-
-		hr = Stream->Seek(ofs, origin, &newpos);
-		if(FAILED(hr))
-		{
-			if(orgpossaved)
-			{
-				Stream->Seek(orgpos, STREAM_SEEK_SET, &newpos);
-			}
-		}
-
-		return newpos.QuadPart;
-	}
-
-	tjs_uint TJS_INTF_METHOD Read(void *buffer, tjs_uint read_size)
-	{
-		ULONG cb = read_size;
-		ULONG read;
-		HRESULT hr = Stream->Read(buffer, cb, &read);
-		if(FAILED(hr)) read = 0;
-		return read;
-	}
-
-	tjs_uint TJS_INTF_METHOD Write(const void *buffer, tjs_uint write_size)
-	{
-		ULONG cb = write_size;
-		ULONG written;
-		HRESULT hr = Stream->Write(buffer, cb, &written);
-		if(FAILED(hr)) written = 0;
-		return written;
-	}
-
-	tjs_uint64 TJS_INTF_METHOD GetSize()
-	{
-		HRESULT hr;
-		STATSTG stg;
-
-		hr = Stream->Stat(&stg, STATFLAG_NONAME);
-		if(FAILED(hr))
-		{
-			return inherited::GetSize(); // use default routine
-		}
-
-		return stg.cbSize.QuadPart;
-	}
-};
-//---------------------------------------------------------------------------
-
-
-//---------------------------------------------------------------------------
-// TVPCreateBinaryStreamAdapter
-//---------------------------------------------------------------------------
-inline tTJSBinaryStream * TVPCreateBinaryStreamAdapter(IStream *refstream)
-{
-	return new  tTVPBinaryStreamAdapter(refstream);
-}
+TJS_EXP_FUNC_DEF(tTJSBinaryStream *, TVPCreateBinaryStreamAdapter, (IStream *refstream));
 //---------------------------------------------------------------------------
 
 #endif
