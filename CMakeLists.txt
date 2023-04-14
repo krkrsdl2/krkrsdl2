@@ -224,9 +224,15 @@ list(APPEND KRKRSDL2_CFLAGS
 	-Wall
 )
 else()
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+list(APPEND KRKRSDL2_CFLAGS
+	-Wno-everything
+)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 list(APPEND KRKRSDL2_CFLAGS
 	-w
 )
+endif()
 endif()
 
 if(WIN32)
