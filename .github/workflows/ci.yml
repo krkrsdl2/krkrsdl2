@@ -342,57 +342,28 @@
         }
       ]
     },
-    "build-macos" : {
-      "runs-on" : "macos-11",
-      "timeout-minutes" : 20,
-      "steps" : [
-        {
-          "uses" : "actions/checkout@v2",
-          "with" : {
-            "submodules" : "recursive"
-          }
-        },
-        {
-          "run" : "brew update"
-        },
-        {
-          "run" : "brew install sdl2"
-        },
-        {
-          "uses" : "actions/setup-python@v1",
-          "with" : {
-            "python-version" : "3.x"
-          }
-        },
-        {
-          "uses" : "actions/cache@v1",
-          "with" : {
-            "path" : "~/.cache/pip",
-            "key" : "${{ runner.os }}-pip",
-            "restore-keys" : "${{ runner.os }}-pip"
-          }
-        },
-        {
-          "run" : "python -m pip install --upgrade meson ninja"
-        },
-        {
-          "run" : "meson setup build/"
-        },
-        {
-          "run" : "meson compile -C build"
-        },
-        {
-          "uses" : "actions/upload-artifact@master",
-          "with" : {
-            "name" : "krkrsdl2-macos",
-            "path" : "build/krkrsdl2"
-          }
-        }
-      ]
-    },
     "build-macos-cmake" : {
       "runs-on" : "macos-11",
       "timeout-minutes" : 20,
+      "strategy" : {
+        "fail-fast" : false,
+        "matrix" : {
+          "appbundle" : [
+            {
+              "enabled" : "false",
+              "cmakeflags" : "-DOPTION_BUILD_MACOS_BUNDLE=OFF",
+              "artifactname" : "krkrsdl2-macos",
+              "artifactpath" : "build/krkrsdl2"
+            },
+            {
+              "enabled" : "true",
+              "cmakeflags" : "-DOPTION_BUILD_MACOS_BUNDLE=ON -DEMBED_DATA_PATH=data.xp3",
+              "artifactname" : "krkrsdl2-macos-appbundle",
+              "artifactpath" : "build/krkrsdl2-macos-appbundle.zip"
+            }
+          ]
+        }
+      },
       "steps" : [
         {
           "uses" : "actions/checkout@v2",
@@ -402,6 +373,7 @@
         },
         {
           "name" : "Download krkrsdl2-kag3-demo build",
+          "if" : "matrix.appbundle.enabled == 'true'",
           "run" : "curl -LOC - https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
         },
         {
@@ -428,19 +400,20 @@
           "run" : "python -m pip install --upgrade ninja"
         },
         {
-          "run" : "cmake -S . -B build -DEMBED_DATA_PATH=data.xp3"
+          "run" : "cmake -S . -B build ${{ matrix.appbundle.cmakeflags }}"
         },
         {
           "run" : "cmake --build build"
         },
         {
           "run" : "ditto -ck --rsrc --sequesterRsrc --keepParent build/krkrsdl2.app build/krkrsdl2-macos-appbundle.zip"
+          "if" : "matrix.appbundle.enabled == 'true'",
         },
         {
           "uses" : "actions/upload-artifact@master",
           "with" : {
-            "name" : "krkrsdl2-macos-appbundle",
-            "path" : "build/krkrsdl2-macos-appbundle.zip"
+            "name" : "${{ matrix.appbundle.artifactname }}",
+            "path" : "${{ matrix.appbundle.artifactpath }}"
           }
         }
       ]
