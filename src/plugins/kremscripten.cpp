@@ -83,7 +83,7 @@ static ttstr map_js_string(emscripten::val v)
 		if (r != emscripten::val::undefined())
 		{
 			// Check the TJS2JSStringCache hash table just to make sure we didn't receive an invalid value
-			if (r.typeof() == js_string_object && r[js_string_length].as<tjs_int32>() == 2)
+			if (r.typeOf() == js_string_object && r[js_string_length].as<tjs_int32>() == 2)
 			{
 				ttstr key = ttstr((tTJSVariantString *)(r[0].as<tjs_uint32>()));
 				tjs_int hash = r[1].as<tjs_int32>();
@@ -303,7 +303,7 @@ class iTJSDispatch2WrapperForEmscripten : public tTJSDispatch
 
 static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::val vthis)
 {
-	emscripten::val type = v.typeof();
+	emscripten::val type = v.typeOf();
 	if (type == js_string_number || type == js_string_boolean)
 	{
 		return tTJSVariant(v.as<tjs_real>());
@@ -321,7 +321,7 @@ static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::
 	else if (type == js_string_function || type == js_string_object)
 	{
 		emscripten::val pd = js_pcall(js_get_own_property_descriptor, v, js_string___internal_JS2TJS_wrapper);
-		if (pd.typeof() == js_string_object)
+		if (pd.typeOf() == js_string_object)
 		{
 			if (pd[js_string___internal_JS2TJS_wrapper].as<bool>())
 			{
@@ -859,7 +859,7 @@ emscripten::val internal_TJS2JS_get_object_property(tjs_uint32 ptr_object, tjs_u
 		return emscripten::val::undefined();
 	}
 	iTJSDispatch2 *objthis = (iTJSDispatch2 *)ptr_objectthis;
-	emscripten::val type = v.typeof();
+	emscripten::val type = v.typeOf();
 	emscripten::val r = emscripten::val::undefined();
 	TJS2JS_EXCEPTION_HANDLER_GUARD({
 		if (type == js_string_number || type == js_string_bigint)
@@ -914,7 +914,7 @@ bool internal_TJS2JS_set_object_property(tjs_uint32 ptr_object, tjs_uint32 ptr_o
 		return false;
 	}
 	iTJSDispatch2 *objthis = (iTJSDispatch2 *)ptr_objectthis;
-	emscripten::val type = v.typeof();
+	emscripten::val type = v.typeOf();
 	TJS2JS_EXCEPTION_HANDLER_GUARD({
 		if (type == js_string_number || type == js_string_bigint)
 		{
@@ -955,7 +955,7 @@ bool internal_TJS2JS_has_object_property(tjs_uint32 ptr_object, tjs_uint32 ptr_o
 		return false;
 	}
 	iTJSDispatch2 *objthis = (iTJSDispatch2 *)ptr_objectthis;
-	emscripten::val type = v.typeof();
+	emscripten::val type = v.typeOf();
 	bool r = false;
 	TJS2JS_EXCEPTION_HANDLER_GUARD({
 		if (type == js_string_number || type == js_string_bigint)
@@ -981,7 +981,7 @@ bool internal_TJS2JS_delete_object_property(tjs_uint32 ptr_object, tjs_uint32 pt
 		return false;
 	}
 	iTJSDispatch2 *objthis = (iTJSDispatch2 *)ptr_objectthis;
-	emscripten::val type = v.typeof();
+	emscripten::val type = v.typeOf();
 	bool r = false;
 	TJS2JS_EXCEPTION_HANDLER_GUARD({
 		if (type == js_string_number || type == js_string_bigint)
@@ -1038,7 +1038,7 @@ void internal_TJS2JS_throw_val_as_TJS_exception(emscripten::val v)
 	tTJSVariant ve = emscripten_val_to_tjs_variant(v);
 	static ttstr default_msg = TJS_W("TJS2JS exception boundary");
 	ttstr msg = default_msg;
-	emscripten::val type = v.typeof();
+	emscripten::val type = v.typeOf();
 	if (type == js_string_string)
 	{
 		msg = map_js_string(v);
@@ -1046,7 +1046,7 @@ void internal_TJS2JS_throw_val_as_TJS_exception(emscripten::val v)
 	else if (type == js_string_object)
 	{
 		emscripten::val v2 = v[js_string_message];
-		emscripten::val type2 = v2.typeof();
+		emscripten::val type2 = v2.typeOf();
 		if (type2 == js_string_string)
 		{
 			msg = map_js_string(v2);
