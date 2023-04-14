@@ -57,11 +57,8 @@ git clone --recursive -b main https://github.com/krkrsdl2/krkrsdl2.git
 
 ## ビルディング
 
-このプロジェクトは、Mesonビルドシステムを使用してビルドできます。  
-Mesonビルドシステムの詳細については、次の場所をご覧ください： https://mesonbuild.com/
- 
-Mesonツールチェーンファイルは、[Emscripten](https://emscripten.org/)を使用する場合など、異なるプラットフォームへのクロスコンパイルに使用できます。    
-便宜上、Mesonツールチェーンファイルは次の場所に置いてあります：https://github.com/krkrsdl2/meson_toolchains  
+このプロジェクトは、CMakeビルドシステムを使用してビルドできます。  
+CMakeビルドシステムの詳細については、次の場所をご覧ください： https://cmake.org/  
 
 ## クイックスタート
 
