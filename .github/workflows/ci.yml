@@ -406,8 +406,8 @@
           "run" : "cmake --build build"
         },
         {
-          "run" : "ditto -ck --rsrc --sequesterRsrc --keepParent build/krkrsdl2.app build/krkrsdl2-macos-appbundle.zip"
-          "if" : "matrix.appbundle.enabled == 'true'",
+          "run" : "ditto -ck --rsrc --sequesterRsrc --keepParent build/krkrsdl2.app build/krkrsdl2-macos-appbundle.zip",
+          "if" : "matrix.appbundle.enabled == 'true'"
         },
         {
           "uses" : "actions/upload-artifact@master",
