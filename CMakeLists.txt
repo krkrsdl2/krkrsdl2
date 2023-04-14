@@ -20,6 +20,7 @@ option(KRKRSDL2_EMSCRIPTEN_ENABLE_WASM_SIMD "Enable WebAssembly SIMD for the Ems
 option(KRKRSDL2_EMSCRIPTEN_ENABLE_THREADS "Enable threads for the Emscripten build." OFF)
 option(KRKRSDL2_EMSCRIPTEN_ENABLE_SOURCE_MAPS "Enable threads for the Emscripten build." OFF)
 set(KRKRSDL2_EMSCRIPTEN_INITIAL_MEMORY "134217728" CACHE STRING "Initial memory usage for the Emscripten build.")
+option(KRKRSDL2_BUILD_ENABLE_WARNINGS "Enable warnings when building the project." OFF)
 
 if(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
@@ -215,6 +216,16 @@ list(APPEND KRKRSDL2_LDFLAGS
 )
 list(APPEND KRKRSDL2_CFLAGS
 	-pthread
+)
+endif()
+
+if(KRKRSDL2_BUILD_ENABLE_WARNINGS)
+list(APPEND KRKRSDL2_CFLAGS
+	-Wall
+)
+else()
+list(APPEND KRKRSDL2_CFLAGS
+	-w
 )
 endif()
 
