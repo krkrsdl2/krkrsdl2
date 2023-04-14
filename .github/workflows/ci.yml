@@ -468,7 +468,7 @@
       ]
     },
     "create-release" : {
-      "needs" : ["build-web", "build-ubuntu", "build-android", "build-macos", "build-macos-cmake", "build-ios-cmake", "build-vita", "build-switch"],
+      "needs" : ["build-web", "build-ubuntu", "build-android", "build-macos-cmake", "build-ios-cmake", "build-vita", "build-switch"],
       "runs-on" : "ubuntu-20.04",
       "timeout-minutes" : 20,
       "if" : "github.ref == 'refs/heads/main'",
