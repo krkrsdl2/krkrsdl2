@@ -517,7 +517,7 @@
           function loadMainJs() {
 
             var script = document.createElement('script');
-            script.src = "@exe_name@.js";
+            script.src = "@KRKRSDL2_NAME@.js";
             script.onload = onLoadMainJs;
             document.body.appendChild(script);
 
@@ -623,7 +623,7 @@
             // Current browser does not support WebAssembly, load the .wasm.js JavaScript fallback
             // before the main JS runtime.
             var wasm2js = document.createElement('script');
-            wasm2js.src = '@exe_name@.wasm.js';
+            wasm2js.src = '@KRKRSDL2_NAME@.wasm.js';
             wasm2js.onload = loadMainJs;
             document.body.appendChild(wasm2js);
           } else {
