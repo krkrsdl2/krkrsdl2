@@ -83,13 +83,13 @@
           }
         },
         {
-          "run" : "python -m pip install --upgrade meson ninja"
+          "run" : "python -m pip install --upgrade ninja"
         },
         {
-          "run" : "meson setup build/ --cross-file ./external/meson_toolchains/emscripten_meson.ini"
+          "run" : "emcmake cmake -S . -B build"
         },
         {
-          "run" : "meson compile -C build"
+          "run" : "cmake --build build"
         },
         {
           "uses" : "actions/upload-artifact@master",
@@ -131,13 +131,13 @@
           }
         },
         {
-          "run" : "python -m pip install --upgrade meson ninja"
+          "run" : "python -m pip install --upgrade ninja"
         },
         {
-          "run" : "meson setup build/"
+          "run" : "cmake -S . -B build"
         },
         {
-          "run" : "meson compile -C build"
+          "run" : "cmake --build build"
         },
         {
           "uses" : "actions/upload-artifact@master",
