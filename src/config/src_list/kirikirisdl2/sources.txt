@@ -446,4 +446,3 @@ src/core/visual/sdl2/TVPScreen.cpp
 src/core/visual/sdl2/VideoOvlImpl.cpp
 src/core/visual/sdl2/WindowImpl.cpp
 src/core/visual/sdl2/opengl/OpenGLPlatformSDL2.cpp
-src/plugins/istream_compat.cpp

@@ -1044,7 +1044,6 @@ tjs_uint64 TJS_INTF_METHOD tTVPLocalFileStream::GetSize()
 
 
 
-#ifdef _WIN32
 //---------------------------------------------------------------------------
 // tTVPIStreamAdapter
 //---------------------------------------------------------------------------
@@ -1067,6 +1066,7 @@ HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::QueryInterface(REFIID riid,
 {
 	if(!ppvObject) return E_INVALIDARG;
 
+#ifdef _WIN32
 	*ppvObject=NULL;
 	if(!memcmp(&riid,&IID_IUnknown,16))
 		*ppvObject=(IUnknown*)this;
@@ -1074,6 +1074,9 @@ HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::QueryInterface(REFIID riid,
 		*ppvObject=(ISequentialStream*)this;
 	else if(!memcmp(&riid,&IID_IStream,16))
 		*ppvObject=(IStream*)this;
+#else
+	*ppvObject = (void *)this;
+#endif
 
 	if(*ppvObject)
 	{
@@ -1212,8 +1215,13 @@ HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Stat(STATSTG *pstatstg, DWORD grfS
 
 	if(pstatstg)
 	{
+#ifdef _WIN32
 		ZeroMemory(pstatstg, sizeof(*pstatstg));
+#else
+		memset(pstatstg, 0, sizeof(*pstatstg));
+#endif
 
+#ifdef _WIN32
 		// pwcsName
 		// this object's storage pointer does not have a name ...
 		if(!(grfStatFlag &  STATFLAG_NONAME))
@@ -1227,10 +1235,12 @@ HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Stat(STATSTG *pstatstg, DWORD grfS
 
 		// type
 		pstatstg->type = STGTY_STREAM;
+#endif
 
 		// cbSize
 		pstatstg->cbSize.QuadPart = Stream->GetSize();
 
+#ifdef _WIN32
 		// mtime, ctime, atime unknown
 
 		// grfMode unknown
@@ -1245,6 +1255,7 @@ HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Stat(STATSTG *pstatstg, DWORD grfS
 		pstatstg->grfLocksSupported = 0;
 
 		// grfStatBits unknown
+#endif
 	}
 	else
 	{
@@ -1404,7 +1415,6 @@ tTJSBinaryStream * TVPCreateBinaryStreamAdapter(IStream *refstream)
 	return new  tTVPBinaryStreamAdapter(refstream);
 }
 //---------------------------------------------------------------------------
-#endif
 
 
 
