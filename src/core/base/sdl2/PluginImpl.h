@@ -12,7 +12,7 @@
 #define PluginImplH
 //---------------------------------------------------------------------------
 #include <memory.h>
-#if 0
+#ifdef _WIN32
 #include <objidl.h> // for IStream
 #endif
 
@@ -22,6 +22,9 @@
 	#include "kmp_pi.h"
 #endif
 
+#ifndef _WIN32
+#include "StorageImpl.h"
+#endif
 
 //---------------------------------------------------------------------------
 /*[*/
@@ -53,10 +56,42 @@ extern "C"
 	// V2 plug-in
 	typedef tjs_error (* tTVPV2LinkProc)(iTVPFunctionExporter *);
 	typedef tjs_error (* tTVPV2UnlinkProc)();
+
+#ifdef _WIN32
+	// TSS
+	typedef HRESULT (_stdcall * tTVPGetModuleInstanceProc)(ITSSModule **out,
+		ITSSStorageProvider *provider, IStream * config, HWND mainwin);
+#if 0
+	typedef ULONG (_stdcall * tTVPGetModuleThreadModelProc)(void);
+	typedef HRESULT (_stdcall * tTVPShowConfigWindowProc)(HWND parentwin,
+		IStream * storage );
+	typedef ULONG (_stdcall * tTVPCanUnloadNowProc)(void);
+
+#ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
+	// WaveUnpacker
+	typedef HRESULT (_stdcall * tTVPCreateWaveUnpackerProc)(IStream *storage,long size,
+		char *name,IWaveUnpacker **out); // old WaveUnpacker stuff
+#endif
+#endif
+#endif
 }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
+#ifdef _WIN32
+struct ITSSWaveDecoder;
+extern ITSSWaveDecoder * TVPSearchAvailTSSWaveDecoder(const ttstr & storage, const ttstr & extension);
+#if 0
+#ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
+class IWaveUnpacker;
+extern IWaveUnpacker * TVPSearchAvailWaveUnpacker(const ttstr & storage, IStream **stream);
+#endif
+#ifdef TVP_SUPPORT_KPI
+extern void * TVPSearchAvailKMPWaveDecoder(const ttstr & storage, KMPMODULE ** module,
+	SOUNDINFO * info);
+#endif
+#endif
+#endif
 extern void TVPAddExportFunction(const tjs_char *name, void *ptr);
 extern void TVPAddExportFunction(const char *name, void *ptr);
 TJS_EXP_FUNC_DEF(void, TVPThrowPluginUnboundFunctionError, (const char *funcname));
@@ -91,7 +126,7 @@ TJS_EXP_FUNC_DEF(void, TVP_md5_init, (TVP_md5_state_t *pms));
 TJS_EXP_FUNC_DEF(void, TVP_md5_append, (TVP_md5_state_t *pms, const tjs_uint8 *data, int nbytes));
 TJS_EXP_FUNC_DEF(void, TVP_md5_finish, (TVP_md5_state_t *pms, tjs_uint8 *digest));
 
-#if 0
+#ifdef _WIN32
 TJS_EXP_FUNC_DEF(HWND, TVPGetApplicationWindowHandle, ());
 #endif
 TJS_EXP_FUNC_DEF(void, TVPProcessApplicationMessages, ());
@@ -132,7 +167,7 @@ typedef void (TJS_USERENTRY *tTVPFinallyBlockFunction)(void *data);
 TJS_EXP_FUNC_DEF(void, TVPDoTryBlock, (tTVPTryBlockFunction tryblock, tTVPCatchBlockFunction catchblock, tTVPFinallyBlockFunction finallyblock, void *data));
 
 
-#if 0
+#ifdef _WIN32
 TJS_EXP_FUNC_DEF(bool, TVPGetFileVersionOf, (const tjs_char* module_filename, tjs_int &major, tjs_int &minor, tjs_int &release, tjs_int &build));
 #endif
 

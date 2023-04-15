@@ -28,25 +28,30 @@
 #include "UtilStreams.h"
 #include "TickCount.h"
 
-#define DWORD uint32_t
+#if 0
 #ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
 	#include "oldwaveunpacker.h"
 #endif
+#endif
 
-#if 0
+#ifdef _WIN32
 #pragma pack(push, 8)
 	#include "tvpsnd.h"
 #pragma pack(pop)
 #endif
 
+#if 0
 #ifdef TVP_SUPPORT_KPI
 	#include "kmp_pi.h"
+#endif
 #endif
 
 #include "TVPTimer.h"
 #include "Application.h"
 #include "UserEvent.h"
 #include "NativeEventQueue.h"
+
+#define DWORD uint32_t
 
 
 //---------------------------------------------------------------------------
@@ -255,7 +260,8 @@ static void TVPInitSoundOptions()
 
 
 
-#if 0
+#ifdef KRKRSDL2_ENABLE_PLUGINS
+#ifdef _WIN32
 //---------------------------------------------------------------------------
 // TSS plug-in interface
 //---------------------------------------------------------------------------
@@ -342,6 +348,7 @@ void TVPRegisterTSSWaveDecoderCreator()
 
 
 
+#if 0
 #ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
 //---------------------------------------------------------------------------
 // old WaveUnpacker plug-in
@@ -560,6 +567,8 @@ void TVPRegisterKMPWaveDecoderCreator()
 	}
 }
 //---------------------------------------------------------------------------
+#endif
+#endif
 #endif
 
 
@@ -2071,14 +2080,20 @@ tTVPSoundGlobalFocusMode tTJSNI_WaveSoundBuffer::GlobalFocusMode = sgfmNeverMute
 tTJSNI_WaveSoundBuffer::tTJSNI_WaveSoundBuffer()
 {
 	TVPInitSoundOptions();
-#if 0
+#ifdef KRKRSDL2_ENABLE_PLUGINS
+#ifdef _WIN32
 	TVPRegisterTSSWaveDecoderCreator();
+#if 0
 #ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
 	TVPRegisterWaveUnpackerCreator();
 #endif
 #ifdef TVP_SUPPORT_KPI
 	TVPRegisterKMPWaveDecoderCreator();
 #endif
+#endif
+#endif
+#endif
+#if 0
 	TVPInitLogTable();
 #endif
 	Decoder = NULL;

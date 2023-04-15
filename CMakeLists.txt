@@ -253,6 +253,11 @@ list(APPEND KRKRSDL2_LDFLAGS
 )
 set_source_files_properties(${KIRIKIRISDL2_SSE2_SRC} PROPERTIES COMPILE_FLAGS -msse2)
 set_source_files_properties(${KIRIKIRISDL2_AVX2_SRC} PROPERTIES COMPILE_FLAGS -mavx2)
+if(OPTION_ENABLE_EXTERNAL_PLUGINS)
+list(APPEND KRKRSDL2_SRC
+	src/core/sound/sdl2/tvpsnd.c
+)
+endif()
 endif()
 
 list(APPEND KRKRSDL2_CXXFLAGS ${KRKRSDL2_CFLAGS})
