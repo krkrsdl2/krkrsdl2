@@ -14,6 +14,8 @@ project('krkrsdl2',
 	version: 'unknown',
 )
 
+message("The Meson build system is deprecated; please use the CMake build system instead")
+
 cxx = meson.get_compiler('cpp')
 host_system = host_machine.system()
 
