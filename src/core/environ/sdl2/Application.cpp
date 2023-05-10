@@ -1,3 +1,6 @@
+/* SPDX-License-Identifier: MIT */
+/* Copyright (c) Kirikiri SDL2 Developers */
+
 #if 0
 #define INITGUID // XP 有効にするとdxguid.libが使用できないため
 #endif

@@ -1,4 +1,5 @@
-
+/* SPDX-License-Identifier: MIT */
+/* Copyright (c) Kirikiri SDL2 Developers */
 
 #ifndef __SIMDE_RENAMES_H__
 #define __SIMDE_RENAMES_H__

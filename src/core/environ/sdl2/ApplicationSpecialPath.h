@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: MIT */
+/* Copyright (c) Kirikiri SDL2 Developers */
 
 #ifndef __APPLICATION_SPECIAL_PATH_H__
 #define __APPLICATION_SPECIAL_PATH_H__

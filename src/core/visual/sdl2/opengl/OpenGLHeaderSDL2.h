@@ -1,3 +1,6 @@
+/* SPDX-License-Identifier: MIT */
+/* Copyright (c) Kirikiri SDL2 Developers */
+
 #ifndef __ANGLE_GL_H__
 #define __ANGLE_GL_H__
 // Function pointers are defined here so they can be dynamically set from SDL2.

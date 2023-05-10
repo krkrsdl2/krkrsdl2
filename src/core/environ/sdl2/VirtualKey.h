@@ -1,4 +1,5 @@
-
+/* SPDX-License-Identifier: MIT */
+/* Copyright (c) Kirikiri SDL2 Developers */
 
 #ifndef __VIRTUAL_KEY_H__
 #define __VIRTUAL_KEY_H__

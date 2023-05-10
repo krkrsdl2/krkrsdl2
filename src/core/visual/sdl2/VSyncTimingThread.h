@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: MIT */
+/* Copyright (c) Kirikiri SDL2 Developers */
 
 #ifndef __VSYNC_TIMING_THREAD_H__
 #define __VSYNC_TIMING_THREAD_H__

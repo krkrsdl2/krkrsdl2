@@ -1,3 +1,6 @@
+/* SPDX-License-Identifier: MIT */
+/* Copyright (c) Kirikiri SDL2 Developers */
+
 #include "ncbind/ncbind.hpp"
 #include "CharacterSet.h"
 

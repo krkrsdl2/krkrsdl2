@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: MIT */
+/* Copyright (c) Kirikiri SDL2 Developers */
 
 #ifndef __BITMAP_BITS_ALLOC_H__
 #define __BITMAP_BITS_ALLOC_H__

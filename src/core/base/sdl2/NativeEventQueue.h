@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: MIT */
+/* Copyright (c) Kirikiri SDL2 Developers */
 
 #ifndef __NATIVE_EVENT_QUEUE_H__
 #define __NATIVE_EVENT_QUEUE_H__

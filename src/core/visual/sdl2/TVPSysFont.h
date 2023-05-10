@@ -1,3 +1,6 @@
+/* SPDX-License-Identifier: MIT */
+/* Copyright (c) Kirikiri SDL2 Developers */
+
 #ifndef __TVP_SYS_FONT_H__
 #define __TVP_SYS_FONT_H__
 

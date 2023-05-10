@@ -1,4 +1,5 @@
-
+/* SPDX-License-Identifier: MIT */
+/* Copyright (c) Kirikiri SDL2 Developers */
 
 #ifndef __BITMAP_INFOMATION_H__
 #define __BITMAP_INFOMATION_H__
