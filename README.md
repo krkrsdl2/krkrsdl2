@@ -6,7 +6,7 @@
 詳細については、次の場所を参照してください：https://github.com/krkrsdl2/kag3  
 
 吉里吉里SDL2は[Emscripten](https://emscripten.org/)を使用して[WebAssembly](https://webassembly.org/)にコンパイルすることも可能です。  
-Webブラウザーでプレイできるデモはここにあります：https://krkrsdl2.github.io/krkrsdl2/  
+Webブラウザーでプレイできるデモはここにあります：https://krkrsdl2.github.io/krkrsdl2-web-demo/  
 
 ## 商用ゲームの実行に関する注意
 

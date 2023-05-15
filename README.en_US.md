@@ -6,7 +6,7 @@ This program can be used alongside a modified version of KAG (Kirikiri Adventure
 For more details, please see the following location: https://github.com/krkrsdl2/kag3  
 
 Kirikiri SDL2 can also be compiled to [WebAssembly](https://webassembly.org/) with [Emscripten](https://emscripten.org/).  
-A demonstration project playable in your web browser is available here: https://krkrsdl2.github.io/krkrsdl2/  
+A demonstration project playable in your web browser is available here: https://krkrsdl2.github.io/krkrsdl2-web-demo/  
 
 ## A note on running commercial games
 
