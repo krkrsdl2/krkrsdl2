@@ -1,0 +1,18 @@
+url: https://krkrsdl2.github.io/krkrsdl2
+highlighter: rouge
+simple_search: https://google.com/search
+markdown: CommonMark
+commonmark:
+  options:
+    - SMART
+    - UNSAFE
+  extensions:
+    - autolink
+    - table
+plugins:
+    - jemoji
+    - jekyll-commonmark
+    - jekyll-mentions
+    - jekyll-redirect-from
+    - jekyll-sitemap
+    - jekyll-feed
