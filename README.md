@@ -69,7 +69,7 @@ CMakeビルドシステムの詳細については、次の場所をご覧くだ
 
 このプロジェクトのコードは、次のプロジェクトに基づいています：
 * [吉里吉里2](https://github.com/krkrz/krkr2)
-* [吉里吉里Z](https://github.com/krkrz/krkrz) dev_multi_platform ブランチ
+* [吉里吉里Z](https://github.com/krkrz/krkrz) `dev_multi_platform` ブランチ
 * [KAGParser](https://github.com/krkrz/KAGParser)
 * [SamplePlugin](https://github.com/krkrz/SamplePlugin)
 * [wuvorbis](https://github.com/krkrz/wuvorbis)

@@ -69,7 +69,7 @@ After that is done, execute the program: `/path/to/krkrsdl2`
 
 Code from this project is based on the following projects:
 * [Kirikiri 2](https://github.com/krkrz/krkr2)
-* [Kirikiri Z](https://github.com/krkrz/krkrz) dev_multi_platform branch
+* [Kirikiri Z](https://github.com/krkrz/krkrz) `dev_multi_platform` branch
 * [KAGParser](https://github.com/krkrz/KAGParser)
 * [SamplePlugin](https://github.com/krkrz/SamplePlugin)
 * [wuvorbis](https://github.com/krkrz/wuvorbis)
