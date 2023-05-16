@@ -531,7 +531,7 @@
         },
         {
           "name" : "Prepare artifacts for release",
-          "run" : "7z a -tzip krkrsdl2-web.zip krkrsdl2-web/*\n7z a -tzip krkrsdl2-ubuntu.zip krkrsdl2-ubuntu/*\ncp krkrsdl2-android/krkrsdl2_*.apk krkrsdl2-android.apk\ncp krkrsdl2-vita/krkrsdl2.vpk krkrsdl2-vita.vpk\ncp krkrsdl2-switch/krkrsdl2.nro krkrsdl2-switch.nro\n7z a -tzip krkrsdl2-macos.zip krkrsdl2-macos/*\ncp krkrsdl2-macos-appbundle/krkrsdl2-macos-appbundle.zip krkrsdl2-macos-appbundle.zip\n"
+          "run" : "7z a -tzip krkrsdl2-web.zip krkrsdl2-web/*\n7z a -tzip krkrsdl2-ubuntu.zip krkrsdl2-ubuntu/*\ncp krkrsdl2-android/krkrsdl2_*.apk krkrsdl2.apk\ncp krkrsdl2-vita/krkrsdl2.vpk krkrsdl2.vpk\ncp krkrsdl2-switch/krkrsdl2.nro krkrsdl2.nro\n7z a -tzip krkrsdl2-macos.zip krkrsdl2-macos/*\ncp krkrsdl2-macos-appbundle/krkrsdl2-macos-appbundle.zip krkrsdl2-macos-appbundle.zip\n"
         },
         {
           "name" : "Create prerelease",
@@ -542,7 +542,7 @@
             "prerelease" : "true",
             "automatic_release_tag" : "latest",
             "title" : "Latest development builds",
-            "files" : "krkrsdl2-web.zip\nkrkrsdl2-ubuntu.zip\nkrkrsdl2-android.apk\nkrkrsdl2-vita.vpk\nkrkrsdl2-switch.nro\nkrkrsdl2-macos.zip\nkrkrsdl2-macos-appbundle.zip\n"
+            "files" : "krkrsdl2-web.zip\nkrkrsdl2-ubuntu.zip\nkrkrsdl2.apk\nkrkrsdl2.vpk\nkrkrsdl2.nro\nkrkrsdl2-macos.zip\nkrkrsdl2-macos-appbundle.zip\n"
           }
         }
       ]
