@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(krkrsdl2)
 
+cmake_policy(SET CMP0077 NEW)
 option(OPTION_ENABLE_ASYNC_IMAGE_LOAD "Enable async image load. Not applicable to Emscripten build." ON)
 option(OPTION_ENABLE_CANVAS "Enable Canvas interface. Requires OpenGL ES or ANGLE at runtime." OFF)
 option(OPTION_ENABLE_CASEINSENSITIVITY "Enable case insensitivity. May malfunction if directories in the path are not listable." ON)
@@ -25,6 +26,10 @@ option(KRKRSDL2_BUILD_ENABLE_WARNINGS "Enable warnings when building the project
 
 if(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif()
+
+if(NOT DEFINED KRKRSDL2_REPO_DIR)
+set(KRKRSDL2_REPO_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
 if(NOT KRKRSDL2_ENABLE_PRECOMPILED_HEADERS)
@@ -517,4 +522,11 @@ configure_file(
 	@ONLY
 	NEWLINE_STYLE UNIX
 )
+endif()
+
+get_directory_property(HAS_PARENT_SCOPE PARENT_DIRECTORY)
+if(HAS_PARENT_SCOPE)
+# Share certain variables to projects that include this one
+set(KRKRSDL2_NAME ${KRKRSDL2_NAME} PARENT_SCOPE)
+set(KRKRSDL2_REPO_DIR ${KRKRSDL2_REPO_DIR} PARENT_SCOPE)
 endif()
