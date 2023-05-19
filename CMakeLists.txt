@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.10)
 
 project(krkrsdl2)
 
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
 cmake_policy(SET CMP0077 NEW)
+endif()
 option(OPTION_ENABLE_ASYNC_IMAGE_LOAD "Enable async image load. Not applicable to Emscripten build." ON)
 option(OPTION_ENABLE_CANVAS "Enable Canvas interface. Requires OpenGL ES or ANGLE at runtime." OFF)
 option(OPTION_ENABLE_CASEINSENSITIVITY "Enable case insensitivity. May malfunction if directories in the path are not listable." ON)
