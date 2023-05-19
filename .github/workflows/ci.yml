@@ -259,7 +259,7 @@
         },
         {
           "name" : "build",
-          "run" : "cd android-project\n./gradlew assembleRelease\n"
+          "run" : "cd android-project\n./gradlew assembleRelease -Dcmake.dir=$(dirname $(dirname $(which cmake)))\n"
         },
         {
           "uses" : "actions/upload-artifact@master",
