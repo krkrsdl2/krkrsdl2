@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.12)
 
 project(krkrsdl2)
 
-message(STATUS "CMake version: ${CMAKE_VERSION}")
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
 cmake_policy(SET CMP0077 NEW)
 endif()
