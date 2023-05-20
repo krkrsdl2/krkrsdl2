@@ -1,8 +1,0 @@
-external/SamplePlugin/extrans/Main.cpp
-external/SamplePlugin/extrans/mosaic.cpp
-external/SamplePlugin/extrans/ripple.cpp
-external/SamplePlugin/extrans/rotatebase.cpp
-external/SamplePlugin/extrans/rotatetrans.cpp
-external/SamplePlugin/extrans/turn.cpp
-external/SamplePlugin/extrans/turntrans_table.cpp
-external/SamplePlugin/extrans/wave.cpp
