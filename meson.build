@@ -23,11 +23,6 @@ sdl2_dep = dependency('sdl2', method: 'auto')
 
 krkrsdl2_src = run_command('cat', files('src/config/src_list/kirikirisdl2/sources.txt'), files('src/config/src_list/kirikirisdl2/sources_sse2.txt'), files('src/config/src_list/kirikirisdl2/sources_avx2.txt')).stdout().strip().split('\n')
 krkrsdl2_includes = run_command('cat', files('src/config/src_list/kirikirisdl2/includes.txt')).stdout().strip().split('\n')
-if target_machine.system() == 'emscripten'
-	krkrsdl2_src += [
-		'src/plugins/kremscripten.cpp',
-	]
-endif
 krkrsdl2_cflags = []
 if get_option('warning_level') == '0'
 	if cxx.get_id() == 'gcc'
