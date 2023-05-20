@@ -23,7 +23,7 @@ option(
 option(
 	'enable_external_plugins',
 	type: 'boolean',
-	value: false,
+	value: true,
 	description: 'Enable external plugins. This will make Plugins.link load a plugin instead of a no-op.'
 )
 
