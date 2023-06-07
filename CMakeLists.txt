@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.12)
 
+if(IOS AND (NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET))
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.0)
+endif()
+
 project(krkrsdl2)
 
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
@@ -71,10 +75,6 @@ endif()
 
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-fno-delete-null-pointer-checks KRKRSDL2_COMPILER_SUPPORTS_NO_DELETE_NULL_POINTER_CHECKS)
-
-if(IOS AND (NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET))
-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.0)
-endif()
 
 if(IOS)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/out/library)
