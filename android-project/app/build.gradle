@@ -27,6 +27,10 @@ def get_abi_filters() {
     return in_abi_filters
 }
 
+def get_cmakelists_path() {
+    return rootProject.projectDir.getAbsolutePath() + '/../CMakeLists.txt'
+}
+
 def get_cmake_arguments() {
     def in_cmake_arguments = []
     in_cmake_arguments.add("-DANDROID_APP_PLATFORM=android-16")
@@ -69,7 +73,7 @@ android {
             //     path 'jni/Android.mk'
             // }
             cmake {
-                path '../../CMakeLists.txt'
+                path = get_cmakelists_path()
             }
         }
        
