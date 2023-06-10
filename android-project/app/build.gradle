@@ -7,21 +7,31 @@ else {
     apply plugin: 'com.android.library'
 }
 
-def in_abi_filters = []
-if (project.hasProperty("armeabi-v7a")) {
-    in_abi_filters.add('armeabi-v7a')
+def get_abi_filters() {
+    def in_abi_filters = []
+    if (project.hasProperty("armeabi-v7a")) {
+        in_abi_filters.add('armeabi-v7a')
+    }
+    if (project.hasProperty("arm64-v8a")) {
+        in_abi_filters.add('arm64-v8a')
+    }
+    if (project.hasProperty("x86")) {
+        in_abi_filters.add('x86')
+    }
+    if (project.hasProperty("x86_64")) {
+        in_abi_filters.add('x86_64')
+    }
+    if (!project.hasProperty("armeabi-v7a") && !project.hasProperty("arm64-v8a") && !project.hasProperty("x86") && !project.hasProperty("x86_64")) {
+        in_abi_filters = ['armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64']
+    }
+    return in_abi_filters
 }
-if (project.hasProperty("arm64-v8a")) {
-    in_abi_filters.add('arm64-v8a')
-}
-if (project.hasProperty("x86")) {
-    in_abi_filters.add('x86')
-}
-if (project.hasProperty("x86_64")) {
-    in_abi_filters.add('x86_64')
-}
-if (!project.hasProperty("armeabi-v7a") && !project.hasProperty("arm64-v8a") && !project.hasProperty("x86") && !project.hasProperty("x86_64")) {
-    in_abi_filters = ['armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64']
+
+def get_cmake_arguments() {
+    def in_cmake_arguments = []
+    in_cmake_arguments.add("-DANDROID_APP_PLATFORM=android-16")
+    in_cmake_arguments.add("-DANDROID_STL=c++_static")
+    return in_cmake_arguments
 }
 
 android {
@@ -36,9 +46,10 @@ android {
         versionName "1.0"
         externalNativeBuild {
             cmake {
-                arguments "-DANDROID_APP_PLATFORM=android-16", "-DANDROID_STL=c++_static"
                 abiFilters = []
-                abiFilters.addAll(in_abi_filters)
+                abiFilters.addAll(get_abi_filters())
+                arguments = []
+                arguments.addAll(get_cmake_arguments())
                 version "3.12+"
             }
         }
@@ -83,9 +94,10 @@ android {
         variant.outputs.all { output ->
             def app_name = "krkrsdl2"
             def architecture = "universal"
-            if (in_abi_filters.size() == 1)
+            def abi_filters = get_abi_filters()
+            if (abi_filters.size() == 1)
             {
-                architecture = in_abi_filters[0]
+                architecture = abi_filters[0]
             }
             outputFileName = "${app_name}_${architecture}.apk"
         }
