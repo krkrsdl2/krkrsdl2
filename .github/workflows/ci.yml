@@ -239,6 +239,14 @@
           }
         },
         {
+          "name" : "Clean current assets folder",
+          "run" : "rm -rf android-project/app/src/main/assets && mkdir -p android-project/app/src/main/assets"
+        },
+        {
+          "name" : "Download krkrsdl2-kag3-demo build",
+          "run" : "cd android-project/app/src/main/assets && curl -LOC - https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
+        },
+        {
           "name" : "Set up base environment",
           "run" : "sudo apt-get install build-essential"
         },
