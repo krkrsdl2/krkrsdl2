@@ -108,7 +108,7 @@ android {
     }
 
     aaptOptions {
-        noCompress 'xp3'
+        noCompress ''
     }
 }
 
