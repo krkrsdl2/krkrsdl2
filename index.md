@@ -18,6 +18,10 @@ Webブラウザーでプレイできるデモはここにあります：https://
 このプロジェクトを使用して変更されていない商用ゲームを実行することはサポートされていません。  
 代わりに[Wine](https://www.winehq.org/)または[Kirikiroid2](https://play.google.com/store/apps/details?id=org.tvp.kirikiri2)を使用してください。    
 
+## スクリーンショット
+
+![Screenshot](./assets/img/krkrsdl2_demo_screenshot.png)
+
 ## IRCチャンネル
 
 吉里吉里SDL2プロジェクトのメンバーは、[libera.chatの#krkrsdl2チャンネル](https://web.libera.chat/#krkrsdl2)で見つけることができます。  

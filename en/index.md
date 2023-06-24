@@ -18,6 +18,10 @@ A demonstration project playable in your web browser is available here: https://
 Running unmodified commercial games using this project is not supported.  
 Please use [Wine](https://www.winehq.org/) or [Kirikiroid2](https://play.google.com/store/apps/details?id=org.tvp.kirikiri2) instead.  
 
+## Screenshots
+
+![Screenshot](../assets/img/krkrsdl2_demo_screenshot.png)
+
 ## IRC Channel
 
 Members of the Kirikiri SDL2 project can be found in the [#krkrsdl2 channel on libera.chat](https://web.libera.chat/#krkrsdl2).  
