@@ -422,7 +422,8 @@ static tjs_uint sdl_key_to_vk_key(SDL_Keycode key)
 	return 0;
 }
 
-static int GetShiftState() {
+static int GetShiftState()
+{
 	int s = 0;
 	if(TVPGetAsyncKeyState(VK_MENU)) s |= MK_ALT;
 	if(TVPGetAsyncKeyState(VK_LMENU)) s |= MK_ALT;
@@ -435,7 +436,8 @@ static int GetShiftState() {
 	if(TVPGetAsyncKeyState(VK_RCONTROL)) s |= MK_CONTROL;
 	return s;
 }
-static int GetMouseButtonState() {
+static int GetMouseButtonState()
+{
 	int s = 0;
 	if(TVPGetAsyncKeyState(VK_LBUTTON)) s |= ssLeft;
 	if(TVPGetAsyncKeyState(VK_RBUTTON)) s |= ssRight;
@@ -446,7 +448,8 @@ static int GetMouseButtonState() {
 }
 
 
-class TVPWindowWindow : public TTVPWindowForm {
+class TVPWindowWindow : public TTVPWindowForm
+{
 protected:
 	SDL_Window *window;
 
@@ -800,7 +803,8 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 	}
 }
 
-TVPWindowWindow::~TVPWindowWindow() {
+TVPWindowWindow::~TVPWindowWindow()
+{
 	if (_lastWindowWindow == this) _lastWindowWindow = _prevWindow;
 	if (_nextWindow) _nextWindow->_prevWindow = _prevWindow;
 	if (_prevWindow) _prevWindow->_nextWindow = _nextWindow;
@@ -838,7 +842,8 @@ TVPWindowWindow::~TVPWindowWindow() {
 	}
 }
 
-void TVPWindowWindow::SetPaintBoxSize(tjs_int w, tjs_int h) {
+void TVPWindowWindow::SetPaintBoxSize(tjs_int w, tjs_int h)
+{
 #ifdef KRKRSDL2_ENABLE_ZOOM
 	LayerWidth = w;
 	LayerHeight = h;
@@ -935,14 +940,16 @@ void TVPWindowWindow::TranslateDrawAreaToWindow(int &x, int &y)
 #endif
 }
 
-bool TVPWindowWindow::GetFormEnabled() {
+bool TVPWindowWindow::GetFormEnabled()
+{
 	if (window)
 	{
 		return SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN;
 	}
 	return false;
 }
-void TVPWindowWindow::SetDefaultMouseCursor() {
+void TVPWindowWindow::SetDefaultMouseCursor()
+{
 	if (!sdl_system_cursors[0])
 	{
 		for (int i = 0; i < SDL_NUM_SYSTEM_CURSORS; i += 1)
@@ -952,7 +959,8 @@ void TVPWindowWindow::SetDefaultMouseCursor() {
 	}
 	SDL_SetCursor(sdl_system_cursors[SDL_SYSTEM_CURSOR_ARROW]);
 }
-void TVPWindowWindow::SetMouseCursor(tjs_int handle) {
+void TVPWindowWindow::SetMouseCursor(tjs_int handle)
+{
 	if (!sdl_system_cursors[0])
 	{
 		for (int i = 0; i < SDL_NUM_SYSTEM_CURSORS; i += 1)
@@ -1006,27 +1014,32 @@ void TVPWindowWindow::SetMouseCursor(tjs_int handle) {
 			break;
 	}
 }
-void TVPWindowWindow::SetMouseCursorState(tTVPMouseCursorState mcs) {
+void TVPWindowWindow::SetMouseCursorState(tTVPMouseCursorState mcs)
+{
 	cursor_temporary_hidden = (mcs == mcsTempHidden);
 	SDL_ShowCursor((mcs == mcsVisible) ? SDL_ENABLE : SDL_DISABLE);
 }
-tTVPMouseCursorState TVPWindowWindow::GetMouseCursorState() const {
+tTVPMouseCursorState TVPWindowWindow::GetMouseCursorState() const
+{
 	if (cursor_temporary_hidden)
 	{
 		return mcsTempHidden;
 	}
 	return (SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) ? mcsVisible : mcsHidden;
 }
-void TVPWindowWindow::HideMouseCursor() {
+void TVPWindowWindow::HideMouseCursor()
+{
 	SetMouseCursorState(mcsTempHidden);
 }
-void TVPWindowWindow::RestoreMouseCursor() {
+void TVPWindowWindow::RestoreMouseCursor()
+{
 	if (cursor_temporary_hidden)
 	{
 		SetMouseCursorState(mcsVisible);
 	}
 }
-void TVPWindowWindow::GetCursorPos(tjs_int &x, tjs_int &y) {
+void TVPWindowWindow::GetCursorPos(tjs_int &x, tjs_int &y)
+{
 	bool win_has_mouse_focus = window == SDL_GetMouseFocus();
 	if (win_has_mouse_focus && renderer)
 	{
@@ -1063,7 +1076,8 @@ void TVPWindowWindow::GetCursorPos(tjs_int &x, tjs_int &y) {
 	x = last_mouse_x;
 	y = last_mouse_y;
 }
-void TVPWindowWindow::SetCursorPos(tjs_int x, tjs_int y) {
+void TVPWindowWindow::SetCursorPos(tjs_int x, tjs_int y)
+{
 	RestoreMouseCursor();
 	if (renderer && window)
 	{
@@ -1094,7 +1108,8 @@ void TVPWindowWindow::SetCursorPos(tjs_int x, tjs_int y) {
 		SDL_WarpMouseInWindow(window, x, y);
 	}
 }
-void TVPWindowWindow::SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont * font) {
+void TVPWindowWindow::SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont * font)
+{
 	if (font == nullptr)
 	{
 		return;
@@ -1106,7 +1121,8 @@ void TVPWindowWindow::SetAttentionPoint(tjs_int left, tjs_int top, const struct 
 	TranslateDrawAreaToWindow(attention_point_rect.x, attention_point_rect.y);
 	SDL_SetTextInputRect(&attention_point_rect);
 }
-void TVPWindowWindow::BringToFront() {
+void TVPWindowWindow::BringToFront()
+{
 	if (_currentWindowWindow != this) {
 		if (_currentWindowWindow) {
 			_currentWindowWindow->TJSNativeInstance->OnReleaseCapture();
@@ -1118,7 +1134,8 @@ void TVPWindowWindow::BringToFront() {
 		SDL_RaiseWindow(window);
 	}
 }
-void TVPWindowWindow::ShowWindowAsModal() {
+void TVPWindowWindow::ShowWindowAsModal()
+{
 #if defined(KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE)
 	TVPThrowExceptionMessage(TJS_W("Showing window as modal is not supported"));
 #else
@@ -1136,14 +1153,16 @@ void TVPWindowWindow::ShowWindowAsModal() {
 	in_mode_ = false;
 #endif
 }
-bool TVPWindowWindow::GetVisible() {
+bool TVPWindowWindow::GetVisible()
+{
 	if (window)
 	{
 		return SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN;
 	}
 	return false;
 }
-void TVPWindowWindow::SetVisible(bool visible) {
+void TVPWindowWindow::SetVisible(bool visible)
+{
 	if (window)
 	{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
@@ -1170,7 +1189,8 @@ void TVPWindowWindow::SetVisible(bool visible) {
 		}
 	}
 }
-void TVPWindowWindow::SetFullScreenMode(bool fullscreen) {
+void TVPWindowWindow::SetFullScreenMode(bool fullscreen)
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1179,7 +1199,8 @@ void TVPWindowWindow::SetFullScreenMode(bool fullscreen) {
 	UpdateWindow(utNormal);
 #endif
 }
-bool TVPWindowWindow::GetFullScreenMode() {
+bool TVPWindowWindow::GetFullScreenMode()
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1188,7 +1209,8 @@ bool TVPWindowWindow::GetFullScreenMode() {
 #endif
 	return false;
 }
-void TVPWindowWindow::SetBorderStyle(tTVPBorderStyle bs) {
+void TVPWindowWindow::SetBorderStyle(tTVPBorderStyle bs)
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1197,7 +1219,8 @@ void TVPWindowWindow::SetBorderStyle(tTVPBorderStyle bs) {
 	}
 #endif
 }
-tTVPBorderStyle TVPWindowWindow::GetBorderStyle() const {
+tTVPBorderStyle TVPWindowWindow::GetBorderStyle() const
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1214,7 +1237,8 @@ tTVPBorderStyle TVPWindowWindow::GetBorderStyle() const {
 #endif
 	return bsSingle;
 }
-tjs_string TVPWindowWindow::GetCaption() {
+tjs_string TVPWindowWindow::GetCaption()
+{
 	if (window)
 	{
 		std::string v_utf8 = SDL_GetWindowTitle(window);
@@ -1228,7 +1252,8 @@ tjs_string TVPWindowWindow::GetCaption() {
 		return empty;
 	}
 }
-void TVPWindowWindow::GetCaption(tjs_string & v) const {
+void TVPWindowWindow::GetCaption(tjs_string & v) const
+{
 	v.clear();
 	if (window)
 	{
@@ -1236,7 +1261,8 @@ void TVPWindowWindow::GetCaption(tjs_string & v) const {
 		TVPUtf8ToUtf16( v, v_utf8 );
 	}
 }
-void TVPWindowWindow::SetCaption(const tjs_string & v) {
+void TVPWindowWindow::SetCaption(const tjs_string & v)
+{
 	if (window)
 	{
 		std::string v_utf8;
@@ -1246,7 +1272,8 @@ void TVPWindowWindow::SetCaption(const tjs_string & v) {
 		}
 	}
 }
-void TVPWindowWindow::SetWidth(tjs_int w) {
+void TVPWindowWindow::SetWidth(tjs_int w)
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1271,7 +1298,8 @@ void TVPWindowWindow::SetWidth(tjs_int w) {
 	UpdateWindow(utNormal);
 #endif
 }
-void TVPWindowWindow::SetHeight(tjs_int h) {
+void TVPWindowWindow::SetHeight(tjs_int h)
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1296,7 +1324,8 @@ void TVPWindowWindow::SetHeight(tjs_int h) {
 	UpdateWindow(utNormal);
 #endif
 }
-void TVPWindowWindow::SetSize(tjs_int w, tjs_int h) {
+void TVPWindowWindow::SetSize(tjs_int w, tjs_int h)
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1319,7 +1348,8 @@ void TVPWindowWindow::SetSize(tjs_int w, tjs_int h) {
 	UpdateWindow(utNormal);
 #endif
 }
-void TVPWindowWindow::GetSize(tjs_int &w, tjs_int &h) {
+void TVPWindowWindow::GetSize(tjs_int &w, tjs_int &h)
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1339,7 +1369,8 @@ void TVPWindowWindow::GetSize(tjs_int &w, tjs_int &h) {
 	w = 0;
 	h = 0;
 }
-tjs_int TVPWindowWindow::GetWidth() const {
+tjs_int TVPWindowWindow::GetWidth() const
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1360,7 +1391,8 @@ tjs_int TVPWindowWindow::GetWidth() const {
 	}
 	return 0;
 }
-tjs_int TVPWindowWindow::GetHeight() const {
+tjs_int TVPWindowWindow::GetHeight() const
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1381,19 +1413,24 @@ tjs_int TVPWindowWindow::GetHeight() const {
 	}
 	return 0;
 }
-void TVPWindowWindow::SetMinWidth(tjs_int w) {
+void TVPWindowWindow::SetMinWidth(tjs_int w)
+{
 	SetMinSize(w, GetMinHeight());
 }
-void TVPWindowWindow::SetMaxWidth(tjs_int w) {
+void TVPWindowWindow::SetMaxWidth(tjs_int w)
+{
 	SetMaxSize(w, GetMaxHeight());
 }
-void TVPWindowWindow::SetMinHeight(tjs_int h) {
+void TVPWindowWindow::SetMinHeight(tjs_int h)
+{
 	SetMinSize(GetMinWidth(), h);
 }
-void TVPWindowWindow::SetMaxHeight(tjs_int h) {
+void TVPWindowWindow::SetMaxHeight(tjs_int h)
+{
 	SetMaxSize(GetMaxWidth(), h);
 }
-void TVPWindowWindow::SetMinSize(tjs_int w, tjs_int h) {
+void TVPWindowWindow::SetMinSize(tjs_int w, tjs_int h)
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1401,7 +1438,8 @@ void TVPWindowWindow::SetMinSize(tjs_int w, tjs_int h) {
 	}
 #endif
 }
-void TVPWindowWindow::SetMaxSize(tjs_int w, tjs_int h) {
+void TVPWindowWindow::SetMaxSize(tjs_int w, tjs_int h)
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1409,7 +1447,8 @@ void TVPWindowWindow::SetMaxSize(tjs_int w, tjs_int h) {
 	}
 #endif
 }
-tjs_int TVPWindowWindow::GetMinWidth() {
+tjs_int TVPWindowWindow::GetMinWidth()
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1430,7 +1469,8 @@ tjs_int TVPWindowWindow::GetMinWidth() {
 	}
 	return 0;
 }
-tjs_int TVPWindowWindow::GetMaxWidth() {
+tjs_int TVPWindowWindow::GetMaxWidth()
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1451,7 +1491,8 @@ tjs_int TVPWindowWindow::GetMaxWidth() {
 	}
 	return 0;
 }
-tjs_int TVPWindowWindow::GetMinHeight() {
+tjs_int TVPWindowWindow::GetMinHeight()
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1472,7 +1513,8 @@ tjs_int TVPWindowWindow::GetMinHeight() {
 	}
 	return 0;
 }
-tjs_int TVPWindowWindow::GetMaxHeight() {
+tjs_int TVPWindowWindow::GetMaxHeight()
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1493,7 +1535,8 @@ tjs_int TVPWindowWindow::GetMaxHeight() {
 	}
 	return 0;
 }
-tjs_int TVPWindowWindow::GetLeft() {
+tjs_int TVPWindowWindow::GetLeft()
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1504,10 +1547,12 @@ tjs_int TVPWindowWindow::GetLeft() {
 #endif
 	return 0;
 }
-void TVPWindowWindow::SetLeft(tjs_int l) {
+void TVPWindowWindow::SetLeft(tjs_int l)
+{
 	SetPosition(l, GetTop());
 }
-tjs_int TVPWindowWindow::GetTop() {
+tjs_int TVPWindowWindow::GetTop()
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1518,10 +1563,12 @@ tjs_int TVPWindowWindow::GetTop() {
 #endif
 	return 0;
 }
-void TVPWindowWindow::SetTop(tjs_int t) {
+void TVPWindowWindow::SetTop(tjs_int t)
+{
 	SetPosition(GetLeft(), t);
 }
-void TVPWindowWindow::SetPosition(tjs_int l, tjs_int t) {
+void TVPWindowWindow::SetPosition(tjs_int l, tjs_int t)
+{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 	if (window)
 	{
@@ -1529,21 +1576,25 @@ void TVPWindowWindow::SetPosition(tjs_int l, tjs_int t) {
 	}
 #endif
 }
-TVPSDLBitmapCompletion *TVPWindowWindow::GetTVPSDLBitmapCompletion() {
+TVPSDLBitmapCompletion *TVPWindowWindow::GetTVPSDLBitmapCompletion()
+{
 	needs_graphic_update = true;
 	return bitmap_completion;
 }
 #ifdef KRKRZ_ENABLE_CANVAS
-void TVPWindowWindow::SetOpenGLScreen(tTVPOpenGLScreen *s) {
+void TVPWindowWindow::SetOpenGLScreen(tTVPOpenGLScreen *s)
+{
 	open_gl_screen = s;
 }
-void TVPWindowWindow::SetSwapInterval(int interval) {
+void TVPWindowWindow::SetSwapInterval(int interval)
+{
 	if (context)
 	{
 		SDL_GL_SetSwapInterval(interval);
 	}
 }
-void TVPWindowWindow::GetDrawableSize(tjs_int &w, tjs_int &h) {
+void TVPWindowWindow::GetDrawableSize(tjs_int &w, tjs_int &h)
+{
 	if (context)
 	{
 		SDL_GL_GetDrawableSize(window, &w, &h);
@@ -1554,16 +1605,19 @@ void TVPWindowWindow::GetDrawableSize(tjs_int &w, tjs_int &h) {
 		h = 0;
 	}
 }
-void TVPWindowWindow::Swap() {
+void TVPWindowWindow::Swap()
+{
 	if (context)
 	{
 		SDL_GL_SwapWindow(window);
 	}
 }
 #endif
-void TVPWindowWindow::Show() {
+void TVPWindowWindow::Show()
+{
 }
-void TVPWindowWindow::TickBeat() {
+void TVPWindowWindow::TickBeat()
+{
 	if (needs_graphic_update)
 	{
 		if (renderer && bitmap_completion)
@@ -1644,15 +1698,18 @@ void TVPWindowWindow::TickBeat() {
 	}
 #endif
 }
-void TVPWindowWindow::InvalidateClose() {
+void TVPWindowWindow::InvalidateClose()
+{
 	TJSNativeInstance = NULL;
 	SetVisible(false);
 	delete this;
 }
-bool TVPWindowWindow::GetWindowActive() {
+bool TVPWindowWindow::GetWindowActive()
+{
 	return _currentWindowWindow == this && SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
 }
-void TVPWindowWindow::OnClose(CloseAction& action) {
+void TVPWindowWindow::OnClose(CloseAction& action)
+{
 	if (modal_result_ == 0)
 		action = caNone;
 	else
@@ -1674,7 +1731,8 @@ void TVPWindowWindow::OnClose(CloseAction& action) {
 		}
 	}
 }
-bool TVPWindowWindow::OnCloseQuery() {
+bool TVPWindowWindow::OnCloseQuery()
+{
 	// closing actions are 3 patterns;
 	// 1. closing action by the user
 	// 2. "close" method
@@ -1717,7 +1775,8 @@ bool TVPWindowWindow::OnCloseQuery() {
 		return true;
 	}
 }
-void TVPWindowWindow::Close() {
+void TVPWindowWindow::Close()
+{
 	// closing action by "close" method
 	if (Closing) return; // already waiting closing...
 
@@ -1756,7 +1815,8 @@ void TVPWindowWindow::Close() {
 	}
 	ProgramClosing = false;
 }
-void TVPWindowWindow::OnCloseQueryCalled(bool b) {
+void TVPWindowWindow::OnCloseQueryCalled(bool b)
+{
 	// closing is allowed by onCloseQuery event handler
 	if (!ProgramClosing) {
 		// closing action by the user
@@ -1784,7 +1844,8 @@ void TVPWindowWindow::OnCloseQueryCalled(bool b) {
 		CanCloseWork = b;
 	}
 }
-void TVPWindowWindow::SetImeMode(tTVPImeMode mode) {
+void TVPWindowWindow::SetImeMode(tTVPImeMode mode)
+{
 	if (!window || mode == ::imDisable || mode == ::imClose)
 	{
 		ResetImeMode();
@@ -1798,7 +1859,8 @@ void TVPWindowWindow::SetImeMode(tTVPImeMode mode) {
 		}
 	}
 }
-void TVPWindowWindow::ResetImeMode() {
+void TVPWindowWindow::ResetImeMode()
+{
 	ime_composition = nullptr;
 	ime_composition_len = 0;
 	ime_composition_cursor = 0;
@@ -1813,7 +1875,8 @@ void TVPWindowWindow::ResetImeMode() {
 		SDL_StopTextInput();
 	}
 }
-void TVPWindowWindow::UpdateWindow(tTVPUpdateType type) {
+void TVPWindowWindow::UpdateWindow(tTVPUpdateType type)
+{
 	if (TJSNativeInstance) {
 		tTVPRect r;
 #ifdef KRKRSDL2_ENABLE_ZOOM
@@ -1837,13 +1900,16 @@ void TVPWindowWindow::UpdateWindow(tTVPUpdateType type) {
 		TVPDeliverWindowUpdateEvents();
 	}
 }
-void TVPWindowWindow::InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) {
+void TVPWindowWindow::InternalKeyDown(tjs_uint16 key, tjs_uint32 shift)
+{
 	TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, key, shift));
 }
-void TVPWindowWindow::OnKeyUp(tjs_uint16 vk, int shift) {
+void TVPWindowWindow::OnKeyUp(tjs_uint16 vk, int shift)
+{
 	TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, vk, shift));
 }
-void TVPWindowWindow::OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) {
+void TVPWindowWindow::OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey)
+{
 	TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, vk));
 }
 
@@ -2128,7 +2194,8 @@ bool TVPWindowWindow::should_try_parent_window(SDL_Event event)
 	return false;
 }
 
-void TVPWindowWindow::window_receive_event(SDL_Event event) {
+void TVPWindowWindow::window_receive_event(SDL_Event event)
+{
 	if (isBeingDeleted) {
 		delete this;
 		return;
@@ -2339,7 +2406,8 @@ void TVPWindowWindow::window_receive_event(SDL_Event event) {
 	}
 }
 
-bool TVPWindowWindow::window_receive_event_input(SDL_Event event) {
+bool TVPWindowWindow::window_receive_event_input(SDL_Event event)
+{
 	if (isBeingDeleted) {
 		delete this;
 		return false;
@@ -2761,7 +2829,8 @@ bool TVPGetJoyPadAsyncState(tjs_uint keycode, bool getcurrent)
 	return is_pressed;
 }
 
-TTVPWindowForm *TVPCreateAndAddWindow(tTJSNI_Window *w) {
+TTVPWindowForm *TVPCreateAndAddWindow(tTJSNI_Window *w)
+{
 	return new TVPWindowWindow(w);
 }
 
@@ -2789,7 +2858,8 @@ ttstr TVPGetOSName()
 	return TVPGetPlatformName();
 }
 
-tjs_uint32 TVP_TShiftState_To_uint32(TShiftState state) {
+tjs_uint32 TVP_TShiftState_To_uint32(TShiftState state)
+{
 	tjs_uint32 result = 0;
 	if (state & MK_SHIFT) {
 		result |= ssShift;
@@ -2802,7 +2872,8 @@ tjs_uint32 TVP_TShiftState_To_uint32(TShiftState state) {
 	}
 	return result;
 }
-TShiftState TVP_TShiftState_From_uint32(tjs_uint32 state){
+TShiftState TVP_TShiftState_From_uint32(tjs_uint32 state)
+{
 	TShiftState result = 0;
 	if (state & ssShift) {
 		result |= MK_SHIFT;
