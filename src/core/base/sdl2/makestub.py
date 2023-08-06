@@ -195,21 +195,21 @@ def make_func_stub(ofh, func_list, h_stub, rettype, name, arg, type_, prefix, is
 	
 	md5 = hashlib.md5(func_exp_name.encode("ASCII")).hexdigest()
 
-	mangled = []
-	mangled.append("TVP_Stub_" + md5)
-	mangled.append(func_exp_name)
-	mangled.append(get_ret_type(rettype, prefix) + \
+	mangled = {}
+	mangled["func_stub_name"] = ("TVP_Stub_" + md5)
+	mangled["func_exp_name"] = (func_exp_name)
+	mangled["func_prototype_ptr"] = (get_ret_type(rettype, prefix) + \
 		"(STDCALL *  __TVP_Stub_" + md5 + ")(" + type_ + " *_this" + (", " if arg != "" else "") + normalize_string(arg) + ")")
-	mangled.append(("" if re.search(r"^" + prefix + r"_METHOD_RET", rettype) != None else normalize_string(rettype)) + \
+	mangled["func_prototype"] = (("" if re.search(r"^" + prefix + r"_METHOD_RET", rettype) != None else normalize_string(rettype)) + \
 		" " + normalize_string(type_) + "::" + normalize_string(name) + "(" + normalize_string(arg) + ")")
-	mangled.append("TVP_Stub_" + md5)
-	mangled.append(md5)
-	mangled.append(get_arg_names(arg))
+	mangled["name"] = ("TVP_Stub_" + md5)
+	mangled["md5"] = (md5)
+	mangled["arg_names"] = (get_arg_names(arg))
 	functype = get_ret_type(rettype, prefix) + \
 		"(STDCALL * __functype)(" + ("const " if isconst else "") + \
 		("" if isstatic else (type_ + " *" + (", " if arg != "" else ""))) + \
 		normalize_string(except_arg_names(arg)) + ")"
-	mangled.append(functype)
+	mangled["functype"] = (functype)
 
 	noreturn = 0
 	if rettype == prefix + "_METHOD_RET_EMPTY":
@@ -222,7 +222,7 @@ def make_func_stub(ofh, func_list, h_stub, rettype, name, arg, type_, prefix, is
 	ofh.write("static ")
 	ofh.write(normalize_string(rettype))
 	ofh.write(" STDCALL ")
-	ofh.write("TVP_Stub_" + md5)
+	ofh.write(mangled["func_stub_name"])
 	if isstatic:
 		ofh.write("(")
 	else:
@@ -233,51 +233,50 @@ def make_func_stub(ofh, func_list, h_stub, rettype, name, arg, type_, prefix, is
 	ofh.write(normalize_string(arg))
 	ofh.write(")\n")
 	ofh.write("{\n")
-	argnames = get_arg_names(arg)
 	if name == type_:
 		# constructor
-		ofh.write("\t::new (_this) " + name + "(" + argnames + ");\n")
+		ofh.write("\t::new (_this) " + name + "(" + mangled["arg_names"] + ");\n")
 		h = "\t" + normalize_string(name) + "(" + normalize_string(arg) + ")\n" + \
 			"\t{\n" + \
-			"\t\tif(!TVPImportFuncPtr" + md5 + ")\n" + \
+			"\t\tif(!TVPImportFuncPtr" + mangled["md5"] + ")\n" + \
 			"\t\t{\n" + \
-			"\t\t\tstatic char funcname[] = \"" + func_exp_name + "\";\n" + \
-			"\t\t\tTVPImportFuncPtr" + md5 + " = TVPGetImportFuncPtr(funcname);\n" + \
+			"\t\t\tstatic char funcname[] = \"" + mangled["func_exp_name"] + "\";\n" + \
+			"\t\t\tTVPImportFuncPtr" + mangled["md5"] + " = TVPGetImportFuncPtr(funcname);\n" + \
 			"\t\t}\n" + \
-			"\t\ttypedef " + functype + ";\n" + \
-			"\t\t((__functype)(TVPImportFuncPtr" + md5 + "))(" + ("" if isstatic else ("this" + (", " if argnames != "" else ""))) + argnames + ");\n" + \
+			"\t\ttypedef " + mangled["functype"] + ";\n" + \
+			"\t\t((__functype)(TVPImportFuncPtr" + mangled["md5"] + "))(" + ("" if isstatic else ("this" + (", " if mangled["arg_names"] != "" else ""))) + mangled["arg_names"] + ");\n" + \
 			"\t}\n"
 	elif name == ("~" + type_):
 		# destructor
-		ofh.write("\t_this->" + name + "(" + argnames + ");\n")
+		ofh.write("\t_this->" + name + "(" + mangled["arg_names"] + ");\n")
 		h = "\t" + normalize_string(name) + "(" + normalize_string(arg) + ")\n" + \
 			"\t{\n" + \
-			"\t\tif(!TVPImportFuncPtr" + md5 + ")\n" + \
+			"\t\tif(!TVPImportFuncPtr" + mangled["md5"] + ")\n" + \
 			"\t\t{\n" + \
-			"\t\t\tstatic char funcname[] = \"" + func_exp_name + "\";\n" + \
-			"\t\t\tTVPImportFuncPtr" + md5 + " = TVPGetImportFuncPtr(funcname);\n" + \
+			"\t\t\tstatic char funcname[] = \"" + mangled["func_exp_name"] + "\";\n" + \
+			"\t\t\tTVPImportFuncPtr" + mangled["md5"] + " = TVPGetImportFuncPtr(funcname);\n" + \
 			"\t\t}\n" + \
-			"\t\ttypedef " + functype + ";\n" + \
-			"\t\t((__functype)(TVPImportFuncPtr" + md5 + "))(" + ("" if isstatic else ("this" + (", " if argnames != "" else ""))) + argnames + ");\n" + \
+			"\t\ttypedef " + mangled["functype"] + ";\n" + \
+			"\t\t((__functype)(TVPImportFuncPtr" + mangled["md5"] + "))(" + ("" if isstatic else ("this" + (", " if mangled["arg_names"] != "" else ""))) + mangled["arg_names"] + ");\n" + \
 			"\t}\n"
 	else:
 		ofh.write("\t")
 		ofh.write("return ")
 		if isstatic:
-			ofh.write(type_ + "::" + name + "(" + argnames + ");\n")
+			ofh.write(type_ + "::" + name + "(" + mangled["arg_names"] + ");\n")
 		else:
-			ofh.write("_this->" + name + "(" + argnames + ");\n")
+			ofh.write("_this->" + name + "(" + mangled["arg_names"] + ");\n")
 		h = "\t" + ("static " if isstatic else "") + ("" if noreturn else rettype + " ") + normalize_string(name) + "(" + normalize_string(arg) + \
 			")" + (" const" if isconst else "") + "\n" + \
 			"\t{\n" + \
-			"\t\tif(!TVPImportFuncPtr" + md5 + ")\n" + \
+			"\t\tif(!TVPImportFuncPtr" + mangled["md5"] + ")\n" + \
 			"\t\t{\n" + \
-			"\t\t\tstatic char funcname[] = \"" + func_exp_name + "\";\n" + \
-			"\t\t\tTVPImportFuncPtr" + md5 + " = TVPGetImportFuncPtr(funcname);\n" + \
+			"\t\t\tstatic char funcname[] = \"" + mangled["func_exp_name"] + "\";\n" + \
+			"\t\t\tTVPImportFuncPtr" + mangled["md5"] + " = TVPGetImportFuncPtr(funcname);\n" + \
 			"\t\t}\n" + \
-			"\t\ttypedef " + functype + ";\n" + \
+			"\t\ttypedef " + mangled["functype"] + ";\n" + \
 			"\t\t" + ("" if rettype == "void" else "return ") + \
-			"((__functype)(TVPImportFuncPtr" + md5 + "))(" + ("" if isstatic else ("this" + (", " if argnames != "" else ""))) + argnames + ");\n" + \
+			"((__functype)(TVPImportFuncPtr" + mangled["md5"] + "))(" + ("" if isstatic else ("this" + (", " if mangled["arg_names"] != "" else ""))) + mangled["arg_names"] + ");\n" + \
 			"\t}\n"
 	ofh.write("}\n")
 
@@ -305,31 +304,30 @@ def make_exp_stub(ofh, func_list, rettype, name, arg):
 
 	md5 = hashlib.md5(func_exp_name.encode("ASCII")).hexdigest()
 
-	mangled = []
-	mangled.append("TVP_Stub_" + md5)
-	mangled.append(func_exp_name)
-	mangled.append(normalize_string(rettype) + \
+	mangled = {}
+	mangled["func_stub_name"] = ("TVP_Stub_" + md5)
+	mangled["func_exp_name"] = (func_exp_name)
+	mangled["func_prototype_ptr"] = (normalize_string(rettype) + \
 		" (STDCALL *" + normalize_string(name) + ")(" + normalize_string(arg) + ")")
-	mangled.append(normalize_string(rettype) + " " + normalize_string(name) + "(" + \
+	mangled["func_prototype"] = (normalize_string(rettype) + " " + normalize_string(name) + "(" + \
 		normalize_string(arg) + ")")
-	mangled.append(name)
-	mangled.append(md5)
-	mangled.append(get_arg_names(arg))
-	mangled.append(normalize_string(rettype) + \
+	mangled["name"] = (name)
+	mangled["md5"] = (md5)
+	mangled["arg_names"] = (get_arg_names(arg))
+	mangled["functype"] = (normalize_string(rettype) + \
 		" (STDCALL * __functype)(" + normalize_string(except_arg_names(arg)) + ")")
-	mangled.append(normalize_string(rettype))
+	mangled["rettype"] = (normalize_string(rettype))
 
 	ofh.write("static ")
-	ofh.write(normalize_string(rettype))
+	ofh.write(mangled["rettype"])
 	ofh.write(" STDCALL ")
-	ofh.write("TVP_Stub_" + md5 + "(")
+	ofh.write(mangled["func_stub_name"] + "(")
 	ofh.write(normalize_string(arg))
 	ofh.write(")\n")
 	ofh.write("{\n")
-	argnames = get_arg_names(arg)
 	ofh.write("\t")
 	ofh.write("return ")
-	ofh.write(name + "(" + argnames + ");\n")
+	ofh.write(mangled["name"] + "(" + mangled["arg_names"] + ");\n")
 	ofh.write("}\n")
 
 	func_list.append(mangled)
@@ -420,7 +418,7 @@ all_list = [*method_list, *func_list]
 
 ofh.write("\n#include <zlib.h>")
 
-func_data = b"".join([pair[1].encode("ASCII") + b"\x00" for pair in all_list])
+func_data = b"".join([pair["func_exp_name"].encode("ASCII") + b"\x00" for pair in all_list])
 
 deflateout = b""
 
@@ -440,7 +438,7 @@ emitdata + \
 static void * func_ptrs[] = {
 """)
 
-ofh.write("".join(["\t(void*)" + pair[0] + ",\n" for pair in all_list]))
+ofh.write("".join(["\t(void*)" + pair["func_stub_name"] + ",\n" for pair in all_list]))
 
 ofh.write("""
 };
@@ -548,7 +546,7 @@ extern void * TVPGetImportFuncPtr(const char *name);
 
 """)
 
-ohfh.write("".join(["extern void * TVPImportFuncPtr" + pair[5] + ";\n" for pair in all_list]))
+ohfh.write("".join(["extern void * TVPImportFuncPtr" + pair["md5"] + ";\n" for pair in all_list]))
 ohfh.write("\n\n")
 
 class_template_1 = """\
@@ -616,18 +614,18 @@ ohfh.write("""\
 """)
 
 for pair in func_list:
-	ohfh.write("inline " + pair[3] + "\n")
+	ohfh.write("inline " + pair["func_prototype"] + "\n")
 	ohfh.write("{\n")
 	ohfh.write( \
-		"\tif(!TVPImportFuncPtr" + pair[5] + ")\n" + \
+		"\tif(!TVPImportFuncPtr" + pair["md5"] + ")\n" + \
 		"\t{\n" + \
-		"\t\tstatic char funcname[] = \"" + pair[1] + "\";\n" + \
-		"\t\tTVPImportFuncPtr" + pair[5] + " = TVPGetImportFuncPtr(funcname);\n" + \
+		"\t\tstatic char funcname[] = \"" + pair["func_exp_name"] + "\";\n" + \
+		"\t\tTVPImportFuncPtr" + pair["md5"] + " = TVPGetImportFuncPtr(funcname);\n" + \
 		"\t}\n" \
 		)
-	ohfh.write("\ttypedef " + pair[7] + ";\n")
-	ohfh.write("\t" + ("" if pair[8] == "void" else "return ") + "((__functype)(TVPImportFuncPtr" + pair[5] + "))")
-	ohfh.write("(" + pair[6] + ");\n")
+	ohfh.write("\ttypedef " + pair["functype"] + ";\n")
+	ohfh.write("\t" + ("" if pair["rettype"] == "void" else "return ") + "((__functype)(TVPImportFuncPtr" + pair["md5"] + "))")
+	ohfh.write("(" + pair["arg_names"] + ");\n")
 	ohfh.write("}\n")
 
 ocfh.write("""\
@@ -675,7 +673,7 @@ void TVPUninitImportStub()
 
 """)
 
-ocfh.write("".join(["void * TVPImportFuncPtr" + pair[5] + " = NULL;\n" for pair in all_list]))
+ocfh.write("".join(["void * TVPImportFuncPtr" + pair["md5"] + " = NULL;\n" for pair in all_list]))
 
 ocfh.write("\n".join(impls) + "\n")
 
