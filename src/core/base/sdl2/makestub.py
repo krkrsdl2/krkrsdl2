@@ -468,7 +468,16 @@ emitdata + \
 static void * func_ptrs[] = {
 """)
 
-ofh.write("".join(["\t(void*)" + pair["func_stub_name"] + ",\n" for pair in all_list]))
+for pair in all_list:
+	ifpp = ""
+	endifpp = ""
+	if "tp_stub_ppcond" in pair["extra_arg"]:
+		ifpp = "#if " + pair["extra_arg"]["tp_stub_ppcond"] + "\n"
+		endifpp = "#else\n\t(void*)NULL,\n#endif\n"
+
+	ofh.write(ifpp)
+	ofh.write("\t(void*)" + pair["func_stub_name"] + ",\n")
+	ofh.write(endifpp)
 
 ofh.write("""
 };
