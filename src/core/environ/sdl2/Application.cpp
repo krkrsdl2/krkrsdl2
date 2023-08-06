@@ -1000,14 +1000,22 @@ std::vector<std::string>* LoadLinesFromFile( const tjs_string& path ) {
     fclose(fp);
 	return ret;
 }
+#endif
 
+#if defined(_WIN32)
 void TVPRegisterAcceleratorKey(HWND hWnd, char virt, short key, short cmd) {
+#if 0
 	if( Application ) Application->RegisterAcceleratorKey( hWnd, virt, key, cmd );
+#endif
 }
 void TVPUnregisterAcceleratorKey(HWND hWnd, short cmd) {
+#if 0
 	if( Application ) Application->UnregisterAcceleratorKey( hWnd, cmd );
+#endif
 }
 void TVPDeleteAcceleratorKeyTable( HWND hWnd ) {
+#if 0
 	if( Application ) Application->DeleteAcceleratorKeyTable( hWnd );
+#endif
 }
 #endif
