@@ -126,7 +126,8 @@ TJS_EXP_FUNC_DEF(void, TVP_md5_init, (TVP_md5_state_t *pms));
 TJS_EXP_FUNC_DEF(void, TVP_md5_append, (TVP_md5_state_t *pms, const tjs_uint8 *data, int nbytes));
 TJS_EXP_FUNC_DEF(void, TVP_md5_finish, (TVP_md5_state_t *pms, tjs_uint8 *digest));
 
-#ifdef _WIN32
+#if defined(_WIN32)
+/* $$({"tp_stub_ppcond":"defined(_WIN32)"})$$ */
 TJS_EXP_FUNC_DEF(HWND, TVPGetApplicationWindowHandle, ());
 #endif
 TJS_EXP_FUNC_DEF(void, TVPProcessApplicationMessages, ());
@@ -167,8 +168,9 @@ typedef void (TJS_USERENTRY *tTVPFinallyBlockFunction)(void *data);
 TJS_EXP_FUNC_DEF(void, TVPDoTryBlock, (tTVPTryBlockFunction tryblock, tTVPCatchBlockFunction catchblock, tTVPFinallyBlockFunction finallyblock, void *data));
 
 
-#ifdef _WIN32
-TJS_EXP_FUNC_DEF(bool, TVPGetFileVersionOf, (const tjs_char* module_filename, tjs_int &major, tjs_int &minor, tjs_int &release, tjs_int &build));
+#if defined(_WIN32)
+/* $$({"tp_stub_ppcond":"defined(_WIN32)"})$$ */
+TJS_EXP_FUNC_DEF(bool, TVPGetFileVersionOf, (const wchar_t* module_filename, tjs_int &major, tjs_int &minor, tjs_int &release, tjs_int &build));
 #endif
 
 

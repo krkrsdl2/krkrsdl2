@@ -1014,7 +1014,7 @@ void TVPDoTryBlock(
 // TVPGetFileVersionOf
 //---------------------------------------------------------------------------
 #ifdef _WIN32
-bool TVPGetFileVersionOf(const tjs_char* module_filename, tjs_int &major, tjs_int &minor, tjs_int &release, tjs_int &build)
+bool TVPGetFileVersionOf(const wchar_t* module_filename, tjs_int &major, tjs_int &minor, tjs_int &release, tjs_int &build)
 {
 	// retrieve file version
 	major = minor = release = build = 0;
