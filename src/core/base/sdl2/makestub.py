@@ -231,6 +231,10 @@ def make_func_stub(ofh, func_list, h_stub, rettype, name, arg, extra_arg, type_,
 
 	rettype = get_ret_type(rettype, prefix)
 
+	if ("ignore" in mangled["extra_arg"]) and mangled["extra_arg"]["ignore"]:
+		# Don't insert this function
+		return
+
 	ifpp = ""
 	endifpp = ""
 	if "tp_stub_ppcond" in mangled["extra_arg"]:
@@ -339,6 +343,10 @@ def make_exp_stub(ofh, func_list, rettype, name, arg, extra_arg):
 		" (STDCALL * __functype)(" + normalize_string(except_arg_names(arg)) + ")")
 	mangled["rettype"] = (normalize_string(rettype))
 	mangled["extra_arg"] = (extra_arg)
+
+	if ("ignore" in mangled["extra_arg"]) and mangled["extra_arg"]["ignore"]:
+		# Don't insert this function
+		return
 
 	ifpp = ""
 	endifpp = ""
