@@ -16,6 +16,7 @@
 #include <functional>
 #include <SDL.h>
 
+/*[*/
 #ifdef _WIN32
 #include <objidl.h> // for IStream
 #else
@@ -60,13 +61,23 @@ typedef union _LARGE_INTEGER {
 	LONGLONG QuadPart;
 } LARGE_INTEGER;
 
+typedef GUID CLSID;
+typedef tjs_char *LPOLESTR;
+
+typedef struct _FILETIME {
+#ifdef WORDS_BIGENDIAN
+	DWORD  dwHighDateTime;
+	DWORD  dwLowDateTime;
+#else
+	DWORD  dwLowDateTime;
+	DWORD  dwHighDateTime;
+#endif
+} FILETIME, *PFILETIME, *LPFILETIME;
+
 typedef struct tagSTATSTG {
-#if 0
 	LPOLESTR pwcsName;
 	DWORD type;
-#endif
 	ULARGE_INTEGER cbSize;
-#if 0
 	FILETIME mtime;
 	FILETIME ctime;
 	FILETIME atime;
@@ -75,7 +86,6 @@ typedef struct tagSTATSTG {
 	CLSID clsid;
 	DWORD grfStateBits;
 	DWORD reserved;
-#endif
 } STATSTG;
 
 // 0000000c-0000-0000-c000-000000000046
@@ -104,6 +114,7 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE Clone(IStream **ppstm) = 0;
 };
 #endif
+/*]*/
 
 //---------------------------------------------------------------------------
 // tTVPLocalFileStream
