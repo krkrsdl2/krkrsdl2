@@ -403,7 +403,13 @@ ofh.write("""
 #include "tjsString.h"
 #include "PluginImpl.h"
 
+#ifndef STDCALL
+#ifdef _WIN32
+#define STDCALL __stdcall
+#else
 #define STDCALL
+#endif
+#endif
 
 """)
 
@@ -561,7 +567,13 @@ ohfh.write("""\
 	#error Sorry, currently tp_stub.h can only be used in C++ mode.
 #endif
 
+#ifndef STDCALL
+#ifdef _WIN32
+#define STDCALL __stdcall
+#else
 #define STDCALL
+#endif
+#endif
 #define DLL_EXPORT
 #include <string>
 #include <stdarg.h>
