@@ -801,6 +801,7 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 			SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0x00, 0xFF );
 		}
 	}
+	Application->AddWindow(this);
 }
 
 TVPWindowWindow::~TVPWindowWindow()
@@ -840,6 +841,7 @@ TVPWindowWindow::~TVPWindowWindow()
 		SDL_DestroyWindow(window);
 		window = NULL;
 	}
+	Application->RemoveWindow(this);
 }
 
 void TVPWindowWindow::SetPaintBoxSize(tjs_int w, tjs_int h)

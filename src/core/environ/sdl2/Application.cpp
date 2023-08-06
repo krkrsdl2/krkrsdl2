@@ -335,14 +335,12 @@ tTVPApplication::tTVPApplication() : is_attach_console_(false), tarminate_(false
 	syncfs_is_finished_ = true;
 }
 tTVPApplication::~tTVPApplication() {
-#if 0
 	while( windows_list_.size() ) {
 		std::vector<class TTVPWindowForm*>::iterator i = windows_list_.begin();
 		delete (*i);
 		// TTVPWindowForm のデストラクタ内でリストから削除されるはず
 	}
 	windows_list_.clear();
-#endif
 #ifdef KRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD
 	delete image_load_thread_;
 #endif
@@ -694,6 +692,7 @@ void tTVPApplication::Restore() {
 		}
 	}
 }
+#endif
 
 void tTVPApplication::BringToFront() {
 	size_t size = windows_list_.size();
@@ -701,7 +700,6 @@ void tTVPApplication::BringToFront() {
 		windows_list_[i]->BringToFront();
 	}
 }
-#endif
 void tTVPApplication::ShowException( const tjs_char* e ) {
 #if 0
 	::MessageBox( NULL, e, TVPFatalError, MB_OK );
@@ -812,10 +810,10 @@ void tTVPApplication::HandleIdle(MSG &) {
 #endif
 void tTVPApplication::SetTitle( const tjs_string& caption ) {
 	title_ = caption;
-#if 0
 	if( windows_list_.size() > 0 ) {
 		windows_list_[0]->SetCaption( caption );
 	}
+#if 0
 	if( is_attach_console_ ) {
 		::SetConsoleTitle( caption.c_str() );
 	}
@@ -829,6 +827,7 @@ HWND tTVPApplication::GetMainWindowHandle() const {
 	}
 	return INVALID_HANDLE_VALUE;
 }
+#endif
 
 void tTVPApplication::RemoveWindow( TTVPWindowForm* win ) {
 	std::vector<class TTVPWindowForm*>::iterator it = std::remove( windows_list_.begin(), windows_list_.end(), win );
@@ -837,6 +836,7 @@ void tTVPApplication::RemoveWindow( TTVPWindowForm* win ) {
 	}
 }
 
+#if 0
 void tTVPApplication::PostMessageToMainWindow(UINT message, WPARAM wParam, LPARAM lParam) {
 	if( windows_list_.size() > 0 ) {
 		::PostMessage( windows_list_[0]->GetHandle(), message, wParam, lParam );

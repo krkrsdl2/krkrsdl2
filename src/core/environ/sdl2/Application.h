@@ -89,9 +89,7 @@ public:
 };
 #endif
 class tTVPApplication {
-#if 0
 	std::vector<class TTVPWindowForm*> windows_list_;
-#endif
 	tjs_string title_;
 
 	bool is_attach_console_;
@@ -150,6 +148,7 @@ public:
 	}
 	void Minimize();
 	void Restore();
+#endif
 	void BringToFront();
 
 	void AddWindow( class TTVPWindowForm* win ) {
@@ -160,6 +159,7 @@ public:
 		return (unsigned int)windows_list_.size();
 	}
 
+#if 0
 	void FreeDirectInputDeviceForWindows();
 
 	bool ProcessMessage( MSG &msg );
