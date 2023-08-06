@@ -17,6 +17,7 @@ import io
 import hashlib
 import zlib
 import os
+import json
 
 output_tpstub_h = ""
 output_tpstub_cpp = ""
@@ -134,6 +135,16 @@ def relative_open(fn, mode="r"):
 		raise Exception("File " + fn + " could not be opened")
 	return open(script_path + "/" + fn, mode)
 
+def process_extra_args(content, searchpos):
+	pos_end = content.rfind("\n", 0, searchpos)
+	pos_start = content.rfind("\n", 0, pos_end)
+	if -1 not in [pos_start, pos_end]:
+		pos_start += 1
+		lastline = content[pos_start:pos_end]
+		if lastline.startswith("/* $$(") and lastline.endswith(")$$ */"):
+			return json.loads(lastline[6:-6])
+	return {}
+
 def normalize_string(str_):
 	array1 = []
 	array2 = []
@@ -184,7 +195,7 @@ def get_ret_type(type_, prefix):
 		return normalize_string(srch.group(1))
 	return normalize_string(type_)
 
-def make_func_stub(ofh, func_list, h_stub, rettype, name, arg, type_, prefix, isconst, isstatic):
+def make_func_stub(ofh, func_list, h_stub, rettype, name, arg, extra_arg, type_, prefix, isconst, isstatic):
 	rettype = rettype.replace("\n", " ").replace("\t", " ")
 	name = name.replace("\n", " ").replace("\t", " ")
 	arg = arg.replace("\n", " ").replace("\t", " ")
@@ -210,6 +221,7 @@ def make_func_stub(ofh, func_list, h_stub, rettype, name, arg, type_, prefix, is
 		("" if isstatic else (type_ + " *" + (", " if arg != "" else ""))) + \
 		normalize_string(except_arg_names(arg)) + ")"
 	mangled["functype"] = (functype)
+	mangled["extra_arg"] = (extra_arg)
 
 	noreturn = 0
 	if rettype == prefix + "_METHOD_RET_EMPTY":
@@ -219,6 +231,13 @@ def make_func_stub(ofh, func_list, h_stub, rettype, name, arg, type_, prefix, is
 
 	rettype = get_ret_type(rettype, prefix)
 
+	ifpp = ""
+	endifpp = ""
+	if "tp_stub_ppcond" in mangled["extra_arg"]:
+		ifpp = "#if " + mangled["extra_arg"]["tp_stub_ppcond"] + "\n"
+		endifpp = "#endif\n"
+
+	ofh.write(ifpp)
 	ofh.write("static ")
 	ofh.write(normalize_string(rettype))
 	ofh.write(" STDCALL ")
@@ -279,6 +298,8 @@ def make_func_stub(ofh, func_list, h_stub, rettype, name, arg, type_, prefix, is
 			"((__functype)(TVPImportFuncPtr" + mangled["md5"] + "))(" + ("" if isstatic else ("this" + (", " if mangled["arg_names"] != "" else ""))) + mangled["arg_names"] + ");\n" + \
 			"\t}\n"
 	ofh.write("}\n")
+	ofh.write(endifpp)
+	h = ifpp + h + endifpp
 
 	func_list.append(mangled)
 	h_stub.append(h)
@@ -286,15 +307,15 @@ def make_func_stub(ofh, func_list, h_stub, rettype, name, arg, type_, prefix, is
 
 def list_func_stub(ofh, func_list, h_stub, prefix, content, type_):
 	for match_obj in re.finditer(prefix + r"_METHOD_DEF\(\s*(.*?)\s*,\s*(.*?)\s*,\s*\((.*?)\)\s*\)", content, flags=re.S): # g
-		make_func_stub(ofh=ofh, func_list=func_list, h_stub=h_stub, rettype=match_obj.group(1), name=match_obj.group(2), arg=match_obj.group(3), type_=type_, prefix=prefix, isconst=False, isstatic=False)
+		make_func_stub(ofh=ofh, func_list=func_list, h_stub=h_stub, rettype=match_obj.group(1), name=match_obj.group(2), arg=match_obj.group(3), extra_arg=process_extra_args(content, match_obj.start()), type_=type_, prefix=prefix, isconst=False, isstatic=False)
 	for match_obj in re.finditer(prefix + r"_CONST_METHOD_DEF\(\s*(.*?)\s*,\s*(.*?)\s*,\s*\((.*?)\)\s*\)", content, flags=re.S): # g
-		make_func_stub(ofh=ofh, func_list=func_list, h_stub=h_stub, rettype=match_obj.group(1), name=match_obj.group(2), arg=match_obj.group(3), type_=type_, prefix=prefix, isconst=True,  isstatic=False)
+		make_func_stub(ofh=ofh, func_list=func_list, h_stub=h_stub, rettype=match_obj.group(1), name=match_obj.group(2), arg=match_obj.group(3), extra_arg=process_extra_args(content, match_obj.start()), type_=type_, prefix=prefix, isconst=True,  isstatic=False)
 	for match_obj in re.finditer(prefix + r"_STATIC_METHOD_DEF\(\s*(.*?)\s*,\s*(.*?)\s*,\s*\((.*?)\)\s*\)", content, flags=re.S): # g
-		make_func_stub(ofh=ofh, func_list=func_list, h_stub=h_stub, rettype=match_obj.group(1), name=match_obj.group(2), arg=match_obj.group(3), type_=type_, prefix=prefix, isconst=False, isstatic=True)
+		make_func_stub(ofh=ofh, func_list=func_list, h_stub=h_stub, rettype=match_obj.group(1), name=match_obj.group(2), arg=match_obj.group(3), extra_arg=process_extra_args(content, match_obj.start()), type_=type_, prefix=prefix, isconst=False, isstatic=True)
 	for match_obj in re.finditer(prefix + r"_STATIC_CONST_METHOD_DEF\(\s*(.*?)\s*,\s*(.*?)\s*,\s*\((.*?)\)\s*\)", content, flags=re.S): # g
-		make_func_stub(ofh=ofh, func_list=func_list, h_stub=h_stub, rettype=match_obj.group(1), name=match_obj.group(2), arg=match_obj.group(3), type_=type_, prefix=prefix, isconst=True,  isstatic=True)
+		make_func_stub(ofh=ofh, func_list=func_list, h_stub=h_stub, rettype=match_obj.group(1), name=match_obj.group(2), arg=match_obj.group(3), extra_arg=process_extra_args(content, match_obj.start()), type_=type_, prefix=prefix, isconst=True,  isstatic=True)
 
-def make_exp_stub(ofh, func_list, rettype, name, arg):
+def make_exp_stub(ofh, func_list, rettype, name, arg, extra_arg):
 	rettype = rettype.replace("\n", " ").replace("\t", " ")
 	name = name.replace("\n", " ").replace("\t", " ")
 	arg = arg.replace("\n", " ").replace("\t", " ")
@@ -317,7 +338,15 @@ def make_exp_stub(ofh, func_list, rettype, name, arg):
 	mangled["functype"] = (normalize_string(rettype) + \
 		" (STDCALL * __functype)(" + normalize_string(except_arg_names(arg)) + ")")
 	mangled["rettype"] = (normalize_string(rettype))
+	mangled["extra_arg"] = (extra_arg)
 
+	ifpp = ""
+	endifpp = ""
+	if "tp_stub_ppcond" in mangled["extra_arg"]:
+		ifpp = "#if " + mangled["extra_arg"]["tp_stub_ppcond"] + "\n"
+		endifpp = "#endif\n"
+
+	ofh.write(ifpp)
 	ofh.write("static ")
 	ofh.write(mangled["rettype"])
 	ofh.write(" STDCALL ")
@@ -329,6 +358,7 @@ def make_exp_stub(ofh, func_list, rettype, name, arg):
 	ofh.write("return ")
 	ofh.write(mangled["name"] + "(" + mangled["arg_names"] + ");\n")
 	ofh.write("}\n")
+	ofh.write(endifpp)
 
 	func_list.append(mangled)
 	# num += 1
@@ -344,9 +374,9 @@ def process_exp_stub(ofh, defs, impls, func_list, file):
 	for match_obj in re.finditer(r"\/\*\[C\*\/(.*?)\/\*C]\*\/", content, flags=re.S): # g
 		impls.append(match_obj.group(1))
 	for match_obj in re.finditer(r"TJS_EXP_FUNC_DEF\(\s*(.*?)\s*,\s*(.*?)\s*,\s*\((.*?)\)\s*\)", content, flags=re.S): # g
-		make_exp_stub(ofh=ofh, func_list=func_list, rettype=match_obj.group(1), name=match_obj.group(2), arg=match_obj.group(3))
+		make_exp_stub(ofh=ofh, func_list=func_list, rettype=match_obj.group(1), name=match_obj.group(2), arg=match_obj.group(3), extra_arg=process_extra_args(content, match_obj.start()))
 	for match_obj in re.finditer(r"TVP_GL_FUNC_PTR_EXTERN_DECL\(\s*(.*?)\s*,\s*(.*?)\s*,\s*\((.*?)\)\s*\)", content, flags=re.S): # g
-		make_exp_stub(ofh=ofh, func_list=func_list, rettype=match_obj.group(1), name=match_obj.group(2), arg=match_obj.group(3))
+		make_exp_stub(ofh=ofh, func_list=func_list, rettype=match_obj.group(1), name=match_obj.group(2), arg=match_obj.group(3), extra_arg=process_extra_args(content, match_obj.start()))
 
 # undef $/
 func_list = []
@@ -614,6 +644,13 @@ ohfh.write("""\
 """)
 
 for pair in func_list:
+	ifpp = ""
+	endifpp = ""
+	if "tp_stub_ppcond" in pair["extra_arg"]:
+		ifpp = "#if " + pair["extra_arg"]["tp_stub_ppcond"] + "\n"
+		endifpp = "#endif\n"
+
+	ohfh.write(ifpp)
 	ohfh.write("inline " + pair["func_prototype"] + "\n")
 	ohfh.write("{\n")
 	ohfh.write( \
@@ -627,6 +664,7 @@ for pair in func_list:
 	ohfh.write("\t" + ("" if pair["rettype"] == "void" else "return ") + "((__functype)(TVPImportFuncPtr" + pair["md5"] + "))")
 	ohfh.write("(" + pair["arg_names"] + ");\n")
 	ohfh.write("}\n")
+	ohfh.write(endifpp)
 
 ocfh.write("""\
 //---------------------------------------------------------------------------
