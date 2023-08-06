@@ -117,6 +117,23 @@ func_headers_exports_misc = [
 
 # num = 0
 
+input_paths = [
+	"./",
+	"../../../../external/krkrz/base/win32",
+]
+
+script_path = os.path.abspath(os.path.dirname(__file__))
+
+def relative_open(fn, mode="r"):
+	if "r" in mode:
+		for x in input_paths:
+			try:
+				return open(script_path + "/" + x + "/" + fn, mode)
+			except FileNotFoundError:
+				continue
+		raise Exception("File " + fn + " could not be opened")
+	return open(script_path + "/" + fn, mode)
+
 def normalize_string(str_):
 	array1 = []
 	array2 = []
@@ -321,7 +338,7 @@ def make_exp_stub(ofh, func_list, rettype, name, arg):
 def process_exp_stub(ofh, defs, impls, func_list, file):
 
 	content = ""
-	with open(file, "r") as f:
+	with relative_open(file, "r") as f:
 		content = f.read()
 
 	for match_obj in re.finditer(r"\/\*\[\*\/(.*?)\/\*\]\*\/", content, flags=re.S): # g
@@ -336,7 +353,7 @@ def process_exp_stub(ofh, defs, impls, func_list, file):
 # undef $/
 func_list = []
 
-ofh = open("FuncStubs.h", "w")
+ofh = relative_open("FuncStubs.h", "w")
 
 ofh.write(copyright)
 
@@ -346,7 +363,7 @@ extern void TVPExportFunctions();
 """)
 
 
-ofh = open("FuncStubs.cpp", "w")
+ofh = relative_open("FuncStubs.cpp", "w")
 
 ofh.write(copyright)
 
@@ -368,7 +385,7 @@ method_list = []
 for type_ in class_stub_round_1:
 	entry_file = class_stub_name_to_file[type_]
 
-	fh = open(entry_file)
+	fh = relative_open(entry_file)
 	content = fh.read()
 
 	h_stub = []
@@ -559,7 +576,7 @@ for type_ in class_stub_round_2:
 
 	ohfh.write(class_template_1 % type_)
 
-	fh = open(entry_file)
+	fh = relative_open(entry_file)
 	content = fh.read()
 
 	do_not_create_directly_comment = "" if type_ not in class_stub_do_not_create_directly else class_template_2_1
