@@ -227,9 +227,7 @@ public:
 	void OnDeactivate( HWND hWnd );
 #endif
 	bool GetActivating() const { return application_activating_; }
-#if 0
 	bool GetNotMinimizing() const;
-#endif
 
 	/**
 	 * 画像の非同期読込み要求

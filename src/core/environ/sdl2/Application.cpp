@@ -952,15 +952,19 @@ void tTVPApplication::OnDeactivate( HWND hWnd )
 	// trigger System.onDeactivate event
 	TVPPostApplicationDeactivateEvent();
 }
+#endif
 bool tTVPApplication::GetNotMinimizing() const
 {
+#if 0
 	HWND hWnd = GetMainWindowHandle();
 	if( hWnd != INVALID_HANDLE_VALUE && hWnd != NULL ) {
 		return ::IsIconic( hWnd ) == 0;
 	}
+#endif
 	return true; // メインがない時は最小化されているとみなす
 }
 
+#if 0
 void tTVPApplication::OnActiveAnyWindow() {
 	if( modal_window_stack_.empty() != true ) {
 		tTVPWindow* win = modal_window_stack_.top();
