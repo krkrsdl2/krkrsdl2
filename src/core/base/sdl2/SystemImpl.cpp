@@ -367,9 +367,7 @@ bool TVPShellExecute(const ttstr &target, const ttstr &param)
 //---------------------------------------------------------------------------
 static void TVPReadRegValue(tTJSVariant &result, const ttstr & key)
 {
-	result.Clear();
-	return;
-#if 0
+#ifdef _WIN32
 	// open specified registry key
 	if(key.IsEmpty()) { result.Clear(); return; }
 
@@ -527,6 +525,9 @@ static void TVPReadRegValue(tTJSVariant &result, const ttstr & key)
 
 		break;
 	}
+#else
+	result.Clear();
+	return;
 #endif
 }
 //---------------------------------------------------------------------------
