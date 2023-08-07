@@ -51,6 +51,7 @@ static bool TVPGetMainThreadPriorityControl()
 
 
 tTVPSystemControl::tTVPSystemControl() : EventEnable(true) {
+	InApplicationIdle = 0;
 	ContinuousEventCalling = false;
 	AutoShowConsoleOnError = false;
 
@@ -115,7 +116,20 @@ void tTVPSystemControl::NotifyEventDelivered() {
 }
 
 bool tTVPSystemControl::ApplicationIdle() {
-	DeliverEvents();
+	if (InApplicationIdle < 32)
+	{
+		InApplicationIdle += 1;
+		try
+		{
+			DeliverEvents();
+		}
+		catch(...)
+		{
+			InApplicationIdle -= 1;
+			throw;
+		}
+		InApplicationIdle -= 1;
+	}
 	bool cont = !ContinuousEventCalling;
 	MixedIdleTick += TVPGetRoughTickCount32();
 	return cont;

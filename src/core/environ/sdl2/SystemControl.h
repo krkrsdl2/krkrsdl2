@@ -17,6 +17,7 @@
 class tTVPSystemControl
 {
 private:	// ユーザー宣言
+	tjs_uint InApplicationIdle;
 	bool ContinuousEventCalling;
 	bool AutoShowConsoleOnError;
 
