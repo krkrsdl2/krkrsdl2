@@ -10,6 +10,16 @@ endif()
 
 project(krkrsdl2)
 
+# Disable install for subprojects
+if(NOT DEFINED _DISABLE_INSTALLATION)
+set(_DISABLE_INSTALLATION FALSE)
+macro(install)
+if (NOT _DISABLE_INSTALLATION)
+_install(${ARGN})
+endif()
+endmacro()
+endif()
+
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
 cmake_policy(SET CMP0077 NEW)
 endif()
@@ -329,6 +339,8 @@ list(APPEND KRKRSDL2_LIBS
 list(APPEND KRKRSDL2_CXXFLAGS
 	-DUSE_SDL_MAIN
 )
+get_target_property(SDL2_INCLUDE_DIRS SDL2-static INCLUDE_DIRECTORIES)
+set(SDL2_LIBRARIES SDL2-static)
 elseif((APPLE AND NOT IOS) OR (${CMAKE_SYSTEM_NAME} STREQUAL "Linux"))
 set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/SDL)
@@ -336,6 +348,8 @@ find_library(SDL2 NAMES SDL2-static)
 list(APPEND KRKRSDL2_LIBS
 	SDL2-static
 )
+get_target_property(SDL2_INCLUDE_DIRS SDL2-static INCLUDE_DIRECTORIES)
+set(SDL2_LIBRARIES SDL2-static)
 elseif(ANDROID)
 set(SDL_SHARED_ENABLED_BY_DEFAULT ON)
 set(SDL_STATIC_ENABLED_BY_DEFAULT OFF)
@@ -375,6 +389,8 @@ list(APPEND KRKRSDL2_LIBS
 	m
 	z
 )
+get_target_property(SDL2_INCLUDE_DIRS SDL2-static INCLUDE_DIRECTORIES)
+set(SDL2_LIBRARIES SDL2-static)
 elseif(NINTENDO_SWITCH)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
@@ -394,7 +410,10 @@ endif()
 if(NOT (${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten"))
 set(XNASONG OFF CACHE BOOL "Intentionally disabled for FAudio: enable XNA_Song.c" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Intentionally disabled for FAudio: Build shared libraries" FORCE)
+set(_DISABLE_INSTALLATION_OLD ${_DISABLE_INSTALLATION})
+set(_DISABLE_INSTALLATION TRUE)
 add_subdirectory(external/FAudio)
+set(_DISABLE_INSTALLATION ${_DISABLE_INSTALLATION_OLD})
 list(APPEND KRKRSDL2_LIBS
 	FAudio
 )
