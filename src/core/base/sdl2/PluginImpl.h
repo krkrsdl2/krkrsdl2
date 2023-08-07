@@ -175,7 +175,9 @@ TJS_EXP_FUNC_DEF(bool, TVPGetFileVersionOf, (const wchar_t* module_filename, tjs
 
 
 //---------------------------------------------------------------------------
+#ifdef KRKRSDL2_ENABLE_PLUGINS
 extern bool TVPPluginUnloadedAtSystemExit;
+#endif
 extern void TVPLoadPluigins(void);
 //---------------------------------------------------------------------------
 
