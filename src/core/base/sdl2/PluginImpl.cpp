@@ -53,6 +53,7 @@
 #endif
 
 #include "FilePathUtil.h"
+#include "ApplicationSpecialPath.h"
 #include "Application.h"
 #include "SysInitImpl.h"
 #include <set>
@@ -302,46 +303,67 @@ tTVPPlugin::tTVPPlugin(const ttstr & name)
 	else
 	{
 		// Relative path
-		std::string filename;
-		bool converted = false;
+		tjs_string cur_name = name.AsStdString();
+#ifndef _WIN32
 		tjs_int len = name.GetLen();
-		if (len > 3 && name[len - 1] == TJS_W('l') && name[len - 2] == TJS_W('l') && name[len - 3] == TJS_W('d'))
+		if (len > 4 && name[len - 1] == TJS_W('l') && name[len - 2] == TJS_W('l') && name[len - 3] == TJS_W('d') && name[len - 4] == TJS_W('.'))
 		{
-			tjs_string extso = ChangeFileExt(name.AsStdString(), TJS_W("so"));
-			converted = TVPUtf16ToUtf8(filename, extso);
+			tjs_string extso = ChangeFileExt(cur_name, TJS_W(".so"));
+			cur_name = extso;
 		}
-		else
+#endif
 		{
-			converted = TVPUtf16ToUtf8(filename, name.AsStdString());
-		}
-		if (converted)
-		{
-			std::string searchpath;
+			tjs_string exename = ExePath();
+			tjs_string exepath = ExcludeTrailingSlash(ExtractFileDir(exename));
+			tjs_string searchpath;
 			char *searchpath_cstr = SDL_getenv("KRKRSDL2_PATH");
 			if (searchpath_cstr != NULL)
 			{
-				searchpath = searchpath_cstr;
+				std::string searchpath_utf8 = searchpath_cstr;
+				TVPUtf8ToUtf16(searchpath, searchpath_utf8);
+			}
+			else
+			{
+				searchpath = TJS_W("${ORIGIN}:${ORIGIN}/system:${ORIGIN}/plugin");
 			}
 			if (!searchpath.empty())
 			{
 				size_t searchpath_pos = 0;
-				std::string searchpath_single;
-				std::string colon = ":";
-				while ((searchpath_pos = searchpath.find(colon)) != std::string::npos)
+				tjs_string searchpath_single;
+				tjs_string colon = TJS_W(":");
+				while (true)
 				{
-					searchpath_single = searchpath.substr(0, searchpath_pos);
+					searchpath_pos = searchpath.find(colon);
+					if (searchpath_pos == tjs_string::npos)
+					{
+						searchpath_single = searchpath;
+					}
+					else
+					{
+						searchpath_single = searchpath.substr(0, searchpath_pos);
+					}
 					{
 						if (searchpath_single.empty())
 						{
-							searchpath_single = ".";
+							searchpath_single = TJS_W(".");
 						}
-						searchpath_single += "/";
-						searchpath_single += filename;
-						Instance = SDL_LoadObject(searchpath_single.c_str());
-						if (Instance)
+						searchpath_single = ApplicationSpecialPath::ReplaceStringAll(searchpath_single, TJS_W("${ORIGIN}"), exepath);
+						searchpath_single = IncludeTrailingSlash(searchpath_single);
+						searchpath_single += cur_name;
+						std::string searchpath_single_converted;
+						bool converted = TVPUtf16ToUtf8(searchpath_single_converted, searchpath_single);
+						if (converted)
 						{
-							break;
+							Instance = SDL_LoadObject(searchpath_single_converted.c_str());
+							if (Instance)
+							{
+								break;
+							}
 						}
+					}
+					if (searchpath_pos == tjs_string::npos)
+					{
+						break;
 					}
 					searchpath.erase(0, searchpath_pos + colon.length());
 				}
