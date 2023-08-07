@@ -4,7 +4,7 @@
 #ifndef __APPLICATION_SPECIAL_PATH_H__
 #define __APPLICATION_SPECIAL_PATH_H__
 
-#if 0
+#ifdef _WIN32
 #include <shlobj.h>
 #endif
 #include "FilePathUtil.h"
@@ -14,7 +14,7 @@
 
 class ApplicationSpecialPath {
 public:
-#if 0
+#ifdef _WIN32
 	static tjs_string GetSpecialFolderPath(int csidl) {
 		tjs_char path[MAX_PATH+1];
 		if(!SHGetSpecialFolderPath(NULL, path, csidl, false))
@@ -62,6 +62,24 @@ public:
 		return ChangeFileExt(exename, TJS_W(".cf"));
 	}
 	static tjs_string GetDataPathDirectory( tjs_string datapath, const tjs_string& exename ) {
+#ifdef _WIN32
+		if(datapath == TJS_W("") ) datapath = tjs_string(TJS_W("$(exepath)\\savedata"));
+
+		tjs_string exepath = ExcludeTrailingSlash(ExtractFileDir(exename));
+		tjs_string personalpath = ExcludeTrailingSlash(GetPersonalPath());
+		tjs_string appdatapath = ExcludeTrailingSlash(GetAppDataPath());
+		tjs_string savedgamespath = ExcludeTrailingSlash(GetSavedGamesPath());
+		if(personalpath == TJS_W("")) personalpath = exepath;
+		if(appdatapath == TJS_W("")) appdatapath = exepath;
+		if(savedgamespath == TJS_W("")) savedgamespath = exepath;
+
+		datapath = ReplaceStringAll(datapath, TJS_W("$(exepath)"), exepath);
+		datapath = ReplaceStringAll(datapath, TJS_W("$(personalpath)"), personalpath);
+		datapath = ReplaceStringAll(datapath, TJS_W("$(appdatapath)"), appdatapath);
+		datapath = ReplaceStringAll(datapath, TJS_W("$(vistapath)"), appdatapath );
+		datapath = ReplaceStringAll(datapath, TJS_W("$(savedgamespath)"), savedgamespath);
+		return IncludeTrailingBackslash(ExpandUNCFileName(datapath));
+#else
 		if (datapath != TJS_W("")) return datapath;
 #if defined(__vita__)
 		return TJS_W("savedata0:/savedata/");
@@ -86,23 +104,6 @@ public:
 		nativeDataPath += TJS_W("/savedata/");
 		return nativeDataPath.AsStdString();
 #endif
-#if 0
-		if(datapath == TJS_W("") ) datapath = tjs_string(TJS_W("$(exepath)\\savedata"));
-
-		tjs_string exepath = ExcludeTrailingBackslash(ExtractFileDir(exename));
-		tjs_string personalpath = ExcludeTrailingBackslash(GetPersonalPath());
-		tjs_string appdatapath = ExcludeTrailingBackslash(GetAppDataPath());
-		tjs_string savedgamespath = ExcludeTrailingBackslash(GetSavedGamesPath());
-		if(personalpath == TJS_W("")) personalpath = exepath;
-		if(appdatapath == TJS_W("")) appdatapath = exepath;
-		if(savedgamespath == TJS_W("")) savedgamespath = exepath;
-
-		datapath = ReplaceStringAll(datapath, TJS_W("$(exepath)"), exepath);
-		datapath = ReplaceStringAll(datapath, TJS_W("$(personalpath)"), personalpath);
-		datapath = ReplaceStringAll(datapath, TJS_W("$(appdatapath)"), appdatapath);
-		datapath = ReplaceStringAll(datapath, TJS_W("$(vistapath)"), appdatapath );
-		datapath = ReplaceStringAll(datapath, TJS_W("$(savedgamespath)"), savedgamespath);
-		return IncludeTrailingBackslash(ExpandUNCFileName(datapath));
 #endif
 	}
 	static tjs_string GetUserConfigFileName( const tjs_string& datapath, const tjs_string& exename ) {
