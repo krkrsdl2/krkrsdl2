@@ -290,6 +290,8 @@ tTVPPlugin::tTVPPlugin(const ttstr & name)
 {
 	Name = name;
 
+	Instance = NULL;
+	Holder = NULL;
 	if (TJS_strstr(TJS_W(":"), name.c_str()) != NULL)
 	{
 		// Absolute path
@@ -303,16 +305,36 @@ tTVPPlugin::tTVPPlugin(const ttstr & name)
 	else
 	{
 		// Relative path
+#ifdef _WIN32
 		tjs_string cur_name = name.AsStdString();
-#ifndef _WIN32
-		tjs_int len = name.GetLen();
-		if (len > 4 && name[len - 1] == TJS_W('l') && name[len - 2] == TJS_W('l') && name[len - 3] == TJS_W('d') && name[len - 4] == TJS_W('.'))
+		ttstr place(TVPGetPlacedPath(cur_name));
+		if (!place.IsEmpty())
 		{
-			tjs_string extso = ChangeFileExt(cur_name, TJS_W(".so"));
-			cur_name = extso;
+			Holder = new tTVPPluginHolder(name);
+			std::string filename;
+			if (TVPUtf16ToUtf8(filename, Holder->GetLocalName().AsStdString()))
+			{
+				Instance = SDL_LoadObject(filename.c_str());
+				if (Instance == NULL)
+				{
+					delete Holder;
+					Holder = NULL;
+				}
+			}
 		}
 #endif
+		if (Instance == NULL)
 		{
+#ifndef _WIN32
+			{
+				tjs_int len = name.GetLen();
+				if (len > 4 && name[len - 1] == TJS_W('l') && name[len - 2] == TJS_W('l') && name[len - 3] == TJS_W('d') && name[len - 4] == TJS_W('.'))
+				{
+					tjs_string extso = ChangeFileExt(cur_name, TJS_W(".so"));
+					cur_name = extso;
+				}
+			}
+#endif
 			tjs_string exename = ExePath();
 			tjs_string exepath = ExcludeTrailingSlash(ExtractFileDir(exename));
 			tjs_string searchpath;
@@ -373,7 +395,10 @@ tTVPPlugin::tTVPPlugin(const ttstr & name)
 
 	if(!Instance)
 	{
-		delete Holder;
+		if (Holder != NULL)
+		{
+			delete Holder;
+		}
 		TVPThrowExceptionMessage(TVPCannotLoadPlugin, name);
 	}
 
@@ -476,8 +501,16 @@ tTVPPlugin::tTVPPlugin(const ttstr & name)
 	}
 	catch(...)
 	{
-		SDL_UnloadObject(Instance);
-		delete Holder;
+		if (Instance != NULL)
+		{
+			SDL_UnloadObject(Instance);
+			Instance = NULL;
+		}
+		if (Holder != NULL)
+		{
+			delete Holder;
+			Holder = NULL;
+		}
 		throw;
 	}
 }
@@ -508,8 +541,16 @@ bool tTVPPlugin::Uninit()
 #endif
 #endif
 
-	SDL_UnloadObject(Instance);
-	delete Holder;
+	if (Instance != NULL)
+	{
+		SDL_UnloadObject(Instance);
+		Instance = NULL;
+	}
+	if (Holder != NULL)
+	{
+		delete Holder;
+		Holder = NULL;
+	}
 	return true;
 }
 #endif
