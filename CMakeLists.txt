@@ -357,6 +357,8 @@ find_library(SDL2 NAMES SDL2-static)
 list(APPEND KRKRSDL2_LIBS
 	SDL2-static
 )
+get_target_property(SDL2_INCLUDE_DIRS SDL2-static INCLUDE_DIRECTORIES)
+set(SDL2_LIBRARIES SDL2-static)
 elseif(VITA)
 set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/SDL)
@@ -386,6 +388,18 @@ include_directories(${SDL2_INCLUDE_DIRS})
 
 list(APPEND KRKRSDL2_LIBS
 	${SDL2_LIBRARIES}
+)
+endif()
+
+if(NOT (${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten"))
+set(XNASONG OFF CACHE BOOL "Intentionally disabled for FAudio: enable XNA_Song.c" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Intentionally disabled for FAudio: Build shared libraries" FORCE)
+add_subdirectory(external/FAudio)
+list(APPEND KRKRSDL2_LIBS
+	FAudio
+)
+list(APPEND KRKRSDL2_CXXFLAGS
+	-DTVP_FAUDIO_IMPLEMENT
 )
 endif()
 
