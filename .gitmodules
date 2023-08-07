@@ -13,3 +13,6 @@
 [submodule "external/zlib"]
 	path = external/zlib
 	url = https://github.com/madler/zlib.git
+[submodule "external/FAudio"]
+	path = external/FAudio
+	url = https://github.com/FNA-XNA/FAudio.git
