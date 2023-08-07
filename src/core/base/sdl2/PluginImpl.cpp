@@ -305,8 +305,8 @@ tTVPPlugin::tTVPPlugin(const ttstr & name)
 	else
 	{
 		// Relative path
-#ifdef _WIN32
 		tjs_string cur_name = name.AsStdString();
+#ifdef _WIN32
 		ttstr place(TVPGetPlacedPath(cur_name));
 		if (!place.IsEmpty())
 		{
