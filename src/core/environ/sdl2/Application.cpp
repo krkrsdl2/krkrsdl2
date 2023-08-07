@@ -668,14 +668,16 @@ void tTVPApplication::PrintConsole( const tjs_char* mes, unsigned long len, bool
 #endif
 #endif
 }
-#if 0
+#ifdef _WIN32
 HWND tTVPApplication::GetHandle() {
 	if( windows_list_.size() > 0 ) {
 		return windows_list_[0]->GetHandle();
 	} else {
-		return INVALID_HANDLE_VALUE;
+		return (HWND)INVALID_HANDLE_VALUE;
 	}
 }
+#endif
+#if 0
 void tTVPApplication::Minimize() {
 	size_t size = windows_list_.size();
 	for( size_t i = 0; i < size; i++ ) {

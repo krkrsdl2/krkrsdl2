@@ -433,13 +433,8 @@ tTVPPlugin::tTVPPlugin(const ttstr & name)
 
 		if(GetModuleInstance)
 		{
-#if 0
 			HRESULT hr = GetModuleInstance(&TSSModule, storageprovider,
 				 NULL, Application->GetHandle());
-#else
-			HRESULT hr = GetModuleInstance(&TSSModule, storageprovider,
-				 NULL, NULL);
-#endif
 			if(FAILED(hr) || TSSModule == NULL)
 				TVPThrowExceptionMessage(TVPCannotLoadPlugin, name);
 
@@ -939,11 +934,7 @@ void TVP_md5_finish(TVP_md5_state_t *pms, tjs_uint8 *digest)
 #ifdef _WIN32
 HWND TVPGetApplicationWindowHandle()
 {
-#if 0
 	return Application->GetHandle();
-#else
-	return NULL;
-#endif
 }
 #endif
 //---------------------------------------------------------------------------

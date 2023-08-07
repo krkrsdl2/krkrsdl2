@@ -18,8 +18,12 @@
 #include "SDLBitmapCompletion.h"
 #include "ScriptMgnIntf.h"
 #include "SystemControl.h"
+#include "PluginImpl.h"
 #ifdef KRKRZ_ENABLE_CANVAS
 #include "OpenGLScreenSDL2.h"
+#endif
+#ifdef _WIN32
+#include <SDL_syswm.h>
 #endif
 #include <SDL.h>
 #ifdef USE_SDL_MAIN
@@ -447,6 +451,15 @@ static int GetMouseButtonState()
 	return s;
 }
 
+#ifdef _WIN32
+struct tTVPMessageReceiverRecord
+{
+	tTVPWindowMessageReceiver Proc;
+	const void *UserData;
+	bool Deliver(tTVPWindowMessage *Message)
+	{ return Proc(const_cast<void*>(UserData), Message); }
+};
+#endif
 
 class TVPWindowWindow : public TTVPWindowForm
 {
@@ -494,6 +507,9 @@ protected:
 	tjs_int ActualZoomNumer = 1; // Zooming factor numerator (actual)
 	tjs_int InnerWidth = 32;
 	tjs_int InnerHeight = 32;
+#endif
+#ifdef _WIN32
+	tObjectList<tTVPMessageReceiverRecord> WindowMessageReceivers;
 #endif
 
 public:
@@ -647,6 +663,11 @@ public:
 	virtual tjs_int GetInnerWidth() override;
 	/* Called from tTJSNI_Window */
 	virtual tjs_int GetInnerHeight() override;
+#ifdef _WIN32
+	virtual void RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void * proc, const void *userdata) override;
+	bool InternalDeliverMessageToReceiver(tTVPWindowMessage &msg);
+	virtual HWND GetHandle() const override;
+#endif
 	bool should_try_parent_window(SDL_Event event);
 	void window_receive_event(SDL_Event event);
 	bool window_receive_event_input(SDL_Event event);
@@ -801,6 +822,9 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 			SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0x00, 0xFF );
 		}
 	}
+#ifdef _WIN32
+	::SetWindowLongPtr( this->GetHandle(), GWLP_USERDATA, (LONG_PTR)this );
+#endif
 	Application->AddWindow(this);
 }
 
@@ -841,6 +865,18 @@ TVPWindowWindow::~TVPWindowWindow()
 		SDL_DestroyWindow(window);
 		window = NULL;
 	}
+
+#ifdef _WIN32
+	tjs_int count = WindowMessageReceivers.GetCount();
+	for(tjs_int i = 0 ; i < count; i++)
+	{
+		tTVPMessageReceiverRecord * item = WindowMessageReceivers[i];
+		if(!item) continue;
+		delete item;
+		WindowMessageReceivers.Remove(i);
+	}
+#endif
+
 	Application->RemoveWindow(this);
 }
 
@@ -2152,6 +2188,74 @@ tjs_int TVPWindowWindow::GetInnerHeight()
 #endif
 }
 
+#ifdef _WIN32
+void TVPWindowWindow::RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void * proc, const void *userdata)
+{
+	if( mode == wrmRegister ) {
+		// register
+		tjs_int count = WindowMessageReceivers.GetCount();
+		tjs_int i;
+		for(i = 0 ; i < count; i++) {
+			tTVPMessageReceiverRecord *item = WindowMessageReceivers[i];
+			if(!item) continue;
+			if((void*)item->Proc == proc) break; // have already registered
+		}
+		if(i == count) {
+			// not have registered
+			tTVPMessageReceiverRecord *item = new tTVPMessageReceiverRecord();
+			item->Proc = (tTVPWindowMessageReceiver)proc;
+			item->UserData = userdata;
+			WindowMessageReceivers.Add(item);
+		}
+	} else if(mode == wrmUnregister) {
+		// unregister
+		tjs_int count = WindowMessageReceivers.GetCount();
+		for(tjs_int i = 0 ; i < count; i++) {
+			tTVPMessageReceiverRecord *item = WindowMessageReceivers[i];
+			if(!item) continue;
+			if((void*)item->Proc == proc) {
+				// found
+				WindowMessageReceivers.Remove(i);
+				delete item;
+			}
+		}
+		WindowMessageReceivers.Compact();
+	}
+}
+
+bool TVPWindowWindow::InternalDeliverMessageToReceiver(tTVPWindowMessage &msg)
+{
+	if( WindowMessageReceivers.GetCount() == 0 ) return false;
+	if( !TJSNativeInstance ) return false;
+#ifdef KRKRSDL2_ENABLE_PLUGINS
+	if( TVPPluginUnloadedAtSystemExit ) return false;
+#endif
+
+	tObjectListSafeLockHolder<tTVPMessageReceiverRecord> holder(WindowMessageReceivers);
+	tjs_int count = WindowMessageReceivers.GetSafeLockedObjectCount();
+
+	bool block = false;
+	for( tjs_int i = 0; i < count; i++ ) {
+		tTVPMessageReceiverRecord *item = WindowMessageReceivers.GetSafeLockedObjectAt(i);
+		if(!item) continue;
+		bool b = item->Deliver(&msg);
+		block = block || b;
+	}
+	return block;
+}
+
+HWND TVPWindowWindow::GetHandle() const
+{
+	SDL_SysWMinfo syswminfo;
+	SDL_VERSION(&syswminfo.version);
+	if (SDL_GetWindowWMInfo(window, &syswminfo))
+	{
+		return syswminfo.info.win.window;
+	}
+	return NULL;
+}
+#endif
+
 bool TVPWindowWindow::should_try_parent_window(SDL_Event event)
 {
 	if (window && _prevWindow) {
@@ -2641,6 +2745,25 @@ void sdl_process_events()
 	}
 }
 
+#ifdef _WIN32
+static void sdl_windows_message_hook(void *userdata, void *hWnd, unsigned int message, Uint64 wParam, Sint64 lParam)
+{
+	TVPWindowWindow *win = reinterpret_cast<TVPWindowWindow*>(::GetWindowLongPtr((HWND)hWnd, GWLP_USERDATA));
+	if (win != NULL)
+	{
+		tTVPWindowMessage Message;
+		Message.LParam = lParam;
+		Message.WParam = wParam;
+		Message.Msg = message;
+		Message.Result = 0;
+		if (win->InternalDeliverMessageToReceiver(Message))
+		{
+			// TODO: return Message.result and block
+		}
+	}
+}
+#endif
+
 #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 static int sdl_event_watch(void *userdata, SDL_Event *in_event)
 {
@@ -2759,6 +2882,9 @@ extern "C" int main(int argc, char **argv)
 	SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
 #endif
 
+#ifdef _WIN32
+	SDL_SetWindowsMessageHook(sdl_windows_message_hook, NULL);
+#endif
 #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 	SDL_AddEventWatch(sdl_event_watch, NULL);
 #endif

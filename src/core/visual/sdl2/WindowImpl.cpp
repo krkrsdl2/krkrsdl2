@@ -1462,7 +1462,7 @@ void tTJSNI_Window::DetachVideoOverlay()
 	}
 }
 //---------------------------------------------------------------------------
-#if 0
+#ifdef _WIN32
 HWND tTJSNI_Window::GetWindowHandleForPlugin()
 {
 	if(!Form) return NULL;
@@ -1473,7 +1473,7 @@ HWND tTJSNI_Window::GetWindowHandleForPlugin()
 void tTJSNI_Window::RegisterWindowMessageReceiver(tTVPWMRRegMode mode,
 		void * proc, const void *userdata)
 {
-#if 0
+#ifdef _WIN32
 	if(!Form) return;
 	Form->RegisterWindowMessageReceiver(mode, proc, userdata);
 #endif
@@ -2137,7 +2137,7 @@ TJS_BEGIN_NATIVE_METHOD_DECL(findFullScreenCandidates)
 }
 TJS_END_NATIVE_METHOD_DECL_OUTER(cls, findFullScreenCandidates)
 //---------------------------------------------------------------------------
-#if 0
+#ifdef _WIN32
 TJS_BEGIN_NATIVE_METHOD_DECL(registerMessageReceiver)
 {
 	TJS_GET_NATIVE_INSTANCE(/*var. name*/_this, /*var. type*/tTJSNI_Window);
@@ -2260,7 +2260,7 @@ TJS_BEGIN_NATIVE_METHOD_DECL(resetMouseVelocity)
 }
 TJS_END_NATIVE_METHOD_DECL_OUTER(cls, resetMouseVelocity)
 //---------------------------------------------------------------------------
-#if 0
+#ifdef _WIN32
 TJS_BEGIN_NATIVE_PROP_DECL(HWND)
 {
 	TJS_BEGIN_NATIVE_PROP_GETTER

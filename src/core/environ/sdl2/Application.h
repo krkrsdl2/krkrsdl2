@@ -137,8 +137,10 @@ public:
 
 	bool IsTarminate() const { return tarminate_; }
 
-#if 0
+#ifdef _WIN32
 	HWND GetHandle();
+#endif
+#if 0
 	bool IsIconic() {
 		HWND hWnd = GetHandle();
 		if( hWnd != INVALID_HANDLE_VALUE ) {

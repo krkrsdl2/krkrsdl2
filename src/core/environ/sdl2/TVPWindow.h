@@ -425,6 +425,13 @@ public:
 	void SetHintDelay(tjs_int delay) {}
 	tjs_int GetHintDelay() const { return 500; }
 
+	// Win32
+#ifdef _WIN32
+	virtual void RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void * proc, const void *userdata) = 0;
+	virtual HWND GetHandle() const = 0;
+	HWND GetWindowHandleForPlugin() { return GetHandle(); }
+#endif
+
 	// TODO
 	tTVPImeMode GetDefaultImeMode() const { return ::imDisable; };
 	void SetUseMouseKey(bool b) {};

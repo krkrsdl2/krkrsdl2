@@ -14,7 +14,6 @@
 #define WindowImplH
 
 #include "WindowIntf.h"
-#include "TVPWindow.h"
 
 
 /*[*/
@@ -22,7 +21,7 @@
 // window message receivers
 //---------------------------------------------------------------------------
 enum tTVPWMRRegMode { wrmRegister=0, wrmUnregister=1 };
-#if 0
+#ifdef _WIN32
 #pragma pack(push, 4)
 struct tTVPWindowMessage
 {
@@ -45,6 +44,7 @@ typedef bool (STDCALL * tTVPWindowMessageReceiver)
 /*]*/
 //---------------------------------------------------------------------------
 
+#include "TVPWindow.h"
 
 
 //---------------------------------------------------------------------------
@@ -324,7 +324,7 @@ public:
 	void ZoomRectangle(
 		tjs_int & left, tjs_int & top,
 		tjs_int & right, tjs_int & bottom);
-#if 0
+#ifdef _WIN32
 	HWND GetWindowHandleForPlugin();
 #endif
 	void RegisterWindowMessageReceiver(tTVPWMRRegMode mode,
