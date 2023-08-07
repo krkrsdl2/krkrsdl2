@@ -260,8 +260,7 @@ static void TVPInitSoundOptions()
 
 
 
-#ifdef KRKRSDL2_ENABLE_PLUGINS
-#ifdef _WIN32
+#if defined(KRKRSDL2_ENABLE_PLUGINS) && defined(_WIN32)
 //---------------------------------------------------------------------------
 // TSS plug-in interface
 //---------------------------------------------------------------------------
@@ -333,18 +332,20 @@ public:
 		return new tTVPTSSWaveDecoder(dec);
 	}
 } static TVPTSSWaveDecoderCreator;
+#endif
 //---------------------------------------------------------------------------
 static bool TVPTSSWaveDecoderCreatorRegistered = false;
 void TVPRegisterTSSWaveDecoderCreator()
 {
 	if(!TVPTSSWaveDecoderCreatorRegistered)
 	{
+#if defined(KRKRSDL2_ENABLE_PLUGINS) && defined(_WIN32)
 		TVPRegisterWaveDecoderCreator(&TVPTSSWaveDecoderCreator);
+#endif
 		TVPTSSWaveDecoderCreatorRegistered = true;
 	}
 }
 //---------------------------------------------------------------------------
-#endif
 
 
 
@@ -567,7 +568,6 @@ void TVPRegisterKMPWaveDecoderCreator()
 	}
 }
 //---------------------------------------------------------------------------
-#endif
 #endif
 #endif
 
@@ -2080,8 +2080,6 @@ tTVPSoundGlobalFocusMode tTJSNI_WaveSoundBuffer::GlobalFocusMode = sgfmNeverMute
 tTJSNI_WaveSoundBuffer::tTJSNI_WaveSoundBuffer()
 {
 	TVPInitSoundOptions();
-#ifdef KRKRSDL2_ENABLE_PLUGINS
-#ifdef _WIN32
 	TVPRegisterTSSWaveDecoderCreator();
 #if 0
 #ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
@@ -2089,8 +2087,6 @@ tTJSNI_WaveSoundBuffer::tTJSNI_WaveSoundBuffer()
 #endif
 #ifdef TVP_SUPPORT_KPI
 	TVPRegisterKMPWaveDecoderCreator();
-#endif
-#endif
 #endif
 #endif
 #if 0
