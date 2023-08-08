@@ -475,6 +475,8 @@ protected:
 #endif
 	tTJSNI_Window *TJSNativeInstance;
 	bool hasDrawn = false;
+	bool isVisible = true;
+	bool visibilityHasInitialized = false;
 	bool needs_graphic_update = false;
 	bool isBeingDeleted = false;
 	bool cursor_temporary_hidden = false;
@@ -752,6 +754,10 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 #endif
 	new_window_w = 0;
 	new_window_h = 0;
+#endif
+
+#ifdef _WIN32
+	window_flags |= SDL_WINDOW_HIDDEN;
 #endif
 
 	window = SDL_CreateWindow("krkrsdl2", new_window_x, new_window_y, new_window_w, new_window_h, window_flags);
@@ -1193,6 +1199,10 @@ void TVPWindowWindow::ShowWindowAsModal()
 }
 bool TVPWindowWindow::GetVisible()
 {
+	if (!visibilityHasInitialized)
+	{
+		return isVisible;
+	}
 	if (window)
 	{
 		return SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN;
@@ -1201,6 +1211,11 @@ bool TVPWindowWindow::GetVisible()
 }
 void TVPWindowWindow::SetVisible(bool visible)
 {
+	isVisible = visible;
+	if (!visibilityHasInitialized)
+	{
+		return;
+	}
 	if (window)
 	{
 #ifndef KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
@@ -1656,6 +1671,11 @@ void TVPWindowWindow::Show()
 }
 void TVPWindowWindow::TickBeat()
 {
+	if (!visibilityHasInitialized)
+	{
+		visibilityHasInitialized = true;
+		SetVisible(isVisible);
+	}
 	if (needs_graphic_update)
 	{
 		if (renderer && bitmap_completion)
