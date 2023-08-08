@@ -332,6 +332,7 @@ class tTVPOpenGLScreen;
 
 class TTVPWindowForm {
 public:
+	virtual ~TTVPWindowForm() {};
 	virtual void SetPaintBoxSize(tjs_int w, tjs_int h) = 0;
 	virtual bool GetFormEnabled() = 0;
 	virtual void SetDefaultMouseCursor() = 0;
