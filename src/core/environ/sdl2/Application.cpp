@@ -596,7 +596,18 @@ void tTVPApplication::CheckConsole() {
 #endif
 #endif
 #ifndef __ANDROID__
+#ifdef _WIN32
+	{
+		HANDLE hStdOutput = ::GetStdHandle(STD_OUTPUT_HANDLE);
+		if ((LONG_PTR)hStdOutput > 0)
+		{
+			DWORD mode;
+			is_attach_console_ = GetConsoleMode(hStdOutput, &mode) != 0;
+		}
+	}
+#else
 	is_attach_console_ = isatty(fileno(stdout)) != 0;
+#endif
 	for( int i = 0; i < ArgC; i++ ) {
 		if(!TJS_strcmp(ArgV[i], TJS_W("-forceoutputlogtoconsole"))) {
 			is_attach_console_ = true;
@@ -650,6 +661,28 @@ void tTVPApplication::PrintConsole( const tjs_char* mes, unsigned long len, bool
 		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", &(console_cache_[0]) );
 	} else {
 		SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "%s", &(console_cache_[0]) );
+	}
+#elif defined(_WIN32)
+	if (is_attach_console_)
+	{
+		HANDLE hStdOutput = ::GetStdHandle(iserror ? STD_ERROR_HANDLE : STD_OUTPUT_HANDLE);
+		if ((LONG_PTR)hStdOutput > 0)
+		{
+			DWORD mode;
+			if (GetConsoleMode(hStdOutput, &mode))
+			{
+				// 実コンソール
+				DWORD wlen;
+				::WriteConsoleW( hStdOutput, mes, len, &wlen, NULL );
+				::WriteConsoleW( hStdOutput, TJS_W("\n"), 1, &wlen, NULL );
+			}
+			else
+			{
+				DWORD wlen;
+				::WriteFile( hStdOutput, &(console_cache_[0]), u8len, &wlen, NULL );
+				::WriteFile( hStdOutput, "\n", 1, &wlen, NULL );
+			}
+		}
 	}
 #else
 	if (is_attach_console_)
