@@ -8,6 +8,7 @@
 #include "SystemImpl.h"
 #include "TVPWindow.h"
 #include "SysInitIntf.h"
+#include "SysInitImpl.h"
 #include "CharacterSet.h"
 #include "WaveImpl.h"
 #include "TimerThread.h"
@@ -31,6 +32,7 @@
 #endif
 #ifdef _WIN32
 #include <shellapi.h>
+#include <stdlib.h>
 #endif
 
 #include <unistd.h>
@@ -2850,77 +2852,97 @@ extern "C" int wmain(int argc, wchar_t **argv)
 extern "C" int main(int argc, char **argv)
 #endif
 {
-#ifdef _WIN32
-	_argc = argc;
-	_wargv = argv;
-#else
-	_argc = argc;
-	_wargv = new tjs_char*[argc];
-
-	for (int i = 0; i < argc; i += 1)
+	TVPTerminateCode = 0;
+	try
 	{
-		const char* narg;
-#if !defined(__EMSCRIPTEN__) && !defined(__vita__) && !defined(__SWITCH__)
-		if (!i)
-		{
-			narg = realpath(argv[i], NULL);
-		}
-		else
+#ifdef _WIN32
+		_set_error_mode(_OUT_TO_STDERR);
 #endif
+
+#ifdef _WIN32
+		_argc = argc;
+		_wargv = argv;
+#else
+		_argc = argc;
+		_wargv = new tjs_char*[argc];
+
+		for (int i = 0; i < argc; i += 1)
 		{
-			narg = argv[i];
-		}
-		if (!narg)
-		{
-			tjs_char* warg_copy = new tjs_char[1];
-			warg_copy[0] = '\0';
+			const char* narg;
+#if !defined(__EMSCRIPTEN__) && !defined(__vita__) && !defined(__SWITCH__)
+			if (!i)
+			{
+				narg = realpath(argv[i], NULL);
+			}
+			else
+#endif
+			{
+				narg = argv[i];
+			}
+			if (!narg)
+			{
+				tjs_char* warg_copy = new tjs_char[1];
+				warg_copy[0] = '\0';
+				_wargv[i] = warg_copy;
+				continue;
+			}
+			std::string v_utf8 = narg;
+			tjs_string v_utf16;
+			TVPUtf8ToUtf16( v_utf16, v_utf8 );
+#if !defined(__EMSCRIPTEN__) && !defined(__vita__) && !defined(__SWITCH__)
+			if (!i)
+			{
+				free((void*)narg);
+			}
+#endif
+			tjs_char* warg_copy = new tjs_char[v_utf16.length() + 1];
+			SDL_memcpy(warg_copy, v_utf16.c_str(), sizeof(tjs_char) * (v_utf16.length()));
+			warg_copy[v_utf16.length()] = '\0';
 			_wargv[i] = warg_copy;
-			continue;
-		}
-		std::string v_utf8 = narg;
-		tjs_string v_utf16;
-		TVPUtf8ToUtf16( v_utf16, v_utf8 );
-#if !defined(__EMSCRIPTEN__) && !defined(__vita__) && !defined(__SWITCH__)
-		if (!i)
-		{
-			free((void*)narg);
 		}
 #endif
-		tjs_char* warg_copy = new tjs_char[v_utf16.length() + 1];
-		SDL_memcpy(warg_copy, v_utf16.c_str(), sizeof(tjs_char) * (v_utf16.length()));
-		warg_copy[v_utf16.length()] = '\0';
-		_wargv[i] = warg_copy;
-	}
-#endif
 
-	SDL_setenv("VITA_DISABLE_TOUCH_BACK", "1", 1);
-	SDL_setenv("DBUS_FATAL_WARNINGS", "0", 0);
-
-	TVPLoadMessage();
+		SDL_setenv("VITA_DISABLE_TOUCH_BACK", "1", 1);
+		SDL_setenv("DBUS_FATAL_WARNINGS", "0", 0);
 
 #ifdef TVP_LOG_TO_COMMANDLINE_CONSOLE
-	SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
+		SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
 #endif
+
+		TVPLoadMessage();
 
 #ifdef _WIN32
-	SDL_SetWindowsMessageHook(sdl_windows_message_hook, NULL);
+		SDL_SetWindowsMessageHook(sdl_windows_message_hook, NULL);
 #endif
 #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
-	SDL_AddEventWatch(sdl_event_watch, NULL);
+		SDL_AddEventWatch(sdl_event_watch, NULL);
 #endif
-
-	::Application = new tTVPApplication();
-	if (::Application->StartApplication( _argc, _wargv ))
-	{
-		return 0;
-	}
+		
+		::Application = new tTVPApplication();
+		if (::Application->StartApplication( _argc, _wargv ))
+		{
+			return 0;
+		}
 
 #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
-	emscripten_set_main_loop(process_events, 0, 0);
+		emscripten_set_main_loop(process_events, 0, 0);
 #else
-	while (process_events());
+		while (process_events());
 #endif
-	return 0;
+
+		// delete application and exit forcely
+		// this prevents ugly exception message on exit
+		delete ::Application;
+		::Application = nullptr;
+	}
+	catch (...)
+	{
+		return 2;
+	}
+#ifdef _WIN32
+	::TerminateProcess(GetCurrentProcess(), (UINT)TVPTerminateCode);
+#endif
+	return TVPTerminateCode;
 }
 
 bool TVPGetKeyMouseAsyncState(tjs_uint keycode, bool getcurrent)
