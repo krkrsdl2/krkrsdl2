@@ -223,7 +223,7 @@
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-win32-${{ matrix.platform.cmake-system-compiler }}",
-            "path" : "build/krkrsdl2.exe"
+            "path" : "build/*.exe"
           }
         }
       ]
