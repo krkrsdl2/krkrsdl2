@@ -251,6 +251,7 @@ list(APPEND KRKRSDL2_LDFLAGS
 	-static-libstdc++
 	-static-libgcc
 	-municode
+	-Wl,--subsystem,windows
 )
 set_source_files_properties(${KIRIKIRISDL2_SSE2_SRC} PROPERTIES COMPILE_FLAGS -msse2)
 set_source_files_properties(${KIRIKIRISDL2_AVX2_SRC} PROPERTIES COMPILE_FLAGS -mavx2)
