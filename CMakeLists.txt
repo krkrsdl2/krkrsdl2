@@ -95,6 +95,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/out/library)
 set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
 endif()
 
+if(WIN32)
+set(WIN32_RESOURCES_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/win32-resources CACHE FILEPATH "The path to the resources for Win32.")
+endif()
+
 if(APPLE AND IOS)
 set(IOS_RESOURCES_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/ios-resources CACHE FILEPATH "The path to the resources for iOS.")
 endif()
@@ -453,6 +457,13 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
 if(KRKRSDL2_ENABLE_PRECOMPILED_HEADERS)
 target_precompile_headers(${KRKRSDL2_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/core/sdl2/SDLPrecompiledHeader.h)
 endif()
+endif()
+
+if(WIN32)
+enable_language("RC")
+target_sources(${KRKRSDL2_NAME} PRIVATE
+	${WIN32_RESOURCES_ROOT}/krkrsdl2.rc
+)
 endif()
 
 if(IOS)

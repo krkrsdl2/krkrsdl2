@@ -1,0 +1,41 @@
+/* SPDX-License-Identifier: MIT */
+/* Copyright (c) Kirikiri SDL2 Developers */
+
+#include "windows.h"
+#define IDI_TVPWIN32 107
+
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+
+IDI_TVPWIN32 ICON "krkrsdl2.ico"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION 1, 0, 0, 0
+PRODUCTVERSION 1, 0, 0, 0
+FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+FILEFLAGS 0x1L
+#else
+FILEFLAGS 0x0L
+#endif
+FILEOS 0x40004L
+FILETYPE 0x1L
+FILESUBTYPE 0x0L
+BEGIN
+BLOCK "StringFileInfo"
+BEGIN
+BLOCK "041104b0"
+BEGIN
+VALUE "FileDescription", "TVP(KIRIKIRI) SDL2 core / Scripting Platform for Win32"
+VALUE "FileVersion", "1.0.0.0"
+VALUE "InternalName", "tvp2/win32"
+VALUE "LegalCopyright", "(KIRIKIRI core) (C) W.Dee and contributors All Rights Reserved. This software is based in part on the work of Independent JPEG Group. For details: Run this program with '-about' option."
+VALUE "OriginalFilename", "tvpwin32.exe"
+VALUE "ProductName", "TVP(KIRIKIRI) SDL2 core / Scripting Platform for Win32"
+VALUE "ProductVersion", "1.0.0.0"
+END
+END
+BLOCK "VarFileInfo"
+BEGIN
+VALUE "Translation", 0x411, 1200
+END
+END
