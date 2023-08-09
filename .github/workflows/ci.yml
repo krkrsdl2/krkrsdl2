@@ -96,7 +96,7 @@
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-web",
-            "path" : "build/krkrsdl2-web.zip"
+            "path" : "build/*.zip"
           }
         }
       ]
@@ -141,7 +141,7 @@
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-ubuntu",
-            "path" : "build/krkrsdl2-ubuntu.zip"
+            "path" : "build/*.zip"
           }
         }
       ]
@@ -217,11 +217,15 @@
           "run" : "cmake --build build"
         },
         {
+          "name" : "Archive artifact",
+          "run" : "cd build && 7z a -tzip krkrsdl2-win32-${{ matrix.platform.cmake-system-compiler }}-${{ matrix.platform.compiler }}.zip *.exe"
+        },
+        {
           "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
-            "name" : "krkrsdl2-win32-${{ matrix.platform.cmake-system-compiler }}",
-            "path" : "build/*.exe"
+            "name" : "krkrsdl2-win32-${{ matrix.platform.cmake-system-compiler }}-${{ matrix.platform.compiler }}",
+            "path" : "build/*.zip"
           }
         }
       ]
@@ -318,7 +322,7 @@
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-vita",
-            "path" : "build/krkrsdl2.vpk"
+            "path" : "build/*.vpk"
           }
         }
       ]
@@ -358,7 +362,7 @@
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-switch",
-            "path" : "build/krkrsdl2.nro"
+            "path" : "build/*.nro"
           }
         }
       ]
@@ -373,14 +377,12 @@
             {
               "enabled" : "false",
               "cmakeflags" : "-DOPTION_BUILD_MACOS_BUNDLE=OFF",
-              "artifactname" : "krkrsdl2-macos",
-              "artifactpath" : "build/krkrsdl2-macos.zip"
+              "artifactname" : "krkrsdl2-macos"
             },
             {
               "enabled" : "true",
               "cmakeflags" : "-DOPTION_BUILD_MACOS_BUNDLE=ON -DEMBED_DATA_PATH=data.xp3",
-              "artifactname" : "krkrsdl2-macos-appbundle",
-              "artifactpath" : "build/krkrsdl2-macos-appbundle.zip"
+              "artifactname" : "krkrsdl2-macos-appbundle"
             }
           ]
         }
@@ -425,7 +427,7 @@
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "${{ matrix.appbundle.artifactname }}",
-            "path" : "${{ matrix.appbundle.artifactpath }}"
+            "path" : "build/*.zip"
           }
         }
       ]
@@ -466,13 +468,22 @@
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-ios-appbundle",
-            "path" : "build/krkrsdl2-ios-appbundle.zip"
+            "path" : "build/*.zip"
           }
         }
       ]
     },
     "create-release" : {
-      "needs" : ["build-web", "build-ubuntu", "build-android", "build-macos-cmake", "build-ios-cmake", "build-vita", "build-switch"],
+      "needs" : [
+        "build-android",
+        "build-ios-cmake",
+        "build-macos-cmake",
+        "build-switch",
+        "build-ubuntu",
+        "build-vita",
+        "build-web",
+        "build-win32"
+      ],
       "runs-on" : "ubuntu-20.04",
       "timeout-minutes" : 20,
       "if" : "github.ref == 'refs/heads/main'",
