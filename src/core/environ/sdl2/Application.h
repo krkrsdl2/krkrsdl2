@@ -187,12 +187,7 @@ public:
 		}
 		return 0;
 	}
-	void Terminate() {
-#if 0
-		::PostQuitMessage(0);
-#endif
-		tarminate_ = true;
-	}
+	void Terminate();
 #if 0
 	void SetHintHidePause( int v ) {}
 	void SetShowHint( bool b ) {}

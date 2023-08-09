@@ -2828,6 +2828,11 @@ static bool process_events()
 			if (::Application->IsTarminate())
 			{
 				TVPSystemUninit();
+				if (TVPSystemControl)
+				{
+					delete TVPSystemControl;
+				}
+				TVPSystemControl = NULL;
 #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 				emscripten_cancel_main_loop();
 #else

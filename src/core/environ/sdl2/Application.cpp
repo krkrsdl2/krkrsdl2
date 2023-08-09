@@ -341,9 +341,6 @@ tTVPApplication::~tTVPApplication() {
 		// TTVPWindowForm のデストラクタ内でリストから削除されるはず
 	}
 	windows_list_.clear();
-#ifdef KRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD
-	delete image_load_thread_;
-#endif
 }
 #if 0
 struct SEHException {
@@ -853,6 +850,30 @@ void tTVPApplication::SetTitle( const tjs_string& caption ) {
 		::SetConsoleTitle( caption.c_str() );
 	}
 #endif
+}
+
+void tTVPApplication::Terminate() {
+#if 0
+	::PostQuitMessage(0);
+#endif
+	if (!tarminate_)
+	{
+		tarminate_ = true;
+#ifdef KRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD
+		if (image_load_thread_)
+		{
+			try
+			{
+				delete image_load_thread_;
+				image_load_thread_ = NULL;
+			}
+			catch (...)
+			{
+				// ignore errors
+			}
+		}
+#endif
+	}
 }
 
 #if 0
