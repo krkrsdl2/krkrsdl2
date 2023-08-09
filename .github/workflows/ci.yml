@@ -45,16 +45,15 @@
       },
       "steps" : [
         {
+          "name" : "Checkout repository",
           "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
           }
         },
         {
-          "run" : "sudo apt-get update"
-        },
-        {
-          "run" : "sudo apt-get install build-essential libsdl2-dev git"
+          "name" : "Install dependencies",
+          "run" : "sudo apt-get update && sudo apt-get install build-essential libsdl2-dev git"
         },
         {
           "name" : "Setup cache",
@@ -73,10 +72,6 @@
           }
         },
         {
-          "name" : "Set up base environment",
-          "run" : "sudo apt-get install build-essential"
-        },
-        {
           "name" : "Set up Homebrew environment for Github Actions",
           "run" : "echo \"/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin\" >> $GITHUB_PATH"
         },
@@ -85,15 +80,19 @@
           "run" : "brew install make nasm ninja cmake"
         },
         {
+          "name" : "Configure project",
           "run" : "emcmake cmake -S . -B build"
         },
         {
+          "name" : "Build project",
           "run" : "cmake --build build"
         },
         {
+          "name" : "Archive artifact",
           "run" : "cd build && 7z a -tzip krkrsdl2-web.zip krkrsdl2.wasm krkrsdl2.js index.html"
         },
         {
+          "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-web",
@@ -107,20 +106,15 @@
       "timeout-minutes" : 20,
       "steps" : [
         {
+          "name" : "Checkout repository",
           "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
           }
         },
         {
-          "run" : "sudo apt-get update"
-        },
-        {
-          "run" : "sudo apt-get install build-essential libsdl2-dev"
-        },
-        {
-          "name" : "Set up base environment",
-          "run" : "sudo apt-get install build-essential"
+          "name" : "Install dependencies",
+          "run" : "sudo apt-get update && sudo apt-get install build-essential libsdl2-dev"
         },
         {
           "name" : "Set up Homebrew environment for Github Actions",
@@ -131,15 +125,19 @@
           "run" : "brew install make nasm ninja cmake"
         },
         {
+          "name" : "Configure project",
           "run" : "cmake -S . -B build"
         },
         {
+          "name" : "Build project",
           "run" : "cmake --build build"
         },
         {
+          "name" : "Archive artifact",
           "run" : "cd build && 7z a -tzip krkrsdl2-ubuntu.zip krkrsdl2"
         },
         {
+          "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-ubuntu",
@@ -199,6 +197,7 @@
       },
       "steps" : [
         {
+          "name" : "Checkout repository",
           "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
@@ -218,6 +217,7 @@
           "run" : "cmake --build build"
         },
         {
+          "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-win32-${{ matrix.platform.cmake-system-compiler }}",
@@ -231,6 +231,7 @@
       "timeout-minutes" : 20,
       "steps" : [
         {
+          "name" : "Checkout repository",
           "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
@@ -265,13 +266,15 @@
           }
         },
         {
-          "name" : "build",
+          "name" : "Build project",
           "run" : "cd android-project\n./gradlew assembleRelease -Dcmake.dir=$(dirname $(dirname $(which cmake)))\n"
         },
         {
+          "name" : "Rename artifact",
           "run" : "cp android-project/app/build/outputs/apk/release/krkrsdl2_*.apk android-project/app/build/outputs/apk/release/krkrsdl2.apk"
         },
         {
+          "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-android",
@@ -292,6 +295,7 @@
           "run" : "apk update\napk add cmake make ninja git curl\n"
         },
         {
+          "name" : "Checkout repository",
           "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
@@ -302,12 +306,15 @@
           "run" : "curl -LOC - https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
         },
         {
+          "name" : "Configure project",
           "run" : "cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DEMBED_DATA_PATH=data.xp3"
         },
         {
+          "name" : "Build project",
           "run" : "cmake --build build"
         },
         {
+          "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-vita",
@@ -328,6 +335,7 @@
           "run" : "apt-get -y update\napt-get -y install cmake make ninja-build git curl\n"
         },
         {
+          "name" : "Checkout repository",
           "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
@@ -338,12 +346,15 @@
           "run" : "curl -LOC - https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
         },
         {
+          "name" : "Configure project",
           "run" : "cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake -DEMBED_DATA_PATH=data.xp3"
         },
         {
+          "name" : "Build project",
           "run" : "cmake --build build"
         },
         {
+          "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-switch",
@@ -376,6 +387,7 @@
       },
       "steps" : [
         {
+          "name" : "Checkout repository",
           "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
@@ -391,20 +403,25 @@
           "run" : "brew install make nasm ninja cmake"
         },
         {
+          "name" : "Configure project",
           "run" : "cmake -S . -B build ${{ matrix.appbundle.cmakeflags }}"
         },
         {
+          "name" : "Build project",
           "run" : "cmake --build build"
         },
         {
+          "name" : "Archive artifact (command line)",
           "run" : "ditto -ck --rsrc --sequesterRsrc build/krkrsdl2 build/krkrsdl2-macos.zip",
           "if" : "matrix.appbundle.enabled == 'false'"
         },
         {
+          "name" : "Archive artifact (app bundle)",
           "run" : "ditto -ck --rsrc --sequesterRsrc --keepParent build/krkrsdl2.app build/krkrsdl2-macos-appbundle.zip",
           "if" : "matrix.appbundle.enabled == 'true'"
         },
         {
+          "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "${{ matrix.appbundle.artifactname }}",
@@ -418,6 +435,7 @@
       "timeout-minutes" : 20,
       "steps" : [
         {
+          "name" : "Checkout repository",
           "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
@@ -432,15 +450,19 @@
           "run" : "brew install make nasm ninja cmake"
         },
         {
+          "name" : "Configure project",
           "run" : "cmake -S . -B build -GXcode -DCMAKE_SYSTEM_NAME=iOS -DEMBED_DATA_PATH=data.xp3"
         },
         {
+          "name" : "Build project",
           "run" : "cmake --build build"
         },
         {
+          "name" : "Archive artifact",
           "run" : "ditto -ck --rsrc --sequesterRsrc --keepParent build/Debug-iphoneos/krkrsdl2.app build/krkrsdl2-ios-appbundle.zip"
         },
         {
+          "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-ios-appbundle",
