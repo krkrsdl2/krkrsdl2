@@ -19,7 +19,7 @@ Please use [Wine](https://www.winehq.org/) or [Kirikiroid2](https://play.google.
 ## ライセンス / License
 
 吉里吉里SDL2ソース（`src`ディレクトリ内）のコードは、MITライセンスの下でライセンスされています。 詳細については、`LICENSE`をお読みください。  
-このプロジェクトには、サードパーティのコンポーネントが含まれています。 詳細については、各コンポーネントのライセンスファイルを参照してください。  
+このプロジェクトには、サードパーティのコンポーネントが含まれています (GPL に基づいてライセンスされていません)。詳細については、各コンポーネントのライセンスファイルを参照してください。  
 
 The code of the Kirikiri SDL2 source (inside the `src` directory) is licensed under the MIT license. Please read `LICENSE` for more information.  
-This project contains third-party components. Please view the license file in each component for more information.
+This project contains third-party components (not licensed under the GPL). Please view the license file in each component for more information.  
