@@ -247,6 +247,9 @@ list(APPEND KRKRSDL2_CFLAGS
 	-D_UNICODE
 )
 list(APPEND KRKRSDL2_LDFLAGS
+	-static
+	-static-libstdc++
+	-static-libgcc
 	-municode
 )
 set_source_files_properties(${KIRIKIRISDL2_SSE2_SRC} PROPERTIES COMPILE_FLAGS -msse2)
