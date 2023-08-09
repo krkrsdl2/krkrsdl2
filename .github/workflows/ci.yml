@@ -45,7 +45,7 @@
       },
       "steps" : [
         {
-          "uses" : "actions/checkout@v2",
+          "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
           }
@@ -107,7 +107,7 @@
       "timeout-minutes" : 20,
       "steps" : [
         {
-          "uses" : "actions/checkout@v2",
+          "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
           }
@@ -199,7 +199,7 @@
       },
       "steps" : [
         {
-          "uses" : "actions/checkout@v2",
+          "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
           }
@@ -231,7 +231,7 @@
       "timeout-minutes" : 20,
       "steps" : [
         {
-          "uses" : "actions/checkout@v2",
+          "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
           }
@@ -292,7 +292,7 @@
           "run" : "apk update\napk add cmake make ninja git curl\n"
         },
         {
-          "uses" : "actions/checkout@v2",
+          "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
           }
@@ -328,7 +328,7 @@
           "run" : "apt-get -y update\napt-get -y install cmake make ninja-build git curl\n"
         },
         {
-          "uses" : "actions/checkout@v2",
+          "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
           }
@@ -376,7 +376,7 @@
       },
       "steps" : [
         {
-          "uses" : "actions/checkout@v2",
+          "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
           }
@@ -418,7 +418,7 @@
       "timeout-minutes" : 20,
       "steps" : [
         {
-          "uses" : "actions/checkout@v2",
+          "uses" : "actions/checkout@v3",
           "with" : {
             "submodules" : "recursive"
           }
