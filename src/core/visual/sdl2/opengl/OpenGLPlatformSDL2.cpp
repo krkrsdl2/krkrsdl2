@@ -529,6 +529,8 @@ void TVPInitializeOpenGLPlatform()
 
 	TVPANGLEInit = true;
 }
+
+int TVPGetOpenGLESVersion() { return TVPOpenGLESVersion; }
 #endif
 
 void* TVPeglGetProcAddress(const char *procname)

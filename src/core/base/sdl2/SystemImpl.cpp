@@ -45,8 +45,13 @@
 #include "tjsArray.h"
 
 //---------------------------------------------------------------------------
+#ifdef KRKRZ_ENABLE_CANVAS
+// The following is defined in OpenGLPlatformSDL2.cpp
+extern int TVPGetOpenGLESVersion();
+#endif
 static ttstr TVPAppTitle;
 static bool TVPAppTitleInit = false;
+// The following is defined in MsgIntf.cpp
 extern ttstr TVPGetLicenseString();
 //---------------------------------------------------------------------------
 
@@ -1260,6 +1265,86 @@ TJS_BEGIN_NATIVE_PROP_DECL(licenseText)
 	TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, licenseText)
+//----------------------------------------------------------------------
+TJS_BEGIN_NATIVE_PROP_DECL(isWindows)
+{
+	TJS_BEGIN_NATIVE_PROP_GETTER
+	{
+#ifdef WIN32
+		*result = (tjs_int)1;
+#else
+		*result = (tjs_int)0;
+#endif
+		return TJS_S_OK;
+	}
+	TJS_END_NATIVE_PROP_GETTER
+	TJS_DENY_NATIVE_PROP_SETTER
+}
+TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, isWindows)
+//----------------------------------------------------------------------
+TJS_BEGIN_NATIVE_PROP_DECL(isAndroid)
+{
+	TJS_BEGIN_NATIVE_PROP_GETTER
+	{
+#ifdef ANDROID
+		*result = (tjs_int)1;
+#else
+		*result = (tjs_int)0;
+#endif
+		return TJS_S_OK;
+	}
+	TJS_END_NATIVE_PROP_GETTER
+	TJS_DENY_NATIVE_PROP_SETTER
+}
+TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, isAndroid)
+//----------------------------------------------------------------------
+TJS_BEGIN_NATIVE_PROP_DECL(openGLESVersion)
+{
+	TJS_BEGIN_NATIVE_PROP_GETTER
+	{
+#ifdef KRKRZ_ENABLE_CANVAS
+		*result = (tjs_int)TVPGetOpenGLESVersion();
+#else
+		*result = (tjs_int)0;
+#endif
+		return TJS_S_OK;
+	}
+	TJS_END_NATIVE_PROP_GETTER
+	TJS_DENY_NATIVE_PROP_SETTER
+}
+TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, openGLESVersion)
+//----------------------------------------------------------------------
+TJS_BEGIN_NATIVE_PROP_DECL(isX86)
+{
+	TJS_BEGIN_NATIVE_PROP_GETTER
+	{
+#if defined(_M_IX86) || defined(_M_X64) || defined(__i386__) || defined(__x86_64__)
+		*result = (tjs_int)1;
+#else
+		*result = (tjs_int)0;
+#endif
+		return TJS_S_OK;
+	}
+	TJS_END_NATIVE_PROP_GETTER
+	TJS_DENY_NATIVE_PROP_SETTER
+}
+TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, isX86)
+//----------------------------------------------------------------------
+TJS_BEGIN_NATIVE_PROP_DECL(isARM)
+{
+	TJS_BEGIN_NATIVE_PROP_GETTER
+	{
+#if defined(_M_ARM) || defined(_M_ARM64) || defined(_M_ARM64EC) || defined(__arm__) || defined(__aarch64__)
+		*result = (tjs_int)1;
+#else
+		*result = (tjs_int)0;
+#endif
+		return TJS_S_OK;
+	}
+	TJS_END_NATIVE_PROP_GETTER
+	TJS_DENY_NATIVE_PROP_SETTER
+}
+TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, isARM)
 //----------------------------------------------------------------------
 
 
