@@ -25,11 +25,11 @@ Please use [Wine](https://www.winehq.org/) or [Kirikiroid2](https://play.google.
 ## IRC Channel
 
 Members of the Kirikiri SDL2 project can be found in the [#krkrsdl2 channel on libera.chat](https://web.libera.chat/#krkrsdl2).  
-A Matrix bridged channel is also available at [#krkrsdl2:matrix.org](https://matrix.to/#/#krkrsdl2:matrix.org).  
+A [Matrix](https://matrix.org/) bridged channel is also available at [#krkrsdl2:matrix.org](https://matrix.to/#/#krkrsdl2:matrix.org).  
 
 ## Download
 
-The following builds are automatically built from the latest source code by Github Actions.  
+The following builds are automatically built from the latest source code by [Github Actions](https://github.com/features/actions).  
 
 * [Web build](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-web.zip)
 * [Win32 build (GCC, Intel, 32-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-i686-gcc.zip)
@@ -70,14 +70,19 @@ For the web version, place the files from the Web build and `data.xp3` created b
 To clone the repository, please use the following command in a terminal:
 
 ```bash
-git clone --recursive -b main https://github.com/krkrsdl2/krkrsdl2.git
+git clone --recursive -b main https://github.com/krkrsdl2/krkrsdl2.git /path/to/krkrsdl2/repo
 ```
 If you do not use the exact command above, source files will be missing files since the project uses Git submodules.
 
 ## Building
 
-This project can be built by using the CMake build system.  
-For more information about the system, please visit the following location: https://cmake.org/  
+This project can be built by using the [CMake](https://cmake.org/) build system.  
+Generally, the following commands are used to build the project:  
+
+```bash
+cmake -S /path/to/krkrsdl2/repo -B /path/to/new/build/folder
+cmake --build /path/to/new/build/folder
+```
 
 ## Running
 
@@ -91,8 +96,9 @@ Code from this project is based on the following projects:
 * [Kirikiri Z](https://github.com/krkrz/krkrz) `dev_multi_platform` branch
 * [simde](https://github.com/simd-everywhere/simde)
 * [SDL](https://github.com/libsdl-org/SDL)
+* [FAudio](https://github.com/FNA-XNA/FAudio)
 
 ## License
 
 The code of the Kirikiri SDL2 source (inside the `src` directory) is licensed under the MIT license. Please read `LICENSE` for more information.  
-This project contains third-party components. Please view the license file in each component for more information.
+This project contains third-party components (not licensed under the GPL). Please view the license file in each component for more information.

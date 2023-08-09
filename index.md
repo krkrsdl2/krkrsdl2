@@ -25,11 +25,11 @@ Webブラウザーでプレイできるデモはここにあります：https://
 ## IRCチャンネル
 
 吉里吉里SDL2プロジェクトのメンバーは、[libera.chatの#krkrsdl2チャンネル](https://web.libera.chat/#krkrsdl2)で見つけることができます。  
-マトリックスブリッジチャネルは[#krkrsdl2:matrix.org](https://matrix.to/#/#krkrsdl2:matrix.org)でも利用できます。  
+[Matrix](https://matrix.org/)ブリッジチャネルは[#krkrsdl2:matrix.org](https://matrix.to/#/#krkrsdl2:matrix.org)でも利用できます。  
 
 ## ダウンロード
 
-以下のビルドは、Github Actionsによって最新のソースコードから自動的に構築されます。
+以下のビルドは、[Github Actions](https://github.com/features/actions)によって最新のソースコードから自動的に構築されます。
 
 * [Webビルド](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-web.zip)
 * [Win32ビルド (GCC, Intel, 32-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-i686-gcc.zip)
@@ -70,14 +70,19 @@ Webバージョンの場合は、[Releaser](https://krkrz.github.io/krkr2doc/kr2
 リポジトリのクローンを作成するには、ターミナルで次のコマンドを使用してください：
 
 ```bash
-git clone --recursive -b main https://github.com/krkrsdl2/krkrsdl2.git
+git clone --recursive -b main https://github.com/krkrsdl2/krkrsdl2.git /path/to/krkrsdl2/repo
 ```
 プロジェクトがGitサブモジュールを使用するため、上記のコマンドを正しく使用しない場合、ソースファイルが欠落します。
 
 ## ビルディング
 
-このプロジェクトは、CMakeビルドシステムを使用してビルドできます。  
-CMakeビルドシステムの詳細については、次の場所をご覧ください： https://cmake.org/  
+このプロジェクトは、[CMake](https://cmake.org/)ビルドシステムを使用してビルドできます。  
+通常、プロジェクトのビルドには次のコマンドが使用されます:   
+
+```bash
+cmake -S /path/to/krkrsdl2/repo -B /path/to/new/build/folder
+cmake --build /path/to/new/build/folder
+```
 
 ## クイックスタート
 
@@ -91,8 +96,9 @@ CMakeビルドシステムの詳細については、次の場所をご覧くだ
 * [吉里吉里Z](https://github.com/krkrz/krkrz) `dev_multi_platform` ブランチ
 * [simde](https://github.com/simd-everywhere/simde)
 * [SDL](https://github.com/libsdl-org/SDL)
+* [FAudio](https://github.com/FNA-XNA/FAudio)
 
 ## ライセンス
 
 吉里吉里SDL2ソース（`src`ディレクトリ内）のコードは、MITライセンスの下でライセンスされています。 詳細については、`LICENSE`をお読みください。  
-このプロジェクトには、サードパーティのコンポーネントが含まれています。 詳細については、各コンポーネントのライセンスファイルを参照してください。  
+このプロジェクトには、サードパーティのコンポーネントが含まれています (GPL に基づいてライセンスされていません)。詳細については、各コンポーネントのライセンスファイルを参照してください。  
