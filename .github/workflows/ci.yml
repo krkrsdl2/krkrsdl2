@@ -91,10 +91,13 @@
           "run" : "cmake --build build"
         },
         {
+          "run" : "cd build && 7z a -tzip krkrsdl2-web.zip krkrsdl2.wasm krkrsdl2.js index.html"
+        },
+        {
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-web",
-            "path" : "build/krkrsdl2.wasm\nbuild/krkrsdl2.js\nbuild/index.html\n"
+            "path" : "build/krkrsdl2-web.zip"
           }
         }
       ]
@@ -134,10 +137,13 @@
           "run" : "cmake --build build"
         },
         {
+          "run" : "cd build && 7z a -tzip krkrsdl2-ubuntu.zip krkrsdl2"
+        },
+        {
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-ubuntu",
-            "path" : "build/krkrsdl2"
+            "path" : "build/krkrsdl2-ubuntu.zip"
           }
         }
       ]
@@ -263,10 +269,13 @@
           "run" : "cd android-project\n./gradlew assembleRelease -Dcmake.dir=$(dirname $(dirname $(which cmake)))\n"
         },
         {
+          "run" : "cp android-project/app/build/outputs/apk/release/krkrsdl2_*.apk android-project/app/build/outputs/apk/release/krkrsdl2.apk"
+        },
+        {
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-android",
-            "path" : "android-project/app/build/outputs/apk/release/krkrsdl2_*.apk"
+            "path" : "android-project/app/build/outputs/apk/release/krkrsdl2.apk"
           }
         }
       ]
@@ -354,7 +363,7 @@
               "enabled" : "false",
               "cmakeflags" : "-DOPTION_BUILD_MACOS_BUNDLE=OFF",
               "artifactname" : "krkrsdl2-macos",
-              "artifactpath" : "build/krkrsdl2"
+              "artifactpath" : "build/krkrsdl2-macos.zip"
             },
             {
               "enabled" : "true",
@@ -386,6 +395,10 @@
         },
         {
           "run" : "cmake --build build"
+        },
+        {
+          "run" : "ditto -ck --rsrc --sequesterRsrc build/krkrsdl2 build/krkrsdl2-macos.zip",
+          "if" : "matrix.appbundle.enabled == 'false'"
         },
         {
           "run" : "ditto -ck --rsrc --sequesterRsrc --keepParent build/krkrsdl2.app build/krkrsdl2-macos-appbundle.zip",
@@ -443,64 +456,12 @@
       "if" : "github.ref == 'refs/heads/main'",
       "steps" : [
         {
-          "name" : "Download web artifact",
-          "uses" : "actions/download-artifact@v1",
-          "with" : {
-            "name" : "krkrsdl2-web"
-          }
-        },
-        {
-          "name" : "Download ubuntu artifact",
-          "uses" : "actions/download-artifact@v1",
-          "with" : {
-            "name" : "krkrsdl2-ubuntu"
-          }
-        },
-        {
-          "name" : "Download android artifact",
-          "uses" : "actions/download-artifact@v1",
-          "with" : {
-            "name" : "krkrsdl2-android"
-          }
-        },
-        {
-          "name" : "Download vita artifact",
-          "uses" : "actions/download-artifact@v1",
-          "with" : {
-            "name" : "krkrsdl2-vita"
-          }
-        },
-        {
-          "name" : "Download switch artifact",
-          "uses" : "actions/download-artifact@v1",
-          "with" : {
-            "name" : "krkrsdl2-switch"
-          }
-        },
-        {
-          "name" : "Download macos artifact",
-          "uses" : "actions/download-artifact@v1",
-          "with" : {
-            "name" : "krkrsdl2-macos"
-          }
-        },
-        {
-          "name" : "Download macos-appbundle artifact",
-          "uses" : "actions/download-artifact@v1",
-          "with" : {
-            "name" : "krkrsdl2-macos-appbundle"
-          }
-        },
-        {
-          "name" : "Download ios-appbundle artifact",
-          "uses" : "actions/download-artifact@v1",
-          "with" : {
-            "name" : "krkrsdl2-ios-appbundle"
-          }
+          "name" : "Download all artifacts",
+          "uses" : "actions/download-artifact@v3"
         },
         {
           "name" : "Prepare artifacts for release",
-          "run" : "7z a -tzip krkrsdl2-web.zip krkrsdl2-web/*\n7z a -tzip krkrsdl2-ubuntu.zip krkrsdl2-ubuntu/*\ncp krkrsdl2-android/krkrsdl2_*.apk krkrsdl2.apk\ncp krkrsdl2-vita/krkrsdl2.vpk krkrsdl2.vpk\ncp krkrsdl2-switch/krkrsdl2.nro krkrsdl2.nro\n7z a -tzip krkrsdl2-macos.zip krkrsdl2-macos/*\ncp krkrsdl2-macos-appbundle/krkrsdl2-macos-appbundle.zip krkrsdl2-macos-appbundle.zip\n"
+          "run" : "cp -t . krkrsdl2-*/*.zip\ncp -t . krkrsdl2-android/krkrsdl2.apk\ncp -t . krkrsdl2-vita/krkrsdl2.vpk\ncp -t . krkrsdl2-switch/krkrsdl2.nro\n"
         },
         {
           "name" : "Create prerelease",
@@ -511,7 +472,7 @@
             "prerelease" : "true",
             "automatic_release_tag" : "latest",
             "title" : "Latest development builds",
-            "files" : "krkrsdl2-web.zip\nkrkrsdl2-ubuntu.zip\nkrkrsdl2.apk\nkrkrsdl2.vpk\nkrkrsdl2.nro\nkrkrsdl2-macos.zip\nkrkrsdl2-macos-appbundle.zip\n"
+            "files" : "*.zip\n*.apk\n*.vpk\n*.nro\n"
           }
         }
       ]
