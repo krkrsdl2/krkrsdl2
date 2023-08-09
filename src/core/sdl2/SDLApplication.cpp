@@ -2910,6 +2910,12 @@ extern "C" int main(int argc, char **argv)
 		SDL_setenv("VITA_DISABLE_TOUCH_BACK", "1", 1);
 		SDL_setenv("DBUS_FATAL_WARNINGS", "0", 0);
 
+#ifdef _WIN32
+#ifdef SDL_HINT_AUDIODRIVER
+		SDL_SetHintWithPriority(SDL_HINT_AUDIODRIVER, "directsound", SDL_HINT_DEFAULT);
+#endif
+#endif
+
 #ifdef TVP_LOG_TO_COMMANDLINE_CONSOLE
 		SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
 #endif
