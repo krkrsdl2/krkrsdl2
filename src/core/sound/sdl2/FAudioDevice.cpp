@@ -458,12 +458,11 @@ iTVPAudioStream* FAudioDevice::CreateAudioStream(tTVPAudioStreamParam& param)
 }
 #endif
 
-iTVPAudioDevice* TVPCreateAudioDevice()
+iTVPAudioDevice* TVPCreateAudioDevice_FAudio()
 {
 #ifdef TVP_FAUDIO_IMPLEMENT
 	return new FAudioDevice();
 #else
-	TVPThrowExceptionMessage(TJS_W("FAudio is not enabled"));
 	return NULL;
 #endif
 }
