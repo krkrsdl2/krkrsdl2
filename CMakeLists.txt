@@ -541,13 +541,18 @@ add_custom_target(${KRKRSDL2_NAME}.nacp
         ${SWITCH_VERSION}
         ${KRKRSDL2_NAME}.nacp
 )
+add_custom_target(romfs ALL
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/romfs
+	COMMAND ${CMAKE_COMMAND} -E create_symlink ${EMBED_DATA_PATH} ${CMAKE_CURRENT_BINARY_DIR}/romfs/${EMBED_DATA_PATH_BASENAME}
+)
 add_custom_target(${KRKRSDL2_NAME}.nro ALL
     COMMAND $ENV{DEVKITPRO}/tools/bin/elf2nro
         ${KRKRSDL2_NAME}
         ${KRKRSDL2_NAME}.nro
         --icon=${SWITCH_RESOURCES_ROOT}/icon.jpg
         --nacp=${KRKRSDL2_NAME}.nacp
-    DEPENDS ${KRKRSDL2_NAME}.nacp ${KRKRSDL2_NAME} ${SWITCH_RESOURCES_ROOT}/icon.jpg
+        --romfsdir=${CMAKE_CURRENT_BINARY_DIR}/romfs
+    DEPENDS ${KRKRSDL2_NAME}.nacp ${KRKRSDL2_NAME} romfs ${SWITCH_RESOURCES_ROOT}/icon.jpg
 )
 endif()
 
