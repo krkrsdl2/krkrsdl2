@@ -42,6 +42,10 @@
 #include <emscripten/html5.h>
 #endif
 
+#ifdef __SWITCH__
+#include <switch.h>
+#endif
+
 #if defined(__IPHONEOS__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__) || defined(__vita__) || defined(__SWITCH__)
 #define KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 #endif
@@ -2905,6 +2909,12 @@ extern "C" int main(int argc, char **argv)
 			warg_copy[v_utf16.length()] = '\0';
 			_wargv[i] = warg_copy;
 		}
+#endif
+
+#ifdef __SWITCH__
+		romfsInit();
+		socketInitializeDefault();
+		nxlinkStdio();
 #endif
 
 		SDL_setenv("VITA_DISABLE_TOUCH_BACK", "1", 1);
