@@ -508,7 +508,7 @@
         },
         {
           "name" : "Archive artifact",
-          "run" : "cd build && 7z a -tzip krkrsdl2-tp_stub.zip krkrsdl2-tp_stub"
+          "run" : "cd build && tar -czf krkrsdl2-tp_stub.tar.gz krkrsdl2-tp_stub"
         },
         {
           "name" : "Upload artifact",
