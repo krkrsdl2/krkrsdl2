@@ -35,7 +35,8 @@
     "HOMEBREW_NO_ANALYTICS" : "1",
     "HOMEBREW_NO_AUTO_UPDATE" : "1",
     "HOMEBREW_NO_INSTALL_UPGRADE" : "1",
-    "HOMEBREW_NO_INSTALL_CLEANUP" : "1"
+    "HOMEBREW_NO_INSTALL_CLEANUP" : "1",
+    "EXAMPLE_PROJECT_URL" : "https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
   },
   "jobs" : {
     "build-web" : {
@@ -91,13 +92,13 @@
         },
         {
           "name" : "Archive artifact",
-          "run" : "cd build && 7z a -tzip krkrsdl2-web.zip krkrsdl2.wasm krkrsdl2.js index.html"
+          "run" : "cd build && 7z a -tzip ${{ github.event.repository.name }}-web.zip krkrsdl2.wasm krkrsdl2.js index.html"
         },
         {
           "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
-            "name" : "krkrsdl2-web",
+            "name" : "${{ github.event.repository.name }}-web",
             "path" : "build/*.zip"
           }
         }
@@ -136,13 +137,13 @@
         },
         {
           "name" : "Archive artifact",
-          "run" : "cd build && 7z a -tzip krkrsdl2-ubuntu.zip krkrsdl2"
+          "run" : "cd build && 7z a -tzip ${{ github.event.repository.name }}-ubuntu.zip krkrsdl2"
         },
         {
           "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
-            "name" : "krkrsdl2-ubuntu",
+            "name" : "${{ github.event.repository.name }}-ubuntu",
             "path" : "build/*.zip"
           }
         }
@@ -220,13 +221,13 @@
         },
         {
           "name" : "Archive artifact",
-          "run" : "cd build && 7z a -tzip krkrsdl2-win32-${{ matrix.platform.cmake-system-compiler }}-${{ matrix.platform.compiler }}.zip *.exe"
+          "run" : "cd build && 7z a -tzip ${{ github.event.repository.name }}-win32-${{ matrix.platform.cmake-system-compiler }}-${{ matrix.platform.compiler }}.zip *.exe"
         },
         {
           "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
-            "name" : "krkrsdl2-win32-${{ matrix.platform.cmake-system-compiler }}-${{ matrix.platform.compiler }}",
+            "name" : "${{ github.event.repository.name }}-win32-${{ matrix.platform.cmake-system-compiler }}-${{ matrix.platform.compiler }}",
             "path" : "build/*.zip"
           }
         }
@@ -248,8 +249,8 @@
           "run" : "rm -rf android-project/app/src/main/assets && mkdir -p android-project/app/src/main/assets"
         },
         {
-          "name" : "Download krkrsdl2-kag3-demo build",
-          "run" : "cd android-project/app/src/main/assets && curl -LOC - https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
+          "name" : "Download example project",
+          "run" : "cd android-project/app/src/main/assets && curl -LOC - $EXAMPLE_PROJECT_URL"
         },
         {
           "name" : "Set up base environment",
@@ -277,14 +278,14 @@
         },
         {
           "name" : "Rename artifact",
-          "run" : "cp android-project/app/build/outputs/apk/release/krkrsdl2_*.apk android-project/app/build/outputs/apk/release/krkrsdl2.apk"
+          "run" : "cp android-project/app/build/outputs/apk/release/krkrsdl2_*.apk ./krkrsdl2.apk"
         },
         {
           "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
-            "name" : "krkrsdl2-android",
-            "path" : "android-project/app/build/outputs/apk/release/krkrsdl2.apk"
+            "name" : "${{ github.event.repository.name }}-android",
+            "path" : "./krkrsdl2.apk"
           }
         }
       ]
@@ -308,8 +309,8 @@
           }
         },
         {
-          "name" : "Download krkrsdl2-kag3-demo build",
-          "run" : "curl -LOC - https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
+          "name" : "Download example project",
+          "run" : "curl -LOC - $EXAMPLE_PROJECT_URL"
         },
         {
           "name" : "Configure project",
@@ -323,7 +324,7 @@
           "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
-            "name" : "krkrsdl2-vita",
+            "name" : "${{ github.event.repository.name }}-vita",
             "path" : "build/*.vpk"
           }
         }
@@ -348,8 +349,8 @@
           }
         },
         {
-          "name" : "Download krkrsdl2-kag3-demo build",
-          "run" : "curl -LOC - https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
+          "name" : "Download example project",
+          "run" : "curl -LOC - $EXAMPLE_PROJECT_URL"
         },
         {
           "name" : "Configure project",
@@ -363,7 +364,7 @@
           "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
-            "name" : "krkrsdl2-switch",
+            "name" : "${{ github.event.repository.name }}-switch",
             "path" : "build/*.nro"
           }
         }
@@ -379,12 +380,12 @@
             {
               "enabled" : "false",
               "cmakeflags" : "-DOPTION_BUILD_MACOS_BUNDLE=OFF",
-              "artifactname" : "krkrsdl2-macos"
+              "artifactname" : ""
             },
             {
               "enabled" : "true",
               "cmakeflags" : "-DOPTION_BUILD_MACOS_BUNDLE=ON -DEMBED_DATA_PATH=data.xp3",
-              "artifactname" : "krkrsdl2-macos-appbundle"
+              "artifactname" : "-appbundle"
             }
           ]
         }
@@ -398,9 +399,9 @@
           }
         },
         {
-          "name" : "Download krkrsdl2-kag3-demo build",
+          "name" : "Download example project",
           "if" : "matrix.appbundle.enabled == 'true'",
-          "run" : "curl -LOC - https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
+          "run" : "curl -LOC - $EXAMPLE_PROJECT_URL"
         },
         {
           "name" : "Set up default build tools",
@@ -416,19 +417,19 @@
         },
         {
           "name" : "Archive artifact (command line)",
-          "run" : "ditto -ck --rsrc --sequesterRsrc build/krkrsdl2 build/krkrsdl2-macos.zip",
+          "run" : "ditto -ck --rsrc --sequesterRsrc build/krkrsdl2 build/${{ github.event.repository.name }}-macos.zip",
           "if" : "matrix.appbundle.enabled == 'false'"
         },
         {
           "name" : "Archive artifact (app bundle)",
-          "run" : "ditto -ck --rsrc --sequesterRsrc --keepParent build/krkrsdl2.app build/krkrsdl2-macos-appbundle.zip",
+          "run" : "ditto -ck --rsrc --sequesterRsrc --keepParent build/krkrsdl2.app build/${{ github.event.repository.name }}-macos-appbundle.zip",
           "if" : "matrix.appbundle.enabled == 'true'"
         },
         {
           "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
-            "name" : "${{ matrix.appbundle.artifactname }}",
+            "name" : "${{ github.event.repository.name }}-macos${{ matrix.appbundle.artifactnameappendix }}",
             "path" : "build/*.zip"
           }
         }
@@ -446,8 +447,8 @@
           }
         },
         {
-          "name" : "Download krkrsdl2-kag3-demo build",
-          "run" : "curl -LOC - https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
+          "name" : "Download example project",
+          "run" : "curl -LOC - $EXAMPLE_PROJECT_URL"
         },
         {
           "name" : "Set up default build tools",
@@ -463,13 +464,13 @@
         },
         {
           "name" : "Archive artifact",
-          "run" : "ditto -ck --rsrc --sequesterRsrc --keepParent build/Debug-iphoneos/krkrsdl2.app build/krkrsdl2-ios-appbundle.zip"
+          "run" : "ditto -ck --rsrc --sequesterRsrc --keepParent build/Debug-iphoneos/krkrsdl2.app build/${{ github.event.repository.name }}-ios-appbundle.zip"
         },
         {
           "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
-            "name" : "krkrsdl2-ios-appbundle",
+            "name" : "${{ github.event.repository.name }}-ios-appbundle",
             "path" : "build/*.zip"
           }
         }
@@ -496,25 +497,25 @@
         },
         {
           "name" : "Create artifact directory",
-          "run" : "mkdir -p build/krkrsdl2-tp_stub"
+          "run" : "mkdir -p build/${{ github.event.repository.name }}-tp_stub"
         },
         {
           "name" : "Generate tp_stub",
-          "run" : "python3 ./src/core/base/sdl2/makestub.py build/krkrsdl2-tp_stub"
+          "run" : "python3 ./src/core/base/sdl2/makestub.py build/${{ github.event.repository.name }}-tp_stub"
         },
         {
           "name" : "Copy CMake build files",
-          "run" : "cp src/config/tp_stub_template.cmake build/krkrsdl2-tp_stub/CMakeLists.txt"
+          "run" : "cp src/config/tp_stub_template.cmake build/${{ github.event.repository.name }}-tp_stub/CMakeLists.txt"
         },
         {
           "name" : "Archive artifact",
-          "run" : "cd build && tar -czf krkrsdl2-tp_stub.tar.gz krkrsdl2-tp_stub"
+          "run" : "cd build && tar -czf ${{ github.event.repository.name }}-tp_stub.tar.gz ${{ github.event.repository.name }}-tp_stub"
         },
         {
           "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@master",
           "with" : {
-            "name" : "krkrsdl2-tp_stub",
+            "name" : "${{ github.event.repository.name }}-tp_stub",
             "path" : "build/*.tar.gz"
           }
         }
@@ -542,7 +543,7 @@
         },
         {
           "name" : "Prepare artifacts for release",
-          "run" : "cp -t . krkrsdl2-*/*.zip\ncp -t . krkrsdl2-*/*.tar.gz\ncp -t . krkrsdl2-android/krkrsdl2.apk\ncp -t . krkrsdl2-vita/krkrsdl2.vpk\ncp -t . krkrsdl2-switch/krkrsdl2.nro\n"
+          "run" : "cp -t . ${{ github.event.repository.name }}-*/*.zip\ncp -t . ${{ github.event.repository.name }}-*/*.tar.gz\ncp -t . ${{ github.event.repository.name }}-android/krkrsdl2.apk\ncp -t . ${{ github.event.repository.name }}-vita/krkrsdl2.vpk\ncp -t . ${{ github.event.repository.name }}-switch/krkrsdl2.nro\n"
         },
         {
           "name" : "Create prerelease",
