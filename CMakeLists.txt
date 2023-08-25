@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) Kirikiri SDL2 Developers
+
 cmake_minimum_required(VERSION 3.12)
 
 if(IOS AND (NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET))
