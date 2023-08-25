@@ -503,6 +503,10 @@
           "run" : "python3 ./src/core/base/sdl2/makestub.py build/krkrsdl2-tp_stub"
         },
         {
+          "name" : "Copy CMake build files",
+          "run" : "cp src/config/tp_stub_template.cmake build/krkrsdl2-tp_stub/CMakeLists.txt"
+        },
+        {
           "name" : "Archive artifact",
           "run" : "cd build && 7z a -tzip krkrsdl2-tp_stub.zip krkrsdl2-tp_stub"
         },
