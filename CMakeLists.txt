@@ -433,8 +433,6 @@ list(APPEND KRKRSDL2_CXXFLAGS
 )
 endif()
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(KRKRSDL2_NAME krkrsdl2)
 
 if(ANDROID)
@@ -452,6 +450,7 @@ else()
 set_target_properties(${KRKRSDL2_NAME} PROPERTIES OUTPUT_NAME "krkrsdl2")
 endif()
 endif()
+set_target_properties(${KRKRSDL2_NAME} PROPERTIES CXX_STANDARD 14)
 target_sources(${KRKRSDL2_NAME} PRIVATE ${KRKRSDL2_SRC})
 target_compile_options(${KRKRSDL2_NAME} PUBLIC $<$<COMPILE_LANGUAGE:C>:${KRKRSDL2_CFLAGS}>)
 target_compile_options(${KRKRSDL2_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${KRKRSDL2_CXXFLAGS}>)
