@@ -515,7 +515,7 @@
           "uses" : "actions/upload-artifact@master",
           "with" : {
             "name" : "krkrsdl2-tp_stub",
-            "path" : "build/*.zip"
+            "path" : "build/*.tar.gz"
           }
         }
       ]
@@ -542,7 +542,7 @@
         },
         {
           "name" : "Prepare artifacts for release",
-          "run" : "cp -t . krkrsdl2-*/*.zip\ncp -t . krkrsdl2-android/krkrsdl2.apk\ncp -t . krkrsdl2-vita/krkrsdl2.vpk\ncp -t . krkrsdl2-switch/krkrsdl2.nro\n"
+          "run" : "cp -t . krkrsdl2-*/*.zip\ncp -t . krkrsdl2-*/*.tar.gz\ncp -t . krkrsdl2-android/krkrsdl2.apk\ncp -t . krkrsdl2-vita/krkrsdl2.vpk\ncp -t . krkrsdl2-switch/krkrsdl2.nro\n"
         },
         {
           "name" : "Create prerelease",
@@ -553,7 +553,7 @@
             "prerelease" : "true",
             "automatic_release_tag" : "latest",
             "title" : "Latest development builds",
-            "files" : "*.zip\n*.apk\n*.vpk\n*.nro\n"
+            "files" : "*.zip\n*.tar.gz\n*.apk\n*.vpk\n*.nro\n"
           }
         }
       ]
