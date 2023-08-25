@@ -25,8 +25,9 @@ output_tpstub_cpp = ""
 if len(sys.argv) >= 2:
 	# output_tpstub_h = "../../../tp_stub.h"
 	# output_tpstub_cpp = "../../../tp_stub.cpp"
-	output_tpstub_h = "tp_stub.h"
-	output_tpstub_cpp = "tp_stub.cpp"
+	output_basepath = sys.argv[1] + "/"
+	output_tpstub_h = output_basepath + "tp_stub.h"
+	output_tpstub_cpp = output_basepath + "tp_stub.cpp"
 
 
 class_stub_round_1 = [
