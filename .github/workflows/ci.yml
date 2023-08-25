@@ -9,6 +9,7 @@
         "**.hpp",
         "**.build",
         "**.in",
+        "**.py",
         "**.yml",
         "**.gradle",
         "CMakeLists.txt"
@@ -22,6 +23,7 @@
         "**.hpp",
         "**.build",
         "**.in",
+        "**.py",
         "**.yml",
         "**.gradle",
         "CMakeLists.txt"
@@ -473,6 +475,47 @@
         }
       ]
     },
+    "generate-tp-stub-ubuntu" : {
+      "runs-on" : "ubuntu-20.04",
+      "timeout-minutes" : 20,
+      "steps" : [
+        {
+          "name" : "Checkout repository",
+          "uses" : "actions/checkout@v3",
+          "with" : {
+            "submodules" : "recursive"
+          }
+        },
+        {
+          "name" : "Set up Homebrew environment for Github Actions",
+          "run" : "echo \"/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin\" >> $GITHUB_PATH"
+        },
+        {
+          "name" : "Set up python",
+          "run" : "brew install python"
+        },
+        {
+          "name" : "Create artifact directory",
+          "run" : "mkdir -p build/krkrsdl2-tp_stub"
+        },
+        {
+          "name" : "Generate tp_stub",
+          "run" : "python3 ./src/core/base/sdl2/makestub.py build/krkrsdl2-tp_stub"
+        },
+        {
+          "name" : "Archive artifact",
+          "run" : "cd build && 7z a -tzip krkrsdl2-tp_stub.zip krkrsdl2-tp_stub"
+        },
+        {
+          "name" : "Upload artifact",
+          "uses" : "actions/upload-artifact@master",
+          "with" : {
+            "name" : "krkrsdl2-tp_stub",
+            "path" : "build/*.zip"
+          }
+        }
+      ]
+    },
     "create-release" : {
       "needs" : [
         "build-android",
@@ -482,7 +525,8 @@
         "build-ubuntu",
         "build-vita",
         "build-web",
-        "build-win32"
+        "build-win32",
+        "generate-tp-stub-ubuntu"
       ],
       "runs-on" : "ubuntu-20.04",
       "timeout-minutes" : 20,
