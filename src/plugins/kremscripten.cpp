@@ -340,15 +340,6 @@ static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v)
 			emscripten::val proxy_traps = emscripten::val::object();
 			proxy_traps.set(js_string_apply, js_curry_apply((tjs_uint32)obj, (tjs_uint32)objthis));
 			proxy_traps.set(js_string_getOwnPropertyDescriptor, js_curry_get_own_property_descriptor((tjs_uint32)obj, (tjs_uint32)objthis));
-			// TODO: function to manually release object from proxy
-			if (obj)
-			{
-				obj->AddRef();
-			}
-			if (objthis)
-			{
-				objthis->AddRef();
-			}
 			return js_new_proxy(js_empty_function, proxy_traps);
 		}
 		else
@@ -361,15 +352,6 @@ static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v)
 			proxy_traps.set(js_string_deleteProperty, js_curry_delete_property((tjs_uint32)obj, (tjs_uint32)objthis));
 			proxy_traps.set(js_string_ownKeys, js_curry_get_keys((tjs_uint32)obj, (tjs_uint32)objthis));
 			proxy_traps.set(js_string_getOwnPropertyDescriptor, js_curry_get_own_property_descriptor((tjs_uint32)obj, (tjs_uint32)objthis));
-			// TODO: function to manually release object from proxy
-			if (obj)
-			{
-				obj->AddRef();
-			}
-			if (objthis)
-			{
-				objthis->AddRef();
-			}
 			return js_new_proxy(js_empty_class, proxy_traps);
 		}
 	}
