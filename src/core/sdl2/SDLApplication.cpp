@@ -2951,10 +2951,12 @@ extern "C" int main(int argc, char **argv)
 		while (process_events());
 #endif
 
+#ifndef __EMSCRIPTEN__
 		// delete application and exit forcely
 		// this prevents ugly exception message on exit
 		delete ::Application;
 		::Application = nullptr;
+#endif
 	}
 	catch (...)
 	{
