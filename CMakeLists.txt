@@ -143,6 +143,10 @@ if(VITA)
 list(APPEND KRKRSDL2_SRC src/support/roundevenf.c)
 endif()
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")
+list(APPEND KRKRSDL2_SRC src/plugins/kremscripten.cpp)
+endif()
+
 list(APPEND KRKRSDL2_CFLAGS
 	-DTVP_COMPILING_KRKRSDL2
 	-DTVP_OPUS_DECODER_IMPLEMENT
