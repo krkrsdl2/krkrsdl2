@@ -260,7 +260,6 @@ static void TVPInitSoundOptions()
 
 
 
-#if defined(KRKRSDL2_ENABLE_PLUGINS) && defined(_WIN32)
 //---------------------------------------------------------------------------
 // TSS plug-in interface
 //---------------------------------------------------------------------------
@@ -304,8 +303,8 @@ public:
 	bool Render(void *buf, tjs_uint bufsamplelen, tjs_uint& rendered)
 	{
 		HRESULT hr;
-		unsigned long rend;
-		unsigned long st;
+		TSS_ULONG rend;
+		TSS_ULONG st;
 		hr = Decoder->Render(buf, bufsamplelen, &rend, &st);
 		rendered = rend; // count of rendered samples
 		if(FAILED(hr)) return false;
@@ -332,16 +331,13 @@ public:
 		return new tTVPTSSWaveDecoder(dec);
 	}
 } static TVPTSSWaveDecoderCreator;
-#endif
 //---------------------------------------------------------------------------
 static bool TVPTSSWaveDecoderCreatorRegistered = false;
 void TVPRegisterTSSWaveDecoderCreator()
 {
 	if(!TVPTSSWaveDecoderCreatorRegistered)
 	{
-#if defined(KRKRSDL2_ENABLE_PLUGINS) && defined(_WIN32)
 		TVPRegisterWaveDecoderCreator(&TVPTSSWaveDecoderCreator);
-#endif
 		TVPTSSWaveDecoderCreatorRegistered = true;
 	}
 }

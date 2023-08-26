@@ -160,8 +160,6 @@ void TVPThrowPluginUnboundFunctionError(const tjs_char *funcname)
 
 
 
-#ifdef KRKRSDL2_ENABLE_PLUGINS
-#ifdef _WIN32
 //---------------------------------------------------------------------------
 // implementation of IStorageProvider
 //---------------------------------------------------------------------------
@@ -188,21 +186,21 @@ class tTVPStorageProvider : public ITSSStorageProvider
 	ULONG STDMETHODCALLTYPE AddRef(void) { return 1; }
 	ULONG STDMETHODCALLTYPE Release(void) { return 1; }
 
-	HRESULT __stdcall GetStreamForRead(
-		LPWSTR url,
+	HRESULT STDMETHODCALLTYPE GetStreamForRead(
+		TSS_LPWSTR url,
 		IUnknown * *stream);
 
-	HRESULT __stdcall GetStreamForWrite(
-		LPWSTR url,
+	HRESULT STDMETHODCALLTYPE GetStreamForWrite(
+		TSS_LPWSTR url,
 		IUnknown * *stream) { return E_NOTIMPL; }
 
-	HRESULT __stdcall GetStreamForUpdate(
-		LPWSTR url,
+	HRESULT STDMETHODCALLTYPE GetStreamForUpdate(
+		TSS_LPWSTR url,
 		IUnknown * *stream) { return E_NOTIMPL; }
 };
 //---------------------------------------------------------------------------
-HRESULT __stdcall tTVPStorageProvider::GetStreamForRead(
-		LPWSTR url,
+HRESULT STDMETHODCALLTYPE tTVPStorageProvider::GetStreamForRead(
+		TSS_LPWSTR url,
 		IUnknown * *stream)
 {
 	tTJSBinaryStream *stream0;
@@ -221,10 +219,10 @@ HRESULT __stdcall tTVPStorageProvider::GetStreamForRead(
 	return S_OK;
 }
 //---------------------------------------------------------------------------
-#endif
 
 
 
+#ifdef KRKRSDL2_ENABLE_PLUGINS
 //---------------------------------------------------------------------------
 // Plug-ins management
 //---------------------------------------------------------------------------
@@ -240,7 +238,6 @@ struct tTVPPlugin
 	bool IsSusieArchivePlugin; // Susie archive plugins are managed in SusieArchive.cpp
 #endif
 
-#ifdef _WIN32
 	ITSSModule *TSSModule = nullptr;
 
 #if 0
@@ -248,13 +245,11 @@ struct tTVPPlugin
 	KMPMODULE *KMPModule;
 #endif
 #endif
-#endif
 
 	tTVPV2LinkProc V2Link = nullptr;
 	tTVPV2UnlinkProc V2Unlink = nullptr;
 
 
-#ifdef _WIN32
 	tTVPGetModuleInstanceProc GetModuleInstance = nullptr;
 #if 0
 	tTVPGetModuleThreadModelProc GetModuleThreadModel = nullptr;
@@ -270,23 +265,14 @@ struct tTVPPlugin
 #endif
 
 	std::vector<ttstr> SupportedExts;
-#endif
 
-#ifdef _WIN32
 	tTVPPlugin(const ttstr & name, ITSSStorageProvider *storageprovider);
-#else
-	tTVPPlugin(const ttstr & name);
-#endif
 	~tTVPPlugin();
 
 	bool Uninit();
 };
 //---------------------------------------------------------------------------
-#ifdef _WIN32
 tTVPPlugin::tTVPPlugin(const ttstr & name, ITSSStorageProvider *storageprovider)
-#else
-tTVPPlugin::tTVPPlugin(const ttstr & name)
-#endif
 {
 	Name = name;
 
@@ -410,7 +396,6 @@ tTVPPlugin::tTVPPlugin(const ttstr & name)
 		V2Unlink = (tTVPV2UnlinkProc)
 			SDL_LoadFunction(Instance, "V2Unlink");
 
-#ifdef _WIN32
 		GetModuleInstance = (tTVPGetModuleInstanceProc)
 			SDL_LoadFunction(Instance, "GetModuleInstance");
 #if 0
@@ -430,7 +415,6 @@ tTVPPlugin::tTVPPlugin(const ttstr & name)
 			SDL_LoadFunction(Instance, SZ_KMP_GETMODULE);
 #endif
 #endif
-#endif
 
 		// link
 		if(V2Link)
@@ -438,7 +422,6 @@ tTVPPlugin::tTVPPlugin(const ttstr & name)
 			V2Link(TVPGetFunctionExporter());
 		}
 
-#ifdef _WIN32
 #if 0
 		// retrieve ModuleInstance
 		// Susie Plug-in check
@@ -458,13 +441,17 @@ tTVPPlugin::tTVPPlugin(const ttstr & name)
 
 		if(GetModuleInstance)
 		{
+			TSS_HWND mainwin = NULL;
+#ifdef _WIN32
+			mainwin = Application->GetHandle();
+#endif
 			HRESULT hr = GetModuleInstance(&TSSModule, storageprovider,
-				 NULL, Application->GetHandle());
+				 NULL, mainwin);
 			if(FAILED(hr) || TSSModule == NULL)
 				TVPThrowExceptionMessage(TVPCannotLoadPlugin, name);
 
 			// get supported extensions
-			unsigned long index = 0;
+			TSS_ULONG index = 0;
 			while(true)
 			{
 				tjs_char mediashortname[33];
@@ -495,7 +482,6 @@ tTVPPlugin::tTVPPlugin(const ttstr & name)
 
 			if(KMPModule->Init) KMPModule->Init();
 		}
-#endif
 #endif
 #endif
 	}
@@ -562,13 +548,15 @@ bool tTVPPlugin::Uninit()
 #ifdef KRKRSDL2_ENABLE_PLUGINS
 bool TVPPluginUnloadedAtSystemExit = false;
 typedef std::vector<tTVPPlugin*> tTVPPluginVectorType;
+#endif
 struct tTVPPluginVectorStruc
 {
+#ifdef KRKRSDL2_ENABLE_PLUGINS
 	tTVPPluginVectorType Vector;
-#ifdef _WIN32
-	tTVPStorageProvider StorageProvider;
 #endif
+	tTVPStorageProvider StorageProvider;
 } static TVPPluginVector;
+#ifdef KRKRSDL2_ENABLE_PLUGINS
 static void TVPDestroyPluginVector(void)
 {
 	// state all plugins are to be released
@@ -617,11 +605,7 @@ void TVPLoadPlugin(const ttstr & name)
 	try
 	{
 		TVPPluginLoading = true;
-#ifdef _WIN32
 		p = new tTVPPlugin(name, &TVPPluginVector.StorageProvider);
-#else
-		p = new tTVPPlugin(name);
-#endif
 		TVPPluginLoading = false;
 	}
 	catch(...)
@@ -745,15 +729,130 @@ tjs_int TVPGetAutoLoadPluginCount() { return 0; }
 
 
 
+//---------------------------------------------------------------------------
+// interface for built-in Wave decode plugins
+//---------------------------------------------------------------------------
+struct tTVPTSSModuleWrapper
+{
+	ITSSModule *TSSModule = nullptr;
 
+	tTVPGetModuleInstanceProc GetModuleInstance = nullptr;
 
-#ifdef KRKRSDL2_ENABLE_PLUGINS
+	std::vector<ttstr> SupportedExts;
+
+	tTVPTSSModuleWrapper(tTVPGetModuleInstanceProc GetModuleInstanceProc, ITSSStorageProvider *storageprovider);
+	~tTVPTSSModuleWrapper();
+};
+//---------------------------------------------------------------------------
+tTVPTSSModuleWrapper::tTVPTSSModuleWrapper(tTVPGetModuleInstanceProc GetModuleInstanceProc, ITSSStorageProvider *storageprovider)
+{
+	GetModuleInstance = GetModuleInstanceProc;
+	if(GetModuleInstance)
+	{
+		TSS_HWND mainwin = NULL;
 #ifdef _WIN32
+		mainwin = Application->GetHandle();
+#endif
+		HRESULT hr = GetModuleInstance(&TSSModule, storageprovider,
+			 NULL, mainwin);
+		if(FAILED(hr) || TSSModule == NULL)
+			TVPThrowExceptionMessage(TJS_W("TSSModule retrieval failure"));
+
+		// get supported extensions
+		TSS_ULONG index = 0;
+		while(true)
+		{
+			tjs_char mediashortname[33];
+			tjs_char buf[256];
+			HRESULT hr = TSSModule->GetSupportExts(index,
+				mediashortname, buf, 255);
+			if(hr == S_OK)
+				SupportedExts.push_back(ttstr(buf).AsLowerCase());
+			else
+				break;
+			index ++;
+		}
+	}
+}
+//---------------------------------------------------------------------------
+tTVPTSSModuleWrapper::~tTVPTSSModuleWrapper()
+{
+	if(TSSModule) TSSModule->Release();
+}
+typedef std::vector<tTVPTSSModuleWrapper*> tTVPTSSModuleWrapperType;
+struct tTVPTSSModuleWrapperVectorStruc
+{
+	tTVPTSSModuleWrapperType Vector;
+} static TVPTSSModuleWrapperVector;
+
+void TVPRegisterTSSWaveDecoder(tTVPGetModuleInstanceProc GetModuleInstance)
+{
+	tTVPTSSModuleWrapper * p;
+
+	try
+	{
+		p = new tTVPTSSModuleWrapper(GetModuleInstance, &TVPPluginVector.StorageProvider);
+	}
+	catch(...)
+	{
+		throw;
+	}
+
+	TVPTSSModuleWrapperVector.Vector.push_back(p);
+}
 //---------------------------------------------------------------------------
 // interface to Wave decode plugins
 //---------------------------------------------------------------------------
 ITSSWaveDecoder * TVPSearchAvailTSSWaveDecoder(const ttstr & storage, const ttstr & extension)
 {
+	{
+		tTVPTSSModuleWrapperType::iterator i;
+		for(i = TVPTSSModuleWrapperVector.Vector.begin();
+			i != TVPTSSModuleWrapperVector.Vector.end(); i++)
+		{
+			if((*i)->TSSModule)
+			{
+				// check whether the plugin supports extension
+				bool supported = false;
+				std::vector<ttstr>::iterator ei;
+				for(ei = (*i)->SupportedExts.begin(); ei != (*i)->SupportedExts.end(); ei++)
+				{
+					if(ei->GetLen() == 0) { supported = true; break; }
+					if(extension == *ei) { supported = true; break; }
+				}
+
+				if(!supported) continue;
+
+				// retrieve instance from (*i)->TSSModule
+				IUnknown *intf = NULL;
+				HRESULT hr = (*i)->TSSModule->GetMediaInstance(
+					(tjs_char*)storage.c_str(), &intf);
+				if(SUCCEEDED(hr))
+				{
+					try
+					{
+						// check  whether the instance has IID_ITSSWaveDecoder
+						// interface.
+						ITSSWaveDecoder * decoder;
+						if(SUCCEEDED(intf->QueryInterface(IID_ITSSWaveDecoder,
+							(void**) &decoder)))
+						{
+							intf->Release();
+							return decoder; // OK
+						}
+					}
+					catch(...)
+					{
+						intf->Release();
+						throw;
+					}
+					intf->Release();
+				}
+
+			}
+		}
+	}
+#ifdef KRKRSDL2_ENABLE_PLUGINS
 	tTVPPluginVectorType::iterator i;
 	for(i = TVPPluginVector.Vector.begin();
 		i != TVPPluginVector.Vector.end(); i++)
@@ -799,6 +898,7 @@ ITSSWaveDecoder * TVPSearchAvailTSSWaveDecoder(const ttstr & storage, const ttst
 
 		}
 	}
+#endif
 	return NULL; // not found
 }
 //---------------------------------------------------------------------------
@@ -921,8 +1021,6 @@ void * TVPSearchAvailKMPWaveDecoder(const ttstr & storage, KMPMODULE ** module,
 }
 #endif
 //---------------------------------------------------------------------------
-#endif
-#endif
 #endif
 
 
