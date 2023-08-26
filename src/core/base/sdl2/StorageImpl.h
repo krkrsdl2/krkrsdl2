@@ -75,6 +75,7 @@
 #define STGM_NOSNAPSHOT 0x00200000
 #define STGM_DIRECT_SWMR 0x00400000
 #define FAILED(x) (x != S_OK)
+#define SUCCEEDED(x) (!(FAILED(x)))
 
 typedef struct _GUID {
 	tjs_uint32 Data1;
@@ -131,7 +132,6 @@ typedef union _LARGE_INTEGER {
 	LONGLONG QuadPart;
 } LARGE_INTEGER;
 
-typedef GUID CLSID;
 typedef tjs_char *LPOLESTR;
 
 typedef struct _FILETIME {
