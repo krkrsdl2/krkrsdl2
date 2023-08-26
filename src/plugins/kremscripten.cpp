@@ -690,6 +690,12 @@ emscripten::val getLayerBitmapUInt8Array(emscripten::val v, bool for_write)
 						bmpdata = reinterpret_cast<tjs_uint8*>((tjs_intptr_t)(tjs_int64)val);
 					}
 				}
+				// If pitch is negative, move it to the beginning of the buffer
+				if (bmppitch < 0)
+				{
+					bmpdata -= bmppitch * bmpheight;
+					bmppitch *= -1;
+				}
 				if (bmppitch * bmpheight != 0 && bmpdata != NULL)
 				{
 					r = emscripten::val(emscripten::typed_memory_view((size_t)bmppitch * bmpheight, bmpdata));
