@@ -75,77 +75,15 @@ static emscripten::val js_string_unknown_error = emscripten::val::undefined();
 static tTJSVariant emscripten_val_to_tjs_variant(emscripten::val v, emscripten::val vthis = emscripten::val::null());
 static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v);
 
-static tTJSHashTable<ttstr, emscripten::val> TJS2JSStringCache;
-static emscripten::val JS2TJSStringCache = emscripten::val::undefined();
-
 static ttstr map_js_string(emscripten::val v)
 {
-	if (JS2TJSStringCache != emscripten::val::undefined())
-	{
-		emscripten::val r = JS2TJSStringCache.call<emscripten::val>("get", v);
-		if (r != emscripten::val::undefined())
-		{
-			// Check the TJS2JSStringCache hash table just to make sure we didn't receive an invalid value
-			if (r.typeOf() == js_string_object && r[js_string_length].as<tjs_int32>() == 2)
-			{
-				ttstr key = ttstr((tTJSVariantString *)(r[0].as<tjs_uint32>()));
-				tjs_int hash = r[1].as<tjs_int32>();
-				emscripten::val *rr = TJS2JSStringCache.FindAndTouchWithHash(key, hash);
-				if (rr)
-				{
-					return ttstr(key);
-				}
-			}
-		}
-	}
 	return ttstr(v.as<tjs_string>());
 }
 
 static emscripten::val map_tjs_string(ttstr v)
 {
-	if (!(v.GetHint()) || !(*(v.GetHint())))
-	{
-		goto convert_passed_value;
-	}
-	{
-		emscripten::val *r = TJS2JSStringCache.FindAndTouchWithHash(v, *(v.GetHint()));
-		if (r)
-		{
-			return *r;
-		}
-	}
-	{
-		emscripten::val r = emscripten::val(v.AsStdString());
-		TJS2JSStringCache.AddWithHash(v, *(v.GetHint()), r);
-		emscripten::val temp_array = emscripten::val::array();
-		if (JS2TJSStringCache != emscripten::val::undefined())
-		{
-			temp_array.call<void>("push", (tjs_uint32)(v.AsVariantStringNoAddRef()));
-			temp_array.call<void>("push", *(v.GetHint()));
-			JS2TJSStringCache.call<void>("set", r, temp_array);
-		}
-		return r;
-	}
-convert_passed_value:
 	return emscripten::val(v.AsStdString());
 }
-
-class tTJS2JSMapCompact : public tTVPCompactEventCallbackIntf
-{
-	void TJS_INTF_METHOD OnCompact(tjs_int level)
-	{
-		// OnCompact method from tTVPCompactEventCallbackIntf
-		// called when the application is idle, deactivated, minimized, or etc...
-		if(level >= TVP_COMPACT_LEVEL_DEACTIVATE)
-		{
-			TJS2JSStringCache.Clear();
-			if (JS2TJSStringCache != emscripten::val::undefined())
-			{
-				JS2TJSStringCache.call<void>("clear");
-			}
-		}
-	}
-} static TJS2JSMapCompact;
 
 class iTJSDispatch2WrapperForEmscripten : public tTJSDispatch
 {
@@ -583,8 +521,6 @@ static iTJSDispatch2 * TVPCreateNativeClass_KirikiriEmscriptenInterface(iTJSDisp
 		script_engine->SetConsoleOutput(output);
 	}
 #endif
-
-	JS2TJSStringCache = js_new_map();
 
 	iTJSDispatch2 *cls = new tTJSNC_KirikiriEmscriptenInterface();
 #if !defined(__EMSCRIPTEN_PTHREADS__)
