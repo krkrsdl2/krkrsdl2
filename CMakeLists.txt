@@ -176,6 +176,7 @@ list(APPEND KRKRSDL2_LDFLAGS
 	-sEXPORTED_RUNTIME_METHODS=['FS', 'IDBFS']
 	-sUSE_SDL=2
 	-lidbfs.js
+	-lopenal
 	--bind
 	--no-heap-copy
 	-fPIC
