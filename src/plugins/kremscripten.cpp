@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 /* Copyright (c) Kirikiri SDL2 Developers */
 
-#include "ncbind/ncbind.hpp"
+#include "tp_stub.h"
 #include "CharacterSet.h"
 
 #ifdef __EMSCRIPTEN__
@@ -438,47 +438,89 @@ static emscripten::val tjs_variant_to_emscripten_val(tTJSVariant v)
 	return emscripten::val::undefined();
 }
 
-class KirikiriEmscriptenInterface
+#ifdef TVP_COMPILING_KRKRSDL2
+//---------------------------------------------------------------------------
+// tTJSNC_KirikiriEmscriptenInterface : Kirikiri Emscripten Interface
+//---------------------------------------------------------------------------
+class tTJSNC_KirikiriEmscriptenInterface : public tTJSNativeClass
 {
-	public: static tTJSVariant evalJS(ttstr v)
+public:
+	tTJSNC_KirikiriEmscriptenInterface();
+
+	static tjs_uint32 ClassID;
+
+protected:
+	tTJSNativeInstance * CreateNativeInstance();
+};
+
+//---------------------------------------------------------------------------
+// tTJSNC_KirikiriEmscriptenInterface
+//---------------------------------------------------------------------------
+tjs_uint32 tTJSNC_KirikiriEmscriptenInterface::ClassID = -1;
+tTJSNC_KirikiriEmscriptenInterface::tTJSNC_KirikiriEmscriptenInterface() : tTJSNativeClass(TJS_W("KirikiriEmscriptenInterface"))
+{
+	TJS_BEGIN_NATIVE_MEMBERS(KirikiriEmscriptenInterface)
+	TJS_DECL_EMPTY_FINALIZE_METHOD
+//----------------------------------------------------------------------
+TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(/*TJS class name*/KirikiriEmscriptenInterface)
+{
+	return TJS_S_OK;
+}
+TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/KirikiriEmscriptenInterface)
+//----------------------------------------------------------------------
+TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/evalJS)
+{
+	if(numparams < 1) return TJS_E_BADPARAMCOUNT;
+	ttstr v = *param[0];
+	tTJSVariant res = emscripten_val_to_tjs_variant(js_eval(map_tjs_string(v)));
+	if (result)
 	{
-		return emscripten_val_to_tjs_variant(js_eval(map_tjs_string(v)));
+		*result = res;
+	}
+	return TJS_S_OK;
+}
+TJS_END_NATIVE_METHOD_DECL(/*func. name*/evalJS)
+//----------------------------------------------------------------------
+TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/evalStorageJS)
+{
+	if (numparams < 1) return TJS_E_BADPARAMCOUNT;
+	ttstr place = *param[0];
+	ttstr modestr;
+	if (numparams >= 2 && param[1]->Type() != tvtVoid)
+	{
+		modestr = *param[1];
 	}
 
-	public: static tjs_error TJS_INTF_METHOD evalStorageJS(tTJSVariant *result, tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *objthis)
+	iTJSTextReadStream * stream = TVPCreateTextStreamForRead(place, modestr);
+	ttstr buffer;
+	try
 	{
-		if (numparams < 1) return TJS_E_BADPARAMCOUNT;
-		ttstr place = *param[0];
-		ttstr modestr;
-		if (numparams >= 2 && param[1]->Type() != tvtVoid)
-		{
-			modestr = *param[1];
-		}
-
-		iTJSTextReadStream * stream = TVPCreateTextStreamForRead(place, modestr);
-		ttstr buffer;
-		try
-		{
-			stream->Read(buffer, 0);
-		}
-		catch(...)
-		{
-			stream->Destruct();
-			throw;
-		}
+		stream->Read(buffer, 0);
+	}
+	catch(...)
+	{
 		stream->Destruct();
-
-		return emscripten_val_to_tjs_variant(js_eval(map_tjs_string(buffer)));
+		throw;
 	}
-};
+	stream->Destruct();
+	tTJSVariant res = emscripten_val_to_tjs_variant(js_eval(map_tjs_string(buffer)));
+	if (result)
+	{
+		*result = res;
+	}
+	return TJS_S_OK;
+}
+TJS_END_NATIVE_METHOD_DECL(/*func. name*/evalStorageJS)
+//----------------------------------------------------------------------
+	TJS_END_NATIVE_MEMBERS
 
-NCB_REGISTER_CLASS(KirikiriEmscriptenInterface)
+} // end of tTJSNC_KirikiriEmscriptenInterface::tTJSNC_KirikiriEmscriptenInterface
+//---------------------------------------------------------------------------
+tTJSNativeInstance *tTJSNC_KirikiriEmscriptenInterface::CreateNativeInstance()
 {
-	NCB_METHOD(evalJS);
-	RawCallback(TJS_W("evalStorageJS"), &KirikiriEmscriptenInterface::evalStorageJS, TJS_STATICMEMBER);
-};
-
-static void init_js_callbacks()
+	return NULL;
+}
+static iTJSDispatch2 * TVPCreateNativeClass_KirikiriEmscriptenInterface(iTJSDispatch2* global)
 {
 	js_eval = emscripten::val::global("eval");
 	js_wrap_exception = js_eval(std::string("(function(a){return function(...b){try{return a(...b);}catch(e){Module." internal_TJS2JS_throw_val_as_TJS_exception_name "(e);}};})"));
@@ -543,14 +585,9 @@ static void init_js_callbacks()
 #endif
 
 	JS2TJSStringCache = js_new_map();
-}
 
-NCB_PRE_REGIST_CALLBACK(init_js_callbacks);
-
-static void init_js_replacements()
-{
+	iTJSDispatch2 *cls = new tTJSNC_KirikiriEmscriptenInterface();
 #if !defined(__EMSCRIPTEN_PTHREADS__)
-	tTJS *script_engine = TVPGetScriptEngine();
 	if (script_engine)
 	{
 		iTJSDispatch2 * global = script_engine->GetGlobalNoAddRef();
@@ -564,9 +601,8 @@ static void init_js_replacements()
 			window = js_eval(js_string_window);
 			emscripten::val console = emscripten::val::undefined();
 			console = js_eval(js_string_console);
-			static ttstr KirikiriEmscriptenInterface_name(TJS_W("KirikiriEmscriptenInterface"));
-			er = global->PropGet(TJS_MEMBERMUSTEXIST, KirikiriEmscriptenInterface_name.c_str(), KirikiriEmscriptenInterface_name.GetHint(), &val, global);
-			if (!TJS_FAILED(er) && val.Type() == tvtObject)
+			val = tTJSVariant(cls, cls);
+			if (val.Type() == tvtObject)
 			{
 				tTJSVariant window_val = emscripten_val_to_tjs_variant(window);
 				static ttstr window_name(TJS_W("window"));
@@ -604,8 +640,11 @@ static void init_js_replacements()
 		}
 	}
 #endif
+	return cls;
 }
-NCB_POST_REGIST_CALLBACK(init_js_replacements);
+
+static tTVPAtInstallClass TVPInstallClassKirikiriEmscriptenInterface(TJS_W("KirikiriEmscriptenInterface"), TVPCreateNativeClass_KirikiriEmscriptenInterface, TJS_W(""));
+#endif
 
 #define TJS2JS_EXCEPTION_HANDLER_GUARD(block) \
 	{ \
