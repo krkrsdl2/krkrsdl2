@@ -1066,7 +1066,6 @@ HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::QueryInterface(REFIID riid,
 {
 	if(!ppvObject) return E_INVALIDARG;
 
-#ifdef _WIN32
 	*ppvObject=NULL;
 	if(!memcmp(&riid,&IID_IUnknown,16))
 		*ppvObject=(IUnknown*)this;
@@ -1074,9 +1073,6 @@ HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::QueryInterface(REFIID riid,
 		*ppvObject=(ISequentialStream*)this;
 	else if(!memcmp(&riid,&IID_IStream,16))
 		*ppvObject=(IStream*)this;
-#else
-	*ppvObject = (void *)this;
-#endif
 
 	if(*ppvObject)
 	{
@@ -1232,15 +1228,14 @@ HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Stat(STATSTG *pstatstg, DWORD grfS
 			*str = TJS_W('\0');
 			pstatstg->pwcsName = str;
 		}
+#endif
 
 		// type
 		pstatstg->type = STGTY_STREAM;
-#endif
 
 		// cbSize
 		pstatstg->cbSize.QuadPart = Stream->GetSize();
 
-#ifdef _WIN32
 		// mtime, ctime, atime unknown
 
 		// grfMode unknown
@@ -1255,7 +1250,6 @@ HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Stat(STATSTG *pstatstg, DWORD grfS
 		pstatstg->grfLocksSupported = 0;
 
 		// grfStatBits unknown
-#endif
 	}
 	else
 	{
