@@ -31,7 +31,6 @@
 #endif
 #include "tjs.h"
 
-#ifdef KRKRSDL2_ENABLE_PLUGINS
 #ifdef _WIN32
 #if 0
 #ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
@@ -47,7 +46,6 @@
 #if 0
 #ifdef TVP_SUPPORT_KPI
 	#include "kmp_pi.h"
-#endif
 #endif
 #endif
 #endif
