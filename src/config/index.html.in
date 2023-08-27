@@ -25,11 +25,8 @@
       .spinner {
         height: 30px;
         width: 30px;
-        margin: 0;
-        margin-top: 20px;
-        margin-left: 20px;
-        display: inline-block;
         vertical-align: top;
+        position: absolute;
 
         -webkit-animation: rotation .8s linear infinite;
         -moz-animation: rotation .8s linear infinite;
@@ -62,42 +59,34 @@
         to {transform: rotate(360deg);}
       }
 
+      #statusbar_container {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        margin: auto;
+      }
+
+      #statusbar {
+        width: 50%;
+        margin: auto;
+        min-width: 340px;
+        padding: 10px;
+        height: 40px;
+        background-color: rgb(40, 40, 40);
+      }
+
       #status {
-        display: inline-block;
         vertical-align: top;
-        margin-top: 30px;
-        margin-left: 20px;
         font-weight: bold;
         color: rgb(120, 120, 120);
+        width: 100%;
+        padding-bottom: 2px;
+        text-align: left;
       }
 
       #progress {
         height: 20px;
-        width: 300px;
-      }
-
-      #controls {
-        display: inline-block;
-        float: right;
-        vertical-align: top;
-        margin-top: 30px;
-        margin-right: 20px;
-      }
-
-      #output {
         width: 100%;
-        height: 200px;
-        margin: 0 auto;
-        margin-top: 10px;
-        border-left: 0px;
-        border-right: 0px;
-        padding-left: 0px;
-        padding-right: 0px;
-        display: block;
-        background-color: black;
-        color: white;
-        font-family: 'Lucida Console', Monaco, monospace;
-        outline: none;
       }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -394,18 +383,19 @@
       Powered by Kirikiri SDL2
     </a>
 
-    <div class="spinner" id='spinner'></div>
-    <div class="emscripten" id="status">Downloading...</div>
-
-    <div class="emscripten">
-      <progress value="0" max="100" id="progress" hidden=1></progress>
+    <div id="statusbar_container">
+      <div id="statusbar">
+        <div class="spinner" id='spinner'></div>
+        <div style="margin-left: 50px;">
+          <div class="emscripten" id="status">Downloading...</div>
+          <progress value="0" max="100" id="progress" hidden=1></progress>
+        </div>
+      </div>
     </div>
-
 
     <div class="emscripten_border">
       <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
     </div>
-    <textarea id="output" rows="8"></textarea>
 
     <script type='text/javascript'>
       var statusElement = document.getElementById('status');
@@ -417,20 +407,8 @@
         preRun: [],
         postRun: [],
         print: (function() {
-          var element = document.getElementById('output');
-          if (element) element.value = ''; // clear browser cache
           return function(text) {
-            if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
-            // These replacements are necessary if you render to raw HTML
             console.log(text);
-            text = text.replace(/&/g, "&amp;");
-            text = text.replace(/</g, "&lt;");
-            text = text.replace(/>/g, "&gt;");
-            text = text.replace('\n', '<br>', 'g');
-            if (element) {
-              element.value += text + "\n";
-              element.scrollTop = element.scrollHeight; // focus on bottom
-            }
           };
         })(),
         printErr: function(text) {
@@ -467,7 +445,13 @@
             progressElement.hidden = true;
             if (!text) spinnerElement.style.display = 'none';
           }
-          statusElement.innerHTML = text;
+          if (text == '') {
+            statusElement.innerHTML = '';
+            document.getElementById('statusbar').hidden = true;
+          } else {
+            statusElement.innerHTML = text + '<br />';
+            document.getElementById('statusbar').hidden = false;
+          }
         },
         totalDependencies: 0,
         monitorRunDependencies: function(left) {
@@ -478,7 +462,7 @@
       Module.setStatus('Downloading...');
       window.onerror = function(event) {
         // TODO: do not warn on ok events like simulating an infinite loop or exitStatus
-        Module.setStatus('Exception thrown, see JavaScript console');
+        Module.setStatus('Error: ' + event.split('\n')[0] + ' (see JavaScript console for details)');
         spinnerElement.style.display = 'none';
         Module.setStatus = function(text) {
           if (text) Module.printErr('[post-exception status] ' + text);
@@ -502,15 +486,14 @@
         document.body.appendChild(script);
       }
 
-      function runWithXP3() {
+      function xhrDownloadFile(url, dest)
+      {
         _GET = {};
         if (location.search.length > 0) {
           location.search.substr(1).split('&').forEach(function(item) {
             _GET[item.split("=")[0]] = item.split("=")[1]
           });
         }
-
-        var url = "data.xp3";
 
         if (_GET['data']) {
           if (_GET['data'].match(/^[0-9a-z._-]+$/i)) {
@@ -519,8 +502,6 @@
             throw "XSS is not allowed";
           }
         }
-
-        Module.expectedDataFileDownloads = 1;
 
         var should_invalidate_cache = false;
 
@@ -557,7 +538,6 @@
               loaded += data.loaded;
               num += 1;
             }
-            total = Math.ceil(total * Module.expectedDataFileDownloads / num);
             if (Module['setStatus']) Module['setStatus']('Downloading project... (' + loaded + '/' + total + ')');
           } else if (!Module.dataFileDownloads) {
             if (Module['setStatus']) Module['setStatus']('Downloading project...');
@@ -566,37 +546,43 @@
         xhr.onerror = function(event) {
           console.log(xhr);
           console.log(event);
-          Module.print("Cannot download project archive. Please see the JavaScript console for more information.\n");
           if (Module['setStatus']) Module['setStatus']('Project download error!');
         }
         xhr.onload = function(event) {
-            if (xhr.status == 200 || xhr.status == 304 || xhr.status == 206 || (xhr.status == 0 && xhr.response)) {
-              Module['FS'].writeFile('data.xp3', new Uint8Array(xhr.response), {
-                canOwn: true
-              });
-              if (Module['setStatus']) Module['setStatus']('');
-              Module['removeRunDependency']('data.xp3');
-            } else {
-              console.log(xhr);
-              console.log(event);
-              Module.print("Error while downloading project at location " + xhr.responseURL +
-                " : " + xhr.statusText + " (status code " + xhr.status + ")\n");
-              if (Module['setStatus']) Module['setStatus']('Project download error!');
-            }
+          if (xhr.status == 200 || xhr.status == 304 || xhr.status == 206 || (xhr.status == 0 && xhr.response)) {
+            Module['FS'].writeFile(dest, new Uint8Array(xhr.response), {
+              canOwn: true
+            });
+            if (Module['setStatus']) Module['setStatus']('');
+            Module['removeRunDependency'](url);
+          } else {
+            console.log(xhr);
+            console.log(event);
+            Module.print("Error while downloading project at location " + xhr.responseURL +
+              " : " + xhr.statusText + " (status code " + xhr.status + ")\n");
+            if (Module['setStatus']) Module['setStatus']('Project download error!');
+          }
         };
         xhr.send(null);
+        Module['addRunDependency'](url);
+      }
+
+      function runWithFS() {
         Module['FS'].mkdir('/libsdl');
         Module['FS'].mkdir('/libsdl/krkrsdl2');
+
+        // Download data.xp3
+        xhrDownloadFile('data.xp3', '/data.xp3');
+
+        // Initialize IDBFS for save data
         Module['FS'].mount(Module['IDBFS'], {}, '/libsdl/krkrsdl2');
 
         Module['FS'].syncfs(true, function (err) {
           Module['removeRunDependency']('savedata');
         });
-
-        Module['addRunDependency']('data.xp3');
         Module['addRunDependency']('savedata');
       }
-      Module['preRun'].push(runWithXP3);
+      Module['preRun'].push(runWithFS);
 
       if (!window.WebAssembly) {
         // Current browser does not support WebAssembly, load the .wasm.js JavaScript fallback
