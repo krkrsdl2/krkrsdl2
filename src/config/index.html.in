@@ -491,25 +491,6 @@
       document.getElementById('canvas').addEventListener('mouseenter', function(e) { window.focus() });
       document.getElementById('canvas').addEventListener('click', function(e) { window.focus() });
 
-      // Work-around chromium autoplay policy
-      // https://github.com/emscripten-core/emscripten/issues/6511
-      // https://github.com/emscripten-ports/SDL2/pull/104
-      function resumeAudio(e) {
-          if (typeof Module === 'undefined'
-              || typeof Module.SDL2 == 'undefined'
-              || typeof Module.SDL2.audioContext == 'undefined')
-              return;
-          if (Module.SDL2.audioContext.state == 'suspended') {
-              Module.SDL2.audioContext.resume();
-          }
-          if (Module.SDL2.audioContext.state == 'running') {
-              document.getElementById('canvas').removeEventListener('click', resumeAudio);
-              document.removeEventListener('keydown', resumeAudio);
-          }
-      }
-      document.getElementById('canvas').addEventListener('click', resumeAudio);
-      document.addEventListener('keydown', resumeAudio);
-
           function onLoadMainJs() {
             instantiate_krkrsdl2_module(Module);
           }
