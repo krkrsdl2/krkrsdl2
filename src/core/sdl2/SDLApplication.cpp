@@ -46,6 +46,10 @@
 #include <switch.h>
 #endif
 
+#ifdef __EMSCRIPTEN__
+EM_JS_DEPS(main, "$FS,$IDBFS");
+#endif
+
 #if defined(__IPHONEOS__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__) || defined(__vita__) || defined(__SWITCH__)
 #define KRKRSDL2_WINDOW_SIZE_IS_LAYER_SIZE
 #endif
