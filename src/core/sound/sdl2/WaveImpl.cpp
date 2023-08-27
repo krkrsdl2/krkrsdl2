@@ -1491,10 +1491,11 @@ static void TVPConvertWaveFormatToDestinationFormat(void *dest, const void *src,
 	}
 }
 #pragma pack(pop)
+#endif
 //---------------------------------------------------------------------------
-static void TVPMakeSilentWaveBytes(void *dest, tjs_int bytes, const WAVEFORMATEXTENSIBLE *format)
+static void TVPMakeSilentWaveBytes(void *dest, tjs_int bytes, const tTVPWaveFormat *format)
 {
-	if(format->Format.wBitsPerSample == 8)
+	if(format->BytesPerSample == 1)
 	{
 		// 0x80
 		memset(dest, 0x80, bytes);
@@ -1505,15 +1506,11 @@ static void TVPMakeSilentWaveBytes(void *dest, tjs_int bytes, const WAVEFORMATEX
 		memset(dest, 0x00, bytes);
 	}
 }
-#endif
 //---------------------------------------------------------------------------
 static void TVPMakeSilentWave(void *dest, tjs_int count, const tTVPWaveFormat *format)
 {
 	tjs_int bytes = count * format->Channels * format->BytesPerSample;
-	memset(dest, 0x00, bytes);
-#if 0
 	TVPMakeSilentWaveBytes(dest, bytes, format);
-#endif
 }
 //---------------------------------------------------------------------------
 
@@ -2688,6 +2685,7 @@ tjs_uint tTJSNI_WaveSoundBuffer::ReadL2Buffer(void *buffer,
 		if (buffer) { // for VisBuffer
 			memcpy(buffer, L2BufferReadPos * L2AccessUnitBytes + Level2Buffer, decoded * InputFormat.BytesPerSample * InputFormat.Channels);
 		}
+		TVPMakeSilentWave(L2BufferReadPos * L2AccessUnitBytes + Level2Buffer, decoded, &InputFormat);
 	}
 #if 0
 	TVPConvertWaveFormatToDestinationFormat(buffer,
