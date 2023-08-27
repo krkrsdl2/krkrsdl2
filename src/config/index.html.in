@@ -542,17 +542,18 @@
 
               Module.expectedDataFileDownloads = 1;
 
-              var should_invalidate_cache = true;
+              var should_invalidate_cache = false;
 
               var special_cache_string = "1";
 
               if (should_invalidate_cache)
               {
                 special_cache_string = "" + (new Date()).getTime();
+                url += ((/\?/).test(url) ? "&" : "?") + special_cache_string;
               }
 
               var xhr = new XMLHttpRequest();
-              xhr.open('GET', url + ((/\?/).test(url) ? "&" : "?") + special_cache_string, true);
+              xhr.open('GET', url, true);
               xhr.responseType = 'arraybuffer';
               xhr.onprogress = function(event) {
                   var size = -1;
