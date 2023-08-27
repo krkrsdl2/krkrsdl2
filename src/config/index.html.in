@@ -491,127 +491,124 @@
       document.getElementById('canvas').addEventListener('mouseenter', function(e) { window.focus() });
       document.getElementById('canvas').addEventListener('click', function(e) { window.focus() });
 
-          function onLoadMainJs() {
-            instantiate_krkrsdl2_module(Module);
-          }
+      function onLoadMainJs() {
+        instantiate_krkrsdl2_module(Module);
+      }
 
-          function loadMainJs() {
+      function loadMainJs() {
+        var script = document.createElement('script');
+        script.src = "@KRKRSDL2_NAME@.js";
+        script.onload = onLoadMainJs;
+        document.body.appendChild(script);
+      }
 
-            var script = document.createElement('script');
-            script.src = "@KRKRSDL2_NAME@.js";
-            script.onload = onLoadMainJs;
-            document.body.appendChild(script);
+      function runWithXP3() {
+        _GET = {};
+        if (location.search.length > 0) {
+          location.search.substr(1).split('&').forEach(function(item) {
+            _GET[item.split("=")[0]] = item.split("=")[1]
+          });
+        }
 
-          }
-          function runWithXP3() {
-              _GET = {};
-              if (location.search.length > 0) {
-                  location.search.substr(1).split('&').forEach(function(item) {
-                      _GET[item.split("=")[0]] = item.split("=")[1]
-                  });
-              }
+        var url = "data.xp3";
 
-              var url = "data.xp3";
-
-              if (_GET['data']) {
-                  if (_GET['data'].match(/^[0-9a-z._-]+$/i)) {
-                      url = _GET['data'];
-                  } else {
-                      throw "XSS is not allowed";
-                  }
-              }
-
-              Module.expectedDataFileDownloads = 1;
-
-              var should_invalidate_cache = false;
-
-              var special_cache_string = "1";
-
-              if (should_invalidate_cache)
-              {
-                special_cache_string = "" + (new Date()).getTime();
-                url += ((/\?/).test(url) ? "&" : "?") + special_cache_string;
-              }
-
-              var xhr = new XMLHttpRequest();
-              xhr.open('GET', url, true);
-              xhr.responseType = 'arraybuffer';
-              xhr.onprogress = function(event) {
-                  var size = -1;
-                  if (event.total) size = event.total;
-                  if (event.loaded) {
-                      if (!xhr.addedTotal) {
-                          xhr.addedTotal = true;
-                          if (!Module.dataFileDownloads) Module.dataFileDownloads = {};
-                          Module.dataFileDownloads[url] = {
-                              loaded: event.loaded,
-                              total: size
-                          };
-                      } else {
-                          Module.dataFileDownloads[url].loaded = event.loaded;
-                      }
-                      var total = 0;
-                      var loaded = 0;
-                      var num = 0;
-                      for (var download in Module.dataFileDownloads) {
-                          var data = Module.dataFileDownloads[download];
-                          total += data.total;
-                          loaded += data.loaded;
-                          num += 1;
-                      }
-                      total = Math.ceil(total * Module.expectedDataFileDownloads / num);
-                      if (Module['setStatus']) Module['setStatus']('Downloading project... (' + loaded + '/' + total + ')');
-                  } else if (!Module.dataFileDownloads) {
-                      if (Module['setStatus']) Module['setStatus']('Downloading project...');
-                  }
-              };
-              xhr.onerror = function(event) {
-                  console.log(xhr);
-                  console.log(event);
-                  Module.print("Cannot download project archive. Please see the JavaScript console for more information.\n");
-                  if (Module['setStatus']) Module['setStatus']('Project download error!');
-              }
-              xhr.onload = function(event) {
-                  if (xhr.status == 200 || xhr.status == 304 || xhr.status == 206 || (xhr.status == 0 && xhr.response)) {
-                      Module['FS'].writeFile('data.xp3', new Uint8Array(xhr.response), {
-                          canOwn: true
-                      });
-                      if (Module['setStatus']) Module['setStatus']('');
-                      Module['removeRunDependency']('data.xp3');
-                  } else {
-                      console.log(xhr);
-                      console.log(event);
-                      Module.print("Error while downloading project at location " + xhr.responseURL +
-                          " : " + xhr.statusText + " (status code " + xhr.status + ")\n");
-                      if (Module['setStatus']) Module['setStatus']('Project download error!');
-                  }
-              };
-              xhr.send(null);
-              Module['FS'].mkdir('/libsdl');
-              Module['FS'].mkdir('/libsdl/krkrsdl2');
-              Module['FS'].mount(Module['IDBFS'], {}, '/libsdl/krkrsdl2');
-
-              Module['FS'].syncfs(true, function (err) {
-                Module['removeRunDependency']('savedata');
-              });
-
-              Module['addRunDependency']('data.xp3');
-              Module['addRunDependency']('savedata');
-
-          }
-          Module['preRun'].push(runWithXP3);
-
-          if (!window.WebAssembly) {
-            // Current browser does not support WebAssembly, load the .wasm.js JavaScript fallback
-            // before the main JS runtime.
-            var wasm2js = document.createElement('script');
-            wasm2js.src = '@KRKRSDL2_NAME@.wasm.js';
-            wasm2js.onload = loadMainJs;
-            document.body.appendChild(wasm2js);
+        if (_GET['data']) {
+          if (_GET['data'].match(/^[0-9a-z._-]+$/i)) {
+            url = _GET['data'];
           } else {
-            // Current browser supports Wasm, proceed with loading the main JS runtime.
-            loadMainJs();
+            throw "XSS is not allowed";
           }
+        }
+
+        Module.expectedDataFileDownloads = 1;
+
+        var should_invalidate_cache = false;
+
+        var special_cache_string = "1";
+
+        if (should_invalidate_cache) {
+          special_cache_string = "" + (new Date()).getTime();
+          url += ((/\?/).test(url) ? "&" : "?") + special_cache_string;
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'arraybuffer';
+        xhr.onprogress = function(event) {
+          var size = -1;
+          if (event.total) size = event.total;
+          if (event.loaded) {
+            if (!xhr.addedTotal) {
+              xhr.addedTotal = true;
+              if (!Module.dataFileDownloads) Module.dataFileDownloads = {};
+              Module.dataFileDownloads[url] = {
+                loaded: event.loaded,
+                total: size
+              };
+            } else {
+              Module.dataFileDownloads[url].loaded = event.loaded;
+            }
+            var total = 0;
+            var loaded = 0;
+            var num = 0;
+            for (var download in Module.dataFileDownloads) {
+              var data = Module.dataFileDownloads[download];
+              total += data.total;
+              loaded += data.loaded;
+              num += 1;
+            }
+            total = Math.ceil(total * Module.expectedDataFileDownloads / num);
+            if (Module['setStatus']) Module['setStatus']('Downloading project... (' + loaded + '/' + total + ')');
+          } else if (!Module.dataFileDownloads) {
+            if (Module['setStatus']) Module['setStatus']('Downloading project...');
+          }
+        };
+        xhr.onerror = function(event) {
+          console.log(xhr);
+          console.log(event);
+          Module.print("Cannot download project archive. Please see the JavaScript console for more information.\n");
+          if (Module['setStatus']) Module['setStatus']('Project download error!');
+        }
+        xhr.onload = function(event) {
+            if (xhr.status == 200 || xhr.status == 304 || xhr.status == 206 || (xhr.status == 0 && xhr.response)) {
+              Module['FS'].writeFile('data.xp3', new Uint8Array(xhr.response), {
+                canOwn: true
+              });
+              if (Module['setStatus']) Module['setStatus']('');
+              Module['removeRunDependency']('data.xp3');
+            } else {
+              console.log(xhr);
+              console.log(event);
+              Module.print("Error while downloading project at location " + xhr.responseURL +
+                " : " + xhr.statusText + " (status code " + xhr.status + ")\n");
+              if (Module['setStatus']) Module['setStatus']('Project download error!');
+            }
+        };
+        xhr.send(null);
+        Module['FS'].mkdir('/libsdl');
+        Module['FS'].mkdir('/libsdl/krkrsdl2');
+        Module['FS'].mount(Module['IDBFS'], {}, '/libsdl/krkrsdl2');
+
+        Module['FS'].syncfs(true, function (err) {
+          Module['removeRunDependency']('savedata');
+        });
+
+        Module['addRunDependency']('data.xp3');
+        Module['addRunDependency']('savedata');
+      }
+      Module['preRun'].push(runWithXP3);
+
+      if (!window.WebAssembly) {
+        // Current browser does not support WebAssembly, load the .wasm.js JavaScript fallback
+        // before the main JS runtime.
+        var wasm2js = document.createElement('script');
+        wasm2js.src = '@KRKRSDL2_NAME@.wasm.js';
+        wasm2js.onload = loadMainJs;
+        document.body.appendChild(wasm2js);
+      } else {
+        // Current browser supports Wasm, proceed with loading the main JS runtime.
+        loadMainJs();
+      }
 
 </script>
   </body>
