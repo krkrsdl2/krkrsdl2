@@ -39,6 +39,9 @@ class tTVPSoundBuffer : public iTVPSoundBuffer
 	bool _playing = false;
 	int _frame_size = 0;
 	bool has_format = false;
+	ALfloat _volume;
+	ALfloat _pan;
+	ALfloat _sourcePos[3];
 public:
 	tTVPSoundBuffer(tTVPWaveFormat &desired, int bufcount)
 	{
@@ -48,9 +51,13 @@ public:
 		_bufferIds2 = new ALuint[bufcount];
 		_bufferSize = new tjs_uint[bufcount];
 		_format = desired;
+		_volume = 1.0f;
+		_sourcePos[0] = 0.0f;
+		_sourcePos[1] = 0.0f;
+		_sourcePos[2] = 0.0f;
 		alGenSources(1, &_alSource);
 		alGenBuffers(_bufferCount, _bufferIds);
-		alSourcef(_alSource, AL_GAIN, 1.0f);
+		alSourcef(_alSource, AL_GAIN, 0.0f);
 		has_format = true;
 		switch (desired.Channels)
 		{
@@ -196,11 +203,16 @@ public:
 
 	void EnsurePlayState()
 	{
+		tTJSCriticalSectionHolder holder(_buffer_mtx);
 		ALenum state;
 		alGetSourcei(_alSource, AL_SOURCE_STATE, &state);
 		CheckALError("alGetSourcei AL_SOURCE_STATE");
 		if (_playing)
 		{
+			alSourcef(_alSource, AL_GAIN, _volume);
+			CheckALError("alSourcef AL_GAIN");
+			alSourcefv(_alSource, AL_POSITION, _sourcePos);
+			CheckALError("alSourcefv AL_POSITION");
 			if (state != AL_PLAYING)
 			{
 				alSourcePlay(_alSource);
@@ -209,20 +221,36 @@ public:
 		}
 		else
 		{
+			alSourcef(_alSource, AL_GAIN, 0.0f);
 			if (state == AL_PLAYING)
 			{
 				alSourcePause(_alSource);
 				CheckALError("alSourcePause");
+				alGetSourcei(_alSource, AL_SOURCE_STATE, &state);
+				CheckALError("alGetSourcei AL_SOURCE_STATE");
+			}
+			if (_bufferIdx == -1)
+			{
+				if (state != AL_STOPPED)
+				{
+					alSourceStop(_alSource);
+					CheckALError("alSourceStop");
+					if (_sentSamples == 0)
+					{
+						alSourceRewind(_alSource);
+						alSourcei(_alSource, AL_BUFFER, 0);
+					}
+				}
 			}
 		}
 	}
 
 	void Reset() override
 	{
+		_playing = false;
+		_bufferIdx = -1;
 		_sentSamples = 0;
-		tTJSCriticalSectionHolder holder(_buffer_mtx);
-		alSourceRewind(_alSource);
-		alSourcei(_alSource, AL_BUFFER, 0);
+		EnsurePlayState();
 	}
 
 	void Pause() override
@@ -240,51 +268,45 @@ public:
 	void Stop() override
 	{
 		_playing = false;
-		EnsurePlayState();
-		alSourceStop(_alSource);
-		CheckALError("alSourceStop");
-		Reset();
 		_bufferIdx = -1;
+		EnsurePlayState();
 	}
 
 	void SetVolume(float volume) override
 	{
-		alSourcef(_alSource, AL_GAIN, volume);
-		CheckALError("alSourcef AL_GAIN");
+		_volume = volume;
+		EnsurePlayState();
 	}
 
 	float GetVolume() override
 	{
-		float volume = 0;
-		alGetSourcef(_alSource, AL_GAIN, &volume);
-		return volume;
+		return _volume;
 	}
 
 	void SetPan(float pan) override
 	{
-		float sourcePosAL[] = { pan, 0.0f, 0.0f };
-		alSourcefv(_alSource, AL_POSITION, sourcePosAL);
+		_sourcePos[0] = pan;
+		_sourcePos[1] = 0.0f;
+		_sourcePos[2] = 0.0f;
+		EnsurePlayState();
 	}
 
 	float GetPan() override
 	{
-		float sourcePosAL[3];
-		alGetSourcefv(_alSource, AL_POSITION, sourcePosAL);
-		return sourcePosAL[0];
+		return _sourcePos[0];
 	}
 
 	bool IsPlaying() override
 	{
-		ALenum state;
-		alGetSourcei(_alSource, AL_SOURCE_STATE, &state);
-		return state == AL_PLAYING;
+		return _playing;
 	}
 
 	void SetPosition(float x, float y, float z) override
 	{
-		float sourcePosAL[] = { x, y, z };
-		alSourcefv(_alSource, AL_POSITION, sourcePosAL);
-		CheckALError("alSourcefv AL_POSITION");
+		_sourcePos[0] = x;
+		_sourcePos[1] = y;
+		_sourcePos[2] = z;
+		EnsurePlayState();
 	}
 
 	int GetRemainBuffers() override
@@ -299,7 +321,8 @@ public:
 	tjs_uint GetLatencySamples() override
 	{
 		tTJSCriticalSectionHolder holder(_buffer_mtx);
-		ALint offset = 0, queued = 0;
+		ALint offset = 0;
+		ALint queued = 0;
 		alGetSourcei(_alSource, AL_BYTE_OFFSET, &offset);
 		alGetSourcei(_alSource, AL_BUFFERS_QUEUED, &queued);
 		int remainBuffers = queued;
