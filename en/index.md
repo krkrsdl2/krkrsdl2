@@ -29,18 +29,18 @@ A [Matrix](https://matrix.org/) bridged channel is also available at [#krkrsdl2:
 
 ## Download
 
-The following builds are automatically built from the latest source code by [Github Actions](https://github.com/features/actions).  
+The following ports are automatically built from the latest source code by [Github Actions](https://github.com/features/actions).  
 
-* [Web build](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-web.zip)
-* [Win32 build (GCC, Intel, 32-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-i686-gcc.zip)
-* [Win32 build (GCC, Intel, 64-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-amd64-gcc.zip)
-* [Win32 build (Clang, Intel, 32-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-i686-clang.zip)
-* [Win32 build (Clang, Intel, 64-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-amd64-clang.zip)
-* [Win32 build (Clang, ARM, 32-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-arm-clang.zip)
-* [Win32 build (Clang, ARM, 64-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-arm64-clang.zip)
-* [macOS build](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-macos.zip)
-* [macOS Application Bundle build](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-macos-appbundle.zip)
-* [Ubuntu build](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip)
+* [Web port](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-web.zip)
+* [Win32 port (GCC, Intel, 32-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-i686-gcc.zip)
+* [Win32 port (GCC, Intel, 64-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-amd64-gcc.zip)
+* [Win32 port (Clang, Intel, 32-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-i686-clang.zip)
+* [Win32 port (Clang, Intel, 64-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-amd64-clang.zip)
+* [Win32 port (Clang, ARM, 32-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-arm-clang.zip)
+* [Win32 port (Clang, ARM, 64-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-arm64-clang.zip)
+* [macOS port](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-macos.zip)
+* [macOS Application Bundle port](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-macos-appbundle.zip)
+* [Ubuntu port](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip)
 
 ## Source Code
 
@@ -63,7 +63,7 @@ Command line arguments can be specified on the command line:
 /path/to/krkrsdl2 -drawthread=4
 ```
 
-For the web version, place the files from the Web build and `data.xp3` created by [Releaser](https://krkrz.github.io/krkr2doc/kr2doc/contents/Releaser.html) onto a web server. Once that is done, the project can be accessed from a web browser.  
+For the web version, place the files from the Web port and `data.xp3` created by [Releaser](https://krkrz.github.io/krkr2doc/kr2doc/contents/Releaser.html) onto a web server. Once that is done, the project can be accessed from a web browser.  
 
 ## Cloning
 

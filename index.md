@@ -29,18 +29,18 @@ Webブラウザーでプレイできるデモはここにあります：https://
 
 ## ダウンロード
 
-以下のビルドは、[Github Actions](https://github.com/features/actions)によって最新のソースコードから自動的に構築されます。
+以下のポートは、[Github Actions](https://github.com/features/actions)によって最新のソースコードから自動的に構築されます。
 
-* [Webビルド](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-web.zip)
-* [Win32ビルド (GCC, Intel, 32-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-i686-gcc.zip)
-* [Win32ビルド (GCC, Intel, 64-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-amd64-gcc.zip)
-* [Win32ビルド (Clang, Intel, 32-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-i686-clang.zip)
-* [Win32ビルド (Clang, Intel, 64-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-amd64-clang.zip)
-* [Win32ビルド (Clang, ARM, 32-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-arm-clang.zip)
-* [Win32ビルド (Clang, ARM, 64-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-arm64-clang.zip)
-* [macOSビルド](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-macos.zip)
-* [macOSアプリケーションバンドルビルド](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-macos-appbundle.zip)
-* [Ubuntuビルド](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip)
+* [Webポート](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-web.zip)
+* [Win32ポート (GCC, Intel, 32-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-i686-gcc.zip)
+* [Win32ポート (GCC, Intel, 64-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-amd64-gcc.zip)
+* [Win32ポート (Clang, Intel, 32-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-i686-clang.zip)
+* [Win32ポート (Clang, Intel, 64-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-amd64-clang.zip)
+* [Win32ポート (Clang, ARM, 32-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-arm-clang.zip)
+* [Win32ポート (Clang, ARM, 64-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-win32-arm64-clang.zip)
+* [macOSポート](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-macos.zip)
+* [macOSアプリケーションバンドルポート](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-macos-appbundle.zip)
+* [Ubuntuポート](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip)
 
 ## ソースコード
 
@@ -63,7 +63,7 @@ Webブラウザーでプレイできるデモはここにあります：https://
 /path/to/krkrsdl2 -drawthread=4
 ```
 
-Webバージョンの場合は、[Releaser](https://krkrz.github.io/krkr2doc/kr2doc/contents/Releaser.html)によって作成した`data.xp3`をWebビルドと同じフォルダに配置し、Webサーバー上にアップロードします。 設置でき次第、プロジェクトはWebブラウザから動作します。
+Webバージョンの場合は、[Releaser](https://krkrz.github.io/krkr2doc/kr2doc/contents/Releaser.html)によって作成した`data.xp3`をWebポートと同じフォルダに配置し、Webサーバー上にアップロードします。 設置でき次第、プロジェクトはWebブラウザから動作します。
 
 ## クローニング
 
