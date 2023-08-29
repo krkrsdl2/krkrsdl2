@@ -12,6 +12,7 @@
         "**.py",
         "**.yml",
         "**.gradle",
+        "**.cmake",
         "CMakeLists.txt"
       ]
     },
@@ -26,6 +27,7 @@
         "**.py",
         "**.yml",
         "**.gradle",
+        "**.cmake",
         "CMakeLists.txt"
       ]
     }
