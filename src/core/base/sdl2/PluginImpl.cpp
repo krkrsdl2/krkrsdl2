@@ -51,7 +51,6 @@
 #endif
 
 #include "FilePathUtil.h"
-#include "ApplicationSpecialPath.h"
 #include "Application.h"
 #include "SysInitImpl.h"
 #include <set>
@@ -275,105 +274,13 @@ tTVPPlugin::tTVPPlugin(const ttstr & name, ITSSStorageProvider *storageprovider)
 	Name = name;
 
 	Instance = NULL;
-	Holder = NULL;
-	if (TJS_strstr(TJS_W(":"), name.c_str()) != NULL)
+	Holder = new tTVPPluginHolder(name);
+	std::string filename;
+	if (TVPUtf16ToUtf8(filename, Holder->GetLocalName().AsStdString()))
 	{
-		// Absolute path
-		Holder = new tTVPPluginHolder(name);
-		std::string filename;
-		if (TVPUtf16ToUtf8(filename, Holder->GetLocalName().AsStdString()))
+		if (TVPCheckExistentLocalFile(Holder->GetLocalName()))
 		{
 			Instance = SDL_LoadObject(filename.c_str());
-		}
-	}
-	else
-	{
-		// Relative path
-		tjs_string cur_name = name.AsStdString();
-#ifdef _WIN32
-		ttstr place(TVPGetPlacedPath(cur_name));
-		if (!place.IsEmpty())
-		{
-			Holder = new tTVPPluginHolder(name);
-			std::string filename;
-			if (TVPUtf16ToUtf8(filename, Holder->GetLocalName().AsStdString()))
-			{
-				Instance = SDL_LoadObject(filename.c_str());
-				if (Instance == NULL)
-				{
-					delete Holder;
-					Holder = NULL;
-				}
-			}
-		}
-#endif
-		if (Instance == NULL)
-		{
-#ifndef _WIN32
-			{
-				tjs_int len = name.GetLen();
-				if (len > 4 && name[len - 1] == TJS_W('l') && name[len - 2] == TJS_W('l') && name[len - 3] == TJS_W('d') && name[len - 4] == TJS_W('.'))
-				{
-					tjs_string extso = ChangeFileExt(cur_name, TJS_W(".so"));
-					cur_name = extso;
-				}
-			}
-#endif
-			tjs_string exename = ExePath();
-			tjs_string exepath = ExcludeTrailingSlash(ExtractFileDir(exename));
-			tjs_string searchpath;
-			char *searchpath_cstr = SDL_getenv("KRKRSDL2_PATH");
-			if (searchpath_cstr != NULL)
-			{
-				std::string searchpath_utf8 = searchpath_cstr;
-				TVPUtf8ToUtf16(searchpath, searchpath_utf8);
-			}
-			else
-			{
-				searchpath = TJS_W("${ORIGIN}:${ORIGIN}/system:${ORIGIN}/plugin");
-			}
-			if (!searchpath.empty())
-			{
-				size_t searchpath_pos = 0;
-				tjs_string searchpath_single;
-				tjs_string colon = TJS_W(":");
-				while (true)
-				{
-					searchpath_pos = searchpath.find(colon);
-					if (searchpath_pos == tjs_string::npos)
-					{
-						searchpath_single = searchpath;
-					}
-					else
-					{
-						searchpath_single = searchpath.substr(0, searchpath_pos);
-					}
-					{
-						if (searchpath_single.empty())
-						{
-							searchpath_single = TJS_W(".");
-						}
-						searchpath_single = ApplicationSpecialPath::ReplaceStringAll(searchpath_single, TJS_W("${ORIGIN}"), exepath);
-						searchpath_single = IncludeTrailingSlash(searchpath_single);
-						searchpath_single += cur_name;
-						std::string searchpath_single_converted;
-						bool converted = TVPUtf16ToUtf8(searchpath_single_converted, searchpath_single);
-						if (converted)
-						{
-							Instance = SDL_LoadObject(searchpath_single_converted.c_str());
-							if (Instance)
-							{
-								break;
-							}
-						}
-					}
-					if (searchpath_pos == tjs_string::npos)
-					{
-						break;
-					}
-					searchpath.erase(0, searchpath_pos + colon.length());
-				}
-			}
 		}
 	}
 

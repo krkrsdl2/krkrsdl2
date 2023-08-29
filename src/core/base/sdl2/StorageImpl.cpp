@@ -22,6 +22,7 @@
 #include "Random.h"
 
 #include "Application.h"
+#include "ApplicationSpecialPath.h"
 #include "StringUtil.h"
 #include "FilePathUtil.h"
 #include "TickCount.h"
@@ -1419,6 +1420,116 @@ tTJSBinaryStream * TVPCreateBinaryStreamAdapter(IStream *refstream)
 
 
 //---------------------------------------------------------------------------
+// Plugin location related
+//---------------------------------------------------------------------------
+static tjs_int TVPPluginSearchPathOptionsGeneration = 0;
+static tjs_string TVPPluginSearchPath = TJS_W("");
+//---------------------------------------------------------------------------
+static void TVPInitPluginSearchPathOptions()
+{
+	if (TVPPluginSearchPathOptionsGeneration == TVPGetCommandLineArgumentGeneration()) return;
+	TVPPluginSearchPathOptionsGeneration = TVPGetCommandLineArgumentGeneration();
+
+	tTJSVariant val;
+	tjs_string searchpath;
+	char *searchpath_cstr = SDL_getenv("KRKRSDL2_PATH");
+	if (searchpath_cstr != NULL)
+	{
+		std::string searchpath_utf8 = searchpath_cstr;
+		TVPUtf8ToUtf16(searchpath, searchpath_utf8);
+	}
+	else
+	{
+		searchpath = TJS_W("${ORIGIN}:${ORIGIN}/system:${ORIGIN}/plugin");
+	}
+	if (TVPGetCommandLine(TJS_W("-krkrsdl2_pluginsearchpath"), &val))
+	{
+		ttstr str(val);
+		searchpath = str.c_str();
+	}
+	tjs_string exename = ExePath();
+	tjs_string exepath = ExcludeTrailingSlash(ExtractFileDir(exename));
+	searchpath = ApplicationSpecialPath::ReplaceStringAll(searchpath, TJS_W("${ORIGIN}"), exepath);
+	searchpath = ApplicationSpecialPath::ReplaceStringAll(searchpath, TJS_W("$ORIGIN"), exepath);
+	TVPPluginSearchPath = searchpath;
+}
+//---------------------------------------------------------------------------
+static void TVPLocatePlugin(const ttstr &aname, ttstr &fpname, ttstr &flname)
+{
+	if (TJS_strstr(TJS_W(":"), aname.c_str()) != NULL)
+	{
+		// Absolute path; use this path only
+		ttstr place(TVPGetPlacedPath(aname));
+		if (!place.IsEmpty())
+		{
+			fpname = place;
+		}
+	}
+	else
+	{
+		// Relative path; try various ways to find the plugin
+		tjs_string cur_name = TVPExtractStorageName(aname).c_str();
+#ifdef _WIN32
+		ttstr place(TVPGetPlacedPath(cur_name));
+		if (!place.IsEmpty())
+		{
+			fpname = place;
+		}
+#endif
+		if (fpname.GetLen() == 0)
+		{
+#ifndef _WIN32
+			{
+				tjs_int len = cur_name.length();
+				if (len > 4 && cur_name[len - 1] == TJS_W('l') && cur_name[len - 2] == TJS_W('l') && cur_name[len - 3] == TJS_W('d') && cur_name[len - 4] == TJS_W('.'))
+				{
+					tjs_string extso = ChangeFileExt(cur_name, TJS_W("so"));
+					cur_name = extso;
+				}
+			}
+#endif
+			TVPInitPluginSearchPathOptions();
+			tjs_string searchpath = TVPPluginSearchPath;
+			if (!searchpath.empty())
+			{
+				size_t searchpath_pos = 0;
+				tjs_string searchpath_single;
+				tjs_string colon = TJS_W(":");
+				while (true)
+				{
+					searchpath_pos = searchpath.find(colon);
+					if (searchpath_pos == tjs_string::npos)
+					{
+						searchpath_single = searchpath;
+					}
+					else
+					{
+						searchpath_single = searchpath.substr(0, searchpath_pos);
+					}
+					{
+						if (searchpath_single.empty())
+						{
+							searchpath_single = TJS_W(".");
+						}
+						searchpath_single = IncludeTrailingSlash(searchpath_single);
+						searchpath_single += cur_name;
+						if (TVPCheckExistentLocalFile(searchpath_single))
+						{
+							flname = searchpath_single;
+							break;
+						}
+					}
+					if (searchpath_pos == tjs_string::npos)
+					{
+						break;
+					}
+					searchpath.erase(0, searchpath_pos + colon.length());
+				}
+			}
+		}
+	}
+}
+//---------------------------------------------------------------------------
 // tTVPPluginHolder
 //---------------------------------------------------------------------------
 tTVPPluginHolder::tTVPPluginHolder(const ttstr &aname)
@@ -1433,11 +1544,16 @@ tTVPPluginHolder::tTVPPluginHolder(const ttstr &aname)
 #endif
 	LocalTempStorageHolder = NULL;
 
-	// search in TVP storage system
-	ttstr place(TVPGetPlacedPath(aname));
-	if(!place.IsEmpty())
+	ttstr fpname;
+	ttstr flname;
+	TVPLocatePlugin(aname, fpname, flname);
+	if (fpname.GetLen() != 0)
 	{
-		LocalTempStorageHolder = new tTVPLocalTempStorageHolder(place);
+		LocalTempStorageHolder = new tTVPLocalTempStorageHolder(fpname);
+	}
+	else if (flname.GetLen() != 0)
+	{
+		LocalPath = flname;
 	}
 }
 //---------------------------------------------------------------------------
@@ -1509,6 +1625,29 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/selectFile)
 }
 TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(/*object to register*/cls,
 	/*func. name*/selectFile)
+//----------------------------------------------------------------------
+TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/isExistentPlugin)
+{
+	if(numparams < 1) return TJS_E_BADPARAMCOUNT;
+
+	ttstr path = *param[0];
+
+	tjs_int res = 0;
+	ttstr fpname;
+	ttstr flname;
+	TVPLocatePlugin(path, fpname, flname);
+	if (fpname.GetLen() > 0 || flname.GetLen() > 0)
+	{
+		res = 1;
+	}
+
+	if(result)
+		*result = res;
+
+	return TJS_S_OK;
+}
+TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(/*object to register*/cls,
+	/*func. name*/isExistentPlugin)
 //----------------------------------------------------------------------
 
 
