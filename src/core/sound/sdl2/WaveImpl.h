@@ -22,7 +22,9 @@
 
 #include "WaveIntf.h"
 #include "WaveLoopManager.h"
-#include "WaveMixer.h"
+#if 1
+#include "OpenALWaveMixer.h"
+#endif
 
 /*[*/
 //---------------------------------------------------------------------------

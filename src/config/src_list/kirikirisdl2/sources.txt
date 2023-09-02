@@ -440,8 +440,8 @@ src/core/sdl2/SDLBitmapCompletion.cpp
 src/core/sound/sdl2/AudioDeviceCreator.cpp
 src/core/sound/sdl2/FAudioDevice.cpp
 src/core/sound/sdl2/NullAudioDevice.cpp
+src/core/sound/sdl2/OpenALWaveMixer.cpp
 src/core/sound/sdl2/WaveImpl.cpp
-src/core/sound/sdl2/WaveMixer.cpp
 src/core/utils/sdl2/ClipboardImpl.cpp
 src/core/visual/sdl2/BasicDrawDevice.cpp
 src/core/visual/sdl2/BitmapBitsAlloc.cpp

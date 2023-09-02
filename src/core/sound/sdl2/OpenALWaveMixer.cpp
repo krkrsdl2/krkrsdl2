@@ -2,7 +2,7 @@
 /* Copyright (c) Kirikiri SDL2 Developers */
 
 #include "tjsCommHead.h"
-#include "WaveMixer.h"
+#include "OpenALWaveMixer.h"
 #include "WaveImpl.h"
 #include "DebugIntf.h"
 #include "SysInitIntf.h"
