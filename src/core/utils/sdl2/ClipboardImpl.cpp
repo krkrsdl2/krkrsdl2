@@ -44,10 +44,18 @@ bool TVPClipboardGetText(ttstr & text)
 	{
 		return false;
 	}
-	tjs_string v_utf16;
-	std::string v_utf8 = src_text;
-	TVPUtf8ToUtf16( v_utf16, v_utf8 );
-	text = ttstr(v_utf16);
+	try
+	{
+		tjs_string v_utf16;
+		std::string v_utf8 = src_text;
+		TVPUtf8ToUtf16(v_utf16, v_utf8);
+		text = ttstr(v_utf16);
+	}
+	catch (...)
+	{
+		SDL_free(src_text);
+		throw;
+	}
 	SDL_free(src_text);
 	return true;
 }
