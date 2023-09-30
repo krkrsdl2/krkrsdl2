@@ -509,7 +509,12 @@ set_target_properties(${KRKRSDL2_NAME} PROPERTIES
 	BUNDLE TRUE
 	MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/src/config/iOSBundleInfo.plist.in
 	MACOSX_BUNDLE TRUE
+	MACOSX_BUNDLE_BUNDLE_NAME "Kirikiri SDL2"
+	MACOSX_BUNDLE_BUNDLE_VERSION "0.0.0"
+	MACOSX_BUNDLE_COPYRIGHT "(KIRIKIRI core) (C) W.Dee and contributors All Rights Reserved. This software is based in part on the work of Independent JPEG Group. For details: Run this program with '-about' option."
 	MACOSX_BUNDLE_GUI_IDENTIFIER pw.uyjulian.krkrsdl2
+	MACOSX_BUNDLE_LONG_VERSION_STRING "Development version"
+	MACOSX_BUNDLE_SHORT_VERSION_STRING "dev"
 	XCODE_ATTRIBUTE_ENABLE_BITCODE NO
 	XCODE_ATTRIBUTE_SKIP_INSTALL NO
 	XCODE_ATTRIBUTE_INSTALL_PATH "/Applications"
@@ -531,8 +536,13 @@ if(APPLE AND NOT IOS)
 set_target_properties(${KRKRSDL2_NAME} PROPERTIES
 	BUNDLE TRUE
 	MACOSX_BUNDLE TRUE
+	MACOSX_BUNDLE_BUNDLE_NAME "Kirikiri SDL2"
+	MACOSX_BUNDLE_BUNDLE_VERSION "0.0.0"
+	MACOSX_BUNDLE_COPYRIGHT "(KIRIKIRI core) (C) W.Dee and contributors All Rights Reserved. This software is based in part on the work of Independent JPEG Group. For details: Run this program with '-about' option."
 	MACOSX_BUNDLE_GUI_IDENTIFIER pw.uyjulian.krkrsdl2
 	MACOSX_BUNDLE_ICON_FILE "krkrsdl2.icns"
+	MACOSX_BUNDLE_LONG_VERSION_STRING "Development version"
+	MACOSX_BUNDLE_SHORT_VERSION_STRING "dev"
 	XCODE_ATTRIBUTE_SKIP_INSTALL NO
 	XCODE_ATTRIBUTE_INSTALL_PATH "/Applications"
 )
