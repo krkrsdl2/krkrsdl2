@@ -367,6 +367,8 @@ endif()
 if(IOS)
 set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
 set(SDL_SHARED OFF)
+set(HAVE_GCC_WDECLARATION_AFTER_STATEMENT OFF CACHE BOOL "Intentionally disabled for SDL on iOS: can declaration-after-statement warning be used" FORCE)
+set(HAVE_GCC_WERROR_DECLARATION_AFTER_STATEMENT OFF CACHE BOOL "Intentionally disabled for SDL on iOS: can declaration-after-statement error warning be used" FORCE)
 add_subdirectory(external/SDL)
 find_library(SDL2 NAMES SDL2-static SDL2main)
 list(APPEND KRKRSDL2_LIBS
