@@ -2909,6 +2909,9 @@ extern "C" int main(int argc, char **argv)
 #ifdef SDL_HINT_AUDIODRIVER
 		SDL_SetHintWithPriority(SDL_HINT_AUDIODRIVER, "directsound", SDL_HINT_DEFAULT);
 #endif
+#ifdef SDL_HINT_IME_SHOW_UI
+		SDL_SetHintWithPriority(SDL_HINT_IME_SHOW_UI, "1", SDL_HINT_DEFAULT);
+#endif
 #endif
 
 #ifdef TVP_LOG_TO_COMMANDLINE_CONSOLE
