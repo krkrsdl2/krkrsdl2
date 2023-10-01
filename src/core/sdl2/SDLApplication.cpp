@@ -1697,30 +1697,21 @@ void TVPWindowWindow::TickBeat()
 			rect.h = bitmap_completion->update_rect.get_height();
 			if (renderer)
 			{
-#ifdef KRKRSDL2_ENABLE_ZOOM
 				SDL_RenderFillRect(renderer, NULL);
-#else
-				SDL_Rect logical_rect;
-				SDL_RenderGetLogicalSize(renderer, &(logical_rect.w), &(logical_rect.h));
-				if (logical_rect.w == rect.w && logical_rect.h == rect.h)
+				if (texture)
 				{
-					// Clear extra artifacts
-					SDL_RenderSetLogicalSize(renderer, 0, 0);
-					SDL_RenderFillRect(renderer, NULL);
-					SDL_RenderSetLogicalSize(renderer, logical_rect.w, logical_rect.h);
-				}
-#endif
-				if (texture && surface)
-				{
-					if ((rect.w + rect.x) > surface->w)
+					if (surface)
 					{
-						rect.w = surface->w;
+						if ((rect.w + rect.x) > surface->w)
+						{
+							rect.w = surface->w;
+						}
+						if ((rect.h + rect.y) > surface->h)
+						{
+							rect.h = surface->h;
+						}
+						SDL_UpdateTexture(texture, &rect, surface->pixels, surface->pitch);
 					}
-					if ((rect.h + rect.y) > surface->h)
-					{
-						rect.h = surface->h;
-					}
-					SDL_UpdateTexture(texture, &rect, surface->pixels, surface->pitch);
 #ifdef KRKRSDL2_ENABLE_ZOOM
 					SDL_Rect destrect;
 					destrect.x = LastSentDrawDeviceDestRect.left;
@@ -1734,23 +1725,10 @@ void TVPWindowWindow::TickBeat()
 					srcrect.h = InnerHeight;
 					SDL_RenderCopy(renderer, texture, &srcrect, &destrect);
 #else
-					SDL_RenderCopy(renderer, texture, &rect, &rect);
+					SDL_RenderCopy(renderer, texture, NULL, NULL);
 #endif
 				}
 				SDL_RenderPresent(renderer);
-#ifndef KRKRSDL2_ENABLE_ZOOM
-				if (logical_rect.w == rect.w && logical_rect.h == rect.h)
-				{
-					// Clear extra artifacts (for the back buffer)
-					SDL_RenderSetLogicalSize(renderer, 0, 0);
-					SDL_RenderFillRect(renderer, NULL);
-					SDL_RenderSetLogicalSize(renderer, logical_rect.w, logical_rect.h);
-				}
-				if (texture)
-				{
-					SDL_RenderCopy(renderer, texture, &rect, &rect);
-				}
-#endif
 				hasDrawn = true;
 			}
 			else if (window && surface)
