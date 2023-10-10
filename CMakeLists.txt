@@ -560,7 +560,7 @@ endif()
 endif()
 
 if(VITA)
-vita_create_self(${KRKRSDL2_NAME}.self ${KRKRSDL2_NAME})
+vita_create_self(${KRKRSDL2_NAME}.self $<TARGET_FILE:${KRKRSDL2_NAME}>)
 
 set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -s CATEGORY=gdb -d ATTRIBUTE2=12")
 
@@ -590,13 +590,14 @@ add_custom_target(romfs ALL
 )
 add_custom_target(${KRKRSDL2_NAME}.nro ALL
     COMMAND $ENV{DEVKITPRO}/tools/bin/elf2nro
-        ${KRKRSDL2_NAME}
+        $<TARGET_FILE:${KRKRSDL2_NAME}>
         ${KRKRSDL2_NAME}.nro
         --icon=${SWITCH_RESOURCES_ROOT}/icon.jpg
         --nacp=${KRKRSDL2_NAME}.nacp
         --romfsdir=${CMAKE_CURRENT_BINARY_DIR}/romfs
-    DEPENDS ${KRKRSDL2_NAME}.nacp ${KRKRSDL2_NAME} romfs ${SWITCH_RESOURCES_ROOT}/icon.jpg
+    DEPENDS ${KRKRSDL2_NAME}.nacp romfs ${SWITCH_RESOURCES_ROOT}/icon.jpg
 )
+add_dependencies(${KRKRSDL2_NAME}.nro ${KRKRSDL2_NAME})
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
