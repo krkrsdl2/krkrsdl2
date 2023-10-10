@@ -560,7 +560,7 @@ endif()
 endif()
 
 if(VITA)
-vita_create_self(${KRKRSDL2_NAME}.self $<TARGET_FILE:${KRKRSDL2_NAME}>)
+vita_create_self(${KRKRSDL2_NAME}.self ${KRKRSDL2_NAME})
 
 set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -s CATEGORY=gdb -d ATTRIBUTE2=12")
 
