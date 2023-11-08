@@ -7,6 +7,9 @@ title: Kirikiri SDL2
 
 Kirikiri SDL2 is a port of [Kirikiri Z](https://krkrz.github.io/) that can be run on platforms supporting [SDL2](https://www.libsdl.org/), such as macOS and Linux.  
 
+This program is maintained for projects that want to take advantage of modern hardware and platform support without needing to rewrite a large amount of code.  
+If you are interested in starting a new project, check out [Suika2](https://suika2.com/en/) or [Ren'Py](https://renpy.org/), which have more active communities.  
+
 This program can be used alongside a modified version of KAG (Kirikiri Adventure Game) 3.  
 For more details, please see the following location: https://github.com/krkrsdl2/kag3  
 
