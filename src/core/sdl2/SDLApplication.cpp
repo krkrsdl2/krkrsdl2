@@ -62,7 +62,7 @@ extern void TVPLoadMessage();
 
 class TVPWindowWindow;
 static TVPWindowWindow *_lastWindowWindow, *_currentWindowWindow;
-static SDL_GameController** sdl_controllers = NULL;
+static SDL_GameController** sdl_controllers = nullptr;
 static int sdl_controller_num = 0;
 
 #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
@@ -87,19 +87,19 @@ static void refresh_controllers()
 	{
 		SDL_Init(SDL_INIT_GAMECONTROLLER);
 	}
-	if (sdl_controller_num != 0 && sdl_controllers != NULL)
+	if (sdl_controller_num != 0 && sdl_controllers != nullptr)
 	{
 		for (int i = 0; i < sdl_controller_num; i += 1)
 		{
-			if (sdl_controllers[i] != NULL)
+			if (sdl_controllers[i] != nullptr)
 			{
 				SDL_GameControllerClose(sdl_controllers[i]);
-				sdl_controllers[i] = NULL;
+				sdl_controllers[i] = nullptr;
 			}
 		}
 		sdl_controller_num = 0;
 		SDL_free(sdl_controllers);
-		sdl_controllers = NULL;
+		sdl_controllers = nullptr;
 	}
 	sdl_controller_num = SDL_NumJoysticks();
 	if (sdl_controller_num != 0)
@@ -818,8 +818,8 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 
 #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 		// move the event watch to after the SDL_RendererEventWatch to ensure transformed values are received
-		SDL_DelEventWatch(sdl_event_watch, NULL);
-		SDL_AddEventWatch(sdl_event_watch, NULL);
+		SDL_DelEventWatch(sdl_event_watch, nullptr);
+		SDL_AddEventWatch(sdl_event_watch, nullptr);
 #endif
 
 		bitmap_completion = new TVPSDLBitmapCompletion();
@@ -859,31 +859,31 @@ TVPWindowWindow::~TVPWindowWindow()
 	if (bitmap_completion)
 	{
 		delete bitmap_completion;
-		bitmap_completion = NULL;
+		bitmap_completion = nullptr;
 	}
 #ifdef KRKRZ_ENABLE_CANVAS
 	if (context)
 	{
 		SDL_GL_DeleteContext(context);
-		context = NULL;
+		context = nullptr;
 	}
 #endif
 	if (texture && surface)
 	{
 		SDL_DestroyTexture(texture);
-		texture = NULL;
+		texture = nullptr;
 		SDL_FreeSurface(surface);
-		surface = NULL;
+		surface = nullptr;
 	}
 	if (renderer)
 	{
 		SDL_DestroyRenderer(renderer);
-		renderer = NULL;
+		renderer = nullptr;
 	}
 	if (window)
 	{
 		SDL_DestroyWindow(window);
-		window = NULL;
+		window = nullptr;
 	}
 
 #ifdef _WIN32
@@ -911,18 +911,18 @@ void TVPWindowWindow::SetPaintBoxSize(tjs_int w, tjs_int h)
 		if (texture)
 		{
 			SDL_DestroyTexture(texture);
-			texture = NULL;
+			texture = nullptr;
 		}
 		texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, w, h);
 		if (texture == nullptr)
 		{
 			TVPThrowExceptionMessage(TJS_W("Cannot create texture texture: %1"), ttstr(SDL_GetError()));
 		}
-		bitmap_completion->surface = NULL;
+		bitmap_completion->surface = nullptr;
 		if (surface)
 		{
 			SDL_FreeSurface(surface);
-			surface = NULL;
+			surface = nullptr;
 		}
 		surface = SDL_CreateRGBSurface(0, w, h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0);
 		if (surface == nullptr)
@@ -970,7 +970,7 @@ void TVPWindowWindow::TranslateWindowToDrawArea(int &x, int &y)
 {
 #ifdef KRKRSDL2_ENABLE_ZOOM
 #ifdef KRKRZ_ENABLE_CANVAS
-	if (context != NULL)
+	if (context != nullptr)
 	{
 		return;
 	}
@@ -986,7 +986,7 @@ void TVPWindowWindow::TranslateDrawAreaToWindow(int &x, int &y)
 {
 #ifdef KRKRSDL2_ENABLE_ZOOM
 #ifdef KRKRZ_ENABLE_CANVAS
-	if (context != NULL)
+	if (context != nullptr)
 	{
 		return;
 	}
@@ -1345,11 +1345,11 @@ void TVPWindowWindow::SetWidth(tjs_int w)
 	if (window)
 	{
 		int h;
-		SDL_GetWindowSize(window, NULL, &h);
+		SDL_GetWindowSize(window, nullptr, &h);
 		SDL_SetWindowSize(window, w, h);
 		if (!renderer && surface)
 		{
-			bitmap_completion->surface = NULL;
+			bitmap_completion->surface = nullptr;
 			surface = SDL_GetWindowSurface(window);
 			if (surface == nullptr)
 			{
@@ -1371,11 +1371,11 @@ void TVPWindowWindow::SetHeight(tjs_int h)
 	if (window)
 	{
 		int w;
-		SDL_GetWindowSize(window, &w, NULL);
+		SDL_GetWindowSize(window, &w, nullptr);
 		SDL_SetWindowSize(window, w, h);
 		if (!renderer && surface)
 		{
-			bitmap_completion->surface = NULL;
+			bitmap_completion->surface = nullptr;
 			surface = SDL_GetWindowSurface(window);
 			if (surface == nullptr)
 			{
@@ -1399,7 +1399,7 @@ void TVPWindowWindow::SetSize(tjs_int w, tjs_int h)
 		SDL_SetWindowSize(window, w, h);
 		if (!renderer && surface)
 		{
-			bitmap_completion->surface = NULL;
+			bitmap_completion->surface = nullptr;
 			surface = SDL_GetWindowSurface(window);
 			if (surface == nullptr)
 			{
@@ -1442,7 +1442,7 @@ tjs_int TVPWindowWindow::GetWidth() const
 	if (window)
 	{
 		int w;
-		SDL_GetWindowSize(window, &w, NULL);
+		SDL_GetWindowSize(window, &w, nullptr);
 		return w;
 	}
 #endif
@@ -1464,7 +1464,7 @@ tjs_int TVPWindowWindow::GetHeight() const
 	if (window)
 	{
 		int h;
-		SDL_GetWindowSize(window, NULL, &h);
+		SDL_GetWindowSize(window, nullptr, &h);
 		return h;
 	}
 #endif
@@ -1702,7 +1702,7 @@ void TVPWindowWindow::TickBeat()
 			if (renderer)
 			{
 #if defined(KRKRSDL2_ENABLE_ZOOM) || defined(KRKRSDL2_RENDERER_FULL_UPDATES)
-				SDL_RenderFillRect(renderer, NULL);
+				SDL_RenderFillRect(renderer, nullptr);
 #else
 				SDL_Rect logical_rect;
 				SDL_RenderGetLogicalSize(renderer, &(logical_rect.w), &(logical_rect.h));
@@ -1710,7 +1710,7 @@ void TVPWindowWindow::TickBeat()
 				{
 					// Clear extra artifacts
 					SDL_RenderSetLogicalSize(renderer, 0, 0);
-					SDL_RenderFillRect(renderer, NULL);
+					SDL_RenderFillRect(renderer, nullptr);
 					SDL_RenderSetLogicalSize(renderer, logical_rect.w, logical_rect.h);
 				}
 #endif
@@ -1741,7 +1741,7 @@ void TVPWindowWindow::TickBeat()
 					srcrect.h = InnerHeight;
 					SDL_RenderCopy(renderer, texture, &srcrect, &destrect);
 #elif defined(KRKRSDL2_RENDERER_FULL_UPDATES)
-					SDL_RenderCopy(renderer, texture, NULL, NULL);
+					SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 #else
 					SDL_RenderCopy(renderer, texture, &rect, &rect);
 #endif
@@ -1752,7 +1752,7 @@ void TVPWindowWindow::TickBeat()
 				{
 					// Clear extra artifacts (for the back buffer)
 					SDL_RenderSetLogicalSize(renderer, 0, 0);
-					SDL_RenderFillRect(renderer, NULL);
+					SDL_RenderFillRect(renderer, nullptr);
 					SDL_RenderSetLogicalSize(renderer, logical_rect.w, logical_rect.h);
 				}
 				if (texture)
@@ -1780,7 +1780,7 @@ void TVPWindowWindow::TickBeat()
 }
 void TVPWindowWindow::InvalidateClose()
 {
-	TJSNativeInstance = NULL;
+	TJSNativeInstance = nullptr;
 	SetVisible(false);
 	delete this;
 }
@@ -1805,8 +1805,8 @@ void TVPWindowWindow::OnClose(CloseAction& action)
 			}
 			iTJSDispatch2 * obj = TJSNativeInstance->GetOwnerNoAddRef();
 			TJSNativeInstance->NotifyWindowClose();
-			obj->Invalidate(0, NULL, NULL, obj);
-			TJSNativeInstance = NULL;
+			obj->Invalidate(0, nullptr, nullptr, obj);
+			TJSNativeInstance = nullptr;
 			SetVisible(false);
 		}
 	}
@@ -1911,7 +1911,7 @@ void TVPWindowWindow::OnCloseQueryCalled(bool b)
 				if (TJSNativeInstance->IsMainWindow()) {
 					// this is the main window
 					iTJSDispatch2 * obj = TJSNativeInstance->GetOwnerNoAddRef();
-					obj->Invalidate(0, NULL, NULL, obj);
+					obj->Invalidate(0, nullptr, nullptr, obj);
 				}
 			} else {
 				delete this;
@@ -2014,12 +2014,12 @@ static void TVPDoReductionNumerAndDenom(tjs_int &n, tjs_int &d)
 void TVPWindowWindow::UpdateActualZoom(void)
 {
 #ifdef KRKRSDL2_ENABLE_ZOOM
-	if (renderer == NULL)
+	if (renderer == nullptr)
 	{
 		return;
 	}
 #ifdef KRKRZ_ENABLE_CANVAS
-	if (context != NULL)
+	if (context != nullptr)
 	{
 		return;
 	}
@@ -2294,7 +2294,7 @@ HWND TVPWindowWindow::GetHandle() const
 	{
 		return syswminfo.info.win.window;
 	}
-	return NULL;
+	return nullptr;
 }
 #endif
 
@@ -2403,7 +2403,7 @@ void TVPWindowWindow::window_receive_event(SDL_Event event)
 							ime_composition_selection = event.edit.length;
 							break;
 					}
-					size_t buffer_len = TVPUtf8ToWideCharString((const char*)(ime_composition), NULL);
+					size_t buffer_len = TVPUtf8ToWideCharString((const char*)(ime_composition), nullptr);
 					if (buffer_len == (size_t)-1)
 					{
 						return;
@@ -2791,7 +2791,7 @@ void sdl_process_events()
 static void sdl_windows_message_hook(void *userdata, void *hWnd, unsigned int message, Uint64 wParam, Sint64 lParam)
 {
 	TVPWindowWindow *win = reinterpret_cast<TVPWindowWindow*>(::GetWindowLongPtr((HWND)hWnd, GWLP_USERDATA));
-	if (win != NULL)
+	if (win != nullptr)
 	{
 		tTVPWindowMessage Message;
 		Message.LParam = lParam;
@@ -2852,7 +2852,7 @@ static bool process_events()
 				{
 					delete TVPSystemControl;
 				}
-				TVPSystemControl = NULL;
+				TVPSystemControl = nullptr;
 #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 				emscripten_cancel_main_loop();
 #else
@@ -2897,7 +2897,7 @@ extern "C" int main(int argc, char **argv)
 #if !defined(__EMSCRIPTEN__) && !defined(__vita__) && !defined(__SWITCH__)
 			if (!i)
 			{
-				narg = realpath(argv[i], NULL);
+				narg = realpath(argv[i], nullptr);
 			}
 			else
 #endif
@@ -2952,10 +2952,10 @@ extern "C" int main(int argc, char **argv)
 		TVPLoadMessage();
 
 #ifdef _WIN32
-		SDL_SetWindowsMessageHook(sdl_windows_message_hook, NULL);
+		SDL_SetWindowsMessageHook(sdl_windows_message_hook, nullptr);
 #endif
 #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
-		SDL_AddEventWatch(sdl_event_watch, NULL);
+		SDL_AddEventWatch(sdl_event_watch, nullptr);
 #endif
 		
 		::Application = new tTVPApplication();
@@ -2991,7 +2991,7 @@ bool TVPGetKeyMouseAsyncState(tjs_uint keycode, bool getcurrent)
 {
 	if(keycode >= VK_LBUTTON && keycode <= VK_XBUTTON2 && keycode != VK_CANCEL)
 	{
-		Uint32 state = SDL_GetMouseState(NULL, NULL);
+		Uint32 state = SDL_GetMouseState(nullptr, nullptr);
 		switch (keycode) {
 			case VK_LBUTTON:
 				return !!(state & SDL_BUTTON(SDL_BUTTON_LEFT));
@@ -3021,18 +3021,18 @@ bool TVPGetKeyMouseAsyncState(tjs_uint keycode, bool getcurrent)
 				return false;
 		}
 	}
-	const Uint8 *state = SDL_GetKeyboardState(NULL);
+	const Uint8 *state = SDL_GetKeyboardState(nullptr);
 	return !!(state[SDL_GetScancodeFromKey(vk_key_to_sdl_key(keycode))]);
 }
 
 bool TVPGetJoyPadAsyncState(tjs_uint keycode, bool getcurrent)
 {
 	bool is_pressed = false;
-	if (sdl_controllers != NULL)
+	if (sdl_controllers != nullptr)
 	{
 		for (int i = 0; i < sdl_controller_num; i += 1)
 		{
-			if (sdl_controllers[i] && sdl_controllers[i] != NULL)
+			if (sdl_controllers[i] && sdl_controllers[i] != nullptr)
 			{
 				is_pressed |= !!SDL_GameControllerGetButton(sdl_controllers[i], (SDL_GameControllerButton)vk_key_to_sdl_gamecontrollerbutton(keycode));
 			}
@@ -3103,7 +3103,7 @@ void TVPGetAllFontList(std::vector<tjs_string>& list) {}
 
 const tjs_char *TVPGetDefaultFontName()
 {
-	if (!TVPGetCommandLine(TJS_W("-deffont"), NULL))
+	if (!TVPGetCommandLine(TJS_W("-deffont"), nullptr))
 	{
 		TVPSetCommandLine(TJS_W("-deffont"), TJS_W("Noto Sans CJK JP"));
 	}
