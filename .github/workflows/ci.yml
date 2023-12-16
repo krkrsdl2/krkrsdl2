@@ -382,12 +382,12 @@
             {
               "enabled" : "false",
               "cmakeflags" : "-DOPTION_BUILD_MACOS_BUNDLE=OFF",
-              "artifactname" : ""
+              "artifactnameappendix" : ""
             },
             {
               "enabled" : "true",
               "cmakeflags" : "-DOPTION_BUILD_MACOS_BUNDLE=ON -DEMBED_DATA_PATH=data.xp3",
-              "artifactname" : "-appbundle"
+              "artifactnameappendix" : "-appbundle"
             }
           ]
         }
