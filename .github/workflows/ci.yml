@@ -98,7 +98,7 @@
         },
         {
           "name" : "Upload artifact",
-          "uses" : "actions/upload-artifact@master",
+          "uses" : "actions/upload-artifact@v4",
           "with" : {
             "name" : "${{ github.event.repository.name }}-web",
             "path" : "build/*.zip"
@@ -143,7 +143,7 @@
         },
         {
           "name" : "Upload artifact",
-          "uses" : "actions/upload-artifact@master",
+          "uses" : "actions/upload-artifact@v4",
           "with" : {
             "name" : "${{ github.event.repository.name }}-ubuntu",
             "path" : "build/*.zip"
@@ -227,7 +227,7 @@
         },
         {
           "name" : "Upload artifact",
-          "uses" : "actions/upload-artifact@master",
+          "uses" : "actions/upload-artifact@v4",
           "with" : {
             "name" : "${{ github.event.repository.name }}-win32-${{ matrix.platform.cmake-system-compiler }}-${{ matrix.platform.compiler }}",
             "path" : "build/*.zip"
@@ -284,7 +284,7 @@
         },
         {
           "name" : "Upload artifact",
-          "uses" : "actions/upload-artifact@master",
+          "uses" : "actions/upload-artifact@v4",
           "with" : {
             "name" : "${{ github.event.repository.name }}-android",
             "path" : "./krkrsdl2.apk"
@@ -324,7 +324,7 @@
         },
         {
           "name" : "Upload artifact",
-          "uses" : "actions/upload-artifact@master",
+          "uses" : "actions/upload-artifact@v4",
           "with" : {
             "name" : "${{ github.event.repository.name }}-vita",
             "path" : "build/*.vpk"
@@ -364,7 +364,7 @@
         },
         {
           "name" : "Upload artifact",
-          "uses" : "actions/upload-artifact@master",
+          "uses" : "actions/upload-artifact@v4",
           "with" : {
             "name" : "${{ github.event.repository.name }}-switch",
             "path" : "build/*.nro"
@@ -429,7 +429,7 @@
         },
         {
           "name" : "Upload artifact",
-          "uses" : "actions/upload-artifact@master",
+          "uses" : "actions/upload-artifact@v4",
           "with" : {
             "name" : "${{ github.event.repository.name }}-macos${{ matrix.appbundle.artifactnameappendix }}",
             "path" : "build/*.zip"
@@ -470,7 +470,7 @@
         },
         {
           "name" : "Upload artifact",
-          "uses" : "actions/upload-artifact@master",
+          "uses" : "actions/upload-artifact@v4",
           "with" : {
             "name" : "${{ github.event.repository.name }}-ios-appbundle",
             "path" : "build/*.zip"
@@ -515,7 +515,7 @@
         },
         {
           "name" : "Upload artifact",
-          "uses" : "actions/upload-artifact@master",
+          "uses" : "actions/upload-artifact@v4",
           "with" : {
             "name" : "${{ github.event.repository.name }}-tp_stub",
             "path" : "build/*.tar.gz"
@@ -541,7 +541,7 @@
       "steps" : [
         {
           "name" : "Download all artifacts",
-          "uses" : "actions/download-artifact@v3"
+          "uses" : "actions/download-artifact@v4"
         },
         {
           "name" : "Prepare artifacts for release",
