@@ -2474,7 +2474,7 @@ void TVPWindowWindow::window_receive_event(SDL_Event event)
 				}
 				case SDL_DROPFILE:
 				case SDL_DROPTEXT: {
-					if (file_drop_array && event.drop.file)
+					if (event.drop.file)
 					{
 						std::string f_utf8 = event.drop.file;
 						tjs_string f_utf16;
@@ -2483,8 +2483,21 @@ void TVPWindowWindow::window_receive_event(SDL_Event event)
 						if (TVPIsExistentStorageNoSearch(f_utf16))
 						{
 							tTJSVariant val = TVPNormalizeStorageName(ttstr(f_utf16));
-							file_drop_array->PropSetByNum(TJS_MEMBERENSURE|TJS_IGNOREPROP, file_drop_array_count, &val, file_drop_array);
-							file_drop_array_count += 1;
+							if (file_drop_array)
+							{
+								file_drop_array->PropSetByNum(TJS_MEMBERENSURE|TJS_IGNOREPROP, file_drop_array_count, &val, file_drop_array);
+								file_drop_array_count += 1;
+							}
+							else
+							{
+								iTJSDispatch2 *file_drop_array_single = TJSCreateArrayObject();
+								file_drop_array_single->PropSetByNum(TJS_MEMBERENSURE|TJS_IGNOREPROP, 0, &val, file_drop_array_single);
+								{
+									tTJSVariant arg(file_drop_array_single, file_drop_array_single);
+									TVPPostInputEvent(new tTVPOnFileDropInputEvent(TJSNativeInstance, arg));
+								}
+								file_drop_array_single->Release();
+							}
 						}
 					}
 					return;
