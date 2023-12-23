@@ -44,9 +44,8 @@
     "build-web" : {
       "runs-on" : "ubuntu-20.04",
       "timeout-minutes" : 20,
-      "env" : {
-        "EM_VERSION" : "3.1.24",
-        "EM_CACHE_FOLDER" : "emsdk-cache"
+      "container" : {
+        "image" : "emscripten/emsdk:3.1.24"
       },
       "steps" : [
         {
@@ -57,32 +56,8 @@
           }
         },
         {
-          "name" : "Install dependencies",
-          "run" : "sudo apt-get update && sudo apt-get install build-essential libsdl2-dev git"
-        },
-        {
-          "name" : "Setup cache",
-          "id" : "cache-system-libraries",
-          "uses" : "actions/cache@v2",
-          "with" : {
-            "path" : "${{env.EM_CACHE_FOLDER}}",
-            "key" : "${{env.EM_VERSION}}-${{ runner.os }}"
-          }
-        },
-        {
-          "uses" : "mymindstorm/setup-emsdk@v11",
-          "with" : {
-            "version" : "${{env.EM_VERSION}}",
-            "actions-cache-folder" : "${{env.EM_CACHE_FOLDER}}"
-          }
-        },
-        {
-          "name" : "Set up Homebrew environment for Github Actions",
-          "run" : "echo \"/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin\" >> $GITHUB_PATH"
-        },
-        {
-          "name" : "Set up default build tools",
-          "run" : "brew install make nasm ninja cmake"
+          "name" : "Install additional dependencies",
+          "run" : "apt-get -y update && apt-get -y install p7zip cmake make ninja-build git curl"
         },
         {
           "name" : "Configure project",
