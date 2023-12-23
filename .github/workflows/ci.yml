@@ -57,7 +57,7 @@
         },
         {
           "name" : "Install additional dependencies",
-          "run" : "apt-get -y update && apt-get -y install p7zip cmake make ninja-build git curl"
+          "run" : "apt-get -y update && apt-get -y install p7zip-full cmake make ninja-build git curl"
         },
         {
           "name" : "Configure project",
