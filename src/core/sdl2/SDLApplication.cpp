@@ -108,7 +108,7 @@ static void refresh_controllers()
 		if (!sdl_controllers)
 		{
 			sdl_controller_num = 0;
-			TVPAddLog(ttstr("Could not allocate SDL controller memory"));
+			TVPAddLog(ttstr("Could not allocate memory to store SDL controller information"));
 			return;
 		}
 		for (int i = 0; i < sdl_controller_num; i += 1)
