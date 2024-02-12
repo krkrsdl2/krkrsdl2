@@ -2833,7 +2833,7 @@ static int sdl_event_watch(void *userdata, SDL_Event *in_event)
 				if (TVPSystemControl)
 				{
 					// process events now
-					// Some JS functions will only work in e.g. mouse down callback due to browser restruction
+					// Some JS functions will only work in e.g. mouse down callback due to browser restrictions
 					TVPSystemControl->ApplicationIdle();
 				}
 			}
