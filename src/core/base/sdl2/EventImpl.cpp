@@ -250,6 +250,7 @@ static tjs_int TVPContinousHandlerLimitFrequency = 0;
 //---------------------------------------------------------------------------
 void TVPBeginContinuousEvent()
 {
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
 	// read commandline options
 	static tjs_int ArgumentGeneration = 0;
 	if(ArgumentGeneration != TVPGetCommandLineArgumentGeneration())
@@ -262,6 +263,7 @@ void TVPBeginContinuousEvent()
 			TVPContinousHandlerLimitFrequency = (tjs_int)val;
 		}
 	}
+#endif
 
 #if 0
 	if(!TVPIsWaitVSync())
