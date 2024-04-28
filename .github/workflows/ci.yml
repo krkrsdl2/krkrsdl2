@@ -315,6 +315,10 @@
       },
       "steps" : [
         {
+          "name" : "Apply apt repository archive",
+          "run" : "sed -i -e 's,# deb http://snapshot,deb http://snapshot,g;s,deb http://deb,# deb http://deb,g;s,deb http://security,# deb http://security,g' /etc/apt/sources.list && mv /etc/apt/sources.list.d/buster-backports.list /etc/apt/sources.list.d/buster-backports.list.disabled && printf '%s\\n' 'Acquire::Check-Valid-Until "0";' | tee -a /etc/apt/apt.conf.d/10no--check-valid-until"
+        },
+        {
           "name" : "Install dependencies",
           "run" : "apt-get -y update\napt-get -y install cmake make ninja-build git curl\n"
         },
