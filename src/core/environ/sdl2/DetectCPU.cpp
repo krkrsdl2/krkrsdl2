@@ -61,24 +61,6 @@ static bool __os_has_avx_support() {
 	unsigned long long xcrFeatureMask = __xgetbv(_XCR_XFEATURE_ENABLED_MASK);
 	return (xcrFeatureMask & 6) == 6;
 }
-#else
-// VC 以外は動作未確認
-static inline int __cpuid(int CPUInfo[4],int InfoType) {
-  int highest;
-  asm volatile("cpuid":"=a"(*CPUInfo),"=b"(*(CPUInfo+1)),
-               "=c"(*(CPUInfo+2)),"=d"(*(CPUInfo+3)):"0"(InfoType));
-  return highest;
-}
-static inline int __cpuidex(int CPUInfo[4],int InfoType,int ECXValue) {
-  int highest;
-	asm volatile("xchg{l}\t{%%}ebx, %1\n\t"
-		"cpuid\n\t"
-		"xchg{l}\t{%%}ebx, %1\n\t"
-		: "=a" (CPUInfo[0]), "=r" (CPUInfo[1]), "=c" (CPUInfo[2]), "=d" (CPUInfo[3])
-		: "0" (InfoType), "2" (ECXValue));
-  return highest;
-}
-#include <x86intrin.h>
 #endif
 #endif
 
