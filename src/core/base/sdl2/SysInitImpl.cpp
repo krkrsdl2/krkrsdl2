@@ -56,6 +56,8 @@
 #ifdef __APPLE__
 #include <sys/types.h>
 #include <sys/sysctl.h>
+#elif defined(_WIN32)
+#include <time.h>
 #endif
 
 //---------------------------------------------------------------------------
@@ -926,7 +928,7 @@ void TVPInitializeBaseSystems()
 
 	// set default current directory
 	{
-		TVPSetCurrentDirectory( IncludeTrailingForwardslash(ExtractFileDir(ExePath())) );
+		TVPSetCurrentDirectory(IncludeTrailingSlash(ExtractFileDir(ExePath())));
 	}
 
 	// load message map file

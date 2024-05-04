@@ -18,6 +18,15 @@ static tTVPAudioRenderer *TVPAudioRenderer;
 #else
 #include <AL/al.h>
 #include <AL/alc.h>
+
+#ifndef AL_FORMAT_MONO_FLOAT32
+#define AL_FORMAT_MONO_FLOAT32   0x10010
+#endif
+
+#ifndef AL_FORMAT_STEREO_FLOAT32
+#define AL_FORMAT_STEREO_FLOAT32 0x10011
+#endif
+
 #endif
 #ifdef __EMSCRIPTEN__
 #define AL_FORMAT_MONO_FLOAT32   0x10010

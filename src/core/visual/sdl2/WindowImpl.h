@@ -31,8 +31,7 @@ struct tTVPWindowMessage
 	LRESULT Result;  // result
 };
 #pragma pack(pop)
-typedef bool (STDCALL * tTVPWindowMessageReceiver)
-	(void *userdata, tTVPWindowMessage *Message);
+typedef bool (__stdcall * tTVPWindowMessageReceiver) (void *userdata, tTVPWindowMessage *Message);
 
 #define TVP_WM_DETACH (WM_USER+106)  // before re-generating the window
 #define TVP_WM_ATTACH (WM_USER+107)  // after re-generating the window
