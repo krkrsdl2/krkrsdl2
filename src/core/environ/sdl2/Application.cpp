@@ -55,7 +55,9 @@
 #include "VirtualKey.h"
 #endif
 #include "TVPWindow.h"
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -113,7 +115,9 @@ static MemoryLeaksDebugBreakPoint gMemoryLeaksDebugBreakPoint;
 #endif
 #endif
 
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
 #if TARGET_OS_MAC && !TARGET_OS_IPHONE

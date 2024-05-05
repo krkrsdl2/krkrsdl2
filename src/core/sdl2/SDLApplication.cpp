@@ -35,7 +35,9 @@
 #include <stdlib.h>
 #endif
 
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
