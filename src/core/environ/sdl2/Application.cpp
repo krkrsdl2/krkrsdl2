@@ -125,12 +125,15 @@ static MemoryLeaksDebugBreakPoint gMemoryLeaksDebugBreakPoint;
 #endif
 #endif
 tjs_string ExePath() {
-#if 0
-	tjs_char szFull[_MAX_PATH];
-	::GetModuleFileName(NULL, szFull, sizeof(szFull) / sizeof(tjs_char));
-	return tjs_string(szFull);
-#endif
 	static tjs_string exepath(TJS_W(""));
+#if defined(_WIN32)
+	if (exepath.empty())
+	{
+		tjs_char szFull[_MAX_PATH];
+		::GetModuleFileName(NULL, szFull, sizeof(szFull) / sizeof(tjs_char));
+		exepath = tjs_string(szFull);
+	}
+#endif
 #if defined(__vita__)
 	if (exepath.empty())
 	{
