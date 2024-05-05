@@ -289,7 +289,8 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 			newname = TJS_W("");
 		} else {
 			tjs_char dch = *ptr;
-			if(*ptr < TJS_W('a') || *ptr > TJS_W('z')) {
+			// dch not in 'a'-'z', 'A'-'Z'
+			if (!(dch >= TJS_W('a') && dch <= TJS_W('z')) && !(dch >= TJS_W('A') && dch <= TJS_W('Z'))) {
 				newname = TJS_W("");
 			} else {
 				ptr++;
