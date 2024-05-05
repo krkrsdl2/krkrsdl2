@@ -56,6 +56,8 @@
 #ifdef __APPLE__
 #include <sys/types.h>
 #include <sys/sysctl.h>
+#elif defined(_WIN32) && defined(_MSC_VER)
+#include <time.h>
 #endif
 
 //---------------------------------------------------------------------------
