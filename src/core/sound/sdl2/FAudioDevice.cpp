@@ -418,12 +418,13 @@ public:
 		}
 		else
 		{
-			float channels[count];
+			std::vector<float> channels;
+			channels.resize(count);
 			for (uint32_t i = 0; i < count; i += 1)
 			{
 				channels[i] = CalcVolume();
 			}
-			FAudioVoice_SetChannelVolumes(SourceVoiceObj, count, &channels[0], FAUDIO_COMMIT_NOW);
+			FAudioVoice_SetChannelVolumes(SourceVoiceObj, count, channels.data(), FAUDIO_COMMIT_NOW);
 		}
 	}
 
