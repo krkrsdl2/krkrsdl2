@@ -181,9 +181,7 @@ tjs_string ExePath() {
 	return exepath;
 }
 
-#if 0
 bool TVPCheckAbout();
-#endif
 bool TVPCheckPrintDataPath();
 void TVPOnError();
 void TVPLockSoundMixer();
@@ -466,9 +464,7 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 #endif
 
 		if(TVPCheckPrintDataPath()) return true;
-#if 0
 		if(TVPExecuteUserConfig()) return true;
-#endif
 
 #ifdef KRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD
 		image_load_thread_ = new tTVPAsyncImageLoader();
@@ -476,9 +472,7 @@ bool tTVPApplication::StartApplication( int argc, tjs_char* argv[] ) {
 
 		TVPSystemInit();
 
-#if 0
 		if(TVPCheckAbout()) return true; // version information dialog box;
-#endif
 
 		SetTitle( tjs_string(TVPKirikiri) );
 		TVPSystemControl = new tTVPSystemControl();

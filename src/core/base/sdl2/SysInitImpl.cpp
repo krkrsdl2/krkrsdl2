@@ -2066,7 +2066,6 @@ bool TVPCheckPrintDataPath()
 
 
 
-#if 0
 //---------------------------------------------------------------------------
 // TVPCheckAbout
 //---------------------------------------------------------------------------
@@ -2074,19 +2073,24 @@ bool TVPCheckAbout(void)
 {
 	if(TVPGetCommandLine(TJS_W("-about")))
 	{
-		Sleep(600);
+#if 0
+		SDL_Delay(600);
 		tjs_char msg[80];
 		TJS_snprintf(msg, sizeof(msg)/sizeof(tjs_char), TVPInfoCpuClockRoughly, (int)TVPCPUClock);
 		TVPAddImportantLog(msg);
+#endif
 
+#if 0
 		TVPShowVersionForm();
+#else
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Kirikiri SDL2", "The -about argument is partially implemented.\nSee: https://krkrsdl2.github.io/krkrsdl2/", NULL);
+#endif
 		return true;
 	}
 
 	return false;
 }
 //---------------------------------------------------------------------------
-#endif
 
 
 
@@ -2177,7 +2181,6 @@ static void TVPShowUserConfig(std::string orgexe)
 //---------------------------------------------------------------------------
 #endif
 
-#if 0
 //---------------------------------------------------------------------------
 // TVPExecuteUserConfig
 //---------------------------------------------------------------------------
@@ -2195,15 +2198,18 @@ bool TVPExecuteUserConfig()
 
 	if(!process) return false;
 
+#if 0
 	// execute user config mode
 	//TVPShowUserConfig(ExePath());
 	TVPShowUserConfig();
+#else
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Kirikiri SDL2", "The -userconf argument for showing the config window is not yet implemented.", NULL);
+#endif
 
 	// exit
 	return true;
 }
 //---------------------------------------------------------------------------
-#endif
 
 
 
