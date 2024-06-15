@@ -285,8 +285,10 @@ list(APPEND KRKRSDL2_LDFLAGS
 	-municode
 	-Wl,--subsystem,windows
 )
+if((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "amd64"))
 set_source_files_properties(${KIRIKIRISDL2_SSE2_SRC} PROPERTIES COMPILE_FLAGS -msse2)
 set_source_files_properties(${KIRIKIRISDL2_AVX2_SRC} PROPERTIES COMPILE_FLAGS -mavx2)
+endif()
 list(APPEND KRKRSDL2_SRC
 	src/core/sound/sdl2/tvpsnd.c
 )
