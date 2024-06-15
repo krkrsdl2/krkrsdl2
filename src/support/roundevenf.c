@@ -3,6 +3,9 @@
 
 #include <math.h>
 #include <stdint.h>
+#if defined(__clang__) && defined(__arm__)
+#define roundevenf roundevenf_workaround
+#endif
 float roundevenf(float v)
 {
 	float rounded = roundf(v);

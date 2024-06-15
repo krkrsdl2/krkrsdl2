@@ -9,6 +9,13 @@
 #endif
 #include <math.h>
 
+#if defined(__clang__) && defined(__arm__)
+// BUG workaround in clang version 18.1.6:
+// LLVM ERROR: Cannot select: 0x55772a4dce70: v4f32 = froundeven 0x55772bb0a9f0, external/simde/simde/x86/sse.h:638:23 @[ external/simde/simde/x86/sse2.h:2796:35 @[ ResampleImageSSE2.cpp:126:23 @[ ResampleImageSSE2.cpp:147:3 @[ ResampleImageSSE2.cpp:236:5 ] ] ] ]
+#define roundevenf roundevenf_workaround
+extern "C" float roundevenf(float v);
+#define simde_math_roundevenf(...) roundevenf(__VA_ARGS__)
+#endif
 #if defined(__vita__) || defined(__SWITCH__)
 #include <simde/simde/simde-common.h>
 #undef SIMDE_HAVE_FENV_H
