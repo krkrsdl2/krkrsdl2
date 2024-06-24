@@ -390,7 +390,10 @@
         },
         {
           "name" : "Configure project",
-          "run" : "cmake -S . -B build ${{ matrix.appbundle.cmakeflags }}"
+          "run" : "cmake -S . -B build ${{ matrix.appbundle.cmakeflags }}",
+          "env" : {
+             "CMAKE_OSX_ARCHITECTURES":"x86_64;arm64"
+          }
         },
         {
           "name" : "Build project",
