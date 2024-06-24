@@ -112,6 +112,7 @@ endif()
 
 if(APPLE AND NOT IOS)
 set(MACOS_RESOURCES_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/resources/macos CACHE FILEPATH "The path to the resources for macOS.")
+add_compile_options(-Wno-declaration-after-statement)
 endif()
 
 if(VITA)
