@@ -352,7 +352,7 @@
       ]
     },
     "build-macos-cmake" : {
-      "runs-on" : "macos-11",
+      "runs-on" : "macos-14",
       "timeout-minutes" : 20,
       "strategy" : {
         "fail-fast" : false,
