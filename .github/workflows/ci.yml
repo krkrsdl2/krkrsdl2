@@ -81,6 +81,46 @@
         }
       ]
     },
+    "build-web-multi-thread" : {
+      "runs-on" : "ubuntu-20.04",
+      "timeout-minutes" : 20,
+      "container" : {
+        "image" : "emscripten/emsdk:3.1.24"
+      },
+      "steps" : [
+        {
+          "name" : "Checkout repository",
+          "uses" : "actions/checkout@v4",
+          "with" : {
+            "submodules" : "recursive"
+          }
+        },
+        {
+          "name" : "Install additional dependencies",
+          "run" : "apt-get -y update && apt-get -y install p7zip-full cmake make ninja-build git curl"
+        },
+        {
+          "name" : "Configure project",
+          "run" : "emcmake cmake -DKRKRSDL2_EMSCRIPTEN_ENABLE_THREADS=ON -S . -B build"
+        },
+        {
+          "name" : "Build project",
+          "run" : "cmake --build build"
+        },
+        {
+          "name" : "Archive artifact",
+          "run" : "cd build && 7z a -tzip ${{ github.event.repository.name }}-web.zip krkrsdl2.wasm krkrsdl2.js index.html"
+        },
+        {
+          "name" : "Upload artifact",
+          "uses" : "actions/upload-artifact@v4",
+          "with" : {
+            "name" : "${{ github.event.repository.name }}-web",
+            "path" : "build/*.zip"
+          }
+        }
+      ]
+    },
     "build-ubuntu" : {
       "runs-on" : "ubuntu-20.04",
       "timeout-minutes" : 20,
