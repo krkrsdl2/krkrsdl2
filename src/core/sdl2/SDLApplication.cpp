@@ -57,6 +57,9 @@ EM_JS_DEPS(main, "$FS,$IDBFS");
 #endif
 
 #if defined(__linux__)
+// By specification of SDL_RenderPresent, the backbuffer should be
+// considered invalidated after each call. This is required for
+// some renderers to be enabled.
 #define KRKRSDL2_RENDERER_FULL_UPDATES
 #endif
 
