@@ -92,11 +92,11 @@ static void refresh_controllers()
 	{
 		SDL_Init(SDL_INIT_GAMECONTROLLER);
 	}
-	if (sdl_controller_num != 0 && sdl_controllers != nullptr)
+	if (sdl_controller_num != 0 && sdl_controllers)
 	{
 		for (int i = 0; i < sdl_controller_num; i += 1)
 		{
-			if (sdl_controllers[i] != nullptr)
+			if (sdl_controllers[i])
 			{
 				SDL_GameControllerClose(sdl_controllers[i]);
 				sdl_controllers[i] = nullptr;
@@ -785,7 +785,7 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 #endif
 
 	window = SDL_CreateWindow("krkrsdl2", new_window_x, new_window_y, new_window_w, new_window_h, window_flags);
-	if (window == nullptr)
+	if (!window)
 	{
 		TVPThrowExceptionMessage(TJS_W("Cannot create SDL window: %1"), ttstr(SDL_GetError()));
 	}
@@ -801,7 +801,7 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 	if (TVPIsEnableDrawDevice() == false)
 	{
 		context = SDL_GL_CreateContext(window);
-		if (context == nullptr)
+		if (!context)
 		{
 			TVPThrowExceptionMessage(TJS_W("Cannot create SDL context: %1"), ttstr(SDL_GetError()));
 		}
@@ -820,7 +820,7 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 	{
 #if !defined(__EMSCRIPTEN__) || (defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__))
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-		if (renderer == nullptr)
+		if (!renderer)
 		{
 			TVPAddLog(ttstr("Cannot create SDL renderer: ") + ttstr(SDL_GetError()));
 		}
@@ -833,16 +833,16 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 #endif
 
 		bitmap_completion = new TVPSDLBitmapCompletion();
-		if (renderer == nullptr)
+		if (!renderer)
 		{
 			surface = SDL_GetWindowSurface(window);
-			if (surface == nullptr)
+			if (!surface)
 			{
 				TVPAddLog(ttstr("Cannot get surface from SDL window: ") + ttstr(SDL_GetError()));
 			}
 			bitmap_completion->surface = surface;
 		}
-		if (renderer == nullptr && surface == nullptr)
+		if (!renderer && !surface)
 		{
 			TVPThrowExceptionMessage(TJS_W("Cannot get surface or renderer from SDL window"));
 		}
@@ -924,7 +924,7 @@ void TVPWindowWindow::SetPaintBoxSize(tjs_int w, tjs_int h)
 			texture = nullptr;
 		}
 		texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, w, h);
-		if (texture == nullptr)
+		if (!texture)
 		{
 			TVPThrowExceptionMessage(TJS_W("Cannot create texture texture: %1"), ttstr(SDL_GetError()));
 		}
@@ -935,7 +935,7 @@ void TVPWindowWindow::SetPaintBoxSize(tjs_int w, tjs_int h)
 			surface = nullptr;
 		}
 		surface = SDL_CreateRGBSurface(0, w, h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0);
-		if (surface == nullptr)
+		if (!surface)
 		{
 			TVPThrowExceptionMessage(TJS_W("Cannot create surface: %1"), ttstr(SDL_GetError()));
 		}
@@ -980,7 +980,7 @@ void TVPWindowWindow::TranslateWindowToDrawArea(int &x, int &y)
 {
 #ifdef KRKRSDL2_ENABLE_ZOOM
 #ifdef KRKRZ_ENABLE_CANVAS
-	if (context != nullptr)
+	if (context)
 	{
 		return;
 	}
@@ -996,7 +996,7 @@ void TVPWindowWindow::TranslateDrawAreaToWindow(int &x, int &y)
 {
 #ifdef KRKRSDL2_ENABLE_ZOOM
 #ifdef KRKRZ_ENABLE_CANVAS
-	if (context != nullptr)
+	if (context)
 	{
 		return;
 	}
@@ -1178,7 +1178,7 @@ void TVPWindowWindow::SetCursorPos(tjs_int x, tjs_int y)
 }
 void TVPWindowWindow::SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont * font)
 {
-	if (font == nullptr)
+	if (!font)
 	{
 		return;
 	}
@@ -1361,7 +1361,7 @@ void TVPWindowWindow::SetWidth(tjs_int w)
 		{
 			bitmap_completion->surface = nullptr;
 			surface = SDL_GetWindowSurface(window);
-			if (surface == nullptr)
+			if (!surface)
 			{
 				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
 			}
@@ -1387,7 +1387,7 @@ void TVPWindowWindow::SetHeight(tjs_int h)
 		{
 			bitmap_completion->surface = nullptr;
 			surface = SDL_GetWindowSurface(window);
-			if (surface == nullptr)
+			if (!surface)
 			{
 				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
 			}
@@ -1411,7 +1411,7 @@ void TVPWindowWindow::SetSize(tjs_int w, tjs_int h)
 		{
 			bitmap_completion->surface = nullptr;
 			surface = SDL_GetWindowSurface(window);
-			if (surface == nullptr)
+			if (!surface)
 			{
 				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
 			}
@@ -2024,12 +2024,12 @@ static void TVPDoReductionNumerAndDenom(tjs_int &n, tjs_int &d)
 void TVPWindowWindow::UpdateActualZoom(void)
 {
 #ifdef KRKRSDL2_ENABLE_ZOOM
-	if (renderer == nullptr)
+	if (!renderer)
 	{
 		return;
 	}
 #ifdef KRKRZ_ENABLE_CANVAS
-	if (context != nullptr)
+	if (context)
 	{
 		return;
 	}
@@ -2606,7 +2606,7 @@ bool TVPWindowWindow::window_receive_event_input(SDL_Event event)
 				}
 				case SDL_MOUSEBUTTONDOWN:
 				case SDL_MOUSEBUTTONUP: {
-					if (SDL_IsTextInputActive() && ime_composition != nullptr)
+					if (SDL_IsTextInputActive() && ime_composition)
 					{
 						return false;
 					}
@@ -2702,7 +2702,7 @@ bool TVPWindowWindow::window_receive_event_input(SDL_Event event)
 				case SDL_KEYDOWN: {
 					if (SDL_IsTextInputActive())
 					{
-						if (ime_composition != nullptr)
+						if (ime_composition)
 						{
 							return false;
 						}
@@ -2735,7 +2735,7 @@ bool TVPWindowWindow::window_receive_event_input(SDL_Event event)
 				case SDL_KEYUP: {
 					if (SDL_IsTextInputActive())
 					{
-						if (ime_composition != nullptr)
+						if (ime_composition)
 						{
 							return false;
 						}
@@ -2814,7 +2814,7 @@ void sdl_process_events()
 static void sdl_windows_message_hook(void *userdata, void *hWnd, unsigned int message, Uint64 wParam, Sint64 lParam)
 {
 	TVPWindowWindow *win = reinterpret_cast<TVPWindowWindow*>(::GetWindowLongPtr((HWND)hWnd, GWLP_USERDATA));
-	if (win != nullptr)
+	if (win)
 	{
 		tTVPWindowMessage Message;
 		Message.LParam = lParam;
@@ -3051,11 +3051,11 @@ bool TVPGetKeyMouseAsyncState(tjs_uint keycode, bool getcurrent)
 bool TVPGetJoyPadAsyncState(tjs_uint keycode, bool getcurrent)
 {
 	bool is_pressed = false;
-	if (sdl_controllers != nullptr)
+	if (sdl_controllers)
 	{
 		for (int i = 0; i < sdl_controller_num; i += 1)
 		{
-			if (sdl_controllers[i] && sdl_controllers[i] != nullptr)
+			if (sdl_controllers[i])
 			{
 				is_pressed |= !!SDL_GameControllerGetButton(sdl_controllers[i], (SDL_GameControllerButton)vk_key_to_sdl_gamecontrollerbutton(keycode));
 			}
