@@ -67,7 +67,7 @@ extern void TVPLoadMessage();
 
 class TVPWindowWindow;
 static TVPWindowWindow *_lastWindowWindow, *_currentWindowWindow;
-static SDL_GameController** sdl_controllers = nullptr;
+static SDL_GameController **sdl_controllers = nullptr;
 static int sdl_controller_num = 0;
 
 #if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
@@ -187,7 +187,7 @@ static tjs_uint sdl_gamecontrollerbutton_to_vk_key(Uint8 key)
 #define MK_CONTROL 8
 #define MK_ALT (0x20)
 
-static SDL_Cursor* sdl_system_cursors[SDL_NUM_SYSTEM_CURSORS] = {0};
+static SDL_Cursor *sdl_system_cursors[SDL_NUM_SYSTEM_CURSORS] = {0};
 
 static SDL_Keycode vk_key_to_sdl_key(tjs_uint key)
 {
@@ -500,9 +500,9 @@ protected:
 
 	TVPWindowWindow *_prevWindow;
 	TVPWindowWindow *_nextWindow;
-	SDL_Texture* texture;
-	SDL_Renderer* renderer;
-	SDL_Surface* surface;
+	SDL_Texture *texture;
+	SDL_Renderer *renderer;
+	SDL_Surface *surface;
 #ifdef KRKRZ_ENABLE_CANVAS
 	SDL_GLContext context;
 #endif
@@ -513,16 +513,16 @@ protected:
 	bool needs_graphic_update = false;
 	bool isBeingDeleted = false;
 	bool cursor_temporary_hidden = false;
-	char* ime_composition;
+	char *ime_composition;
 	size_t ime_composition_cursor;
 	size_t ime_composition_len;
 	size_t ime_composition_selection;
 	SDL_Rect attention_point_rect;
-	iTJSDispatch2 * file_drop_array;
+	iTJSDispatch2 *file_drop_array;
 	tjs_int file_drop_array_count;
-	TVPSDLBitmapCompletion * bitmap_completion;
+	TVPSDLBitmapCompletion *bitmap_completion;
 #ifdef KRKRZ_ENABLE_CANVAS
-	tTVPOpenGLScreen * open_gl_screen;
+	tTVPOpenGLScreen *open_gl_screen;
 #endif
 	int last_mouse_x;
 	int last_mouse_y;
@@ -702,7 +702,7 @@ public:
 	/* Called from tTJSNI_Window */
 	virtual tjs_int GetInnerHeight() override;
 #ifdef _WIN32
-	virtual void RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void * proc, const void *userdata) override;
+	virtual void RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void *proc, const void *userdata) override;
 	bool InternalDeliverMessageToReceiver(tTVPWindowMessage &msg);
 	virtual HWND GetHandle() const override;
 #endif
@@ -919,7 +919,7 @@ TVPWindowWindow::~TVPWindowWindow()
 	tjs_int count = WindowMessageReceivers.GetCount();
 	for (tjs_int i = 0; i < count; i += 1)
 	{
-		tTVPMessageReceiverRecord * item = WindowMessageReceivers[i];
+		tTVPMessageReceiverRecord *item = WindowMessageReceivers[i];
 		if (!item)
 		{
 			continue;
@@ -1188,7 +1188,7 @@ void TVPWindowWindow::SetCursorPos(tjs_int x, tjs_int y)
 	}
 	SDL_WarpMouseInWindow(window, new_x, new_y);
 }
-void TVPWindowWindow::SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont * font)
+void TVPWindowWindow::SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont *font)
 {
 	if (!font)
 	{
@@ -1798,7 +1798,7 @@ void TVPWindowWindow::OnClose(CloseAction& action)
 	{
 		action = caFree;
 	}
-	iTJSDispatch2 * obj = TJSNativeInstance->GetOwnerNoAddRef();
+	iTJSDispatch2 *obj = TJSNativeInstance->GetOwnerNoAddRef();
 	TJSNativeInstance->NotifyWindowClose();
 	obj->Invalidate(0, nullptr, nullptr, obj);
 	TJSNativeInstance = nullptr;
@@ -1826,7 +1826,7 @@ bool TVPWindowWindow::OnCloseQuery()
 	{
 		return true;
 	}
-	iTJSDispatch2 * obj = TJSNativeInstance->GetOwnerNoAddRef();
+	iTJSDispatch2 *obj = TJSNativeInstance->GetOwnerNoAddRef();
 	if (!obj)
 	{
 		return true;
@@ -1927,7 +1927,7 @@ void TVPWindowWindow::OnCloseQueryCalled(bool b)
 				if (TJSNativeInstance->IsMainWindow())
 				{
 					// this is the main window
-					iTJSDispatch2 * obj = TJSNativeInstance->GetOwnerNoAddRef();
+					iTJSDispatch2 *obj = TJSNativeInstance->GetOwnerNoAddRef();
 					obj->Invalidate(0, nullptr, nullptr, obj);
 				}
 			}
@@ -2253,7 +2253,7 @@ tjs_int TVPWindowWindow::GetInnerHeight()
 }
 
 #ifdef _WIN32
-void TVPWindowWindow::RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void * proc, const void *userdata)
+void TVPWindowWindow::RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void *proc, const void *userdata)
 {
 	switch (mode)
 	{
@@ -2975,7 +2975,7 @@ extern "C" int main(int argc, char **argv)
 
 		for (int i = 0; i < argc; i += 1)
 		{
-			const char* narg;
+			const char *narg;
 #if !defined(__EMSCRIPTEN__) && !defined(__vita__) && !defined(__SWITCH__)
 			if (!i)
 			{
@@ -2988,7 +2988,7 @@ extern "C" int main(int argc, char **argv)
 			}
 			if (!narg)
 			{
-				tjs_char* warg_copy = new tjs_char[1];
+				tjs_char *warg_copy = new tjs_char[1];
 				warg_copy[0] = '\0';
 				_wargv[i] = warg_copy;
 				continue;
@@ -3002,7 +3002,7 @@ extern "C" int main(int argc, char **argv)
 				free((void*)narg);
 			}
 #endif
-			tjs_char* warg_copy = new tjs_char[v_utf16.length() + 1];
+			tjs_char *warg_copy = new tjs_char[v_utf16.length() + 1];
 			SDL_memcpy(warg_copy, v_utf16.c_str(), sizeof(tjs_char) * (v_utf16.length()));
 			warg_copy[v_utf16.length()] = '\0';
 			_wargv[i] = warg_copy;
@@ -3192,7 +3192,7 @@ const tjs_char *TVPGetDefaultFontName()
 	return TVPDefaultFontName;
 }
 
-void TVPSetDefaultFontName(const tjs_char * name)
+void TVPSetDefaultFontName(const tjs_char *name)
 {
 	TVPSetCommandLine(TJS_W("-deffont"), name);
 }
@@ -3219,13 +3219,13 @@ const ttstr &TVPGetDefaultFaceNames()
 
 // Override allocation functions by removing the std::bad_alloc throw and doing garbage collection.
 #ifdef KRKRSDL2_OVERRIDE_NEW_ALLOCATOR_FUNCTIONS
-void * operator new(std::size_t size) noexcept
+void *operator new(std::size_t size) noexcept
 {
 	bool has_gced = false;
 
 	if (size == 0)
 		size = 1;
-	void* p;
+	void *p;
 	while ((p = ::malloc(size)) == 0)
 	{
 		// If malloc fails, try to free up memory.
@@ -3239,57 +3239,57 @@ void * operator new(std::size_t size) noexcept
 	return p;
 }
 
-void* operator new(size_t size, const std::nothrow_t&) noexcept
+void *operator new(size_t size, const std::nothrow_t&) noexcept
 {
-	void* p = 0;
+	void *p = 0;
 	p = ::operator new(size);
 	return p;
 }
 
-void* operator new[](size_t size) noexcept
+void *operator new[](size_t size) noexcept
 {
 	return ::operator new(size);
 }
 
-void* operator new[](size_t size, const std::nothrow_t&) noexcept
+void *operator new[](size_t size, const std::nothrow_t&) noexcept
 {
-	void* p = 0;
+	void *p = 0;
 	p = ::operator new[](size);
 	return p;
 }
 
-void operator delete(void* ptr) noexcept
+void operator delete(void *ptr) noexcept
 {
 	::free(ptr);
 }
 
-void operator delete(void* ptr, const std::nothrow_t&) noexcept
+void operator delete(void *ptr, const std::nothrow_t&) noexcept
 {
 	::operator delete(ptr);
 }
 
-void operator delete(void* ptr, size_t) noexcept
+void operator delete(void *ptr, size_t) noexcept
 {
 	::operator delete(ptr);
 }
 
-void operator delete[] (void* ptr) noexcept
+void operator delete[] (void *ptr) noexcept
 {
 	::operator delete(ptr);
 }
 
-void operator delete[] (void* ptr, const std::nothrow_t&) noexcept
+void operator delete[] (void *ptr, const std::nothrow_t&) noexcept
 {
 	::operator delete[](ptr);
 }
 
-void operator delete[] (void* ptr, size_t) noexcept
+void operator delete[] (void *ptr, size_t) noexcept
 {
 	::operator delete[](ptr);
 }
 
 #ifdef __cpp_aligned_new
-void * operator new(std::size_t size, std::align_val_t alignment) noexcept
+void *operator new(std::size_t size, std::align_val_t alignment) noexcept
 {
 	bool has_gced = false;
 
@@ -3297,7 +3297,7 @@ void * operator new(std::size_t size, std::align_val_t alignment) noexcept
 		size = 1;
 	if (static_cast<size_t>(alignment) < sizeof(void*))
 		alignment = std::align_val_t(sizeof(void*));
-	void* p;
+	void *p;
 	while (::posix_memalign(&p, static_cast<size_t>(alignment), size) != 0)
 	{
 		// If posix_memalign fails, try to free up memory.
@@ -3313,51 +3313,51 @@ void * operator new(std::size_t size, std::align_val_t alignment) noexcept
 	return p;
 }
 
-void* operator new(size_t size, std::align_val_t alignment, const std::nothrow_t&) noexcept
+void *operator new(size_t size, std::align_val_t alignment, const std::nothrow_t&) noexcept
 {
-	void* p = 0;
+	void *p = 0;
 	p = ::operator new(size, alignment);
 	return p;
 }
 
-void* operator new[](size_t size, std::align_val_t alignment) noexcept
+void *operator new[](size_t size, std::align_val_t alignment) noexcept
 {
 	return ::operator new(size, alignment);
 }
 
-void* operator new[](size_t size, std::align_val_t alignment, const std::nothrow_t&) noexcept
+void *operator new[](size_t size, std::align_val_t alignment, const std::nothrow_t&) noexcept
 {
-	void* p = 0;
+	void *p = 0;
 	p = ::operator new[](size, alignment);
 	return p;
 }
 
-void operator delete(void* ptr, std::align_val_t) noexcept
+void operator delete(void *ptr, std::align_val_t) noexcept
 {
 	::free(ptr);
 }
 
-void operator delete(void* ptr, std::align_val_t alignment, const std::nothrow_t&) noexcept
+void operator delete(void *ptr, std::align_val_t alignment, const std::nothrow_t&) noexcept
 {
 	::operator delete(ptr, alignment);
 }
 
-void operator delete(void* ptr, size_t, std::align_val_t alignment) noexcept
+void operator delete(void *ptr, size_t, std::align_val_t alignment) noexcept
 {
 	::operator delete(ptr, alignment);
 }
 
-void operator delete[] (void* ptr, std::align_val_t alignment) noexcept
+void operator delete[] (void *ptr, std::align_val_t alignment) noexcept
 {
 	::operator delete(ptr, alignment);
 }
 
-void operator delete[] (void* ptr, std::align_val_t alignment, const std::nothrow_t&) noexcept
+void operator delete[] (void *ptr, std::align_val_t alignment, const std::nothrow_t&) noexcept
 {
 	::operator delete[](ptr, alignment);
 }
 
-void operator delete[] (void* ptr, size_t, std::align_val_t alignment) noexcept
+void operator delete[] (void *ptr, size_t, std::align_val_t alignment) noexcept
 {
 	::operator delete[](ptr, alignment);
 }
