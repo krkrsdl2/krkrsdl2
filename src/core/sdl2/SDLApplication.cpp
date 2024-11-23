@@ -713,14 +713,8 @@ public:
 
 TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 {
-	this->ime_composition = nullptr;
-	this->ime_composition_cursor = 0;
-	this->ime_composition_len = 0;
-	this->ime_composition_selection = 0;
-	this->attention_point_rect.x = 0;
-	this->attention_point_rect.y = 0;
-	this->attention_point_rect.w = 0;
-	this->attention_point_rect.h = 0;
+	this->window = nullptr;
+	this->ResetImeMode();
 	this->file_drop_array = nullptr;
 	this->file_drop_array_count = 0;
 	this->last_mouse_x = 0;
@@ -1011,8 +1005,8 @@ void TVPWindowWindow::TranslateWindowToDrawArea(int &x, int &y)
 #endif
 	x -= this->LastSentDrawDeviceDestRect.left;
 	y -= this->LastSentDrawDeviceDestRect.top;
-	x = MulDiv(x, this->InnerWidth, this->LastSentDrawDeviceDestRect.get_width());
-	y = MulDiv(y, this->InnerHeight, this->LastSentDrawDeviceDestRect.get_height());
+	x = MulDiv(x, this->GetInnerWidth(), this->LastSentDrawDeviceDestRect.get_width());
+	y = MulDiv(y, this->GetInnerHeight(), this->LastSentDrawDeviceDestRect.get_height());
 #endif
 }
 
@@ -1025,8 +1019,8 @@ void TVPWindowWindow::TranslateDrawAreaToWindow(int &x, int &y)
 		return;
 	}
 #endif
-	x = MulDiv(x, this->LastSentDrawDeviceDestRect.get_width(), this->InnerWidth);
-	y = MulDiv(y, this->LastSentDrawDeviceDestRect.get_height(), this->InnerHeight);
+	x = MulDiv(x, this->LastSentDrawDeviceDestRect.get_width(), this->GetInnerWidth());
+	y = MulDiv(y, this->LastSentDrawDeviceDestRect.get_height(), this->GetInnerHeight());
 	x += this->LastSentDrawDeviceDestRect.left;
 	y += this->LastSentDrawDeviceDestRect.top;
 #endif
@@ -1737,8 +1731,8 @@ void TVPWindowWindow::TickBeat()
 					SDL_Rect srcrect;
 					srcrect.x = 0;
 					srcrect.y = 0;
-					srcrect.w = this->InnerWidth;
-					srcrect.h = this->InnerHeight;
+					srcrect.w = this->GetInnerWidth();
+					srcrect.h = this->GetInnerHeight();
 					SDL_RenderCopy(this->renderer, this->texture, &srcrect, &destrect);
 #elif defined(KRKRSDL2_RENDERER_FULL_UPDATES)
 					SDL_RenderCopy(this->renderer, this->texture, nullptr, nullptr);
@@ -2052,7 +2046,7 @@ void TVPWindowWindow::UpdateActualZoom(void)
 	int sb_w, sb_h, zoom_d, zoom_n, output_w, output_h;
 	SDL_GetRendererOutputSize(this->renderer, &output_w, &output_h);
 
-	float layer_aspect = (float)this->InnerWidth / this->InnerHeight;
+	float layer_aspect = (float)this->GetInnerWidth() / this->GetInnerHeight();
 	float output_aspect = (float)output_w / output_h;
 
 	// 0=letterbox, 1=crop
@@ -2064,8 +2058,8 @@ void TVPWindowWindow::UpdateActualZoom(void)
 		zoom_d = 1;
 		viewport.x = 0;
 		viewport.y = 0;
-		viewport.w = this->InnerWidth;
-		viewport.h = this->InnerHeight;
+		viewport.w = this->GetInnerWidth();
+		viewport.h = this->GetInnerHeight();
 	}
 	else if (layer_aspect > output_aspect)
 	{
@@ -2073,22 +2067,22 @@ void TVPWindowWindow::UpdateActualZoom(void)
 		{
 			// Crop left and right
 			zoom_n = output_h;
-			zoom_d = this->InnerHeight;
+			zoom_d = this->GetInnerHeight();
 			TVPDoReductionNumerAndDenom(zoom_n, zoom_d);
 			viewport.y = 0;
 			viewport.h = output_h;
-			viewport.w = MulDiv(this->InnerWidth, zoom_n, zoom_d);
+			viewport.w = MulDiv(this->GetInnerWidth(), zoom_n, zoom_d);
 			viewport.x = (output_w - viewport.w) / 2;
 		}
 		else
 		{
 			// Top and bottom black bars (letterbox)
 			zoom_n = output_w;
-			zoom_d = this->InnerWidth;
+			zoom_d = this->GetInnerWidth();
 			TVPDoReductionNumerAndDenom(zoom_n, zoom_d);
 			viewport.x = 0;
 			viewport.w = output_w;
-			viewport.h = MulDiv(this->InnerHeight, zoom_n, zoom_d);
+			viewport.h = MulDiv(this->GetInnerHeight(), zoom_n, zoom_d);
 			viewport.y = (output_h - viewport.h) / 2;
 		}
 	}
@@ -2098,22 +2092,22 @@ void TVPWindowWindow::UpdateActualZoom(void)
 		{
 			// Crop top and bottom
 			zoom_n = output_w;
-			zoom_d = this->InnerWidth;
+			zoom_d = this->GetInnerWidth();
 			TVPDoReductionNumerAndDenom(zoom_n, zoom_d);
 			viewport.x = 0;
 			viewport.w = output_w;
-			viewport.h = MulDiv(this->InnerHeight, zoom_n, zoom_d);
+			viewport.h = MulDiv(this->GetInnerHeight(), zoom_n, zoom_d);
 			viewport.y = (output_h - viewport.h) / 2;
 		}
 		else
 		{
 			// Left and right black bars (letterbox)
 			zoom_n = output_h;
-			zoom_d = this->InnerHeight;
+			zoom_d = this->GetInnerHeight();
 			TVPDoReductionNumerAndDenom(zoom_n, zoom_d);
 			viewport.y = 0;
 			viewport.h = output_h;
-			viewport.w = MulDiv(this->InnerWidth, zoom_n, zoom_d);
+			viewport.w = MulDiv(this->GetInnerWidth(), zoom_n, zoom_d);
 			viewport.x = (output_w - viewport.w) / 2;
 		}
 	}
@@ -2130,8 +2124,8 @@ void TVPWindowWindow::SetDrawDeviceDestRect(void)
 {
 #ifdef KRKRSDL2_ENABLE_ZOOM
 	tTVPRect destrect;
-	tjs_int w = MulDiv(this->InnerWidth,  this->ActualZoomNumer, this->ActualZoomDenom);
-	tjs_int h = MulDiv(this->InnerHeight, this->ActualZoomNumer, this->ActualZoomDenom);
+	tjs_int w = MulDiv(this->GetInnerWidth(),  this->ActualZoomNumer, this->ActualZoomDenom);
+	tjs_int h = MulDiv(this->GetInnerHeight(), this->ActualZoomNumer, this->ActualZoomDenom);
 	if (w < 1)
 	{
 		w = 1;
@@ -2178,9 +2172,7 @@ void TVPWindowWindow::SetZoom(tjs_int numer, tjs_int denom, bool set_logical)
 
 void TVPWindowWindow::SetZoomNumer(tjs_int n)
 {
-#ifdef KRKRSDL2_ENABLE_ZOOM
-	this->SetZoom(n, this->ZoomDenom);
-#endif
+	this->SetZoom(n, this->GetZoomDenom());
 }
 
 tjs_int TVPWindowWindow::GetZoomNumer() const
@@ -2194,9 +2186,7 @@ tjs_int TVPWindowWindow::GetZoomNumer() const
 
 void TVPWindowWindow::SetZoomDenom(tjs_int d)
 {
-#ifdef KRKRSDL2_ENABLE_ZOOM
-	this->SetZoom(this->ZoomNumer, d);
-#endif
+	this->SetZoom(this->GetZoomNumer(), d);
 }
 
 tjs_int TVPWindowWindow::GetZoomDenom() const
@@ -2211,7 +2201,7 @@ tjs_int TVPWindowWindow::GetZoomDenom() const
 void TVPWindowWindow::SetInnerWidth(tjs_int v)
 {
 #ifdef KRKRSDL2_ENABLE_ZOOM
-	this->SetInnerSize(v, this->InnerHeight);
+	this->SetInnerSize(v, this->GetInnerHeight());
 #else
 	this->SetWidth(v);
 #endif
@@ -2220,7 +2210,7 @@ void TVPWindowWindow::SetInnerWidth(tjs_int v)
 void TVPWindowWindow::SetInnerHeight(tjs_int v)
 {
 #ifdef KRKRSDL2_ENABLE_ZOOM
-	this->SetInnerSize(this->InnerWidth, v);
+	this->SetInnerSize(this->GetInnerWidth(), v);
 #else
 	this->SetHeight(v);
 #endif
