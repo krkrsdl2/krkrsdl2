@@ -17,5 +17,3 @@ public:
 		tjs_int x, tjs_int y, const void * bits, const class BitmapInfomation * bmpinfo,
 		const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity);
 };
-
-

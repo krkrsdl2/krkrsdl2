@@ -80,7 +80,10 @@ public:
 		datapath = ReplaceStringAll(datapath, TJS_W("$(savedgamespath)"), savedgamespath);
 		return IncludeTrailingBackslash(ExpandUNCFileName(datapath));
 #else
-		if (datapath != TJS_W("")) return datapath;
+		if (datapath != TJS_W(""))
+		{
+			return datapath;
+		}
 #if defined(__vita__)
 		return TJS_W("savedata0:/savedata/");
 #else

@@ -40,19 +40,22 @@ enum {
 };
 #endif
 
-enum {
-  mtWarning = SDL_MESSAGEBOX_WARNING,
-  mtError = SDL_MESSAGEBOX_ERROR,
-  mtInformation = SDL_MESSAGEBOX_INFORMATION,
-  mtConfirmation = SDL_MESSAGEBOX_INFORMATION,
-  mtStop = SDL_MESSAGEBOX_ERROR,
-  mtCustom = 0
+enum
+{
+	mtWarning = SDL_MESSAGEBOX_WARNING,
+	mtError = SDL_MESSAGEBOX_ERROR,
+	mtInformation = SDL_MESSAGEBOX_INFORMATION,
+	mtConfirmation = SDL_MESSAGEBOX_INFORMATION,
+	mtStop = SDL_MESSAGEBOX_ERROR,
+	mtCustom = 0
 };
-enum {
+enum
+{
 	mbOK = 0,
 };
 
-enum class eTVPActiveEvent {
+enum class eTVPActiveEvent
+{
 	onActive,
 	onDeactive,
 };
@@ -105,9 +108,9 @@ class tTVPApplication {
 	bool syncfs_is_finished_;
 
 #ifdef KRKRSDL2_ENABLE_ASYNC_IMAGE_LOAD
-	class tTVPAsyncImageLoader* image_load_thread_;
+	class tTVPAsyncImageLoader *image_load_thread_;
 #else
-	void * image_load_thread_;
+	void *image_load_thread_;
 #endif
 
 #if 0

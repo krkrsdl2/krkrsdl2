@@ -568,9 +568,11 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::NotifyLayerResize(iTVPLayerManager * m
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPBasicDrawDevice::Show()
 {
-	if (Window) {
+	if (Window)
+	{
 		TTVPWindowForm *form = ((tTJSNI_Window*)Window)->GetForm();
-		if (form) {
+		if (form)
+		{
 			form->Show();
 		}
 	}
@@ -649,9 +651,11 @@ bool TJS_INTF_METHOD tTVPBasicDrawDevice::WaitForVBlank( tjs_int* in_vblank, tjs
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPBasicDrawDevice::StartBitmapCompletion(iTVPLayerManager * manager)
 {
-	if (Window) {
+	if (Window)
+	{
 		TTVPWindowForm *form = ((tTJSNI_Window*)Window)->GetForm();
-		if (form) {
+		if (form)
+		{
 			bitmap_completion = form->GetTVPSDLBitmapCompletion();
 		}
 	}

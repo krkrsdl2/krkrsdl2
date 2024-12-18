@@ -174,7 +174,8 @@ tjs_string ExePath() {
 	}
 #endif
 #ifndef __EMSCRIPTEN__
-	if (exepath.empty()) {
+	if (exepath.empty())
+	{
 		exepath = tjs_string(_wargv[0]);
 	}
 #endif
@@ -655,9 +656,12 @@ void tTVPApplication::PrintConsole( const tjs_char* mes, unsigned long len, bool
 	tjs_int u8len = TVPWideCharToUtf8String( mes, &(console_cache_[0]) );
 	console_cache_[u8len] = '\0';
 #ifdef __ANDROID__
-	if( iserror ) {
+	if (iserror)
+	{
 		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", &(console_cache_[0]) );
-	} else {
+	}
+	else
+	{
 		SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "%s", &(console_cache_[0]) );
 	}
 #elif defined(_WIN32)
@@ -685,9 +689,12 @@ void tTVPApplication::PrintConsole( const tjs_char* mes, unsigned long len, bool
 #else
 	if (is_attach_console_)
 	{
-		if( iserror ) {
+		if (iserror)
+		{
 			fprintf(stdout, "%s\n", &(console_cache_[0]) );
-		} else {
+		}
+		else
+		{
 			fprintf(stdout, "%s\n", &(console_cache_[0]) );
 		}
 	}
@@ -769,7 +776,8 @@ void tTVPApplication::Run() {
 	tarminate_ = true;
 #endif
 	sdl_process_events();
-	if (tarminate_) {
+	if (tarminate_)
+	{
 		return;
 	}
 	bool done = false;
