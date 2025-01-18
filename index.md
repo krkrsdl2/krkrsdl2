@@ -3,7 +3,7 @@ layout: default
 title: 吉里吉里SDL2
 ---
 
-## 吉里吉里SDL2
+## <a name="kirikiri-sdl2"></a>吉里吉里SDL2
 
 吉里吉里SDL2は、macOSやLinuxなど、[SDL2](https://www.libsdl.org/)をサポートするプラットフォームで実行できる[吉里吉里Z](https://krkrz.github.io/)の移植版です。  
 
@@ -16,21 +16,21 @@ title: 吉里吉里SDL2
 吉里吉里SDL2は[Emscripten](https://emscripten.org/)を使用して[WebAssembly](https://webassembly.org/)にコンパイルすることも可能です。  
 Webブラウザーでプレイできるデモはここにあります：https://krkrsdl2.github.io/krkrsdl2-web-demo/  
 
-## 商用ゲームの実行に関する注意
+## <a name="commercial-game-note"></a>商用ゲームの実行に関する注意
 
 このプロジェクトを使用して変更されていない商用ゲームを実行することはサポートされていません。  
 代わりに[Wine](https://www.winehq.org/)または[Kirikiroid2](https://play.google.com/store/apps/details?id=org.tvp.kirikiri2)を使用してください。    
 
-## スクリーンショット
+## <a name="screenshots"></a>スクリーンショット
 
 ![Screenshot](./assets/img/krkrsdl2_demo_screenshot.png)
 
-## IRCチャンネル
+## <a name="community"></a>IRCチャンネル
 
 吉里吉里SDL2プロジェクトのメンバーは、[libera.chatの#krkrsdl2チャンネル](ircs://irc.libera.chat:6697/krkrsdl2)で見つけることができます。  
 [Matrix](https://matrix.org/)ブリッジチャネルは[#krkrsdl2:matrix.org](https://matrix.to/#/#krkrsdl2:matrix.org)でも利用できます。  
 
-## ダウンロード
+## <a name="download"></a>ダウンロード
 
 以下のポートは、[Github Actions](https://github.com/features/actions)によって最新のソースコードから自動的に構築されます。
 
@@ -46,11 +46,11 @@ Webブラウザーでプレイできるデモはここにあります：https://
 * [Ubuntuポート (Intel, 64-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu.zip)
 * [Ubuntuポート (ARM, 64-bit)](https://github.com/krkrsdl2/krkrsdl2/releases/download/latest/krkrsdl2-ubuntu-arm64.zip)
 
-## ソースコード
+## <a name="source-code"></a>ソースコード
 
 このプロジェクトのソース コードは、次の URL から入手できます: https://github.com/krkrsdl2/krkrsdl2  
 
-## 使用法
+## <a name="usage"></a>使用法
 
 プログラムを使用するには、`startup.tjs`と同じディレクトリのコマンドラインで以下を実行します：
 ```bash
@@ -69,7 +69,7 @@ Webブラウザーでプレイできるデモはここにあります：https://
 
 Webバージョンの場合は、[Releaser](https://krkrz.github.io/krkr2doc/kr2doc/contents/Releaser.html)によって作成した`data.xp3`をWebポートと同じフォルダに配置し、Webサーバー上にアップロードします。 設置でき次第、プロジェクトはWebブラウザから動作します。
 
-## クローニング
+## <a name="cloning"></a>クローニング
 
 リポジトリのクローンを作成するには、ターミナルで次のコマンドを使用してください：
 
@@ -78,7 +78,7 @@ git clone --recursive -b main https://github.com/krkrsdl2/krkrsdl2.git /path/to/
 ```
 プロジェクトがGitサブモジュールを使用するため、上記のコマンドを正しく使用しない場合、ソースファイルが欠落します。
 
-## ビルディング
+## <a name="building"></a>ビルディング
 
 このプロジェクトは、[CMake](https://cmake.org/)ビルドシステムを使用してビルドできます。  
 通常、プロジェクトのビルドには次のコマンドが使用されます:   
@@ -88,12 +88,12 @@ cmake -S /path/to/krkrsdl2/repo -B /path/to/new/build/folder
 cmake --build /path/to/new/build/folder
 ```
 
-## クイックスタート
+## <a name="running"></a>クイックスタート
 
 このプロジェクトをビルドしたら、`startup.tjs`を含むディレクトリに設置してください。  
 その後、次のコマンドを実行します： `/path/to/krkrsdl2`  
 
-## オリジナルプロジェクト
+## <a name="original-project"></a>オリジナルプロジェクト
 
 このプロジェクトのコードは、次のプロジェクトに基づいています：
 * [吉里吉里2](https://github.com/krkrz/krkr2)
@@ -102,7 +102,7 @@ cmake --build /path/to/new/build/folder
 * [SDL](https://github.com/libsdl-org/SDL)
 * [FAudio](https://github.com/FNA-XNA/FAudio)
 
-## ライセンス
+## <a name="license"></a>ライセンス
 
 吉里吉里SDL2ソース（`src`ディレクトリ内）のコードは、MITライセンスの下でライセンスされています。 詳細については、`LICENSE`をお読みください。  
 このプロジェクトには、サードパーティのコンポーネントが含まれています (GPL に基づいてライセンスされていません)。詳細については、各コンポーネントのライセンスファイルを参照してください。  
