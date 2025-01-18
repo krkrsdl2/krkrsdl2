@@ -71,6 +71,18 @@
               "runs-on" : "ubuntu-latest"
             },
             {
+              "target-name" : "ubuntu-arm64",
+              "artifact-to-archive" : "krkrsdl2",
+              "artifact-path" : "build/*.zip",
+              "example-project-path" : "",
+              "cmake-extra-configure-prepend" : "",
+              "cmake-extra-configure-append" : "",
+              "container" : "ubuntu:20.04",
+              "container-options" : "--user 0",
+              "has-brew" : "false",
+              "runs-on" : "ubuntu-24.04-arm"
+            },
+            {
               "target-name" : "win32-i686-gcc",
               "artifact-to-archive" : "*.exe",
               "artifact-path" : "build/*.zip",
@@ -213,16 +225,16 @@
         {
           "name" : "Set up base environment (Ubuntu)",
           "if" : "matrix.platform.target-name != 'vita' && matrix.platform.target-name != 'switch'",
-          "run" : "sudo apt-get -y update && sudo apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install build-essential"
+          "run" : "apt-get -y update && apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install build-essential"
         },
         {
           "name" : "Install dependencies (Ubuntu)",
-          "if" : "matrix.platform.target-name == 'ubuntu'",
-          "run" : "sudo apt-get -y update && sudo apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install libsdl2-dev"
+          "if" : "startsWith(matrix.platform.target-name, 'ubuntu')",
+          "run" : "apt-get -y update && apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install libsdl2-dev"
         },
         {
-          "name" : "Install additional dependencies (Debian, No Homebrew)",
-          "if" : "matrix.platform.target-name == 'web' || matrix.platform.target-name == 'switch'",
+          "name" : "Install additional dependencies (No Homebrew)",
+          "if" : "matrix.platform.target-name == 'web' || matrix.platform.target-name == 'switch' || matrix.platform.target-name == 'ubuntu-arm64'",
           "run" : "apt-get -y update && apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install p7zip-full cmake make ninja-build git curl"
         },
         {
