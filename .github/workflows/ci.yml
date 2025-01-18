@@ -223,7 +223,11 @@
         {
           "name" : "Install additional dependencies (Debian, No Homebrew)",
           "if" : "matrix.platform.target-name == 'web' || matrix.platform.target-name == 'switch'",
-          "run" : "apt-get -y update && apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install p7zip-full cmake make ninja-build git curl"
+          "uses" : "awalsh128/cache-apt-pkgs-action@latest",
+          "with" : {
+            "packages" : "p7zip-full cmake make ninja-build git curl",
+            "version" : "1"
+          }
         },
         {
           "name" : "Set up Homebrew environment for Github Actions",
