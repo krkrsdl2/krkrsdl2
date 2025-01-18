@@ -65,8 +65,8 @@
               "example-project-path" : "",
               "cmake-extra-configure-prepend" : "",
               "cmake-extra-configure-append" : "",
-              "container" : "ghcr.io/homebrew/ubuntu20.04:latest",
-              "container-options" : "--user=linuxbrew",
+              "container" : "ubuntu:20.04",
+              "container-options" : " ",
               "has-brew" : "true",
               "runs-on" : "ubuntu-20.04"
             },
@@ -77,8 +77,8 @@
               "example-project-path" : "android-project/app/src/main/assets",
               "cmake-extra-configure-prepend" : "",
               "cmake-extra-configure-append" : "",
-              "container" : "ghcr.io/homebrew/ubuntu20.04:latest",
-              "container-options" : "--user=linuxbrew",
+              "container" : "ubuntu:20.04",
+              "container-options" : " ",
               "has-brew" : "true",
               "runs-on" : "ubuntu-20.04"
             },
@@ -140,6 +140,12 @@
           "name" : "Install additional dependencies (Debian, No Homebrew)",
           "if" : "matrix.platform.target-name == 'web' || matrix.platform.target-name == 'switch'",
           "run" : "apt-get -y update && apt-get -y install p7zip-full cmake make ninja-build git curl"
+        },
+        {
+          "name" : "Set up Homebrew",
+          "if" : "matrix.platform.has-brew == 'true'",
+          "id" : "set-up-homebrew",
+          "uses" : "Homebrew/actions/setup-homebrew@master"
         },
         {
           "name" : "Set up default build tools (Homebrew)",
