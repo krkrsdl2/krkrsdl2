@@ -149,7 +149,7 @@
         {
           "name" : "Set up default build tools (Homebrew)",
           "if" : "matrix.platform.has-brew == 'true'",
-          "run" : "sudo -H -u linuxbrew bash -c 'cd /home/linuxbrew && /home/linuxbrew/.linuxbrew/bin/brew install make nasm ninja cmake'"
+          "run" : "sudo -H -u linuxbrew bash -c 'cd /home/linuxbrew && /home/linuxbrew/.linuxbrew/bin/brew install p7zip make nasm ninja cmake'"
         },
         {
           "name" : "Checkout repository",
