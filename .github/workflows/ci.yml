@@ -129,12 +129,12 @@
         {
           "name" : "Set up base environment (Ubuntu)",
           "if" : "matrix.platform.target-name != 'vita' && matrix.platform.target-name != 'switch'",
-          "run" : "sudo apt-get -y update && sudo apt-get -y install build-essential"
+          "run" : "apt-get -y update && apt-get -y install build-essential"
         },
         {
           "name" : "Install dependencies (Ubuntu)",
           "if" : "matrix.platform.target-name == 'ubuntu'",
-          "run" : "sudo apt-get -y update && sudo apt-get -y install libsdl2-dev"
+          "run" : "apt-get -y update && apt-get -y install libsdl2-dev"
         },
         {
           "name" : "Install additional dependencies (Debian, No Homebrew)",
