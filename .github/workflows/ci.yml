@@ -105,7 +105,10 @@
       },
       "runs-on" : "${{ matrix.platform.runs-on }}",
       "timeout-minutes" : 20,
-      "container" : "${{ matrix.platform.container }}",
+      "container" : {
+        "image" : "${{ matrix.platform.container }}",
+        "options" : "--user 1001:123"
+      },
       "steps" : [
         {
           "name" : "Apply apt repository archive",
