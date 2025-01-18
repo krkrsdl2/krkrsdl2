@@ -199,7 +199,7 @@
               "example-project-path" : ".",
               "cmake-extra-configure-prepend" : "",
               "cmake-extra-configure-append" : "-DCMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake -DEMBED_DATA_PATH=data.xp3",
-              "container" : "devkitpro/devkita64:20210726",
+              "container" : "devkitpro/devkita64:20241023",
               "container-options" : " ",
               "has-brew" : "false",
               "runs-on" : "ubuntu-latest"
@@ -214,11 +214,6 @@
         "options" : "${{ matrix.platform.container-options }}"
       },
       "steps" : [
-        {
-          "name" : "Apply apt repository archive",
-          "if" : "matrix.platform.target-name == 'switch'",
-          "run" : "sed -i -e 's,# deb http://snapshot,deb http://snapshot,g;s,deb http://deb,# deb http://deb,g;s,deb http://security,# deb http://security,g' /etc/apt/sources.list && mv /etc/apt/sources.list.d/buster-backports.list /etc/apt/sources.list.d/buster-backports.list.disabled && printf '%s\\n' 'Acquire::Check-Valid-Until \"0\";' | tee -a /etc/apt/apt.conf.d/10no--check-valid-until"
-        },
         {
           "name" : "Install dependencies (Alphine)",
           "if" : "matrix.platform.target-name == 'vita'",
