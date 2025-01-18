@@ -129,12 +129,12 @@
         {
           "name" : "Set up base environment (Ubuntu)",
           "if" : "matrix.platform.target-name != 'vita' && matrix.platform.target-name != 'switch'",
-          "run" : "sudo apt-get -y update && sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install build-essential"
+          "run" : "sudo apt-get -y update && sudo apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install build-essential"
         },
         {
           "name" : "Install dependencies (Ubuntu)",
           "if" : "matrix.platform.target-name == 'ubuntu'",
-          "run" : "sudo apt-get -y update && sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install libsdl2-dev"
+          "run" : "sudo apt-get -y update && sudo apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install libsdl2-dev"
         },
         {
           "name" : "Install additional dependencies (Debian, No Homebrew)",
