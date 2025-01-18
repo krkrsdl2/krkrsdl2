@@ -65,8 +65,8 @@
               "example-project-path" : "",
               "cmake-extra-configure-prepend" : "",
               "cmake-extra-configure-append" : "",
-              "container" : "ubuntu:20.04",
-              "container-options" : " ",
+              "container" : "ghcr.io/homebrew/ubuntu20.04:latest",
+              "container-options" : "--user 0",
               "has-brew" : "true",
               "runs-on" : "ubuntu-20.04"
             },
@@ -77,8 +77,8 @@
               "example-project-path" : "android-project/app/src/main/assets",
               "cmake-extra-configure-prepend" : "",
               "cmake-extra-configure-append" : "",
-              "container" : "ubuntu:20.04",
-              "container-options" : " ",
+              "container" : "ghcr.io/homebrew/ubuntu20.04:latest",
+              "container-options" : "--user 0",
               "has-brew" : "true",
               "runs-on" : "ubuntu-20.04"
             },
@@ -129,12 +129,12 @@
         {
           "name" : "Set up base environment (Ubuntu)",
           "if" : "matrix.platform.target-name != 'vita' && matrix.platform.target-name != 'switch'",
-          "run" : "apt-get -y update && apt-get -y install build-essential"
+          "run" : "sudo apt-get -y update && sudo apt-get -y install build-essential"
         },
         {
           "name" : "Install dependencies (Ubuntu)",
           "if" : "matrix.platform.target-name == 'ubuntu'",
-          "run" : "apt-get -y update && apt-get -y install libsdl2-dev"
+          "run" : "sudo apt-get -y update && sudo apt-get -y install libsdl2-dev"
         },
         {
           "name" : "Install additional dependencies (Debian, No Homebrew)",
@@ -142,15 +142,14 @@
           "run" : "apt-get -y update && apt-get -y install p7zip-full cmake make ninja-build git curl"
         },
         {
-          "name" : "Set up Homebrew",
+          "name" : "Set up Homebrew environment for Github Actions",
           "if" : "matrix.platform.has-brew == 'true'",
-          "id" : "set-up-homebrew",
-          "uses" : "Homebrew/actions/setup-homebrew@master"
+          "run" : "echo \"/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin\" >> $GITHUB_PATH"
         },
         {
           "name" : "Set up default build tools (Homebrew)",
           "if" : "matrix.platform.has-brew == 'true'",
-          "run" : "brew install make nasm ninja cmake"
+          "run" : "sudo -H -u linuxbrew bash -c 'cd /home/linuxbrew && brew install make nasm ninja cmake'"
         },
         {
           "name" : "Checkout repository",
