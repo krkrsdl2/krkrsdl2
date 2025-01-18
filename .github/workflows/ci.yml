@@ -156,7 +156,7 @@
         },
         {
           "name" : "Set up JDK 17 (Android)",
-          "if" : "matrix.platform.target-name != 'android'",
+          "if" : "matrix.platform.target-name == 'android'",
           "uses" : "actions/setup-java@v4",
           "with" : {
             "distribution" : "temurin",
@@ -165,7 +165,7 @@
         },
         {
           "name" : "Set up Android SDK (Android)",
-          "if" : "matrix.platform.target-name != 'android'",
+          "if" : "matrix.platform.target-name == 'android'",
           "uses" : "android-actions/setup-android@v3"
         },
         {
