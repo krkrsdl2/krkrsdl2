@@ -8,7 +8,7 @@ title: 吉里吉里SDL2
 吉里吉里SDL2は、macOSやLinuxなど、[SDL2](https://www.libsdl.org/)をサポートするプラットフォームで実行できる[吉里吉里Z](https://krkrz.github.io/)の移植版です。  
 
 このプログラムは、大量のコードを書き直すことなく、最新のハードウェアとプラットフォームのサポートを利用したいプロジェクトのために維持されています。  
-新しいプロジェクトを始めることに興味がある場合は、より活発なコミュニティがある [Suika2](https://suika2.com/) または [Ren'Py](https://ja.renpy.org/) をチェックしてください。  
+新しいプロジェクトを始めることに興味がある場合は、より活発なコミュニティがある [Ren'Py](https://ja.renpy.org/) をチェックしてください。  
 
 このプログラムは、KAG（吉里吉里アドベンチャーゲーム）3の変更バージョンと共に使用できます。  
 詳細については、次の場所を参照してください：https://github.com/krkrsdl2/kag3  
@@ -27,7 +27,7 @@ Webブラウザーでプレイできるデモはここにあります：https://
 
 ## IRCチャンネル
 
-吉里吉里SDL2プロジェクトのメンバーは、[libera.chatの#krkrsdl2チャンネル](https://web.libera.chat/#krkrsdl2)で見つけることができます。  
+吉里吉里SDL2プロジェクトのメンバーは、[libera.chatの#krkrsdl2チャンネル](ircs://irc.libera.chat:6697/krkrsdl2)で見つけることができます。  
 [Matrix](https://matrix.org/)ブリッジチャネルは[#krkrsdl2:matrix.org](https://matrix.to/#/#krkrsdl2:matrix.org)でも利用できます。  
 
 ## ダウンロード
