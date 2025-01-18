@@ -92,7 +92,7 @@
             {
               "target-name" : "switch",
               "artifact-to-archive" : "",
-              "artifact-path" : "build/*.nro"
+              "artifact-path" : "build/*.nro",
               "example-project-path" : ".",
               "cmake-extra-configure-prepend" : "",
               "cmake-extra-configure-append" : "-DCMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake -DEMBED_DATA_PATH=data.xp3",
