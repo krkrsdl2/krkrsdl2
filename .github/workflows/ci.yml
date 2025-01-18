@@ -54,7 +54,7 @@
               "cmake-extra-configure-prepend" : "emcmake",
               "cmake-extra-configure-append" : "",
               "container" : "emscripten/emsdk:3.1.24",
-              "container-options" : "",
+              "container-options" : " ",
               "has-brew" : "false",
               "runs-on" : "ubuntu-20.04"
             },
@@ -90,7 +90,7 @@
               "cmake-extra-configure-prepend" : "",
               "cmake-extra-configure-append" : "-DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DEMBED_DATA_PATH=data.xp3",
               "container" : "vitasdk/vitasdk:latest",
-              "container-options" : "",
+              "container-options" : " ",
               "has-brew" : "false",
               "runs-on" : "ubuntu-20.04"
             },
@@ -102,7 +102,7 @@
               "cmake-extra-configure-prepend" : "",
               "cmake-extra-configure-append" : "-DCMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake -DEMBED_DATA_PATH=data.xp3",
               "container" : "devkitpro/devkita64:20210726",
-              "container-options" : "",
+              "container-options" : " ",
               "has-brew" : "false",
               "runs-on" : "ubuntu-20.04"
             }
