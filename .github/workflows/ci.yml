@@ -41,50 +41,102 @@
     "EXAMPLE_PROJECT_URL" : "https://github.com/krkrsdl2/krkrsdl2-kag3-demo/releases/download/latest/data.xp3"
   },
   "jobs" : {
-    "build-web" : {
-      "runs-on" : "ubuntu-20.04",
-      "timeout-minutes" : 20,
-      "container" : {
-        "image" : "emscripten/emsdk:3.1.24"
+    "build-ubuntu" : {
+      "strategy" : {
+        "matrix" : {
+          "platform" : [
+            {
+              "target-name" : "web",
+              "artifact-to-archive" : "krkrsdl2.wasm krkrsdl2.js index.html",
+              "artifact-path" : "build/*.zip",
+              "example-project-path" : "",
+              "cmake-extra-configure-prepend" : "emcmake",
+              "cmake-extra-configure-append" : "",
+              "container" : "emscripten/emsdk:3.1.24",
+              "has-brew" : "false",
+              "runs-on" : "ubuntu-20.04"
+            },
+            {
+              "target-name" : "ubuntu",
+              "artifact-to-archive" : "krkrsdl2",
+              "artifact-path" : "build/*.zip",
+              "example-project-path" : "",
+              "cmake-extra-configure-prepend" : "",
+              "cmake-extra-configure-append" : "",
+              "container" : "ghcr.io/homebrew/ubuntu20.04:latest",
+              "has-brew" : "true",
+              "runs-on" : "ubuntu-20.04"
+            },
+            {
+              "target-name" : "android",
+              "artifact-to-archive" : "",
+              "artifact-path" : "./krkrsdl2.apk",
+              "example-project-path" : "android-project/app/src/main/assets",
+              "cmake-extra-configure-prepend" : "",
+              "cmake-extra-configure-append" : "",
+              "container" : "ghcr.io/homebrew/ubuntu20.04:latest",
+              "has-brew" : "true",
+              "runs-on" : "ubuntu-20.04"
+            },
+            {
+              "target-name" : "vita",
+              "artifact-to-archive" : "",
+              "artifact-path" : "build/*.vpk",
+              "example-project-path" : ".",
+              "cmake-extra-configure-prepend" : "",
+              "cmake-extra-configure-append" : "-DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DEMBED_DATA_PATH=data.xp3",
+              "container" : "vitasdk/vitasdk:latest",
+              "has-brew" : "false",
+              "runs-on" : "ubuntu-20.04"
+            },
+            {
+              "target-name" : "switch",
+              "artifact-to-archive" : "",
+              "artifact-path" : "build/*.nro"
+              "example-project-path" : ".",
+              "cmake-extra-configure-prepend" : "",
+              "cmake-extra-configure-append" : "-DCMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake -DEMBED_DATA_PATH=data.xp3",
+              "container" : "devkitpro/devkita64:20210726",
+              "has-brew" : "false",
+              "runs-on" : "ubuntu-20.04"
+            }
+          ]
+        }
       },
+      "runs-on" : "${{ matrix.platform.runs-on }}",
+      "timeout-minutes" : 20,
+      "container" : "${{ matrix.platform.container }}",
       "steps" : [
         {
-          "name" : "Checkout repository",
-          "uses" : "actions/checkout@v4",
-          "with" : {
-            "submodules" : "recursive"
-          }
+          "name" : "Apply apt repository archive",
+          "if" : "matrix.platform.target-name == 'switch'",
+          "run" : "sed -i -e 's,# deb http://snapshot,deb http://snapshot,g;s,deb http://deb,# deb http://deb,g;s,deb http://security,# deb http://security,g' /etc/apt/sources.list && mv /etc/apt/sources.list.d/buster-backports.list /etc/apt/sources.list.d/buster-backports.list.disabled && printf '%s\\n' 'Acquire::Check-Valid-Until \"0\";' | tee -a /etc/apt/apt.conf.d/10no--check-valid-until"
         },
         {
-          "name" : "Install additional dependencies",
+          "name" : "Install dependencies (Alphine)",
+          "if" : "matrix.platform.target-name == 'vita'",
+          "run" : "apk update\napk add cmake make ninja git curl\n"
+        },
+        {
+          "name" : "Set up base environment (Ubuntu)",
+          "if" : "matrix.platform.target-name != 'vita' && matrix.platform.target-name != 'switch'",
+          "run" : "sudo apt-get -y update && sudo apt-get -y install build-essential"
+        },
+        {
+          "name" : "Install dependencies (Ubuntu)",
+          "if" : "matrix.platform.target-name == 'ubuntu'",
+          "run" : "sudo apt-get -y update && sudo apt-get -y install libsdl2-dev"
+        },
+        {
+          "name" : "Install additional dependencies (Debian, No Homebrew)",
+          "if" : "matrix.platform.target-name == 'web' || matrix.platform.target-name == 'switch'",
           "run" : "apt-get -y update && apt-get -y install p7zip-full cmake make ninja-build git curl"
         },
         {
-          "name" : "Configure project",
-          "run" : "emcmake cmake -S . -B build"
+          "name" : "Set up default build tools (Homebrew)",
+          "if" : "matrix.platform.has-brew == 'true'",
+          "run" : "brew install make nasm ninja cmake"
         },
-        {
-          "name" : "Build project",
-          "run" : "cmake --build build"
-        },
-        {
-          "name" : "Archive artifact",
-          "run" : "cd build && 7z a -tzip ${{ github.event.repository.name }}-web.zip krkrsdl2.wasm krkrsdl2.js index.html"
-        },
-        {
-          "name" : "Upload artifact",
-          "uses" : "actions/upload-artifact@v4",
-          "with" : {
-            "name" : "${{ github.event.repository.name }}-web",
-            "path" : "build/*.zip"
-          }
-        }
-      ]
-    },
-    "build-ubuntu" : {
-      "runs-on" : "ubuntu-20.04",
-      "timeout-minutes" : 20,
-      "steps" : [
         {
           "name" : "Checkout repository",
           "uses" : "actions/checkout@v4",
@@ -93,35 +145,60 @@
           }
         },
         {
-          "name" : "Install dependencies",
-          "run" : "sudo apt-get update && sudo apt-get install build-essential libsdl2-dev"
+          "name" : "Clean current assets folder (Android)",
+          "if" : "matrix.platform.target-name == 'android'",
+          "run" : "rm -rf android-project/app/src/main/assets && mkdir -p android-project/app/src/main/assets"
         },
         {
-          "name" : "Set up Homebrew environment for Github Actions",
-          "run" : "echo \"/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin\" >> $GITHUB_PATH"
+          "name" : "Download example project",
+          "if" : "matrix.platform.example-project-path != ''",
+          "run" : "cd ${{ matrix.platform.example-project-path }} && curl -LOC - $EXAMPLE_PROJECT_URL"
         },
         {
-          "name" : "Set up default build tools",
-          "run" : "brew install make nasm ninja cmake"
+          "name" : "Set up JDK 17 (Android)",
+          "if" : "matrix.platform.target-name != 'android'",
+          "uses" : "actions/setup-java@v4",
+          "with" : {
+            "distribution" : "temurin",
+            "java-version" : "17"
+          }
         },
         {
-          "name" : "Configure project",
-          "run" : "cmake -S . -B build"
+          "name" : "Set up Android SDK (Android)",
+          "if" : "matrix.platform.target-name != 'android'",
+          "uses" : "android-actions/setup-android@v3"
         },
         {
-          "name" : "Build project",
+          "name" : "Configure project (General)",
+          "if" : "matrix.platform.target-name != 'android'",
+          "run" : "${{ cmake-extra-configure-prepend }} cmake -S . -B build ${{ cmake-extra-configure-append }}"
+        },
+        {
+          "name" : "Build project (General)",
+          "if" : "matrix.platform.target-name != 'android'",
           "run" : "cmake --build build"
         },
         {
-          "name" : "Archive artifact",
-          "run" : "cd build && 7z a -tzip ${{ github.event.repository.name }}-ubuntu.zip krkrsdl2"
+          "name" : "Build project (Android)",
+          "if" : "matrix.platform.target-name == 'android'",
+          "run" : "cd android-project\n./gradlew assembleRelease -Dcmake.dir=$(dirname $(dirname $(which cmake)))\n"
+        },
+        {
+          "name" : "Archive artifact (General)",
+          "if" : "matrix.platform.artifact-to-archive != ''",
+          "run" : "cd build && 7z a -tzip ${{ github.event.repository.name }}-${{ matrix.platform.target-name }}.zip ${{ matrix.platform.artifact-to-archive }}"
+        },
+        {
+          "name" : "Rename artifact (Android)",
+          "if" : "matrix.platform.target-name == 'android'",
+          "run" : "cp android-project/app/build/outputs/apk/release/krkrsdl2_*.apk ./krkrsdl2.apk"
         },
         {
           "name" : "Upload artifact",
           "uses" : "actions/upload-artifact@v4",
           "with" : {
-            "name" : "${{ github.event.repository.name }}-ubuntu",
-            "path" : "build/*.zip"
+            "name" : "${{ github.event.repository.name }}-${{ matrix.platform.target-name }}",
+            "path" : "${{ matrix.platform.artifact-path }}"
           }
         }
       ]
@@ -206,147 +283,6 @@
           "with" : {
             "name" : "${{ github.event.repository.name }}-win32-${{ matrix.platform.cmake-system-compiler }}-${{ matrix.platform.compiler }}",
             "path" : "build/*.zip"
-          }
-        }
-      ]
-    },
-    "build-android" : {
-      "runs-on" : "ubuntu-20.04",
-      "timeout-minutes" : 20,
-      "steps" : [
-        {
-          "name" : "Checkout repository",
-          "uses" : "actions/checkout@v4",
-          "with" : {
-            "submodules" : "recursive"
-          }
-        },
-        {
-          "name" : "Clean current assets folder",
-          "run" : "rm -rf android-project/app/src/main/assets && mkdir -p android-project/app/src/main/assets"
-        },
-        {
-          "name" : "Download example project",
-          "run" : "cd android-project/app/src/main/assets && curl -LOC - $EXAMPLE_PROJECT_URL"
-        },
-        {
-          "name" : "Set up base environment",
-          "run" : "sudo apt-get install build-essential"
-        },
-        {
-          "name" : "Set up Homebrew environment for Github Actions",
-          "run" : "echo \"/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin\" >> $GITHUB_PATH"
-        },
-        {
-          "name" : "Set up default build tools",
-          "run" : "brew install make nasm ninja cmake"
-        },
-        {
-          "name" : "set up JDK 17",
-          "uses" : "actions/setup-java@v4",
-          "with" : {
-            "distribution" : "temurin",
-            "java-version" : "17"
-          }
-        },
-        {
-          "name" : "Build project",
-          "run" : "cd android-project\n./gradlew assembleRelease -Dcmake.dir=$(dirname $(dirname $(which cmake)))\n"
-        },
-        {
-          "name" : "Rename artifact",
-          "run" : "cp android-project/app/build/outputs/apk/release/krkrsdl2_*.apk ./krkrsdl2.apk"
-        },
-        {
-          "name" : "Upload artifact",
-          "uses" : "actions/upload-artifact@v4",
-          "with" : {
-            "name" : "${{ github.event.repository.name }}-android",
-            "path" : "./krkrsdl2.apk"
-          }
-        }
-      ]
-    },
-    "build-vita" : {
-      "runs-on" : "ubuntu-20.04",
-      "timeout-minutes" : 20,
-      "container" : {
-        "image" : "vitasdk/vitasdk:latest"
-      },
-      "steps" : [
-        {
-          "name" : "Install dependencies",
-          "run" : "apk update\napk add cmake make ninja git curl\n"
-        },
-        {
-          "name" : "Checkout repository",
-          "uses" : "actions/checkout@v4",
-          "with" : {
-            "submodules" : "recursive"
-          }
-        },
-        {
-          "name" : "Download example project",
-          "run" : "curl -LOC - $EXAMPLE_PROJECT_URL"
-        },
-        {
-          "name" : "Configure project",
-          "run" : "cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DEMBED_DATA_PATH=data.xp3"
-        },
-        {
-          "name" : "Build project",
-          "run" : "cmake --build build"
-        },
-        {
-          "name" : "Upload artifact",
-          "uses" : "actions/upload-artifact@v4",
-          "with" : {
-            "name" : "${{ github.event.repository.name }}-vita",
-            "path" : "build/*.vpk"
-          }
-        }
-      ]
-    },
-    "build-switch" : {
-      "runs-on" : "ubuntu-20.04",
-      "timeout-minutes" : 20,
-      "container" : {
-        "image" : "devkitpro/devkita64:20210726"
-      },
-      "steps" : [
-        {
-          "name" : "Apply apt repository archive",
-          "run" : "sed -i -e 's,# deb http://snapshot,deb http://snapshot,g;s,deb http://deb,# deb http://deb,g;s,deb http://security,# deb http://security,g' /etc/apt/sources.list && mv /etc/apt/sources.list.d/buster-backports.list /etc/apt/sources.list.d/buster-backports.list.disabled && printf '%s\\n' 'Acquire::Check-Valid-Until \"0\";' | tee -a /etc/apt/apt.conf.d/10no--check-valid-until"
-        },
-        {
-          "name" : "Install dependencies",
-          "run" : "apt-get -y update\napt-get -y install cmake make ninja-build git curl\n"
-        },
-        {
-          "name" : "Checkout repository",
-          "uses" : "actions/checkout@v4",
-          "with" : {
-            "submodules" : "recursive"
-          }
-        },
-        {
-          "name" : "Download example project",
-          "run" : "curl -LOC - $EXAMPLE_PROJECT_URL"
-        },
-        {
-          "name" : "Configure project",
-          "run" : "cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake -DEMBED_DATA_PATH=data.xp3"
-        },
-        {
-          "name" : "Build project",
-          "run" : "cmake --build build"
-        },
-        {
-          "name" : "Upload artifact",
-          "uses" : "actions/upload-artifact@v4",
-          "with" : {
-            "name" : "${{ github.event.repository.name }}-switch",
-            "path" : "build/*.nro"
           }
         }
       ]
@@ -504,13 +440,9 @@
     },
     "create-release" : {
       "needs" : [
-        "build-android",
         "build-ios-cmake",
         "build-macos-cmake",
-        "build-switch",
         "build-ubuntu",
-        "build-vita",
-        "build-web",
         "build-win32",
         "generate-tp-stub-ubuntu"
       ],
