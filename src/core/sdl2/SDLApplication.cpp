@@ -1845,7 +1845,7 @@ bool TVPWindowWindow::OnCloseQuery()
 	else
 	{
 		this->CanCloseWork = true;
-		TVPPostEvent(obj, obj, eventname, 0, TVP_EPT_IMMEDIATE, 1, arg);
+		TVPPostEvent(obj, obj, eventname, 0, TVP_EPT_IMMEDIATE, sizeof(arg)/sizeof(arg[0]), arg);
 		process_events(); // for post event
 		// this event happens immediately
 		// and does not return until done
