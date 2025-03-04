@@ -482,7 +482,11 @@
         "build-ubuntu",
         "generate-tp-stub-ubuntu"
       ],
-      "runs-on" : "ubuntu-20.04",
+      "runs-on" : "ubuntu-latest",
+      "container" : {
+        "image" : "ubuntu:20.04",
+        "options" : "--user 0"
+      },
       "timeout-minutes" : 20,
       "if" : "github.ref == 'refs/heads/main'",
       "steps" : [
