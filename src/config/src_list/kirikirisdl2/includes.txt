@@ -33,6 +33,10 @@ external/krkrz/external/opus/silk/fixed
 external/krkrz/external/opus/silk/float
 external/krkrz/external/opusfile/include
 external/krkrz/external/opusfile/src
+external/krkrz/external/jxrlib
+external/krkrz/external/jxrlib/common/include
+external/krkrz/external/jxrlib/image/sys
+external/krkrz/external/jxrlib/jxrgluelib
 external/simde
 external/zlib
 src/config
