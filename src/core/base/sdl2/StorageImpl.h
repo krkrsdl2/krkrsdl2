@@ -20,6 +20,7 @@
 #ifdef _WIN32
 #include <objidl.h> // for IStream
 #else
+#ifndef KRKRSDL2_STORAGEIMPL_NO_COMPAT
 #define STDMETHODCALLTYPE
 #define ULONG tjs_uint
 #define ULONGLONG tjs_uint
@@ -193,6 +194,7 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE Clone(IStream **ppstm) = 0;
 };
 #endif
+#endif
 /*]*/
 
 //---------------------------------------------------------------------------
@@ -237,6 +239,7 @@ TJS_EXP_FUNC_DEF(bool, TVPCreateFolders, (const ttstr &folder));
 
 
 
+#ifndef KRKRSDL2_STORAGEIMPL_NO_COMPAT
 //---------------------------------------------------------------------------
 // tTVPIStreamAdapter
 //---------------------------------------------------------------------------
@@ -341,6 +344,7 @@ public:
 //---------------------------------------------------------------------------
 TJS_EXP_FUNC_DEF(tTJSBinaryStream *, TVPCreateBinaryStreamAdapter, (IStream *refstream));
 //---------------------------------------------------------------------------
+#endif
 
 
 
