@@ -58,7 +58,8 @@ else()
 set(EVAL_ENABLE_ASYNC_IMAGE_LOAD OFF)
 endif()
 
-# iOS does not support case insensitivity properly.
+# At the moment, iOS does not support case insensitivity properly with our code
+# due to the fact that some folders cannot be listed
 if((OPTION_ENABLE_CASEINSENSITIVITY) AND (NOT IOS))
 set(EVAL_ENABLE_CASEINSENSITIVITY ON)
 else()
