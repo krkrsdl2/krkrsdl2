@@ -2962,7 +2962,7 @@ void krkrsdl2_convert_set_args(int argc, char **argv)
 	for (int i = 0; i < argc; i += 1)
 	{
 		const char *narg;
-#if !defined(__EMSCRIPTEN__) && !defined(__vita__) && !defined(__SWITCH__)
+#if !defined(__EMSCRIPTEN__) && !defined(__vita__) && !defined(__SWITCH__) && !defined(_WIN32)
 		if (!i)
 		{
 			narg = realpath(argv[i], nullptr);
@@ -2982,7 +2982,7 @@ void krkrsdl2_convert_set_args(int argc, char **argv)
 		std::string v_utf8 = narg;
 		tjs_string v_utf16;
 		TVPUtf8ToUtf16( v_utf16, v_utf8 );
-#if !defined(__EMSCRIPTEN__) && !defined(__vita__) && !defined(__SWITCH__)
+#if !defined(__EMSCRIPTEN__) && !defined(__vita__) && !defined(__SWITCH__) && !defined(_WIN32)
 		if (!i)
 		{
 			free((void*)narg);
