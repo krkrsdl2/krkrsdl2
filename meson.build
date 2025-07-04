@@ -205,6 +205,9 @@ if target_machine.system() != 'emscripten'
 		'src/core/sdl2/SDLPrecompiledHeader.hpp',
 	]
 endif
+krkrsdl2_src += [
+	'src/core/sdl2/SDLEntrypoint.cpp',
+]
 krkrsdl2 = executable(
 	'krkrsdl2',
 	sources: krkrsdl2_src,

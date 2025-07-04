@@ -510,6 +510,10 @@ list(APPEND KRKRSDL2_LIBS
 )
 endif()
 
+list(APPEND KRKRSDL2_SRC
+	src/core/sdl2/SDLEntrypoint.cpp
+)
+
 set(KRKRSDL2_NAME krkrsdl2)
 
 if(ANDROID)
