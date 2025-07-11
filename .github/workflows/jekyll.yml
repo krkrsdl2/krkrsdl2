@@ -23,7 +23,7 @@
   "jobs": {
     "build-jekyll": {
       "runs-on": "ubuntu-latest",
-      "timeout-minutes": 10,
+      "timeout-minutes": 5,
       "container": {
         "image": "ubuntu:20.04",
         "options": "--user 0"
@@ -82,7 +82,7 @@
         "url": "${{ steps.deployment.outputs.page_url }}"
       },
       "runs-on": "ubuntu-latest",
-      "timeout-minutes": 10,
+      "timeout-minutes": 5,
       "container": {
         "image": "ubuntu:20.04",
         "options": "--user 0"
