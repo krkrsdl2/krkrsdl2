@@ -1,21 +1,90 @@
-name: Build and deploy Jekyll site to GitHub Pages
-
-on:
-  push:
-    branches:
-      - docs
-
-jobs:
-  github-pages:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
-      - uses: helaili/jekyll-action@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+{
+  "name": "Deploy Jekyll site to GitHub Pages",
+  "concurrency": {
+    "group": "pages",
+    "cancel-in-progress": false
+  },
+  "permissions": {
+    "contents": "read",
+    "pages": "write",
+    "id-token": "write"
+  },
+  "on": {
+    "push": {
+      "branches": [
+        "docs"
+      ]
+    }
+  },
+  "env": {
+    "DEBIAN_FRONTEND": "noninteractive",
+    "TZ": "Japan"
+  },
+  "jobs": {
+    "build-jekyll": {
+      "runs-on": "ubuntu-latest",
+      "timeout-minutes": 20,
+      "container": {
+        "image": "ubuntu:20.04",
+        "options": "--user 0"
+      },
+      "steps": [
+        {
+          "name": "Set up base environment",
+          "run": "apt-get -y update && apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install git"
+        },
+        {
+          "name": "Set up extra parameters",
+          "run": "printf '%s\\n' \"SITE_DESTDIR=$(pwd)/_site/\" >> $GITHUB_ENV"
+        },
+        {
+          "name": "Checkout repository",
+          "uses": "actions/checkout@v4"
+        },
+        {
+          "uses": "ruby/setup-ruby@v1",
+          "with": {
+            "ruby-version": "3.3.3",
+            "bundler-cache": true
+          }
+        },
+        {
+          "name": "Build site",
+          "run": "bundle exec jekyll build --destination ${{ env.SITE_DESTDIR }} --verbose --trace",
+          "env": {
+            "JEKYLL_GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}",
+            "JEKYLL_ENV": "production",
+            "PAGES_REPO_NWO": "${{ github.repository }}"
+          }
+        },
+        {
+          "name": "Upload site artifact",
+          "uses": "actions/upload-pages-artifact@v3",
+          "path": "${{ env.SITE_DESTDIR }}"
+        }
+      ]
+    },
+    "deploy": {
+      "environment": {
+        "name": "github-pages",
+        "url": "${{ steps.deployment.outputs.page_url }}"
+      },
+      "runs-on": "ubuntu-latest",
+      "timeout-minutes": 20,
+      "container": {
+        "image": "ubuntu:20.04",
+        "options": "--user 0"
+      },
+      "needs": [
+        "build-jekyll"
+      ],
+      "steps": [
+        {
+          "name": "Deploy to GitHub Pages",
+          "id": "deployment",
+          "uses": "actions/deploy-pages@v4"
+        }
+      ]
+    }
+  }
+}
