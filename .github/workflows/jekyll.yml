@@ -31,7 +31,7 @@
       "steps": [
         {
           "name": "Set up base environment",
-          "run": "apt-get -y update && apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install git"
+          "run": "apt-get -y update && apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install git ruby"
         },
         {
           "name": "Set up extra parameters",
@@ -42,10 +42,12 @@
           "uses": "actions/checkout@v4"
         },
         {
-          "uses": "ruby/setup-ruby@v1",
+          "name": "Apply bundler cache",
+          "uses": "actions/cache@v4",
           "with": {
-            "ruby-version": "3.3.3",
-            "bundler-cache": true
+            "path": "vendor/bundle",
+            "key": "${{ runner.os }}-gems-${{ hashFiles('**/Gemfile') }}",
+            "restore-keys": "${{ runner.os }}-gems-"
           }
         },
         {
