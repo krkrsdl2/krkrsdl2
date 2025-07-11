@@ -60,7 +60,9 @@
         {
           "name": "Upload site artifact",
           "uses": "actions/upload-pages-artifact@v3",
-          "path": "${{ env.SITE_DESTDIR }}"
+          "with": {
+            "path": "${{ env.SITE_DESTDIR }}"
+          }
         }
       ]
     },
