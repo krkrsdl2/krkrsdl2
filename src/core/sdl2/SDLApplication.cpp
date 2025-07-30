@@ -507,22 +507,22 @@ protected:
 	bool hasDrawn = false;
 	bool isVisible = true;
 	bool visibilityHasInitialized = false;
-	bool needs_graphic_update = false;
+	bool needsGraphicUpdate = false;
 	bool isBeingDeleted = false;
-	bool cursor_temporary_hidden = false;
-	char *ime_composition;
-	size_t ime_composition_cursor;
-	size_t ime_composition_len;
-	size_t ime_composition_selection;
-	SDL_Rect attention_point_rect;
-	iTJSDispatch2 *file_drop_array;
-	tjs_int file_drop_array_count;
-	TVPSDLBitmapCompletion *bitmap_completion;
+	bool cursorTemporaryHidden = false;
+	char *imeCompositionStr;
+	size_t imeCompositionCursor;
+	size_t imeCompositionLen;
+	size_t imeCompositionSelection;
+	SDL_Rect attentionPointRect;
+	iTJSDispatch2 *fileDropArray;
+	tjs_int fileDropArrayCount;
+	TVPSDLBitmapCompletion *bitmapCompletion;
 #ifdef KRKRZ_ENABLE_CANVAS
-	tTVPOpenGLScreen *open_gl_screen;
+	tTVPOpenGLScreen *openGlScreen;
 #endif
-	int last_mouse_x;
-	int last_mouse_y;
+	int lastMouseX;
+	int lastMouseY;
 
 #ifdef KRKRSDL2_ENABLE_ZOOM
 	tTVPRect FullScreenDestRect;
@@ -712,10 +712,10 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 {
 	this->window = nullptr;
 	this->ResetImeMode();
-	this->file_drop_array = nullptr;
-	this->file_drop_array_count = 0;
-	this->last_mouse_x = 0;
-	this->last_mouse_y = 0;
+	this->fileDropArray = nullptr;
+	this->fileDropArrayCount = 0;
+	this->lastMouseX = 0;
+	this->lastMouseY = 0;
 	this->_nextWindow = nullptr;
 	this->_prevWindow = _lastWindowWindow;
 	_lastWindowWindow = this;
@@ -811,9 +811,9 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 	}
 #endif
 	this->renderer = nullptr;
-	this->bitmap_completion = nullptr;
+	this->bitmapCompletion = nullptr;
 #ifdef KRKRZ_ENABLE_CANVAS
-	this->open_gl_screen = nullptr;
+	this->openGlScreen = nullptr;
 #endif
 	this->surface = nullptr;
 #ifdef KRKRZ_ENABLE_CANVAS
@@ -834,7 +834,7 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 		SDL_AddEventWatch(sdl_event_watch, nullptr);
 #endif
 
-		this->bitmap_completion = new TVPSDLBitmapCompletion();
+		this->bitmapCompletion = new TVPSDLBitmapCompletion();
 		if (!this->renderer)
 		{
 			this->surface = SDL_GetWindowSurface(this->window);
@@ -842,7 +842,7 @@ TVPWindowWindow::TVPWindowWindow(tTJSNI_Window *w)
 			{
 				TVPAddLog(ttstr("Cannot get surface from SDL window: ") + ttstr(SDL_GetError()));
 			}
-			this->bitmap_completion->surface = this->surface;
+			this->bitmapCompletion->surface = this->surface;
 		}
 		if (!this->renderer && !this->surface)
 		{
@@ -878,10 +878,10 @@ TVPWindowWindow::~TVPWindowWindow()
 	{
 		_currentWindowWindow = _lastWindowWindow;
 	}
-	if (this->bitmap_completion)
+	if (this->bitmapCompletion)
 	{
-		delete this->bitmap_completion;
-		this->bitmap_completion = nullptr;
+		delete this->bitmapCompletion;
+		this->bitmapCompletion = nullptr;
 	}
 #ifdef KRKRZ_ENABLE_CANVAS
 	if (this->context)
@@ -943,7 +943,7 @@ void TVPWindowWindow::SetPaintBoxSize(tjs_int w, tjs_int h)
 		{
 			TVPThrowExceptionMessage(TJS_W("Cannot create texture texture: %1"), ttstr(SDL_GetError()));
 		}
-		this->bitmap_completion->surface = nullptr;
+		this->bitmapCompletion->surface = nullptr;
 		if (this->surface)
 		{
 			SDL_FreeSurface(this->surface);
@@ -954,7 +954,7 @@ void TVPWindowWindow::SetPaintBoxSize(tjs_int w, tjs_int h)
 		{
 			TVPThrowExceptionMessage(TJS_W("Cannot create surface: %1"), ttstr(SDL_GetError()));
 		}
-		this->bitmap_completion->surface = this->surface;
+		this->bitmapCompletion->surface = this->surface;
 	}
 #ifndef KRKRSDL2_ENABLE_ZOOM
 	SDL_Rect cliprect;
@@ -1095,12 +1095,12 @@ void TVPWindowWindow::SetMouseCursor(tjs_int handle)
 }
 void TVPWindowWindow::SetMouseCursorState(tTVPMouseCursorState mcs)
 {
-	this->cursor_temporary_hidden = (mcs == mcsTempHidden);
+	this->cursorTemporaryHidden = (mcs == mcsTempHidden);
 	SDL_ShowCursor((mcs == mcsVisible) ? SDL_ENABLE : SDL_DISABLE);
 }
 tTVPMouseCursorState TVPWindowWindow::GetMouseCursorState() const
 {
-	return this->cursor_temporary_hidden ? mcsTempHidden : ((SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) ? mcsVisible : mcsHidden);
+	return this->cursorTemporaryHidden ? mcsTempHidden : ((SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE) ? mcsVisible : mcsHidden);
 }
 void TVPWindowWindow::HideMouseCursor()
 {
@@ -1108,15 +1108,15 @@ void TVPWindowWindow::HideMouseCursor()
 }
 void TVPWindowWindow::RestoreMouseCursor()
 {
-	if (this->cursor_temporary_hidden)
+	if (this->cursorTemporaryHidden)
 	{
 		this->SetMouseCursorState(mcsVisible);
 	}
 }
 void TVPWindowWindow::GetCursorPos(tjs_int &x, tjs_int &y)
 {
-	x = this->last_mouse_x;
-	y = this->last_mouse_y;
+	x = this->lastMouseX;
+	y = this->lastMouseY;
 	if (this->window != SDL_GetMouseFocus())
 	{
 		return;
@@ -1187,12 +1187,12 @@ void TVPWindowWindow::SetAttentionPoint(tjs_int left, tjs_int top, const struct 
 	{
 		return;
 	}
-	this->attention_point_rect.x = left;
-	this->attention_point_rect.y = top;
-	this->attention_point_rect.w = 0;
-	this->attention_point_rect.h = font->Height;
-	this->TranslateDrawAreaToWindow(this->attention_point_rect.x, this->attention_point_rect.y);
-	SDL_SetTextInputRect(&this->attention_point_rect);
+	this->attentionPointRect.x = left;
+	this->attentionPointRect.y = top;
+	this->attentionPointRect.w = 0;
+	this->attentionPointRect.h = font->Height;
+	this->TranslateDrawAreaToWindow(this->attentionPointRect.x, this->attentionPointRect.y);
+	SDL_SetTextInputRect(&this->attentionPointRect);
 }
 void TVPWindowWindow::BringToFront()
 {
@@ -1351,13 +1351,13 @@ void TVPWindowWindow::SetWidth(tjs_int w)
 		SDL_SetWindowSize(this->window, w, h);
 		if (!this->renderer && this->surface)
 		{
-			this->bitmap_completion->surface = nullptr;
+			this->bitmapCompletion->surface = nullptr;
 			this->surface = SDL_GetWindowSurface(this->window);
 			if (!this->surface)
 			{
 				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
 			}
-			this->bitmap_completion->surface = this->surface;
+			this->bitmapCompletion->surface = this->surface;
 		}
 	}
 #endif
@@ -1377,13 +1377,13 @@ void TVPWindowWindow::SetHeight(tjs_int h)
 		SDL_SetWindowSize(this->window, w, h);
 		if (!this->renderer && this->surface)
 		{
-			this->bitmap_completion->surface = nullptr;
+			this->bitmapCompletion->surface = nullptr;
 			this->surface = SDL_GetWindowSurface(this->window);
 			if (!this->surface)
 			{
 				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
 			}
-			this->bitmap_completion->surface = this->surface;
+			this->bitmapCompletion->surface = this->surface;
 		}
 	}
 #endif
@@ -1401,13 +1401,13 @@ void TVPWindowWindow::SetSize(tjs_int w, tjs_int h)
 		SDL_SetWindowSize(this->window, w, h);
 		if (!this->renderer && this->surface)
 		{
-			this->bitmap_completion->surface = nullptr;
+			this->bitmapCompletion->surface = nullptr;
 			this->surface = SDL_GetWindowSurface(this->window);
 			if (!this->surface)
 			{
 				TVPThrowExceptionMessage(TJS_W("Cannot get surface from SDL window: %1"), ttstr(SDL_GetError()));
 			}
-			this->bitmap_completion->surface = this->surface;
+			this->bitmapCompletion->surface = this->surface;
 		}
 	}
 #endif
@@ -1639,13 +1639,13 @@ void TVPWindowWindow::SetPosition(tjs_int l, tjs_int t)
 }
 TVPSDLBitmapCompletion *TVPWindowWindow::GetTVPSDLBitmapCompletion()
 {
-	this->needs_graphic_update = true;
-	return this->bitmap_completion;
+	this->needsGraphicUpdate = true;
+	return this->bitmapCompletion;
 }
 #ifdef KRKRZ_ENABLE_CANVAS
 void TVPWindowWindow::SetOpenGLScreen(tTVPOpenGLScreen *s)
 {
-	this->open_gl_screen = s;
+	this->openGlScreen = s;
 }
 void TVPWindowWindow::SetSwapInterval(int interval)
 {
@@ -1681,15 +1681,15 @@ void TVPWindowWindow::TickBeat()
 		this->visibilityHasInitialized = true;
 		this->SetVisible(this->isVisible);
 	}
-	if (this->needs_graphic_update)
+	if (this->needsGraphicUpdate)
 	{
-		if (this->bitmap_completion)
+		if (this->bitmapCompletion)
 		{
 			SDL_Rect rect;
-			rect.x = this->bitmap_completion->update_rect.left;
-			rect.y = this->bitmap_completion->update_rect.top;
-			rect.w = this->bitmap_completion->update_rect.get_width();
-			rect.h = this->bitmap_completion->update_rect.get_height();
+			rect.x = this->bitmapCompletion->update_rect.left;
+			rect.y = this->bitmapCompletion->update_rect.top;
+			rect.w = this->bitmapCompletion->update_rect.get_width();
+			rect.h = this->bitmapCompletion->update_rect.get_height();
 			if (this->renderer)
 			{
 #if defined(KRKRSDL2_ENABLE_ZOOM) || defined(KRKRSDL2_RENDERER_FULL_UPDATES)
@@ -1758,7 +1758,7 @@ void TVPWindowWindow::TickBeat()
 				SDL_UpdateWindowSurfaceRects(this->window, &rect, 1);
 				this->hasDrawn = true;
 			}
-			this->needs_graphic_update = false;
+			this->needsGraphicUpdate = false;
 		}
 	}
 #ifdef KRKRZ_ENABLE_CANVAS
@@ -1948,23 +1948,23 @@ void TVPWindowWindow::SetImeMode(tTVPImeMode mode)
 	}
 	else if (!SDL_IsTextInputActive())
 	{
-		SDL_SetTextInputRect(&this->attention_point_rect);
+		SDL_SetTextInputRect(&this->attentionPointRect);
 		SDL_StartTextInput();
 	}
 }
 void TVPWindowWindow::ResetImeMode()
 {
-	this->ime_composition = nullptr;
-	this->ime_composition_len = 0;
-	this->ime_composition_cursor = 0;
-	this->ime_composition_selection = 0;
-	this->attention_point_rect.x = 0;
-	this->attention_point_rect.y = 0;
-	this->attention_point_rect.w = 0;
-	this->attention_point_rect.h = 0;
+	this->imeCompositionStr = nullptr;
+	this->imeCompositionLen = 0;
+	this->imeCompositionCursor = 0;
+	this->imeCompositionSelection = 0;
+	this->attentionPointRect.x = 0;
+	this->attentionPointRect.y = 0;
+	this->attentionPointRect.w = 0;
+	this->attentionPointRect.h = 0;
 	if (this->window && SDL_IsTextInputActive())
 	{
-		SDL_SetTextInputRect(&this->attention_point_rect);
+		SDL_SetTextInputRect(&this->attentionPointRect);
 		SDL_StopTextInput();
 	}
 }
@@ -2407,7 +2407,7 @@ void TVPWindowWindow::window_receive_event(SDL_Event event)
 						return;
 					}
 					// TODO: figure out vertical edit
-					for (size_t i = 0; i < this->ime_composition_selection; i += 1)
+					for (size_t i = 0; i < this->imeCompositionSelection; i += 1)
 					{
 						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(this->TJSNativeInstance, VK_LEFT, TVP_SS_SHIFT));
 						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(this->TJSNativeInstance, VK_LEFT, TVP_SS_SHIFT));
@@ -2416,7 +2416,7 @@ void TVPWindowWindow::window_receive_event(SDL_Event event)
 						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(this->TJSNativeInstance, VK_DOWN, TVP_SS_SHIFT));
 #endif
 					}
-					for (size_t i = 0; i < this->ime_composition_len - this->ime_composition_cursor; i += 1)
+					for (size_t i = 0; i < this->imeCompositionLen - this->imeCompositionCursor; i += 1)
 					{
 						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(this->TJSNativeInstance, VK_RIGHT, 0));
 						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(this->TJSNativeInstance, VK_RIGHT, 0));
@@ -2425,7 +2425,7 @@ void TVPWindowWindow::window_receive_event(SDL_Event event)
 						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(this->TJSNativeInstance, VK_DOWN, 0));
 #endif
 					}
-					for (size_t i = 0; i < this->ime_composition_len; i += 1)
+					for (size_t i = 0; i < this->imeCompositionLen; i += 1)
 					{
 						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(this->TJSNativeInstance, VK_BACK, 0));
 						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(this->TJSNativeInstance, VK_BACK, 0));
@@ -2433,26 +2433,26 @@ void TVPWindowWindow::window_receive_event(SDL_Event event)
 					switch (event.type)
 					{
 						case SDL_TEXTINPUT:
-							this->ime_composition = event.text.text;
-							this->ime_composition_cursor = 0;
-							this->ime_composition_selection = 0;
+							this->imeCompositionStr = event.text.text;
+							this->imeCompositionCursor = 0;
+							this->imeCompositionSelection = 0;
 							break;
 						case SDL_TEXTEDITING:
-							this->ime_composition = event.edit.text;
-							this->ime_composition_cursor = event.edit.start;
-							this->ime_composition_selection = event.edit.length;
+							this->imeCompositionStr = event.edit.text;
+							this->imeCompositionCursor = event.edit.start;
+							this->imeCompositionSelection = event.edit.length;
 							break;
 					}
-					size_t buffer_len = TVPUtf8ToWideCharString((const char*)(this->ime_composition), nullptr);
+					size_t buffer_len = TVPUtf8ToWideCharString((const char*)(this->imeCompositionStr), nullptr);
 					if (buffer_len == (size_t)-1)
 					{
 						return;
 					}
 					if (buffer_len)
 					{
-						this->ime_composition_len = buffer_len;
+						this->imeCompositionLen = buffer_len;
 						tjs_char *buffer = new tjs_char[buffer_len + 1];
-						TVPUtf8ToWideCharString((const char*)(this->ime_composition), buffer);
+						TVPUtf8ToWideCharString((const char*)(this->imeCompositionStr), buffer);
 						for (size_t i = 0; i < buffer_len; i += 1)
 						{
 							TVPPostInputEvent(new tTVPOnKeyPressInputEvent(this->TJSNativeInstance, buffer[i]));
@@ -2461,14 +2461,14 @@ void TVPWindowWindow::window_receive_event(SDL_Event event)
 					}
 					else
 					{
-						this->ime_composition = nullptr;
-						this->ime_composition_len = 0;
-						this->ime_composition_cursor = 0;
-						this->ime_composition_selection = 0;
+						this->imeCompositionStr = nullptr;
+						this->imeCompositionLen = 0;
+						this->imeCompositionCursor = 0;
+						this->imeCompositionSelection = 0;
 					}
 					if (event.type == SDL_TEXTEDITING)
 					{
-						for (size_t i = 0; i < this->ime_composition_len - this->ime_composition_cursor; i += 1)
+						for (size_t i = 0; i < this->imeCompositionLen - this->imeCompositionCursor; i += 1)
 						{
 							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(this->TJSNativeInstance, VK_LEFT, 0));
 							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(this->TJSNativeInstance, VK_LEFT, 0));
@@ -2477,7 +2477,7 @@ void TVPWindowWindow::window_receive_event(SDL_Event event)
 							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(this->TJSNativeInstance, VK_UP, 0));
 #endif
 						}
-						for (size_t i = 0; i < this->ime_composition_selection; i += 1)
+						for (size_t i = 0; i < this->imeCompositionSelection; i += 1)
 						{
 							TVPPostInputEvent(new tTVPOnKeyDownInputEvent(this->TJSNativeInstance, VK_RIGHT, TVP_SS_SHIFT));
 							TVPPostInputEvent(new tTVPOnKeyUpInputEvent(this->TJSNativeInstance, VK_RIGHT, TVP_SS_SHIFT));
@@ -2489,28 +2489,28 @@ void TVPWindowWindow::window_receive_event(SDL_Event event)
 					}
 					if (event.type == SDL_TEXTINPUT)
 					{
-						this->ime_composition = nullptr;
-						this->ime_composition_len = 0;
+						this->imeCompositionStr = nullptr;
+						this->imeCompositionLen = 0;
 					}
 					return;
 				}
 				case SDL_DROPBEGIN:
 				{
-					if (!this->file_drop_array)
+					if (!this->fileDropArray)
 					{
-						this->file_drop_array = TJSCreateArrayObject();
+						this->fileDropArray = TJSCreateArrayObject();
 					}
 					return;
 				}
 				case SDL_DROPCOMPLETE:
 				{
-					if (this->file_drop_array)
+					if (this->fileDropArray)
 					{
-						tTJSVariant arg(this->file_drop_array, this->file_drop_array);
+						tTJSVariant arg(this->fileDropArray, this->fileDropArray);
 						TVPPostInputEvent(new tTVPOnFileDropInputEvent(this->TJSNativeInstance, arg));
-						this->file_drop_array->Release();
-						this->file_drop_array = nullptr;
-						this->file_drop_array_count = 0;
+						this->fileDropArray->Release();
+						this->fileDropArray = nullptr;
+						this->fileDropArrayCount = 0;
 					}
 					return;
 				}
@@ -2526,10 +2526,10 @@ void TVPWindowWindow::window_receive_event(SDL_Event event)
 						if (TVPIsExistentStorageNoSearch(f_utf16))
 						{
 							tTJSVariant val = TVPNormalizeStorageName(ttstr(f_utf16));
-							if (this->file_drop_array)
+							if (this->fileDropArray)
 							{
-								this->file_drop_array->PropSetByNum(TJS_MEMBERENSURE|TJS_IGNOREPROP, this->file_drop_array_count, &val, this->file_drop_array);
-								this->file_drop_array_count += 1;
+								this->fileDropArray->PropSetByNum(TJS_MEMBERENSURE|TJS_IGNOREPROP, this->fileDropArrayCount, &val, this->fileDropArray);
+								this->fileDropArrayCount += 1;
 							}
 							else
 							{
@@ -2646,16 +2646,16 @@ bool TVPWindowWindow::window_receive_event_input(SDL_Event event)
 				case SDL_MOUSEMOTION:
 				{
 					this->RestoreMouseCursor();
-					this->last_mouse_x = event.motion.x;
-					this->last_mouse_y = event.motion.y;
-					this->TranslateWindowToDrawArea(this->last_mouse_x, this->last_mouse_y);
-					TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(this->TJSNativeInstance, this->last_mouse_x, this->last_mouse_y, s));
+					this->lastMouseX = event.motion.x;
+					this->lastMouseY = event.motion.y;
+					this->TranslateWindowToDrawArea(this->lastMouseX, this->lastMouseY);
+					TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(this->TJSNativeInstance, this->lastMouseX, this->lastMouseY, s));
 					return true;
 				}
 				case SDL_MOUSEBUTTONDOWN:
 				case SDL_MOUSEBUTTONUP:
 				{
-					if (SDL_IsTextInputActive() && this->ime_composition)
+					if (SDL_IsTextInputActive() && this->imeCompositionStr)
 					{
 						return false;
 					}
@@ -2684,25 +2684,25 @@ bool TVPWindowWindow::window_receive_event_input(SDL_Event event)
 					}
 					if (hasbtn)
 					{
-						this->last_mouse_x = event.button.x;
-						this->last_mouse_y = event.button.y;
-						this->TranslateWindowToDrawArea(this->last_mouse_x, this->last_mouse_y);
-						TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(this->TJSNativeInstance, this->last_mouse_x, this->last_mouse_y, s));
+						this->lastMouseX = event.button.x;
+						this->lastMouseY = event.button.y;
+						this->TranslateWindowToDrawArea(this->lastMouseX, this->lastMouseY);
+						TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(this->TJSNativeInstance, this->lastMouseX, this->lastMouseY, s));
 						switch (event.type)
 						{
 							case SDL_MOUSEBUTTONDOWN:
-								TVPPostInputEvent(new tTVPOnMouseDownInputEvent(this->TJSNativeInstance, this->last_mouse_x, this->last_mouse_y, btn, s));
+								TVPPostInputEvent(new tTVPOnMouseDownInputEvent(this->TJSNativeInstance, this->lastMouseX, this->lastMouseY, btn, s));
 								break;
 							case SDL_MOUSEBUTTONUP:
 								if (event.button.clicks >= 2)
 								{
-									TVPPostInputEvent(new tTVPOnDoubleClickInputEvent(this->TJSNativeInstance, this->last_mouse_x, this->last_mouse_y));
+									TVPPostInputEvent(new tTVPOnDoubleClickInputEvent(this->TJSNativeInstance, this->lastMouseX, this->lastMouseY));
 								}
 								else
 								{
-									TVPPostInputEvent(new tTVPOnClickInputEvent(this->TJSNativeInstance, this->last_mouse_x, this->last_mouse_y));
+									TVPPostInputEvent(new tTVPOnClickInputEvent(this->TJSNativeInstance, this->lastMouseX, this->lastMouseY));
 								}
-								TVPPostInputEvent(new tTVPOnMouseUpInputEvent(this->TJSNativeInstance, this->last_mouse_x, this->last_mouse_y, btn, s));
+								TVPPostInputEvent(new tTVPOnMouseUpInputEvent(this->TJSNativeInstance, this->lastMouseX, this->lastMouseY, btn, s));
 								break;
 						}
 						return true;
@@ -2711,8 +2711,8 @@ bool TVPWindowWindow::window_receive_event_input(SDL_Event event)
 				}
 				case SDL_MOUSEWHEEL:
 				{
-					this->TranslateWindowToDrawArea(this->last_mouse_x, this->last_mouse_y);
-					TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(this->TJSNativeInstance, event.wheel.x, event.wheel.y, this->last_mouse_x, this->last_mouse_y));
+					this->TranslateWindowToDrawArea(this->lastMouseX, this->lastMouseY);
+					TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(this->TJSNativeInstance, event.wheel.x, event.wheel.y, this->lastMouseX, this->lastMouseY));
 					return true;
 				}
 				case SDL_FINGERMOTION:
@@ -2762,7 +2762,7 @@ bool TVPWindowWindow::window_receive_event_input(SDL_Event event)
 				{
 					if (SDL_IsTextInputActive())
 					{
-						if (this->ime_composition)
+						if (this->imeCompositionStr)
 						{
 							return false;
 						}
@@ -2792,14 +2792,14 @@ bool TVPWindowWindow::window_receive_event_input(SDL_Event event)
 					{
 						TVPPostInputEvent(new tTVPOnKeyDownInputEvent(this->TJSNativeInstance, unified_vk_key, s));
 					}
-					SDL_SetTextInputRect(&this->attention_point_rect);
+					SDL_SetTextInputRect(&this->attentionPointRect);
 					return true;
 				}
 				case SDL_KEYUP:
 				{
 					if (SDL_IsTextInputActive())
 					{
-						if (this->ime_composition)
+						if (this->imeCompositionStr)
 						{
 							return false;
 						}
@@ -2833,7 +2833,7 @@ bool TVPWindowWindow::window_receive_event_input(SDL_Event event)
 					{
 						TVPPostInputEvent(new tTVPOnKeyUpInputEvent(this->TJSNativeInstance, unified_vk_key, s));
 					}
-					SDL_SetTextInputRect(&this->attention_point_rect);
+					SDL_SetTextInputRect(&this->attentionPointRect);
 					return true;
 				}
 				default:
