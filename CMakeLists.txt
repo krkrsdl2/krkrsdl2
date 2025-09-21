@@ -154,10 +154,15 @@ list(APPEND KRKRSDL2COMMON_SRC ${KIRIKIRISDL2_SSE2_SRC})
 list(APPEND KRKRSDL2COMMON_SRC ${KIRIKIRISDL2_AVX2_SRC})
 list(APPEND KRKRSDL2COMMON_INCLUDES ${KIRIKIRISDL2_INCLUDES})
 
-list(APPEND KRKRSDL2_SRC src/support/roundevenf.c)
+set(KRKRSDL2OPUS_SRC "")
+list(APPEND KRKRSDL2OPUS_SRC ${KRKRSDL2COMMON_SRC})
+list(FILTER KRKRSDL2OPUS_SRC INCLUDE REGEX "^external/krkrz/external/opus")
+set_source_files_properties(${KRKRSDL2OPUS_SRC} PROPERTIES INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/external/krkrz/external/opus/silk;${CMAKE_CURRENT_SOURCE_DIR}/external/krkrz/external/opus/silk/fixed;${CMAKE_CURRENT_SOURCE_DIR}/external/krkrz/external/opus/silk/float")
+
+list(APPEND KRKRSDL2COMMON_SRC src/support/roundevenf.c)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")
-list(APPEND KRKRSDL2_SRC src/plugins/kremscripten.cpp)
+list(APPEND KRKRSDL2COMMON_SRC src/plugins/kremscripten.cpp)
 endif()
 
 list(APPEND KRKRSDL2_DEFINITIONS
@@ -296,12 +301,98 @@ list(APPEND KRKRSDL2_LDFLAGS
 	-municode
 	-Wl,--subsystem,windows
 )
+list(APPEND KRKRSDL2_LIBS
+	uuid
+	mpr
+	dmoguids
+	mfplat
+	strmiids
+	mf
+	propsys
+	mfuuid
+	amstrmid
+	dxguid
+	windowscodecs
+)
+if((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "amd64"))
+list(APPEND KRKRSDL2_LIBS
+	quartz
+)
+endif()
 if((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "amd64"))
 set_source_files_properties(${KIRIKIRISDL2_SSE2_SRC} PROPERTIES COMPILE_FLAGS -msse2)
 set_source_files_properties(${KIRIKIRISDL2_AVX2_SRC} PROPERTIES COMPILE_FLAGS -mavx2)
 endif()
-list(APPEND KRKRSDL2_SRC
+list(APPEND KRKRSDL2COMMON_SRC
 	src/core/sound/sdl2/tvpsnd.c
+
+	src/core/environ/win32/WindowsUtil.cpp
+
+	external/krkrz/movie/win32/TVPVideoOverlay.cpp
+
+	external/krkrz/movie/win32/BufferRenderer.cpp
+	external/krkrz/movie/win32/CDemuxOutputPin.cpp
+	external/krkrz/movie/win32/CDemuxSource.cpp
+	external/krkrz/movie/win32/CMediaSeekingProxy.cpp
+	external/krkrz/movie/win32/CVMRCustomAllocatorPresenter9.cpp
+	external/krkrz/movie/win32/CWMAllocator.cpp
+	external/krkrz/movie/win32/CWMBuffer.cpp
+	external/krkrz/movie/win32/CWMReader.cpp
+	external/krkrz/movie/win32/DShowException.cpp
+	external/krkrz/movie/win32/IBufferRenderer_i.c
+	external/krkrz/movie/win32/IRendererBufferAccess_i.c
+	external/krkrz/movie/win32/IRendererBufferVideo_i.c
+	external/krkrz/movie/win32/MFByteStream.cpp
+	external/krkrz/movie/win32/MFPlayer.cpp
+	external/krkrz/movie/win32/PlayWindow.cpp
+	external/krkrz/movie/win32/init_guid_movie.c
+	external/krkrz/movie/win32/asyncio.cpp
+	external/krkrz/movie/win32/asyncrdr.cpp
+	external/krkrz/movie/win32/dslayerd.cpp
+	external/krkrz/movie/win32/dsmixer.cpp
+	external/krkrz/movie/win32/dsmovie.cpp
+	external/krkrz/movie/win32/dsoverlay.cpp
+	external/krkrz/movie/win32/krlmovie.cpp
+	external/krkrz/movie/win32/krmmovie.cpp
+	external/krkrz/movie/win32/krmovie.cpp
+
+	external/krkrz/external/baseclasses/amextra.cpp
+	external/krkrz/external/baseclasses/amfilter.cpp
+	external/krkrz/external/baseclasses/amvideo.cpp
+	external/krkrz/external/baseclasses/arithutil.cpp
+	external/krkrz/external/baseclasses/combase.cpp
+	external/krkrz/external/baseclasses/cprop.cpp
+	external/krkrz/external/baseclasses/ctlutil.cpp
+	external/krkrz/external/baseclasses/ddmm.cpp
+	external/krkrz/external/baseclasses/dllentry.cpp
+	external/krkrz/external/baseclasses/dllsetup.cpp
+	external/krkrz/external/baseclasses/mtype.cpp
+	external/krkrz/external/baseclasses/outputq.cpp
+	external/krkrz/external/baseclasses/perflog.cpp
+	external/krkrz/external/baseclasses/pstream.cpp
+	external/krkrz/external/baseclasses/pullpin.cpp
+	external/krkrz/external/baseclasses/refclock.cpp
+	external/krkrz/external/baseclasses/renbase.cpp
+	external/krkrz/external/baseclasses/schedule.cpp
+	external/krkrz/external/baseclasses/seekpt.cpp
+	external/krkrz/external/baseclasses/source.cpp
+	external/krkrz/external/baseclasses/strmctl.cpp
+	external/krkrz/external/baseclasses/sysclock.cpp
+	external/krkrz/external/baseclasses/transfrm.cpp
+	external/krkrz/external/baseclasses/transip.cpp
+	external/krkrz/external/baseclasses/videoctl.cpp
+	external/krkrz/external/baseclasses/vtrans.cpp
+	external/krkrz/external/baseclasses/winctrl.cpp
+	external/krkrz/external/baseclasses/winutil.cpp
+	external/krkrz/external/baseclasses/wxdebug.cpp
+	external/krkrz/external/baseclasses/wxlist.cpp
+	external/krkrz/external/baseclasses/wxutil.cpp
+)
+list(APPEND KRKRSDL2COMMON_INCLUDES
+	src/core/visual/win32
+	src/core/environ/win32
+	external/krkrz/movie/win32
+	external/krkrz/external/baseclasses
 )
 endif()
 
@@ -321,7 +412,7 @@ if(OPTION_ENABLE_CANVAS)
 list(APPEND KRKRSDL2_DEFINITIONS
 	KRKRZ_ENABLE_CANVAS
 )
-list(APPEND KRKRSDL2_SRC
+list(APPEND KRKRSDL2COMMON_SRC
 	external/krkrz/visual/opengl/CanvasIntf.cpp
 	external/krkrz/visual/opengl/DrawCycleTimer.cpp
 	external/krkrz/visual/opengl/GLFrameBufferObject.cpp
@@ -335,7 +426,7 @@ list(APPEND KRKRSDL2_SRC
 	external/krkrz/visual/opengl/VertexBufferIntf.cpp
 	src/core/visual/sdl2/opengl/OpenGLScreenSDL2.cpp
 )
-list(APPEND KRKRSDL2_INCLUDES
+list(APPEND KRKRSDL2COMMON_INCLUDES
 	src/core/visual/sdl2/opengl
 	external/krkrz/external/angle/include
 	external/krkrz/external/glm

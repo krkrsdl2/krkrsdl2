@@ -3,11 +3,11 @@
 
 #include "tjsCommHead.h"
 #include "NativeEventQueue.h"
-#if 0
+#ifdef _WIN32
 #include "WindowsUtil.h"
 #endif
 
-#if 0
+#ifdef _WIN32
 int NativeEventQueueImplement::CreateUtilWindow() {
 	::ZeroMemory( &wc_, sizeof(wc_) );
 	wc_.cbSize = sizeof(WNDCLASSEX);
@@ -69,8 +69,7 @@ void NativeEventQueueImplement::Deallocate() {
 void NativeEventQueueImplement::PostEvent( const NativeEvent& event ) {
 	::PostMessage( window_handle_, event.Message, event.WParam, event.LParam );
 }
-#endif
-
+#else
 #include "Application.h"
 #include "DebugIntf.h"
 #include <SDL.h>
@@ -110,3 +109,4 @@ void NativeEventQueueImplement::PostEvent(const NativeEvent& ev) {
 		}
 	}
 }
+#endif

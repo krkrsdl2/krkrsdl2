@@ -4,6 +4,11 @@
 #ifndef __BITMAP_INFOMATION_H__
 #define __BITMAP_INFOMATION_H__
 
+#ifdef _WIN32
+#define TVPRGBQUAD RGBQUAD
+#define TVPBITMAPINFOHEADER BITMAPINFOHEADER
+#define TVPBITMAPINFO BITMAPINFO
+#else
 struct TVPRGBQUAD {
 	uint8_t    rgbBlue;
 	uint8_t    rgbGreen;
@@ -29,6 +34,7 @@ struct TVPBITMAPINFO {
 	TVPBITMAPINFOHEADER    bmiHeader;
 	TVPRGBQUAD             bmiColors[1];
 };
+#endif
 
 class BitmapInfomation {
 	TVPBITMAPINFO* BitmapInfo;

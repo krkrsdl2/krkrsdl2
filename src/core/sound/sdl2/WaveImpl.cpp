@@ -100,8 +100,8 @@ static tjs_int TVPL1BufferLength = 1000; // in ms
 static tjs_int TVPL2BufferLength = 1000; // in ms
 #if 0
 static bool TVPDirectSoundUse3D = false;
-static tjs_int TVPVolumeLogFactor = 3322;
 #endif
+static tjs_int TVPVolumeLogFactor = 3322;
 static bool TVPPrimarySoundBufferPlaying = false;
 //---------------------------------------------------------------------------
 static void TVPInitSoundOptions()
@@ -246,13 +246,11 @@ static void TVPInitSoundOptions()
 		if(n > 0 && n < 600000) TVPL2BufferLength = n;
 	}
 
-#if 0
 	if(TVPGetCommandLine(TJS_W("-wsvolfactor"), &val))
 	{
 		tjs_int n = (tjs_int)val;
 		if(n > 0 && n < 200000) TVPVolumeLogFactor = n;
 	}
-#endif
 
 	TVPSoundOptionsInit = true;
 }
@@ -568,7 +566,6 @@ void TVPRegisterKMPWaveDecoderCreator()
 #endif
 
 
-#if 0
 //---------------------------------------------------------------------------
 // Log Table for DirectSound volume
 //---------------------------------------------------------------------------
@@ -623,7 +620,6 @@ tjs_int TVPDSAttenuateToPan(tjs_int att)
 		return (100 - (tjs_int)(pow(10, (double)att / -TVPVolumeLogFactor) * 100.0)) *  1000;
 }
 //---------------------------------------------------------------------------
-#endif
 
 
 

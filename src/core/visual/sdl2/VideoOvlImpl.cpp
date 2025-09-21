@@ -20,144 +20,23 @@
 #include "LayerBitmapIntf.h"
 #include "SysInitIntf.h"
 #include "StorageImpl.h"
-#if 0
+#ifdef _WIN32
 #include "krmovie.h"
 #endif
 #include "PluginImpl.h"
 #include "WaveImpl.h"  // for DirectSound attenuate <-> TVP volume
-#if 0
+#ifdef _WIN32
 #include <evcode.h>
 #endif
 
 #include "Application.h"
-#if 0
+#ifdef _WIN32
 #include "TVPVideoOverlay.h"
-#endif
+#else
 #define TVPDSAttenuateToPan(x) x
 #define TVPDSAttenuateToVolume(x) x
-
-#if 0
-//---------------------------------------------------------------------------
-class tTVPVideoModule
-{
-	tTVPPluginHolder *Holder;
-	HMODULE Handle;
-	tGetAPIVersion procGetAPIVersion;
-	tGetVideoOverlayObject procGetVideoOverlayObject;
-	tGetVideoOverlayObject procGetVideoLayerObject; // krmovie.dll only
-	tGetVideoOverlayObject procGetMixingVideoOverlayObject; // krmovie.dll only
-	tGetVideoOverlayObject procGetMFVideoOverlayObject; // krmovie.dll only
-	tTVPV2LinkProc procV2Link;
-	tTVPV2UnlinkProc procV2Unlink;
-
-public:
-	tTVPVideoModule(const ttstr & name);
-	~tTVPVideoModule();
-
-	void GetAPIVersion(DWORD *version) { procGetAPIVersion(version); }
-	void GetVideoOverlayObject(HWND callbackwin, IStream *stream,
-		const wchar_t * streamname, const wchar_t *type, unsigned __int64 size,
-		iTVPVideoOverlay **out)
-	{
-		procGetVideoOverlayObject(callbackwin, stream, streamname, type, size, out);
-	}
-	void GetVideoLayerObject(HWND callbackwin, IStream *stream,
-		const wchar_t * streamname, const wchar_t *type, unsigned __int64 size,
-		iTVPVideoOverlay **out)
-	{
-		procGetVideoLayerObject(callbackwin, stream, streamname, type, size, out);
-	}
-	void GetMixingVideoOverlayObject(HWND callbackwin, IStream *stream,
-		const wchar_t * streamname, const wchar_t *type, unsigned __int64 size,
-		iTVPVideoOverlay **out)
-	{
-		procGetMixingVideoOverlayObject(callbackwin, stream, streamname, type, size, out);
-	}
-	void GetMFVideoOverlayObject(HWND callbackwin, IStream *stream,
-		const wchar_t * streamname, const wchar_t *type, unsigned __int64 size,
-		iTVPVideoOverlay **out)
-	{
-		procGetMFVideoOverlayObject(callbackwin, stream, streamname, type, size, out);
-	}
-};
-static tTVPVideoModule *TVPMovieVideoModule = NULL;
-static tTVPVideoModule *TVPFlashVideoModule = NULL;
-static void TVPUnloadKrMovie();
-//---------------------------------------------------------------------------
-tTVPVideoModule::tTVPVideoModule(const ttstr &name)
-{
-	Holder = new tTVPPluginHolder(name);
-	Handle = LoadLibrary(Holder->GetLocalName().AsStdString().c_str());
-	if(!Handle)
-	{
-		delete Holder;
-		TVPThrowExceptionMessage(TVPCannotLoadKrMovieDLL);
-	}
-
-	try
-	{
-		procGetVideoOverlayObject = (tGetVideoOverlayObject)
-			GetProcAddress(Handle, "GetVideoOverlayObject");
-
-		procGetVideoLayerObject = (tGetVideoOverlayObject)
-			GetProcAddress(Handle, "GetVideoLayerObject");
-
-		procGetMixingVideoOverlayObject = (tGetVideoOverlayObject)
-			GetProcAddress(Handle, "GetMixingVideoOverlayObject");
-
-		procGetMFVideoOverlayObject = (tGetVideoOverlayObject)
-			GetProcAddress(Handle, "GetMFVideoOverlayObject");
-
-		procGetAPIVersion = (tGetAPIVersion)
-			GetProcAddress(Handle, "GetAPIVersion");
-
-		procV2Link = (tTVPV2LinkProc)
-			GetProcAddress(Handle, "V2Link");
-
-		procV2Unlink = (tTVPV2UnlinkProc)
-			GetProcAddress(Handle, "V2Unlink");
-
-		if(!procGetAPIVersion)
-			TVPThrowExceptionMessage(TVPInvalidKrMovieDLL);
-
-		DWORD version;
-		procGetAPIVersion(&version);
-		if(version != TVP_KRMOVIE_VER)
-			TVPThrowExceptionMessage(TVPInvalidKrMovieDLL);
-
-		procV2Link(TVPGetFunctionExporter()); // link functions used by tp_stub
-	}
-	catch(...)
-	{
-		FreeLibrary(Handle);
-		delete Holder;
-		throw;
-	}
-}
-//---------------------------------------------------------------------------
-tTVPVideoModule::~tTVPVideoModule()
-{
-	procV2Unlink();
-	FreeLibrary(Handle);
-	delete Holder;
-}
-//---------------------------------------------------------------------------
-static tTVPVideoModule * TVPGetMovieVideoModule()
-{
-	if(TVPMovieVideoModule == NULL)
-		TVPMovieVideoModule = new tTVPVideoModule("krmovie.dll");
-
-	return TVPMovieVideoModule;
-}
-//---------------------------------------------------------------------------
-static tTVPVideoModule * TVPGetFlashVideoModule()
-{
-	if(TVPFlashVideoModule == NULL)
-		TVPFlashVideoModule = new tTVPVideoModule("krflash.dll");
-
-	return TVPFlashVideoModule;
-}
 #endif
+
 //---------------------------------------------------------------------------
 static std::vector<tTJSNI_VideoOverlay *> TVPVideoOverlayVector;
 //---------------------------------------------------------------------------
@@ -182,11 +61,6 @@ static void TVPShutdownVideoOverlay()
 	{
 		(*i)->Shutdown();
 	}
-
-#if 0
-	if(TVPMovieVideoModule) delete TVPMovieVideoModule, TVPMovieVideoModule = NULL;
-	if(TVPFlashVideoModule) delete TVPFlashVideoModule, TVPFlashVideoModule = NULL;
-#endif
 }
 static tTVPAtExit TVPShutdownVideoOverlayAtExit
 	(TVP_ATEXIT_PRI_PREPARE, TVPShutdownVideoOverlay);
@@ -201,7 +75,7 @@ static tTVPAtExit TVPShutdownVideoOverlayAtExit
 tTJSNI_VideoOverlay::tTJSNI_VideoOverlay()
 : EventQueue(this,&tTJSNI_VideoOverlay::WndProc)
 {
-#if 0
+#ifdef _WIN32
 	VideoOverlay = NULL;
 #endif
 	Rect.left = 0;
@@ -209,7 +83,7 @@ tTJSNI_VideoOverlay::tTJSNI_VideoOverlay()
 	Rect.right = 320;
 	Rect.bottom = 240;
 	Visible = false;
-#if 0
+#ifdef _WIN32
 	OwnerWindow = NULL;
 #endif
 	LocalTempStorageHolder = NULL;
@@ -226,7 +100,7 @@ tTJSNI_VideoOverlay::tTJSNI_VideoOverlay()
 	IsEventPast = false;
 	EventFrame = -1;
 
-#if 0
+#ifdef _WIN32
 	Bitmap[0] = Bitmap[1] = NULL;
 	BmpBits[0] = BmpBits[1] = NULL;
 #endif
@@ -253,7 +127,7 @@ void TJS_INTF_METHOD tTJSNI_VideoOverlay::Invalidate()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::Open(const ttstr &_name)
 {
-#if 0
+#ifdef _WIN32
 	// open
 
 	// first, close
@@ -279,37 +153,10 @@ void tTJSNI_VideoOverlay::Open(const ttstr &_name)
 
 	IStream *istream = NULL;
 	long size;
-	bool flash;
 	ttstr ext = TVPExtractStorageExt(name).c_str();
 	ext.ToLowerCase();
 
-	tTVPVideoModule *mod = NULL;
-	if(ext == TJS_W(".swf"))
 	{
-		// shockwave flash movie
-		flash = true;
-
-		// load krflash.dll
-		mod = TVPGetFlashVideoModule();
-
-		// prepare local storage
-		if(LocalTempStorageHolder)
-			delete LocalTempStorageHolder, LocalTempStorageHolder = NULL;
-
-		// find local name
-		ttstr placed = TVPSearchPlacedPath(name);
-
-		// open and hold
-		LocalTempStorageHolder =
-			new tTVPLocalTempStorageHolder(placed);
-	}
-	else
-	{
-		flash = false;
-
-		// load krmovie.dll
-		mod = TVPGetMovieVideoModule();
-
 		// prepate IStream
 		tTJSBinaryStream *stream0 = NULL;
 		try
@@ -329,18 +176,9 @@ void tTJSNI_VideoOverlay::Open(const ttstr &_name)
 	// 'istream' is an IStream instance at this point
 
 	// create video overlay object
-#if 1
 	try
 	{
-		if(flash)
 		{
-			mod->GetVideoOverlayObject(EventQueue.GetOwner(),
-				NULL, (LocalTempStorageHolder->GetLocalName() + param).c_str(),
-				ext.c_str(), 0, &VideoOverlay);
-		}
-		else
-		{
-#if 0
 			if(Mode == vomLayer)
 				GetVideoLayerObject(EventQueue.GetOwner(), istream, name.c_str(), ext.c_str(), size, &VideoOverlay);
 			else if(Mode == vomMixer)
@@ -349,27 +187,9 @@ void tTJSNI_VideoOverlay::Open(const ttstr &_name)
 				GetMFVideoOverlayObject(EventQueue.GetOwner(), istream, name.c_str(), ext.c_str(), size, &VideoOverlay);
 			else
 				GetVideoOverlayObject(EventQueue.GetOwner(), istream, name.c_str(), ext.c_str(), size, &VideoOverlay);
-#else
-			if(Mode == vomLayer)
-				mod->GetVideoLayerObject(EventQueue.GetOwner(),
-					istream, name.c_str(), ext.c_str(),
-					size, &VideoOverlay);
-			else if(Mode == vomMixer)
-				mod->GetMixingVideoOverlayObject(EventQueue.GetOwner(),
-					istream, name.c_str(), ext.c_str(),
-					size, &VideoOverlay);
-			else if(Mode == vomMFEVR)
-				mod->GetMFVideoOverlayObject(EventQueue.GetOwner(),
-					istream, name.c_str(), ext.c_str(),
-					size, &VideoOverlay);
-			else
-				mod->GetVideoOverlayObject(EventQueue.GetOwner(),
-					istream, name.c_str(), ext.c_str(),
-					size, &VideoOverlay);
-#endif
 		}
 
-		if( flash || (Mode == vomOverlay) || (Mode == vomMixer) || (Mode == vomMFEVR) )
+		if( (Mode == vomOverlay) || (Mode == vomMixer) || (Mode == vomMFEVR) )
 		{
 			ResetOverlayParams();
 		}
@@ -378,7 +198,7 @@ void tTJSNI_VideoOverlay::Open(const ttstr &_name)
 			long	width, height;
 			long			size;
 			VideoOverlay->GetVideoSize( &width, &height );
-
+			
 			if( width <= 0 || height <= 0 )
 				TVPThrowExceptionMessage(TVPErrorInKrMovieDLL, (const tjs_char*)TVPInvalidVideoSize);
 
@@ -406,7 +226,6 @@ void tTJSNI_VideoOverlay::Open(const ttstr &_name)
 	}
 	if(istream) istream->Release();
 
-#endif
 	// set Status
 	ClearWndProcMessages();
 	SetStatus(tTVPVideoOverlayStatus::Stop);
@@ -415,7 +234,7 @@ void tTJSNI_VideoOverlay::Open(const ttstr &_name)
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::Close()
 {
-#if 0
+#ifdef _WIN32
 	// close
 	// release VideoOverlay object
 	if(VideoOverlay)
@@ -440,7 +259,7 @@ void tTJSNI_VideoOverlay::Close()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::Shutdown()
 {
-#if 0
+#ifdef _WIN32
 	// shutdown the system
 	// this functions closes the overlay object, but must not fire any events.
 	bool c = CanDeliverEvents;
@@ -469,7 +288,7 @@ void tTJSNI_VideoOverlay::Disconnect()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::Play()
 {
-#if 0
+#ifdef _WIN32
 	// start playing
 	if(VideoOverlay)
 	{
@@ -482,7 +301,7 @@ void tTJSNI_VideoOverlay::Play()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::Stop()
 {
-#if 0
+#ifdef _WIN32
 	// stop playing
 	if(VideoOverlay)
 	{
@@ -495,7 +314,7 @@ void tTJSNI_VideoOverlay::Stop()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::Pause()
 {
-#if 0
+#ifdef _WIN32
 	// pause playing
 	if(VideoOverlay)
 	{
@@ -507,7 +326,7 @@ void tTJSNI_VideoOverlay::Pause()
 }
 void tTJSNI_VideoOverlay::Rewind()
 {
-#if 0
+#ifdef _WIN32
 	// rewind playing
 	if(VideoOverlay)
 	{
@@ -521,7 +340,7 @@ void tTJSNI_VideoOverlay::Rewind()
 }
 void tTJSNI_VideoOverlay::Prepare()
 {	// prepare movie
-#if 0
+#ifdef _WIN32
 	if( VideoOverlay && (Mode == vomLayer) )
 	{
 		Pause();
@@ -548,7 +367,7 @@ void tTJSNI_VideoOverlay::SetPeriodEvent( int eventFrame )
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::SetRectangleToVideoOverlay()
 {
-#if 0
+#ifdef _WIN32
 	// set Rectangle to video overlay
 	if(VideoOverlay && OwnerWindow)
 	{
@@ -646,7 +465,7 @@ void tTJSNI_VideoOverlay::SetHeight(tjs_int h)
 void tTJSNI_VideoOverlay::SetVisible(bool b)
 {
 	Visible = b;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		if( Mode == vomLayer )
@@ -664,7 +483,7 @@ void tTJSNI_VideoOverlay::SetVisible(bool b)
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::ResetOverlayParams()
 {
-#if 0
+#ifdef _WIN32
 	// retrieve new window information from owner window and
 	// set video owner window / message drain window.
 	// also sets rectangle and visible state.
@@ -686,7 +505,7 @@ void tTJSNI_VideoOverlay::ResetOverlayParams()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::DetachVideoOverlay()
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay && Window && (Mode == vomOverlay || Mode == vomMixer || Mode == vomMFEVR) )
 	{
 		VideoOverlay->SetWindow(NULL);
@@ -698,7 +517,7 @@ void tTJSNI_VideoOverlay::DetachVideoOverlay()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::SetRectOffset(tjs_int ofsx, tjs_int ofsy)
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		RECT r = {Rect.left + ofsx, Rect.top + ofsy,
@@ -711,7 +530,7 @@ void tTJSNI_VideoOverlay::SetRectOffset(tjs_int ofsx, tjs_int ofsy)
 //void __fastcall tTJSNI_VideoOverlay::WndProc(Messages::TMessage &Msg)
 void tTJSNI_VideoOverlay::WndProc( NativeEvent& ev )
 {
-#if 0
+#ifdef _WIN32
 	// EventQueue's message procedure
 	if(VideoOverlay)
 	{
@@ -895,7 +714,7 @@ void tTJSNI_VideoOverlay::WndProc( NativeEvent& ev )
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::SetTimePosition( tjs_uint64 p )
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetPosition( p );
@@ -905,7 +724,7 @@ void tTJSNI_VideoOverlay::SetTimePosition( tjs_uint64 p )
 tjs_uint64 tTJSNI_VideoOverlay::GetTimePosition()
 {
 	tjs_uint64	result = 0;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetPosition( &result );
@@ -915,7 +734,7 @@ tjs_uint64 tTJSNI_VideoOverlay::GetTimePosition()
 }
 void tTJSNI_VideoOverlay::SetFrame( tjs_int f )
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetFrame( f );
@@ -928,7 +747,7 @@ void tTJSNI_VideoOverlay::SetFrame( tjs_int f )
 tjs_int tTJSNI_VideoOverlay::GetFrame()
 {
 	tjs_int	result = 0;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetFrame( &result );
@@ -938,7 +757,7 @@ tjs_int tTJSNI_VideoOverlay::GetFrame()
 }
 void tTJSNI_VideoOverlay::SetStopFrame( tjs_int f )
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetStopFrame( f );
@@ -947,7 +766,7 @@ void tTJSNI_VideoOverlay::SetStopFrame( tjs_int f )
 }
 void tTJSNI_VideoOverlay::SetDefaultStopFrame()
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetDefaultStopFrame();
@@ -957,7 +776,7 @@ void tTJSNI_VideoOverlay::SetDefaultStopFrame()
 tjs_int tTJSNI_VideoOverlay::GetStopFrame()
 {
 	tjs_int	result = 0;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetStopFrame( &result );
@@ -968,7 +787,7 @@ tjs_int tTJSNI_VideoOverlay::GetStopFrame()
 tjs_real tTJSNI_VideoOverlay::GetFPS()
 {
 	tjs_real	result = 0.0;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetFPS( &result );
@@ -979,7 +798,7 @@ tjs_real tTJSNI_VideoOverlay::GetFPS()
 tjs_int tTJSNI_VideoOverlay::GetNumberOfFrame()
 {
 	tjs_int	result = 0;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetNumberOfFrame( &result );
@@ -990,7 +809,7 @@ tjs_int tTJSNI_VideoOverlay::GetNumberOfFrame()
 tjs_int64 tTJSNI_VideoOverlay::GetTotalTime()
 {
 	tjs_int64	result = 0;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetTotalTime( &result );
@@ -1012,7 +831,7 @@ void tTJSNI_VideoOverlay::SetLayer2( tTJSNI_BaseLayer *l )
 }
 void tTJSNI_VideoOverlay::SetMode( tTVPVideoOverlayMode m )
 {
-#if 0
+#ifdef _WIN32
 	// ビデオオープン後のモード変更は禁止
 	if( !VideoOverlay )
 	{
@@ -1024,7 +843,7 @@ void tTJSNI_VideoOverlay::SetMode( tTVPVideoOverlayMode m )
 tjs_real tTJSNI_VideoOverlay::GetPlayRate()
 {
 	tjs_real	result = 0.0;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetPlayRate( &result );
@@ -1034,7 +853,7 @@ tjs_real tTJSNI_VideoOverlay::GetPlayRate()
 }
 void tTJSNI_VideoOverlay::SetPlayRate(tjs_real r)
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetPlayRate( r );
@@ -1045,7 +864,7 @@ void tTJSNI_VideoOverlay::SetPlayRate(tjs_real r)
 tjs_int tTJSNI_VideoOverlay::GetAudioBalance()
 {
 	long	result = 0;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetAudioBalance( &result );
@@ -1055,7 +874,7 @@ tjs_int tTJSNI_VideoOverlay::GetAudioBalance()
 }
 void tTJSNI_VideoOverlay::SetAudioBalance(tjs_int b)
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetAudioBalance( TVPPanToDSAttenuate( b ) );
@@ -1065,7 +884,7 @@ void tTJSNI_VideoOverlay::SetAudioBalance(tjs_int b)
 tjs_int tTJSNI_VideoOverlay::GetAudioVolume()
 {
 	long	result = 0;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetAudioVolume( &result );
@@ -1075,7 +894,7 @@ tjs_int tTJSNI_VideoOverlay::GetAudioVolume()
 }
 void tTJSNI_VideoOverlay::SetAudioVolume(tjs_int b)
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetAudioVolume( TVPVolumeToDSAttenuate( b ) );
@@ -1085,7 +904,7 @@ void tTJSNI_VideoOverlay::SetAudioVolume(tjs_int b)
 tjs_uint tTJSNI_VideoOverlay::GetNumberOfAudioStream()
 {
 	unsigned long	result = 0;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetNumberOfAudioStream( &result );
@@ -1095,7 +914,7 @@ tjs_uint tTJSNI_VideoOverlay::GetNumberOfAudioStream()
 }
 void tTJSNI_VideoOverlay::SelectAudioStream(tjs_uint n)
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SelectAudioStream( n );
@@ -1105,7 +924,7 @@ void tTJSNI_VideoOverlay::SelectAudioStream(tjs_uint n)
 tjs_int tTJSNI_VideoOverlay::GetEnabledAudioStream()
 {
 	long		result = -1;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetEnableAudioStreamNum( &result );
@@ -1115,7 +934,7 @@ tjs_int tTJSNI_VideoOverlay::GetEnabledAudioStream()
 }
 void tTJSNI_VideoOverlay::DisableAudioStream()
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->DisableAudioStream();
@@ -1126,7 +945,7 @@ void tTJSNI_VideoOverlay::DisableAudioStream()
 tjs_uint tTJSNI_VideoOverlay::GetNumberOfVideoStream()
 {
 	unsigned long	result = 0;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetNumberOfVideoStream( &result );
@@ -1136,7 +955,7 @@ tjs_uint tTJSNI_VideoOverlay::GetNumberOfVideoStream()
 }
 void tTJSNI_VideoOverlay::SelectVideoStream(tjs_uint n)
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SelectVideoStream( n );
@@ -1146,7 +965,7 @@ void tTJSNI_VideoOverlay::SelectVideoStream(tjs_uint n)
 tjs_int tTJSNI_VideoOverlay::GetEnabledVideoStream()
 {
 	long		result = -1;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetEnableVideoStreamNum( &result );
@@ -1156,7 +975,7 @@ tjs_int tTJSNI_VideoOverlay::GetEnabledVideoStream()
 }
 void tTJSNI_VideoOverlay::SetMixingLayer( tTJSNI_BaseLayer *l )
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		if( l )
@@ -1202,7 +1021,7 @@ void tTJSNI_VideoOverlay::SetMixingLayer( tTJSNI_BaseLayer *l )
 }
 void tTJSNI_VideoOverlay::ResetMixingBitmap()
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->ResetMixingBitmap();
@@ -1211,7 +1030,7 @@ void tTJSNI_VideoOverlay::ResetMixingBitmap()
 }
 void tTJSNI_VideoOverlay::SetMixingMovieAlpha( tjs_real a )
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetMixingMovieAlpha( static_cast<float>(a) );
@@ -1221,7 +1040,7 @@ void tTJSNI_VideoOverlay::SetMixingMovieAlpha( tjs_real a )
 tjs_real tTJSNI_VideoOverlay::GetMixingMovieAlpha()
 {
 	float	ret = 0.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetMixingMovieAlpha( &ret );
@@ -1231,7 +1050,7 @@ tjs_real tTJSNI_VideoOverlay::GetMixingMovieAlpha()
 }
 void tTJSNI_VideoOverlay::SetMixingMovieBGColor( tjs_uint col )
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetMixingMovieBGColor( col );
@@ -1241,7 +1060,7 @@ void tTJSNI_VideoOverlay::SetMixingMovieBGColor( tjs_uint col )
 tjs_uint tTJSNI_VideoOverlay::GetMixingMovieBGColor()
 {
 	unsigned long	ret;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetMixingMovieBGColor( &ret );
@@ -1255,7 +1074,7 @@ tjs_uint tTJSNI_VideoOverlay::GetMixingMovieBGColor()
 tjs_real tTJSNI_VideoOverlay::GetContrastRangeMin()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetContrastRangeMin( &ret );
@@ -1266,7 +1085,7 @@ tjs_real tTJSNI_VideoOverlay::GetContrastRangeMin()
 tjs_real tTJSNI_VideoOverlay::GetContrastRangeMax()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetContrastRangeMax( &ret );
@@ -1277,7 +1096,7 @@ tjs_real tTJSNI_VideoOverlay::GetContrastRangeMax()
 tjs_real tTJSNI_VideoOverlay::GetContrastDefaultValue()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetContrastDefaultValue( &ret );
@@ -1288,7 +1107,7 @@ tjs_real tTJSNI_VideoOverlay::GetContrastDefaultValue()
 tjs_real tTJSNI_VideoOverlay::GetContrastStepSize()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetContrastStepSize( &ret );
@@ -1299,7 +1118,7 @@ tjs_real tTJSNI_VideoOverlay::GetContrastStepSize()
 tjs_real tTJSNI_VideoOverlay::GetContrast()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetContrast( &ret );
@@ -1309,7 +1128,7 @@ tjs_real tTJSNI_VideoOverlay::GetContrast()
 }
 void tTJSNI_VideoOverlay::SetContrast( tjs_real v )
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetContrast( static_cast<float>(v) );
@@ -1319,7 +1138,7 @@ void tTJSNI_VideoOverlay::SetContrast( tjs_real v )
 tjs_real tTJSNI_VideoOverlay::GetBrightnessRangeMin()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetBrightnessRangeMin( &ret );
@@ -1330,7 +1149,7 @@ tjs_real tTJSNI_VideoOverlay::GetBrightnessRangeMin()
 tjs_real tTJSNI_VideoOverlay::GetBrightnessRangeMax()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetBrightnessRangeMax( &ret );
@@ -1341,7 +1160,7 @@ tjs_real tTJSNI_VideoOverlay::GetBrightnessRangeMax()
 tjs_real tTJSNI_VideoOverlay::GetBrightnessDefaultValue()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetBrightnessDefaultValue( &ret );
@@ -1352,7 +1171,7 @@ tjs_real tTJSNI_VideoOverlay::GetBrightnessDefaultValue()
 tjs_real tTJSNI_VideoOverlay::GetBrightnessStepSize()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetBrightnessStepSize( &ret );
@@ -1363,7 +1182,7 @@ tjs_real tTJSNI_VideoOverlay::GetBrightnessStepSize()
 tjs_real tTJSNI_VideoOverlay::GetBrightness()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetBrightness( &ret );
@@ -1373,7 +1192,7 @@ tjs_real tTJSNI_VideoOverlay::GetBrightness()
 }
 void tTJSNI_VideoOverlay::SetBrightness( tjs_real v )
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetBrightness( static_cast<float>(v) );
@@ -1384,7 +1203,7 @@ void tTJSNI_VideoOverlay::SetBrightness( tjs_real v )
 tjs_real tTJSNI_VideoOverlay::GetHueRangeMin()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetHueRangeMin( &ret );
@@ -1395,7 +1214,7 @@ tjs_real tTJSNI_VideoOverlay::GetHueRangeMin()
 tjs_real tTJSNI_VideoOverlay::GetHueRangeMax()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetHueRangeMax( &ret );
@@ -1406,7 +1225,7 @@ tjs_real tTJSNI_VideoOverlay::GetHueRangeMax()
 tjs_real tTJSNI_VideoOverlay::GetHueDefaultValue()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetHueDefaultValue( &ret );
@@ -1417,7 +1236,7 @@ tjs_real tTJSNI_VideoOverlay::GetHueDefaultValue()
 tjs_real tTJSNI_VideoOverlay::GetHueStepSize()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetHueStepSize( &ret );
@@ -1428,7 +1247,7 @@ tjs_real tTJSNI_VideoOverlay::GetHueStepSize()
 tjs_real tTJSNI_VideoOverlay::GetHue()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetHue( &ret );
@@ -1438,7 +1257,7 @@ tjs_real tTJSNI_VideoOverlay::GetHue()
 }
 void tTJSNI_VideoOverlay::SetHue( tjs_real v )
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetHue( static_cast<float>(v) );
@@ -1449,7 +1268,7 @@ void tTJSNI_VideoOverlay::SetHue( tjs_real v )
 tjs_real tTJSNI_VideoOverlay::GetSaturationRangeMin()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetSaturationRangeMin( &ret );
@@ -1460,7 +1279,7 @@ tjs_real tTJSNI_VideoOverlay::GetSaturationRangeMin()
 tjs_real tTJSNI_VideoOverlay::GetSaturationRangeMax()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetSaturationRangeMax( &ret );
@@ -1471,7 +1290,7 @@ tjs_real tTJSNI_VideoOverlay::GetSaturationRangeMax()
 tjs_real tTJSNI_VideoOverlay::GetSaturationDefaultValue()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetSaturationDefaultValue( &ret );
@@ -1482,7 +1301,7 @@ tjs_real tTJSNI_VideoOverlay::GetSaturationDefaultValue()
 tjs_real tTJSNI_VideoOverlay::GetSaturationStepSize()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetSaturationStepSize( &ret );
@@ -1493,7 +1312,7 @@ tjs_real tTJSNI_VideoOverlay::GetSaturationStepSize()
 tjs_real tTJSNI_VideoOverlay::GetSaturation()
 {
 	float ret = -1.0f;
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetSaturation( &ret );
@@ -1503,7 +1322,7 @@ tjs_real tTJSNI_VideoOverlay::GetSaturation()
 }
 void tTJSNI_VideoOverlay::SetSaturation( tjs_real v )
 {
-#if 0
+#ifdef _WIN32
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetSaturation( static_cast<float>(v) );
@@ -1514,13 +1333,15 @@ void tTJSNI_VideoOverlay::SetSaturation( tjs_real v )
 tjs_int tTJSNI_VideoOverlay::GetOriginalWidth()
 {
 	// retrieve original (coded in the video stream) width size
-#if 0
+#ifdef _WIN32
 	if(!VideoOverlay) return 0;
 #endif
 
 	long	width, height;
-#if 0
+#ifdef _WIN32
 	VideoOverlay->GetVideoSize( &width, &height );
+#else
+	width = 0;
 #endif
 
 	return (tjs_int)width;
@@ -1531,8 +1352,10 @@ tjs_int tTJSNI_VideoOverlay::GetOriginalHeight()
 	// retrieve original (coded in the video stream) height size
 
 	long	width, height;
-#if 0
+#ifdef _WIN32
 	VideoOverlay->GetVideoSize( &width, &height );
+#else
+	height = 0;
 #endif
 
 	return (tjs_int)height;
@@ -1540,7 +1363,7 @@ tjs_int tTJSNI_VideoOverlay::GetOriginalHeight()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::ClearWndProcMessages()
 {
-#if 0
+#ifdef _WIN32
 	// clear WndProc's message queue
 	MSG msg;
 	while(PeekMessage(&msg, EventQueue.GetOwner(), WM_GRAPHNOTIFY, WM_GRAPHNOTIFY+2, PM_REMOVE))

@@ -2855,11 +2855,14 @@ void sdl_process_events()
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
+#ifndef _WIN32
 		if (event.type == NativeEventQueueImplement::native_event_queue_custom_event_type)
 		{
 			((NativeEvent*)event.user.data2)->HandleEvent();
 		}
-		else if (_currentWindowWindow)
+		else
+#endif
+		if (_currentWindowWindow)
 		{
 			_currentWindowWindow->window_receive_event(event);
 		}
@@ -2891,7 +2894,13 @@ static int sdl_event_watch(void *userdata, SDL_Event *in_event)
 {
 	SDL_Event event;
 	SDL_memcpy(&event, in_event, sizeof(SDL_Event));
-	if ((event.type != NativeEventQueueImplement::native_event_queue_custom_event_type) && _currentWindowWindow && _currentWindowWindow->window_receive_event_input(event) && TVPSystemControl)
+#ifndef _WIN32
+	if (event.type == NativeEventQueueImplement::native_event_queue_custom_event_type)
+	{
+		return 1;
+	}
+#endif
+	if (_currentWindowWindow && _currentWindowWindow->window_receive_event_input(event) && TVPSystemControl)
 	{
 		// process events now
 		// Some JS functions will only work in e.g. mouse down callback due to browser restrictions

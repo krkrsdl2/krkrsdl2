@@ -28,9 +28,6 @@ external/krkrz/external/onig/src
 external/krkrz/external/libogg/include
 external/krkrz/external/opus/celt
 external/krkrz/external/opus/include
-external/krkrz/external/opus/silk
-external/krkrz/external/opus/silk/fixed
-external/krkrz/external/opus/silk/float
 external/krkrz/external/opusfile/include
 external/krkrz/external/opusfile/src
 external/krkrz/external/jxrlib

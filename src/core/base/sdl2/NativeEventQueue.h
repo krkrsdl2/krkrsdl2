@@ -6,29 +6,32 @@
 
 // 呼び出されるハンドラがシングルスレッドで動作するイベントキュー
 
+#ifndef _WIN32
 class NativeEvent;
 class NativeEventQueueIntarface {
 public:
 	virtual void Dispatch(NativeEvent& event) = 0;
 };
+#endif
 class NativeEvent {
 public:
-#if 0
+#ifdef _WIN32
 	LRESULT Result;
 	HWND HWnd;
 	UINT Message;
 	WPARAM WParam;
 	LPARAM LParam;
-#endif
+#else
  	unsigned int Message;
 	intptr_t WParam;
 	intptr_t LParam;
 	NativeEventQueueIntarface * queue;
+#endif
 
-#if 0
+#ifdef _WIN32
 	NativeEvent(){}
 	NativeEvent( int mes ) : Result(0), HWnd(NULL), Message(mes), WParam(0), LParam(0) {}
-#endif
+#else
 	NativeEvent( int mes ) : /*Result(0), HWnd(NULL),*/ Message(mes), WParam(0), LParam(0) {}
 	void SetQueue(NativeEventQueueIntarface * tmp_queue)
 	{
@@ -40,9 +43,10 @@ public:
 		queue->Dispatch(_this);
 		delete this;
 	}
+#endif
 };
 
-#if 0
+#ifdef _WIN32
 class NativeEventQueueIntarface {
 public:
 	// デフォルトハンドラ
@@ -60,38 +64,55 @@ public:
 };
 #endif
 class NativeEventQueueImplement : public NativeEventQueueIntarface {
-#if 0
+#ifdef _WIN32
 	HWND window_handle_;
 	WNDCLASSEX	wc_;
 #endif
 
 	int CreateUtilWindow();
-#if 0
+#ifdef _WIN32
 	static LRESULT WINAPI WndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 #endif
 
 public:
+#ifndef _WIN32
 	static tjs_uint32 native_event_queue_custom_event_type;
-#if 0
-	NativeEventQueueImplement() : window_handle_(NULL) {}
 #endif
+#ifdef _WIN32
+	NativeEventQueueImplement() : window_handle_(NULL) {}
+#else
 	NativeEventQueueImplement();
+#endif
 
 	// デフォルトハンドラ
+#ifdef _WIN32
+	void HandlerDefault( NativeEvent& event );
+#else
 	void HandlerDefault( NativeEvent& event ) {}
+#endif
 
 	// Queue の生成
+#ifdef _WIN32
+	void Allocate();
+#else
 	void Allocate() {}
+#endif
 
 	// Queue の削除
+#ifdef _WIN32
+	void Deallocate();
+#else
 	void Deallocate() {}
+#endif
 
 	void PostEvent( const NativeEvent& event );
 
-#if 0
+#ifdef _WIN32
 	HWND GetOwner() { return window_handle_; }
 #endif
+#ifndef _WIN32
 	void Dispatch(NativeEvent& event) {}
+#endif
 };
 
 
@@ -107,7 +128,9 @@ public:
 		(owner_->*handler_)(ev);
 	}
 
+#ifndef _WIN32
 	T* GetOwner() { return owner_; }
+#endif
 };
 
 #endif // __NATIVE_EVENT_QUEUE_H__

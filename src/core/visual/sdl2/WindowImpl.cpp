@@ -1376,7 +1376,7 @@ void tTJSNI_Window::EndUpdate()
 	tTJSNI_BaseWindow::EndUpdate();
 }
 //---------------------------------------------------------------------------
-#if 0
+#ifdef _WIN32
 HWND tTJSNI_Window::GetSurfaceWindowHandle()
 {
 	if(!Form) return NULL;
@@ -1392,7 +1392,7 @@ void tTJSNI_Window::ZoomRectangle(
 	Form->ZoomRectangle(left, top, right, bottom);
 }
 //---------------------------------------------------------------------------
-#if 0
+#ifdef _WIN32
 HWND tTJSNI_Window::GetWindowHandle()
 {
 	if(!Form) return NULL;

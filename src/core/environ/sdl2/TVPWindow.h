@@ -430,6 +430,8 @@ public:
 #ifdef _WIN32
 	virtual void RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void * proc, const void *userdata) = 0;
 	virtual HWND GetHandle() const = 0;
+	HWND GetSurfaceWindowHandle() { return GetHandle(); }
+	HWND GetWindowHandle() { return GetHandle(); }
 	HWND GetWindowHandleForPlugin() { return GetHandle(); }
 #endif
 

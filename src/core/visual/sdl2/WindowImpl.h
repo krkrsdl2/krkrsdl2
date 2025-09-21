@@ -310,7 +310,7 @@ public:
 
 //-- interface to VideoOverlay object
 public:
-#if 0
+#if 1
 	HWND GetSurfaceWindowHandle();
 	HWND GetWindowHandle();
 #endif
