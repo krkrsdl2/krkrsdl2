@@ -230,7 +230,7 @@ struct tTVPPlugin
 
 	tTVPPluginHolder *Holder = nullptr;
 
-#if 0
+#ifdef _WIN32
 	bool IsSusiePicturePlugin; // Susie picture plugins are managed in GraphicsLoaderImpl.cpp
 	bool IsSusieArchivePlugin; // Susie archive plugins are managed in SusieArchive.cpp
 #endif
@@ -327,7 +327,7 @@ tTVPPlugin::tTVPPlugin(const ttstr & name, ITSSStorageProvider *storageprovider)
 			V2Link(TVPGetFunctionExporter());
 		}
 
-#if 0
+#ifdef _WIN32
 		// retrieve ModuleInstance
 		// Susie Plug-in check
 		if(SDL_LoadFunction(Instance, "GetPicture"))
@@ -426,7 +426,7 @@ bool tTVPPlugin::Uninit()
 #endif
 #endif
 	if(TSSModule) TSSModule->Release();
-#if 0
+#ifdef _WIN32
 	if(IsSusiePicturePlugin) TVPUnloadPictureSPI(Instance);
 	if(IsSusieArchivePlugin) TVPUnloadArchiveSPI(Instance);
 #endif

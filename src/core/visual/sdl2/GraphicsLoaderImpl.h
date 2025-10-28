@@ -14,7 +14,7 @@
 
 #include "GraphicsLoaderIntf.h"
 
-#if 0
+#ifdef _WIN32
 //---------------------------------------------------------------------------
 // tTVPSusiePlugin
 //---------------------------------------------------------------------------
@@ -31,11 +31,11 @@ protected:
 	int (PASCAL * GetFile)(LPSTR src,long len, LPSTR dest,unsigned int flag,
 				FARPROC prgressCallback, long lData);
 
-	HINSTANCE ModuleInstance;
+	void *ModuleInstance;
 
 	std::vector<ttstr> Extensions;
 
-	tTVPSusiePlugin(HINSTANCE inst, const char *api);
+	tTVPSusiePlugin(void *inst, const char *api);
 	virtual ~tTVPSusiePlugin();
 
 	static int PASCAL ProgressCallback(int nNum,int nDenom,long lData) { return 0; }
@@ -43,7 +43,7 @@ protected:
 public:
 	const std::vector<ttstr> & GetExtensions() const { return Extensions; }
 
-	HINSTANCE GetModuleInstance() const { return ModuleInstance; }
+	void *GetModuleInstance() const { return ModuleInstance; }
 };
 //---------------------------------------------------------------------------
 
@@ -53,8 +53,8 @@ public:
 // Susie Plug-in management functions
 // ( support of SPI for archive files is in StorageImpl.cpp )
 //---------------------------------------------------------------------------
-extern void TVPLoadPictureSPI(HINSTANCE inst, tTVPBMPAlphaType alphatype = batMulAlpha);
-extern void TVPUnloadPictureSPI(HINSTANCE inst);
+extern void TVPLoadPictureSPI(void *inst, tTVPBMPAlphaType alphatype = batMulAlpha);
+extern void TVPUnloadPictureSPI(void *inst);
 //---------------------------------------------------------------------------
 #endif
 

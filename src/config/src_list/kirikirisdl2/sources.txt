@@ -451,6 +451,7 @@ src/core/base/sdl2/NativeEventQueue.cpp
 src/core/base/sdl2/PluginImpl.cpp
 src/core/base/sdl2/ScriptMgnImpl.cpp
 src/core/base/sdl2/StorageImpl.cpp
+src/core/base/sdl2/SusieArchive.cpp
 src/core/base/sdl2/SysInitImpl.cpp
 src/core/base/sdl2/SystemImpl.cpp
 src/core/environ/sdl2/Application.cpp

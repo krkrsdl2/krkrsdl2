@@ -18,6 +18,7 @@
 #include "DebugIntf.h"
 #include "Random.h"
 #include "XP3Archive.h"
+#include "SusieArchive.h"
 #include "FileSelector.h"
 #include "Random.h"
 
@@ -814,7 +815,8 @@ bool TVPCheckExistentLocalFolder(const ttstr &name)
 //---------------------------------------------------------------------------
 tTVPArchive * TVPOpenArchive(const ttstr & name)
 {
-	return new tTVPXP3Archive(name);
+	tTVPArchive * archive = TVPOpenSusieArchive(name); // in SusieArchive.h
+	if(!archive) return new tTVPXP3Archive(name); else return archive;
 }
 //---------------------------------------------------------------------------
 
