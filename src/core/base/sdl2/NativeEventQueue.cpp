@@ -3,11 +3,11 @@
 
 #include "tjsCommHead.h"
 #include "NativeEventQueue.h"
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
 #include "WindowsUtil.h"
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
 int NativeEventQueueImplement::CreateUtilWindow() {
 	::ZeroMemory( &wc_, sizeof(wc_) );
 	wc_.cbSize = sizeof(WNDCLASSEX);

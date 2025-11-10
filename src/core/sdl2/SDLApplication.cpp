@@ -2855,7 +2855,8 @@ void sdl_process_events()
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
-#ifndef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
+#else
 		if (event.type == NativeEventQueueImplement::native_event_queue_custom_event_type)
 		{
 			((NativeEvent*)event.user.data2)->HandleEvent();
@@ -2894,7 +2895,8 @@ static int sdl_event_watch(void *userdata, SDL_Event *in_event)
 {
 	SDL_Event event;
 	SDL_memcpy(&event, in_event, sizeof(SDL_Event));
-#ifndef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
+#else
 	if (event.type == NativeEventQueueImplement::native_event_queue_custom_event_type)
 	{
 		return 1;

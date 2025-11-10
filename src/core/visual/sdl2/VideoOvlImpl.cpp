@@ -20,17 +20,17 @@
 #include "LayerBitmapIntf.h"
 #include "SysInitIntf.h"
 #include "StorageImpl.h"
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 #include "krmovie.h"
 #endif
 #include "PluginImpl.h"
 #include "WaveImpl.h"  // for DirectSound attenuate <-> TVP volume
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 #include <evcode.h>
 #endif
 
 #include "Application.h"
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 #include "TVPVideoOverlay.h"
 #else
 #define TVPDSAttenuateToPan(x) x
@@ -75,7 +75,7 @@ static tTVPAtExit TVPShutdownVideoOverlayAtExit
 tTJSNI_VideoOverlay::tTJSNI_VideoOverlay()
 : EventQueue(this,&tTJSNI_VideoOverlay::WndProc)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	VideoOverlay = NULL;
 #endif
 	Rect.left = 0;
@@ -83,7 +83,7 @@ tTJSNI_VideoOverlay::tTJSNI_VideoOverlay()
 	Rect.right = 320;
 	Rect.bottom = 240;
 	Visible = false;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	OwnerWindow = NULL;
 #endif
 	LocalTempStorageHolder = NULL;
@@ -100,7 +100,7 @@ tTJSNI_VideoOverlay::tTJSNI_VideoOverlay()
 	IsEventPast = false;
 	EventFrame = -1;
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	Bitmap[0] = Bitmap[1] = NULL;
 	BmpBits[0] = BmpBits[1] = NULL;
 #endif
@@ -127,7 +127,7 @@ void TJS_INTF_METHOD tTJSNI_VideoOverlay::Invalidate()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::Open(const ttstr &_name)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	// open
 
 	// first, close
@@ -234,7 +234,7 @@ void tTJSNI_VideoOverlay::Open(const ttstr &_name)
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::Close()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	// close
 	// release VideoOverlay object
 	if(VideoOverlay)
@@ -259,7 +259,7 @@ void tTJSNI_VideoOverlay::Close()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::Shutdown()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	// shutdown the system
 	// this functions closes the overlay object, but must not fire any events.
 	bool c = CanDeliverEvents;
@@ -288,7 +288,7 @@ void tTJSNI_VideoOverlay::Disconnect()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::Play()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	// start playing
 	if(VideoOverlay)
 	{
@@ -301,7 +301,7 @@ void tTJSNI_VideoOverlay::Play()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::Stop()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	// stop playing
 	if(VideoOverlay)
 	{
@@ -314,7 +314,7 @@ void tTJSNI_VideoOverlay::Stop()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::Pause()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	// pause playing
 	if(VideoOverlay)
 	{
@@ -326,7 +326,7 @@ void tTJSNI_VideoOverlay::Pause()
 }
 void tTJSNI_VideoOverlay::Rewind()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	// rewind playing
 	if(VideoOverlay)
 	{
@@ -340,7 +340,7 @@ void tTJSNI_VideoOverlay::Rewind()
 }
 void tTJSNI_VideoOverlay::Prepare()
 {	// prepare movie
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if( VideoOverlay && (Mode == vomLayer) )
 	{
 		Pause();
@@ -367,7 +367,7 @@ void tTJSNI_VideoOverlay::SetPeriodEvent( int eventFrame )
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::SetRectangleToVideoOverlay()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	// set Rectangle to video overlay
 	if(VideoOverlay && OwnerWindow)
 	{
@@ -465,7 +465,7 @@ void tTJSNI_VideoOverlay::SetHeight(tjs_int h)
 void tTJSNI_VideoOverlay::SetVisible(bool b)
 {
 	Visible = b;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		if( Mode == vomLayer )
@@ -483,7 +483,7 @@ void tTJSNI_VideoOverlay::SetVisible(bool b)
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::ResetOverlayParams()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	// retrieve new window information from owner window and
 	// set video owner window / message drain window.
 	// also sets rectangle and visible state.
@@ -505,7 +505,7 @@ void tTJSNI_VideoOverlay::ResetOverlayParams()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::DetachVideoOverlay()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay && Window && (Mode == vomOverlay || Mode == vomMixer || Mode == vomMFEVR) )
 	{
 		VideoOverlay->SetWindow(NULL);
@@ -517,7 +517,7 @@ void tTJSNI_VideoOverlay::DetachVideoOverlay()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::SetRectOffset(tjs_int ofsx, tjs_int ofsy)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		RECT r = {Rect.left + ofsx, Rect.top + ofsy,
@@ -530,7 +530,7 @@ void tTJSNI_VideoOverlay::SetRectOffset(tjs_int ofsx, tjs_int ofsy)
 //void __fastcall tTJSNI_VideoOverlay::WndProc(Messages::TMessage &Msg)
 void tTJSNI_VideoOverlay::WndProc( NativeEvent& ev )
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	// EventQueue's message procedure
 	if(VideoOverlay)
 	{
@@ -714,7 +714,7 @@ void tTJSNI_VideoOverlay::WndProc( NativeEvent& ev )
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::SetTimePosition( tjs_uint64 p )
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetPosition( p );
@@ -724,7 +724,7 @@ void tTJSNI_VideoOverlay::SetTimePosition( tjs_uint64 p )
 tjs_uint64 tTJSNI_VideoOverlay::GetTimePosition()
 {
 	tjs_uint64	result = 0;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetPosition( &result );
@@ -734,7 +734,7 @@ tjs_uint64 tTJSNI_VideoOverlay::GetTimePosition()
 }
 void tTJSNI_VideoOverlay::SetFrame( tjs_int f )
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetFrame( f );
@@ -747,7 +747,7 @@ void tTJSNI_VideoOverlay::SetFrame( tjs_int f )
 tjs_int tTJSNI_VideoOverlay::GetFrame()
 {
 	tjs_int	result = 0;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetFrame( &result );
@@ -757,7 +757,7 @@ tjs_int tTJSNI_VideoOverlay::GetFrame()
 }
 void tTJSNI_VideoOverlay::SetStopFrame( tjs_int f )
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetStopFrame( f );
@@ -766,7 +766,7 @@ void tTJSNI_VideoOverlay::SetStopFrame( tjs_int f )
 }
 void tTJSNI_VideoOverlay::SetDefaultStopFrame()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetDefaultStopFrame();
@@ -776,7 +776,7 @@ void tTJSNI_VideoOverlay::SetDefaultStopFrame()
 tjs_int tTJSNI_VideoOverlay::GetStopFrame()
 {
 	tjs_int	result = 0;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetStopFrame( &result );
@@ -787,7 +787,7 @@ tjs_int tTJSNI_VideoOverlay::GetStopFrame()
 tjs_real tTJSNI_VideoOverlay::GetFPS()
 {
 	tjs_real	result = 0.0;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetFPS( &result );
@@ -798,7 +798,7 @@ tjs_real tTJSNI_VideoOverlay::GetFPS()
 tjs_int tTJSNI_VideoOverlay::GetNumberOfFrame()
 {
 	tjs_int	result = 0;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetNumberOfFrame( &result );
@@ -809,7 +809,7 @@ tjs_int tTJSNI_VideoOverlay::GetNumberOfFrame()
 tjs_int64 tTJSNI_VideoOverlay::GetTotalTime()
 {
 	tjs_int64	result = 0;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetTotalTime( &result );
@@ -831,7 +831,7 @@ void tTJSNI_VideoOverlay::SetLayer2( tTJSNI_BaseLayer *l )
 }
 void tTJSNI_VideoOverlay::SetMode( tTVPVideoOverlayMode m )
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	// ビデオオープン後のモード変更は禁止
 	if( !VideoOverlay )
 	{
@@ -843,7 +843,7 @@ void tTJSNI_VideoOverlay::SetMode( tTVPVideoOverlayMode m )
 tjs_real tTJSNI_VideoOverlay::GetPlayRate()
 {
 	tjs_real	result = 0.0;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetPlayRate( &result );
@@ -853,7 +853,7 @@ tjs_real tTJSNI_VideoOverlay::GetPlayRate()
 }
 void tTJSNI_VideoOverlay::SetPlayRate(tjs_real r)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetPlayRate( r );
@@ -864,7 +864,7 @@ void tTJSNI_VideoOverlay::SetPlayRate(tjs_real r)
 tjs_int tTJSNI_VideoOverlay::GetAudioBalance()
 {
 	long	result = 0;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetAudioBalance( &result );
@@ -874,7 +874,7 @@ tjs_int tTJSNI_VideoOverlay::GetAudioBalance()
 }
 void tTJSNI_VideoOverlay::SetAudioBalance(tjs_int b)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetAudioBalance( TVPPanToDSAttenuate( b ) );
@@ -884,7 +884,7 @@ void tTJSNI_VideoOverlay::SetAudioBalance(tjs_int b)
 tjs_int tTJSNI_VideoOverlay::GetAudioVolume()
 {
 	long	result = 0;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetAudioVolume( &result );
@@ -894,7 +894,7 @@ tjs_int tTJSNI_VideoOverlay::GetAudioVolume()
 }
 void tTJSNI_VideoOverlay::SetAudioVolume(tjs_int b)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetAudioVolume( TVPVolumeToDSAttenuate( b ) );
@@ -904,7 +904,7 @@ void tTJSNI_VideoOverlay::SetAudioVolume(tjs_int b)
 tjs_uint tTJSNI_VideoOverlay::GetNumberOfAudioStream()
 {
 	unsigned long	result = 0;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetNumberOfAudioStream( &result );
@@ -914,7 +914,7 @@ tjs_uint tTJSNI_VideoOverlay::GetNumberOfAudioStream()
 }
 void tTJSNI_VideoOverlay::SelectAudioStream(tjs_uint n)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SelectAudioStream( n );
@@ -924,7 +924,7 @@ void tTJSNI_VideoOverlay::SelectAudioStream(tjs_uint n)
 tjs_int tTJSNI_VideoOverlay::GetEnabledAudioStream()
 {
 	long		result = -1;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetEnableAudioStreamNum( &result );
@@ -934,7 +934,7 @@ tjs_int tTJSNI_VideoOverlay::GetEnabledAudioStream()
 }
 void tTJSNI_VideoOverlay::DisableAudioStream()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->DisableAudioStream();
@@ -945,7 +945,7 @@ void tTJSNI_VideoOverlay::DisableAudioStream()
 tjs_uint tTJSNI_VideoOverlay::GetNumberOfVideoStream()
 {
 	unsigned long	result = 0;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetNumberOfVideoStream( &result );
@@ -955,7 +955,7 @@ tjs_uint tTJSNI_VideoOverlay::GetNumberOfVideoStream()
 }
 void tTJSNI_VideoOverlay::SelectVideoStream(tjs_uint n)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SelectVideoStream( n );
@@ -965,7 +965,7 @@ void tTJSNI_VideoOverlay::SelectVideoStream(tjs_uint n)
 tjs_int tTJSNI_VideoOverlay::GetEnabledVideoStream()
 {
 	long		result = -1;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetEnableVideoStreamNum( &result );
@@ -975,7 +975,7 @@ tjs_int tTJSNI_VideoOverlay::GetEnabledVideoStream()
 }
 void tTJSNI_VideoOverlay::SetMixingLayer( tTJSNI_BaseLayer *l )
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		if( l )
@@ -1021,7 +1021,7 @@ void tTJSNI_VideoOverlay::SetMixingLayer( tTJSNI_BaseLayer *l )
 }
 void tTJSNI_VideoOverlay::ResetMixingBitmap()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->ResetMixingBitmap();
@@ -1030,7 +1030,7 @@ void tTJSNI_VideoOverlay::ResetMixingBitmap()
 }
 void tTJSNI_VideoOverlay::SetMixingMovieAlpha( tjs_real a )
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetMixingMovieAlpha( static_cast<float>(a) );
@@ -1040,7 +1040,7 @@ void tTJSNI_VideoOverlay::SetMixingMovieAlpha( tjs_real a )
 tjs_real tTJSNI_VideoOverlay::GetMixingMovieAlpha()
 {
 	float	ret = 0.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetMixingMovieAlpha( &ret );
@@ -1050,7 +1050,7 @@ tjs_real tTJSNI_VideoOverlay::GetMixingMovieAlpha()
 }
 void tTJSNI_VideoOverlay::SetMixingMovieBGColor( tjs_uint col )
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetMixingMovieBGColor( col );
@@ -1060,7 +1060,7 @@ void tTJSNI_VideoOverlay::SetMixingMovieBGColor( tjs_uint col )
 tjs_uint tTJSNI_VideoOverlay::GetMixingMovieBGColor()
 {
 	unsigned long	ret;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetMixingMovieBGColor( &ret );
@@ -1074,7 +1074,7 @@ tjs_uint tTJSNI_VideoOverlay::GetMixingMovieBGColor()
 tjs_real tTJSNI_VideoOverlay::GetContrastRangeMin()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetContrastRangeMin( &ret );
@@ -1085,7 +1085,7 @@ tjs_real tTJSNI_VideoOverlay::GetContrastRangeMin()
 tjs_real tTJSNI_VideoOverlay::GetContrastRangeMax()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetContrastRangeMax( &ret );
@@ -1096,7 +1096,7 @@ tjs_real tTJSNI_VideoOverlay::GetContrastRangeMax()
 tjs_real tTJSNI_VideoOverlay::GetContrastDefaultValue()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetContrastDefaultValue( &ret );
@@ -1107,7 +1107,7 @@ tjs_real tTJSNI_VideoOverlay::GetContrastDefaultValue()
 tjs_real tTJSNI_VideoOverlay::GetContrastStepSize()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetContrastStepSize( &ret );
@@ -1118,7 +1118,7 @@ tjs_real tTJSNI_VideoOverlay::GetContrastStepSize()
 tjs_real tTJSNI_VideoOverlay::GetContrast()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetContrast( &ret );
@@ -1128,7 +1128,7 @@ tjs_real tTJSNI_VideoOverlay::GetContrast()
 }
 void tTJSNI_VideoOverlay::SetContrast( tjs_real v )
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetContrast( static_cast<float>(v) );
@@ -1138,7 +1138,7 @@ void tTJSNI_VideoOverlay::SetContrast( tjs_real v )
 tjs_real tTJSNI_VideoOverlay::GetBrightnessRangeMin()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetBrightnessRangeMin( &ret );
@@ -1149,7 +1149,7 @@ tjs_real tTJSNI_VideoOverlay::GetBrightnessRangeMin()
 tjs_real tTJSNI_VideoOverlay::GetBrightnessRangeMax()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetBrightnessRangeMax( &ret );
@@ -1160,7 +1160,7 @@ tjs_real tTJSNI_VideoOverlay::GetBrightnessRangeMax()
 tjs_real tTJSNI_VideoOverlay::GetBrightnessDefaultValue()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetBrightnessDefaultValue( &ret );
@@ -1171,7 +1171,7 @@ tjs_real tTJSNI_VideoOverlay::GetBrightnessDefaultValue()
 tjs_real tTJSNI_VideoOverlay::GetBrightnessStepSize()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetBrightnessStepSize( &ret );
@@ -1182,7 +1182,7 @@ tjs_real tTJSNI_VideoOverlay::GetBrightnessStepSize()
 tjs_real tTJSNI_VideoOverlay::GetBrightness()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetBrightness( &ret );
@@ -1192,7 +1192,7 @@ tjs_real tTJSNI_VideoOverlay::GetBrightness()
 }
 void tTJSNI_VideoOverlay::SetBrightness( tjs_real v )
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetBrightness( static_cast<float>(v) );
@@ -1203,7 +1203,7 @@ void tTJSNI_VideoOverlay::SetBrightness( tjs_real v )
 tjs_real tTJSNI_VideoOverlay::GetHueRangeMin()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetHueRangeMin( &ret );
@@ -1214,7 +1214,7 @@ tjs_real tTJSNI_VideoOverlay::GetHueRangeMin()
 tjs_real tTJSNI_VideoOverlay::GetHueRangeMax()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetHueRangeMax( &ret );
@@ -1225,7 +1225,7 @@ tjs_real tTJSNI_VideoOverlay::GetHueRangeMax()
 tjs_real tTJSNI_VideoOverlay::GetHueDefaultValue()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetHueDefaultValue( &ret );
@@ -1236,7 +1236,7 @@ tjs_real tTJSNI_VideoOverlay::GetHueDefaultValue()
 tjs_real tTJSNI_VideoOverlay::GetHueStepSize()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetHueStepSize( &ret );
@@ -1247,7 +1247,7 @@ tjs_real tTJSNI_VideoOverlay::GetHueStepSize()
 tjs_real tTJSNI_VideoOverlay::GetHue()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetHue( &ret );
@@ -1257,7 +1257,7 @@ tjs_real tTJSNI_VideoOverlay::GetHue()
 }
 void tTJSNI_VideoOverlay::SetHue( tjs_real v )
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetHue( static_cast<float>(v) );
@@ -1268,7 +1268,7 @@ void tTJSNI_VideoOverlay::SetHue( tjs_real v )
 tjs_real tTJSNI_VideoOverlay::GetSaturationRangeMin()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetSaturationRangeMin( &ret );
@@ -1279,7 +1279,7 @@ tjs_real tTJSNI_VideoOverlay::GetSaturationRangeMin()
 tjs_real tTJSNI_VideoOverlay::GetSaturationRangeMax()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetSaturationRangeMax( &ret );
@@ -1290,7 +1290,7 @@ tjs_real tTJSNI_VideoOverlay::GetSaturationRangeMax()
 tjs_real tTJSNI_VideoOverlay::GetSaturationDefaultValue()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetSaturationDefaultValue( &ret );
@@ -1301,7 +1301,7 @@ tjs_real tTJSNI_VideoOverlay::GetSaturationDefaultValue()
 tjs_real tTJSNI_VideoOverlay::GetSaturationStepSize()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetSaturationStepSize( &ret );
@@ -1312,7 +1312,7 @@ tjs_real tTJSNI_VideoOverlay::GetSaturationStepSize()
 tjs_real tTJSNI_VideoOverlay::GetSaturation()
 {
 	float ret = -1.0f;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->GetSaturation( &ret );
@@ -1322,7 +1322,7 @@ tjs_real tTJSNI_VideoOverlay::GetSaturation()
 }
 void tTJSNI_VideoOverlay::SetSaturation( tjs_real v )
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(VideoOverlay)
 	{
 		VideoOverlay->SetSaturation( static_cast<float>(v) );
@@ -1333,12 +1333,12 @@ void tTJSNI_VideoOverlay::SetSaturation( tjs_real v )
 tjs_int tTJSNI_VideoOverlay::GetOriginalWidth()
 {
 	// retrieve original (coded in the video stream) width size
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	if(!VideoOverlay) return 0;
 #endif
 
 	long	width, height;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	VideoOverlay->GetVideoSize( &width, &height );
 #else
 	width = 0;
@@ -1352,7 +1352,7 @@ tjs_int tTJSNI_VideoOverlay::GetOriginalHeight()
 	// retrieve original (coded in the video stream) height size
 
 	long	width, height;
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	VideoOverlay->GetVideoSize( &width, &height );
 #else
 	height = 0;
@@ -1363,7 +1363,7 @@ tjs_int tTJSNI_VideoOverlay::GetOriginalHeight()
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::ClearWndProcMessages()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE) && defined(KRKRSDL2_ENABLE_VIDEOOVERLAY)
 	// clear WndProc's message queue
 	MSG msg;
 	while(PeekMessage(&msg, EventQueue.GetOwner(), WM_GRAPHNOTIFY, WM_GRAPHNOTIFY+2, PM_REMOVE))

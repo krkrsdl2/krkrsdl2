@@ -6,7 +6,8 @@
 
 // 呼び出されるハンドラがシングルスレッドで動作するイベントキュー
 
-#ifndef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
+#else
 class NativeEvent;
 class NativeEventQueueIntarface {
 public:
@@ -15,7 +16,7 @@ public:
 #endif
 class NativeEvent {
 public:
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
 	LRESULT Result;
 	HWND HWnd;
 	UINT Message;
@@ -28,7 +29,7 @@ public:
 	NativeEventQueueIntarface * queue;
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
 	NativeEvent(){}
 	NativeEvent( int mes ) : Result(0), HWnd(NULL), Message(mes), WParam(0), LParam(0) {}
 #else
@@ -46,7 +47,7 @@ public:
 #endif
 };
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
 class NativeEventQueueIntarface {
 public:
 	// デフォルトハンドラ
@@ -64,42 +65,43 @@ public:
 };
 #endif
 class NativeEventQueueImplement : public NativeEventQueueIntarface {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
 	HWND window_handle_;
 	WNDCLASSEX	wc_;
 #endif
 
 	int CreateUtilWindow();
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
 	static LRESULT WINAPI WndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 #endif
 
 public:
-#ifndef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
+#else
 	static tjs_uint32 native_event_queue_custom_event_type;
 #endif
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
 	NativeEventQueueImplement() : window_handle_(NULL) {}
 #else
 	NativeEventQueueImplement();
 #endif
 
 	// デフォルトハンドラ
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
 	void HandlerDefault( NativeEvent& event );
 #else
 	void HandlerDefault( NativeEvent& event ) {}
 #endif
 
 	// Queue の生成
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
 	void Allocate();
 #else
 	void Allocate() {}
 #endif
 
 	// Queue の削除
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
 	void Deallocate();
 #else
 	void Deallocate() {}
@@ -107,10 +109,11 @@ public:
 
 	void PostEvent( const NativeEvent& event );
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
 	HWND GetOwner() { return window_handle_; }
 #endif
-#ifndef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
+#else
 	void Dispatch(NativeEvent& event) {}
 #endif
 };
@@ -128,7 +131,8 @@ public:
 		(owner_->*handler_)(ev);
 	}
 
-#ifndef _WIN32
+#if defined(_WIN32) && defined(KRKRSDL2_USE_WIN32_EVENT_QUEUE)
+#else
 	T* GetOwner() { return owner_; }
 #endif
 };
