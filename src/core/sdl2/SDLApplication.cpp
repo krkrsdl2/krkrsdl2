@@ -80,7 +80,7 @@ static int sdl_event_watch(void *userdata, SDL_Event *in_event);
 static void refresh_controllers()
 {
 #if defined(__IPHONEOS__) || defined(__ANDROID__)
-	// For some reason, invalid pointers get set in SDL's controller subsystem which causes segfault
+	// TODO: check why invalid pointers get set in SDL's controller subsystem which causes segfault
 	{
 		return;
 	}
