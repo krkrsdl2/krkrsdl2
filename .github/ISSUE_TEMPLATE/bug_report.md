@@ -1,6 +1,6 @@
 ---
 name: "Bug Report"
-description: "Report a bug."
+about: "Report a bug."
 title: "Bug: "
 labels: ["bug"]
 ---
