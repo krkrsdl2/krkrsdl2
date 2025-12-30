@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Kirikiri SDL2 Discussions
+    url: https://github.com/orgs/krkrsdl2/discussions
+    about: Create a new post here.
+  - name: IRC/Matrix chat
+    url: https://krkrsdl2.github.io/krkrsdl2/en/#a-namecommunityairc-channel
+    about: Chat with other users here.
