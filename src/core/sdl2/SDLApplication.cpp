@@ -1319,14 +1319,14 @@ tjs_string TVPWindowWindow::GetCaption()
 {
 	std::string v_utf8 = this->window ? SDL_GetWindowTitle(this->window) : "";
 	tjs_string v_utf16;
-	TVPUtf8ToUtf16( v_utf16, v_utf8 );
+	TVPUtf8ToUtf16(v_utf16, v_utf8);
 	return v_utf16;
 }
 void TVPWindowWindow::GetCaption(tjs_string & v) const
 {
 	v.clear();
 	std::string v_utf8 = this->window ? SDL_GetWindowTitle(this->window) : "";
-	TVPUtf8ToUtf16( v, v_utf8 );
+	TVPUtf8ToUtf16(v, v_utf8);
 }
 void TVPWindowWindow::SetCaption(const tjs_string & v)
 {
@@ -2521,7 +2521,7 @@ void TVPWindowWindow::window_receive_event(SDL_Event event)
 					{
 						std::string f_utf8 = event.drop.file;
 						tjs_string f_utf16;
-						TVPUtf8ToUtf16( f_utf16, f_utf8 );
+						TVPUtf8ToUtf16(f_utf16, f_utf8);
 						SDL_free(event.drop.file);
 						if (TVPIsExistentStorageNoSearch(f_utf16))
 						{
@@ -2992,7 +2992,7 @@ void krkrsdl2_convert_set_args(int argc, char **argv)
 		}
 		std::string v_utf8 = narg;
 		tjs_string v_utf16;
-		TVPUtf8ToUtf16( v_utf16, v_utf8 );
+		TVPUtf8ToUtf16(v_utf16, v_utf8);
 #if !defined(__EMSCRIPTEN__) && !defined(__vita__) && !defined(__SWITCH__) && !defined(_WIN32)
 		if (!i)
 		{
