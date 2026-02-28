@@ -1,6 +1,11 @@
 /* SPDX-License-Identifier: MIT */
 /* Copyright (c) Kirikiri SDL2 Developers */
 
+/**
+ * @file
+ * Interface to JavaScript using the embind API of Emscripten
+ */
+
 #include "tp_stub.h"
 #include "CharacterSet.h"
 
