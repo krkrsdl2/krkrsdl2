@@ -58,6 +58,9 @@
 #ifndef _WIN32
 #include <unistd.h>
 #endif
+#ifdef __linux__
+#include <sys/stat.h>
+#endif
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -155,10 +158,11 @@ tjs_string ExePath() {
 #ifdef __linux__
 	if (exepath.empty())
 	{
-		long size = pathconf("/proc/self/exe", _PC_PATH_MAX);
-		if (size <= 0)
+		ssize_t size = PATH_MAX;
+		struct stat lnst;
+		if (lstat("/proc/self/exe", &lnst) != -1 && lnst.st_size != 0)
 		{
-			size = 256;
+			size = lnst.st_size + 1;
 		}
 		char *buf = (char *)SDL_malloc(size);
 		ssize_t retsize = readlink("/proc/self/exe", buf, size);
