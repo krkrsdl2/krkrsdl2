@@ -155,7 +155,11 @@ tjs_string ExePath() {
 #ifdef __linux__
 	if (exepath.empty())
 	{
-		size_t size = 256;
+		long size = pathconf("/proc/self/exe", _PC_PATH_MAX);
+		if (size <= 0)
+		{
+			size = 256;
+		}
 		char *buf = (char *)SDL_malloc(size);
 		ssize_t retsize = readlink("/proc/self/exe", buf, size);
 		while (retsize != -1 && retsize == size && buf != nullptr)
