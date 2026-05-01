@@ -484,7 +484,7 @@
         },
         {
           "name" : "Prepare artifacts for release",
-          "run" : "cp -t . ${{ github.event.repository.name }}-*/*.zip\ncp -t . ${{ github.event.repository.name }}-*/*.tar.gz\ncp -t . ${{ github.event.repository.name }}-android/krkrsdl2.apk\ncp -t . ${{ github.event.repository.name }}-vita/krkrsdl2.vpk\ncp -t . ${{ github.event.repository.name }}-switch/krkrsdl2.nro\n"
+          "run" : "cp -t . ${{ github.event.repository.name }}-*/*.zip\ncp -t . ${{ github.event.repository.name }}-*/*.tar.gz\ncp -t . ${{ github.event.repository.name }}-android/krkrsdl2.apk\ncp -t . ${{ github.event.repository.name }}-switch/krkrsdl2.nro\n"
         },
         {
           "name" : "Create prerelease",
@@ -495,7 +495,7 @@
             "prerelease" : "true",
             "automatic_release_tag" : "latest",
             "title" : "Latest development builds",
-            "files" : "*.zip\n*.tar.gz\n*.apk\n*.vpk\n*.nro\n"
+            "files" : "*.zip\n*.tar.gz\n*.apk\n*.nro\n"
           }
         }
       ]
