@@ -181,18 +181,6 @@
               "runs-on" : "ubuntu-latest"
             },
             {
-              "target-name" : "vita",
-              "artifact-to-archive" : "",
-              "artifact-path" : "build/*.vpk",
-              "example-project-path" : ".",
-              "cmake-extra-configure-prepend" : "",
-              "cmake-extra-configure-append" : "-DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DEMBED_DATA_PATH=data.xp3",
-              "container" : "vitasdk/vitasdk:latest",
-              "container-options" : " ",
-              "has-brew" : "false",
-              "runs-on" : "ubuntu-latest"
-            },
-            {
               "target-name" : "switch",
               "artifact-to-archive" : "",
               "artifact-path" : "build/*.nro",
