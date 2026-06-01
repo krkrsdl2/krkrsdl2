@@ -67,7 +67,7 @@
               "example-project-path" : "",
               "cmake-extra-configure-prepend" : "",
               "cmake-extra-configure-append" : "",
-              "container" : "ghcr.io/homebrew/ubuntu20.04:latest",
+              "container" : "ghcr.io/homebrew/brew:latest",
               "container-options" : "--user 0",
               "has-brew" : "true",
               "runs-on" : "ubuntu-latest"
@@ -79,9 +79,9 @@
               "example-project-path" : "",
               "cmake-extra-configure-prepend" : "",
               "cmake-extra-configure-append" : "",
-              "container" : "ubuntu:20.04",
+              "container" : "ghcr.io/homebrew/brew:latest",
               "container-options" : "--user 0",
-              "has-brew" : "false",
+              "has-brew" : "true",
               "runs-on" : "ubuntu-24.04-arm"
             },
             {
@@ -175,7 +175,7 @@
               "example-project-path" : "android-project/app/src/main/assets",
               "cmake-extra-configure-prepend" : "",
               "cmake-extra-configure-append" : "",
-              "container" : "ghcr.io/homebrew/ubuntu20.04:latest",
+              "container" : "ghcr.io/homebrew/brew:latest",
               "container-options" : "--user 0",
               "has-brew" : "true",
               "runs-on" : "ubuntu-latest"
