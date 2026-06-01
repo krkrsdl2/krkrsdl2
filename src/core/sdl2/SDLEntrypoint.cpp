@@ -43,7 +43,7 @@ extern "C" int main(int argc, char **argv)
 		return TVPTerminateCode;
 	}
 #ifdef _WIN32
-	::TerminateProcess(GetCurrentProcess(), (UINT)TVPTerminateCode);
+	::TerminateProcess(::GetCurrentProcess(), (UINT)TVPTerminateCode);
 #endif
 	return TVPTerminateCode;
 }
