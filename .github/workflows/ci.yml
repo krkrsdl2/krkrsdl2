@@ -417,7 +417,7 @@
     "generate-tp-stub-ubuntu" : {
       "runs-on" : "ubuntu-latest",
       "container" : {
-        "image" : "ghcr.io/homebrew/ubuntu20.04:latest",
+        "image" : "ghcr.io/homebrew/brew:latest",
         "options" : "--user 0"
       },
       "timeout-minutes" : 20,
