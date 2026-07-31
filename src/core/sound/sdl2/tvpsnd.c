@@ -9,12 +9,12 @@
  */
 /* Compiler settings for tvpsnd.idl:
     Os (OptLev=s), W1, Zp8, env=Win32, ms_ext, c_ext
-    error checks: allocation ref bounds_check enum stub_data 
+    error checks: allocation ref bounds_check enum stub_data
 */
 //@@MIDL_FILE_HEADING(  )
 #ifdef __cplusplus
 extern "C"{
-#endif 
+#endif
 
 
 #ifndef __IID_DEFINED__

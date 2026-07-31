@@ -136,7 +136,7 @@ public:
 		else
 		{
 			AudioVolumeValue = vol;
-		} 
+		}
 	}
 	virtual tjs_int GetVolume() const override
 	{

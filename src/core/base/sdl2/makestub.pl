@@ -128,7 +128,7 @@ sub make_func_stub
 	$arg =~ s/\n/ /gs;
 	$arg =~ s/\t/ /gs;
 
-	$func_exp_name = 
+	$func_exp_name =
 		($rettype =~ /^${prefix}_METHOD_RET/ ? '' : normalize_string($rettype).' ').
 		$type.'::'.normalize_string($name).'('.except_arg_names($arg).')'.($isconst ? ' const':'');
 
@@ -1063,7 +1063,7 @@ while($class_iTJSDispatch2 =~
 	$method_name = $2;
 	@args = split(/\s*,\s*/, $3 eq 'void' ? '' : $3);
 
-	$hc .= 
+	$hc .=
 		("extern $ret_type Try_iTJSDispatch2_$method_name(" .
 			join(', ',  ("iTJSDispatch2 * _this", @args)) . ");\n");
 
@@ -1115,7 +1115,7 @@ while($class_iTJSDispatch2 =~
 	$cc .= join(",\n\t\t", @arg_args);
 	$cc .= "\n		);\n";
 	$cc .= "}\n";
-	$cc .= 
+	$cc .=
 		("$ret_type Try_iTJSDispatch2_$method_name(" .
 			join(', ',  ("iTJSDispatch2 * _this", @args)) . ")\n");
 	$cc .= "{\n";

@@ -305,7 +305,7 @@ static tjs_uint32 TVPCheckCPULocal()
 		} __except(EXCEPTION_EXECUTE_HANDLER) {
 			// exception had been ocured
 			flags &= ~(TVP_CPU_HAS_AVX|TVP_CPU_HAS_AVX2);
-		} 
+		}
 	}
 #endif
 

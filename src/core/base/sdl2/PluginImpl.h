@@ -108,27 +108,27 @@ __attribute__((unused)) static const IID IID_ITSSMediaBaseInfo = {0xB4C4239B,0x7
 class ITSSMediaBaseInfo : public IUnknown
 {
 public:
-	virtual HRESULT STDMETHODCALLTYPE GetMediaType( 
+	virtual HRESULT STDMETHODCALLTYPE GetMediaType(
 		TSS_LPWSTR shortname,
 		TSS_LPWSTR descbuf,
 		TSS_ULONG descbuflen) = 0;
-	
-	virtual HRESULT STDMETHODCALLTYPE GetLength( 
+
+	virtual HRESULT STDMETHODCALLTYPE GetLength(
 		TSS_ULONG __RPC_FAR *length) = 0;
-	
-	virtual HRESULT STDMETHODCALLTYPE GetTitle( 
+
+	virtual HRESULT STDMETHODCALLTYPE GetTitle(
 		TSS_LPWSTR buf,
 		TSS_ULONG buflen) = 0;
-	
-	virtual HRESULT STDMETHODCALLTYPE GetCopyright( 
+
+	virtual HRESULT STDMETHODCALLTYPE GetCopyright(
 		TSS_LPWSTR buf,
 		TSS_ULONG buflen) = 0;
-	
-	virtual HRESULT STDMETHODCALLTYPE GetComment( 
+
+	virtual HRESULT STDMETHODCALLTYPE GetComment(
 		TSS_LPWSTR buf,
 		TSS_ULONG buflen) = 0;
-	
-	virtual HRESULT STDMETHODCALLTYPE GetArtist( 
+
+	virtual HRESULT STDMETHODCALLTYPE GetArtist(
 		TSS_LPWSTR buf,
 		TSS_ULONG buflen) = 0;
 };
@@ -137,15 +137,15 @@ __attribute__((unused)) static const IID IID_ITSSStorageProvider = {0x7DD61993,0
 class ITSSStorageProvider : public IUnknown
 {
 public:
-	virtual HRESULT STDMETHODCALLTYPE GetStreamForRead( 
+	virtual HRESULT STDMETHODCALLTYPE GetStreamForRead(
 		TSS_LPWSTR url,
 		IUnknown __RPC_FAR *__RPC_FAR *stream) = 0;
-	
-	virtual HRESULT STDMETHODCALLTYPE GetStreamForWrite( 
+
+	virtual HRESULT STDMETHODCALLTYPE GetStreamForWrite(
 		TSS_LPWSTR url,
 		IUnknown __RPC_FAR *__RPC_FAR *stream) = 0;
-	
-	virtual HRESULT STDMETHODCALLTYPE GetStreamForUpdate( 
+
+	virtual HRESULT STDMETHODCALLTYPE GetStreamForUpdate(
 		TSS_LPWSTR url,
 		IUnknown __RPC_FAR *__RPC_FAR *stream) = 0;
 };
@@ -154,28 +154,28 @@ __attribute__((unused)) static const IID IID_ITSSModule = {0xA938D1A5,0x2980,0x4
 class ITSSModule : public IUnknown
 {
 public:
-	virtual HRESULT STDMETHODCALLTYPE GetModuleCopyright( 
+	virtual HRESULT STDMETHODCALLTYPE GetModuleCopyright(
 		TSS_LPWSTR buffer,
 		TSS_ULONG buflen) = 0;
-	
-	virtual HRESULT STDMETHODCALLTYPE GetModuleDescription( 
+
+	virtual HRESULT STDMETHODCALLTYPE GetModuleDescription(
 		TSS_LPWSTR buffer,
 		TSS_ULONG buflen) = 0;
-	
-	virtual HRESULT STDMETHODCALLTYPE GetSupportExts( 
+
+	virtual HRESULT STDMETHODCALLTYPE GetSupportExts(
 		TSS_ULONG index,
 		TSS_LPWSTR mediashortname,
 		TSS_LPWSTR buf,
 		TSS_ULONG buflen) = 0;
-	
-	virtual HRESULT STDMETHODCALLTYPE GetMediaInfo( 
+
+	virtual HRESULT STDMETHODCALLTYPE GetMediaInfo(
 		TSS_LPWSTR url,
 		ITSSMediaBaseInfo __RPC_FAR *__RPC_FAR *info) = 0;
-	
-	virtual HRESULT STDMETHODCALLTYPE GetMediaSupport( 
+
+	virtual HRESULT STDMETHODCALLTYPE GetMediaSupport(
 		TSS_LPWSTR url) = 0;
-	
-	virtual HRESULT STDMETHODCALLTYPE GetMediaInstance( 
+
+	virtual HRESULT STDMETHODCALLTYPE GetMediaInstance(
 		TSS_LPWSTR url,
 		IUnknown __RPC_FAR *__RPC_FAR *instance) = 0;
 };
@@ -184,16 +184,16 @@ __attribute__((unused)) static const IID IID_ITSSWaveDecoder = {0x313864E2,0x910
 class ITSSWaveDecoder : public IUnknown
 {
 public:
-	virtual HRESULT STDMETHODCALLTYPE GetFormat( 
+	virtual HRESULT STDMETHODCALLTYPE GetFormat(
 		TSSWaveFormat __RPC_FAR *format) = 0;
-	
-	virtual HRESULT STDMETHODCALLTYPE Render( 
+
+	virtual HRESULT STDMETHODCALLTYPE Render(
 		void __RPC_FAR *buf,
 		TSS_ULONG bufsamplelen,
 		TSS_ULONG __RPC_FAR *rendered,
 		TSS_ULONG __RPC_FAR *status) = 0;
-	
-	virtual HRESULT STDMETHODCALLTYPE SetPosition( 
+
+	virtual HRESULT STDMETHODCALLTYPE SetPosition(
 		TSS_UINT64 samplepos) = 0;
 };
 #endif

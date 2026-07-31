@@ -50,7 +50,7 @@ public:
 	virtual void __stdcall GetFPS( double *f ) = 0;
 	virtual void __stdcall GetNumberOfFrame( int *f ) = 0;
 	virtual void __stdcall GetTotalTime( __int64 *t ) = 0;
-	
+
 	virtual void __stdcall GetVideoSize( long *width, long *height ) = 0;
 	virtual void __stdcall GetFrontBuffer( BYTE **buff ) = 0;
 	virtual void __stdcall SetVideoBuffer( BYTE *buff1, BYTE *buff2, long size ) = 0;

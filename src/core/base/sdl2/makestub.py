@@ -200,11 +200,11 @@ def make_func_stub(ofh, func_list, h_stub, rettype, name, arg, extra_arg, type_,
 	rettype = rettype.replace("\n", " ").replace("\t", " ")
 	name = name.replace("\n", " ").replace("\t", " ")
 	arg = arg.replace("\n", " ").replace("\t", " ")
-	
+
 	func_exp_name = \
 		("" if re.search(r"^" + prefix + r"_METHOD_RET", rettype) != None else normalize_string(rettype) + " ") + \
 		type_ + "::" + normalize_string(name) + "(" + except_arg_names(arg) + ")" + (" const" if isconst else "")
-	
+
 	md5 = hashlib.md5(func_exp_name.encode("ASCII")).hexdigest()
 
 	mangled = {}
@@ -324,7 +324,7 @@ def make_exp_stub(ofh, func_list, rettype, name, arg, extra_arg):
 	rettype = rettype.replace("\n", " ").replace("\t", " ")
 	name = name.replace("\n", " ").replace("\t", " ")
 	arg = arg.replace("\n", " ").replace("\t", " ")
-	
+
 	func_exp_name = normalize_string(rettype) + " " + \
 		"::" + normalize_string(name) + "(" + except_arg_names(arg) + ")";
 
