@@ -456,25 +456,25 @@ static tjs_uint sdl_key_to_vk_key(SDL_Keycode key)
 static int GetShiftState()
 {
 	int s = 0;
-	if (TVPGetAsyncKeyState(VK_MENU)) s |= MK_ALT;
-	if (TVPGetAsyncKeyState(VK_LMENU)) s |= MK_ALT;
-	if (TVPGetAsyncKeyState(VK_RMENU)) s |= MK_ALT;
-	if (TVPGetAsyncKeyState(VK_SHIFT)) s |= MK_SHIFT;
-	if (TVPGetAsyncKeyState(VK_LSHIFT)) s |= MK_SHIFT;
-	if (TVPGetAsyncKeyState(VK_RCONTROL)) s |= MK_SHIFT;
-	if (TVPGetAsyncKeyState(VK_CONTROL)) s |= MK_CONTROL;
-	if (TVPGetAsyncKeyState(VK_LCONTROL)) s |= MK_CONTROL;
-	if (TVPGetAsyncKeyState(VK_RCONTROL)) s |= MK_CONTROL;
+	s |= TVPGetAsyncKeyState(VK_MENU) ? MK_ALT : 0;
+	s |= TVPGetAsyncKeyState(VK_LMENU) ? MK_ALT : 0;
+	s |= TVPGetAsyncKeyState(VK_RMENU) ? MK_ALT : 0;
+	s |= TVPGetAsyncKeyState(VK_SHIFT) ? MK_SHIFT : 0;
+	s |= TVPGetAsyncKeyState(VK_LSHIFT) ? MK_SHIFT : 0;
+	s |= TVPGetAsyncKeyState(VK_RCONTROL) ? MK_SHIFT : 0;
+	s |= TVPGetAsyncKeyState(VK_CONTROL) ? MK_CONTROL : 0;
+	s |= TVPGetAsyncKeyState(VK_LCONTROL) ? MK_CONTROL : 0;
+	s |= TVPGetAsyncKeyState(VK_RCONTROL) ? MK_CONTROL : 0;
 	return s;
 }
 static int GetMouseButtonState()
 {
 	int s = 0;
-	if (TVPGetAsyncKeyState(VK_LBUTTON)) s |= ssLeft;
-	if (TVPGetAsyncKeyState(VK_RBUTTON)) s |= ssRight;
-	if (TVPGetAsyncKeyState(VK_MBUTTON)) s |= ssMiddle;
-	if (TVPGetAsyncKeyState(VK_XBUTTON1)) s |= ssX1;
-	if (TVPGetAsyncKeyState(VK_XBUTTON2)) s |= ssX2;
+	s |= TVPGetAsyncKeyState(VK_LBUTTON) ? ssLeft : 0;
+	s |= TVPGetAsyncKeyState(VK_RBUTTON) ? ssRight : 0;
+	s |= TVPGetAsyncKeyState(VK_MBUTTON) ? ssMiddle : 0;
+	s |= TVPGetAsyncKeyState(VK_XBUTTON1) ? ssX1 : 0;
+	s |= TVPGetAsyncKeyState(VK_XBUTTON2) ? ssX2 : 0;
 	return s;
 }
 
