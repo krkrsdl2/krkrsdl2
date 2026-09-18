@@ -11,10 +11,10 @@ Please visit the following webpage for more information: https://krkrsdl2.github
 ## 商用ゲームの実行に関する注意 / A note on running commercial games
 
 このプロジェクトを使用して変更されていない商用ゲームを実行することはサポートされていません。  
-代わりに[Wine](https://www.winehq.org/)または[Kirikiroid2](https://play.google.com/store/apps/details?id=org.tvp.kirikiri2)を使用してください。    
+代わりに[Wine](https://www.winehq.org/)または[GameNative](https://gamenative.app/)を使用してください。    
 
 Running unmodified commercial games using this project is not supported.  
-Please use [Wine](https://www.winehq.org/) or [Kirikiroid2](https://play.google.com/store/apps/details?id=org.tvp.kirikiri2) instead.  
+Please use [Wine](https://www.winehq.org/) or [GameNative](https://gamenative.app/) instead.  
 
 ## ライセンス / License
 
