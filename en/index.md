@@ -19,7 +19,7 @@ A demonstration project playable in your web browser is available here: https://
 ## <a name="commercial-game-note"></a>A note on running commercial games
 
 Running unmodified commercial games using this project is not supported.  
-Please use [Wine](https://www.winehq.org/) or [Kirikiroid2](https://play.google.com/store/apps/details?id=org.tvp.kirikiri2) instead.  
+Please use [Wine](https://www.winehq.org/) or [GameNative](https://gamenative.app/) instead.  
 
 ## <a name="screenshots"></a>Screenshots
 

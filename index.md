@@ -19,7 +19,7 @@ Webブラウザーでプレイできるデモはここにあります：https://
 ## <a name="commercial-game-note"></a>商用ゲームの実行に関する注意
 
 このプロジェクトを使用して変更されていない商用ゲームを実行することはサポートされていません。  
-代わりに[Wine](https://www.winehq.org/)または[Kirikiroid2](https://play.google.com/store/apps/details?id=org.tvp.kirikiri2)を使用してください。    
+代わりに[Wine](https://www.winehq.org/)または[GameNative](https://gamenative.app/)を使用してください。    
 
 ## <a name="screenshots"></a>スクリーンショット
 
