@@ -1292,17 +1292,17 @@ void TVPBeforeSystemInit()
 	}
 #ifdef __ANDROID__
 	// Special case for Android when SDL_GetBasePath returns NULL.
-	if (base_path_utf8.length() == 0)
+	if (!base_path_utf8.length())
 	{
 		base_path_utf8 = "/";
 	}
 #endif
 	tjs_string base_path_utf16;
 	TVPUtf8ToUtf16(base_path_utf16, base_path_utf8);
-	if (base_path_utf16.length() != 0 && !TVPGetCommandLine(TJS_W("-nosel")))
+	if (base_path_utf16.length() && !TVPGetCommandLine(TJS_W("-nosel")))
 	{
 		tjs_string found_dir;
-		if (found_dir.length() == 0)
+		if (!found_dir.length())
 		{
 			tjs_string tmp_search_dir = base_path_utf16 + TJS_W("content-data");
 			if (TVPCheckExistentLocalFolder(tmp_search_dir))
@@ -1314,7 +1314,7 @@ void TVPBeforeSystemInit()
 				found_dir = tmp_search_dir + TJS_W(">");
 			}
 		}
-		if (found_dir.length() == 0)
+		if (!found_dir.length())
 		{
 			tjs_string tmp_search_dir = base_path_utf16 + TJS_W("data.xp3");
 			if (TVPCheckExistentLocalFolder(tmp_search_dir))
@@ -1326,7 +1326,7 @@ void TVPBeforeSystemInit()
 				found_dir = tmp_search_dir + TJS_W(">");
 			}
 		}
-		if (found_dir.length() == 0)
+		if (!found_dir.length())
 		{
 			tjs_string tmp_search_dir = base_path_utf16 + TJS_W("data.exe");
 			if (TVPCheckExistentLocalFolder(tmp_search_dir))
@@ -1338,7 +1338,7 @@ void TVPBeforeSystemInit()
 				found_dir = tmp_search_dir + TJS_W(">");
 			}
 		}
-		if (found_dir.length() == 0)
+		if (!found_dir.length())
 		{
 			tjs_string tmp_search_dir = base_path_utf16 + TJS_W("data");
 			if (TVPCheckExistentLocalFolder(tmp_search_dir))
@@ -1350,7 +1350,7 @@ void TVPBeforeSystemInit()
 				found_dir = tmp_search_dir + TJS_W(">");
 			}
 		}
-		if (found_dir.length() != 0)
+		if (!found_dir.length())
 		{
 			TVPProjectDir = TVPNormalizeStorageName(found_dir);
 			TVPSetCurrentDirectory(TVPProjectDir);
@@ -1366,16 +1366,12 @@ void TVPBeforeSystemInit()
 #ifdef _WIN32
 		DWORD size = GetCurrentDirectoryW(0, nullptr);
 		tjs_char *buf = nullptr;
-		if (size != 0)
+		if (size)
 		{
 			buf = (tjs_char *)SDL_malloc(size * sizeof(tjs_char));
-			if (buf != nullptr)
+			if (buf && (size == (GetCurrentDirectory(size, buf) + 1)))
 			{
-				DWORD written_size = GetCurrentDirectory(size, buf);
-				if (size == (written_size + 1))
-				{
-					dir_utf16 = buf;
-				}
+				dir_utf16 = buf;
 			}
 		}
 
@@ -1400,7 +1396,7 @@ void TVPBeforeSystemInit()
 		{
 			SDL_free(buf);
 		}
-		if (dir_utf16.length() != 0)
+		if (dir_utf16.length())
 		{
 			if (!TVPGetCommandLine(TJS_W("-nosel")))
 			{

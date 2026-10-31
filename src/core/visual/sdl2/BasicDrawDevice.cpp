@@ -655,9 +655,7 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::StartBitmapCompletion(iTVPLayerManager
 	{
 		TTVPWindowForm *form = ((tTJSNI_Window*)Window)->GetForm();
 		if (form)
-		{
 			bitmap_completion = form->GetTVPSDLBitmapCompletion();
-		}
 	}
 #if 0
 	EnsureDevice();
@@ -692,9 +690,7 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::NotifyBitmapCompleted(iTVPLayerManager
 	const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity)
 {
 	if (bitmap_completion)
-	{
 		bitmap_completion->NotifyBitmapCompleted(manager, x, y, bits, bmpinfo, cliprect, type, opacity);
-	}
 #if 0
 	const BITMAPINFO *bitmapinfo = bmpinfo->GetBITMAPINFO();
 

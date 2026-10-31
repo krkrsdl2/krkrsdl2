@@ -27,9 +27,7 @@ static tTVPAudioDeviceChoice TVPAudioDeviceChoice = adcAuto;
 static void TVPInitAudioDeviceOptions()
 {
 	if (TVPAudioDeviceOptionsGeneration == TVPGetCommandLineArgumentGeneration())
-	{
 		return;
-	}
 	TVPAudioDeviceOptionsGeneration = TVPGetCommandLineArgumentGeneration();
 
 	tTJSVariant val;
@@ -53,14 +51,10 @@ iTVPAudioDevice* TVPCreateAudioDevice()
 	TVPInitAudioDeviceOptions();
 #ifdef TVP_FAUDIO_IMPLEMENT
 	if (!device && (TVPAudioDeviceChoice == adcFAudio || TVPAudioDeviceChoice == adcAuto))
-	{
 		device = TVPCreateAudioDevice_FAudio();
-	}
 #endif
 	if (!device && (TVPAudioDeviceChoice == adcNull || TVPAudioDeviceChoice == adcAuto))
-	{
 		device = TVPCreateAudioDevice_Null();
-	}
 	return device;
 }
 

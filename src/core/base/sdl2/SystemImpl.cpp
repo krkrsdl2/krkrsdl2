@@ -344,7 +344,7 @@ bool TVPShellExecute(const ttstr &target, const ttstr &param)
 #if SDL_VERSION_ATLEAST(2, 0, 14)
 		if (param.IsEmpty())
 		{
-			return SDL_OpenURL(ntarget.c_str()) == 0;
+			return !SDL_OpenURL(ntarget.c_str());
 		}
 #endif
 #if defined(__APPLE__)
@@ -352,7 +352,7 @@ bool TVPShellExecute(const ttstr &target, const ttstr &param)
 		{
 			auto cmd = TJS_W("open ") + target;
 			cmd += TJS_W(" --args ") + param;
-			return system(ntarget.c_str()) == 0;
+			return !system(ntarget.c_str());
 		}
 #endif
 #endif

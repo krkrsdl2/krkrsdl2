@@ -156,11 +156,7 @@ public:
 
 	virtual void AppendBuffer(const void *buf, unsigned int len) override
 	{
-		if (len <= 0)
-		{
-			return;
-		}
-		if (!has_format)
+		if (len <= 0 || !has_format)
 		{
 			return;
 		}

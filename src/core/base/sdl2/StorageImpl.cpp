@@ -191,7 +191,7 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 		if( ( dr = sceIoDopen(nname.c_str()) ) >= 0 )
 #else
 		DIR* dr;
-		if( ( dr = opendir(nname.c_str()) ) != nullptr )
+		if( ( dr = opendir(nname.c_str()) ) )
 #endif
 		{
 #if defined(__vita__)
@@ -199,7 +199,7 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 			while( sceIoDread( dr, &entry ) > 0 )
 #else
 			struct dirent* entry;
-			while( ( entry = readdir( dr ) ) != nullptr )
+			while( ( entry = readdir( dr ) ) )
 #endif
 			{
 #if defined(__vita__)
@@ -237,7 +237,7 @@ void TJS_INTF_METHOD tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLis
 		}
 #if defined(__ANDROID__)
 		// Skip the leading slash.
-		else if ( asset_manager != NULL && nname.length() > 0 && nname[0] == '/' && (AndroidAssetManager_Check_Directory_Existent(asset_manager, nname.c_str() + 1)) && (android_dr = AAssetManager_openDir( asset_manager, nname.c_str() + 1 )) )
+		else if ( asset_manager && nname.length() > 0 && nname[0] == '/' && (AndroidAssetManager_Check_Directory_Existent(asset_manager, nname.c_str() + 1)) && (android_dr = AAssetManager_openDir( asset_manager, nname.c_str() + 1 )) )
 		{
 			const char* filename = nullptr;
 			do {
@@ -383,20 +383,13 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 		AAssetDir* android_dr;
 #endif
 		struct dirent *direntp;
-		if ((path_entries != 2) || (path_entries == 2 && domain_name != "?"))
-		{
-			nnewname += "/";
-		}
-		else
-		{
-			nnewname += "./";
-		}
+		nnewname += ((path_entries != 2) || (path_entries == 2 && domain_name != "?")) ? "/" : "./";
 
 		if ((dirp = opendir(nnewname.c_str())))
 		{
 			bool found = false;
 			bool is_directory = false;
-			while (found == false && (direntp = readdir(dirp)) != nullptr)
+			while (found == false && (direntp = readdir(dirp)))
 			{
 				if (!SDL_strcasecmp(nwalker.c_str(), direntp->d_name))
 				{
@@ -414,12 +407,12 @@ void TJS_INTF_METHOD tTVPFileMedia::GetLocallyAccessibleName(ttstr &name)
 		}
 #if defined(__ANDROID__)
 		// Skip the leading slash.
-		else if ( asset_manager != NULL && nnewname.length() > 0 && nnewname[0] == '/' && (AndroidAssetManager_Check_Directory_Existent(asset_manager, nnewname.c_str() + 1)) && (android_dr = AAssetManager_openDir( asset_manager, nnewname.c_str() + 1 )) )
+		else if ( asset_manager && nnewname.length() > 0 && nnewname[0] == '/' && (AndroidAssetManager_Check_Directory_Existent(asset_manager, nnewname.c_str() + 1)) && (android_dr = AAssetManager_openDir( asset_manager, nnewname.c_str() + 1 )) )
 		{
 			const char* filename = nullptr;
 			bool found = false;
 			bool is_directory = false;
-			while (found == false && (filename = AAssetDir_getNextFileName( android_dr )) != nullptr)
+			while (found == false && (filename = AAssetDir_getNextFileName( android_dr )))
 			{
 				if (!SDL_strcasecmp(nwalker.c_str(), filename))
 				{
@@ -507,7 +500,7 @@ void TVPPreNormalizeStorageName(ttstr &name)
 
 #if defined(__SWITCH__) || defined(__vita__)
 	// HACK for Switch and Vita: colon in filesystem causes a conflict
-	if ((TJS_strstr(name.c_str(), TJS_W("file:")) == nullptr) && (TJS_strchr(name.c_str(), TJS_W(':')) != nullptr))
+	if ((!TJS_strstr(name.c_str(), TJS_W("file:"))) && (TJS_strchr(name.c_str(), TJS_W(':'))))
 	{
 		ttstr newname(TJS_W("file://?/"));
 		newname += name;
@@ -743,10 +736,10 @@ bool TVPCheckExistentLocalFile(const ttstr &name)
 #if defined(__ANDROID__)
 		AAssetManager *asset_manager = AndroidAssetManager_Get_AssetManager();
 		// Skip the leading slash.
-		if (asset_manager != NULL && filename.length() > 0 && filename[0] == '/')
+		if (asset_manager && filename.length() > 0 && filename[0] == '/')
 		{
 			AAsset* asset = AAssetManager_open( asset_manager, filename.c_str() + 1, AASSET_MODE_UNKNOWN);
-			bool result = asset != NULL;
+			bool result = !!asset;
 			if ( result )
 			{
 				AAsset_close( asset );
@@ -939,7 +932,7 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
 
 retry:
 	io_handle = SDL_RWFromFile(filename.c_str(), mode);
-	if(io_handle == nullptr)
+	if(!io_handle)
 	{
 		if(trycount == 0 && access == TJS_BS_WRITE)
 		{
@@ -975,7 +968,7 @@ retry:
 //---------------------------------------------------------------------------
 tTVPLocalFileStream::~tTVPLocalFileStream()
 {
-	if (io_handle != nullptr)
+	if (io_handle)
 	{
 		SDL_RWclose(io_handle);
 	}
@@ -1436,7 +1429,7 @@ static void TVPInitPluginSearchPathOptions()
 	tTJSVariant val;
 	tjs_string searchpath;
 	char *searchpath_cstr = SDL_getenv("KRKRSDL2_PATH");
-	if (searchpath_cstr != NULL)
+	if (searchpath_cstr)
 	{
 		std::string searchpath_utf8 = searchpath_cstr;
 		TVPUtf8ToUtf16(searchpath, searchpath_utf8);
@@ -1501,14 +1494,7 @@ static void TVPLocatePlugin(const ttstr &aname, ttstr &fpname, ttstr &flname)
 				while (true)
 				{
 					searchpath_pos = searchpath.find(colon);
-					if (searchpath_pos == tjs_string::npos)
-					{
-						searchpath_single = searchpath;
-					}
-					else
-					{
-						searchpath_single = searchpath.substr(0, searchpath_pos);
-					}
+					searchpath_single = (searchpath_pos == tjs_string::npos) ? searchpath : searchpath.substr(0, searchpath_pos);
 					{
 						if (searchpath_single.empty())
 						{

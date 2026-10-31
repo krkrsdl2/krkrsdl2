@@ -395,11 +395,8 @@ tTVPArchive * TVPOpenSusieArchive(const ttstr & name)
 	{
 		return new tTVPSusieArchive(plugin, name, localname);
 	}
-	else
 #endif
-	{
-		return NULL;
-	}
+	return NULL;
 }
 //---------------------------------------------------------------------------
 

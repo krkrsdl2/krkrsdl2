@@ -273,20 +273,13 @@ tTVPPlugin::tTVPPlugin(const ttstr & name, ITSSStorageProvider *storageprovider)
 {
 	Name = name;
 
-	Instance = NULL;
 	Holder = new tTVPPluginHolder(name);
 	std::string filename;
-	if (TVPUtf16ToUtf8(filename, Holder->GetLocalName().AsStdString()))
-	{
-		if (TVPCheckExistentLocalFile(Holder->GetLocalName()))
-		{
-			Instance = SDL_LoadObject(filename.c_str());
-		}
-	}
+	Instance = (TVPUtf16ToUtf8(filename, Holder->GetLocalName().AsStdString()) && TVPCheckExistentLocalFile(Holder->GetLocalName())) ? SDL_LoadObject(filename.c_str()) : nullptr;
 
 	if(!Instance)
 	{
-		if (Holder != NULL)
+		if (Holder)
 		{
 			delete Holder;
 		}
@@ -392,15 +385,15 @@ tTVPPlugin::tTVPPlugin(const ttstr & name, ITSSStorageProvider *storageprovider)
 	}
 	catch(...)
 	{
-		if (Instance != NULL)
+		if (Instance)
 		{
 			SDL_UnloadObject(Instance);
-			Instance = NULL;
+			Instance = nullptr;
 		}
-		if (Holder != NULL)
+		if (Holder)
 		{
 			delete Holder;
-			Holder = NULL;
+			Holder = nullptr;
 		}
 		throw;
 	}
@@ -432,15 +425,15 @@ bool tTVPPlugin::Uninit()
 #endif
 #endif
 
-	if (Instance != NULL)
+	if (Instance)
 	{
 		SDL_UnloadObject(Instance);
-		Instance = NULL;
+		Instance = nullptr;
 	}
-	if (Holder != NULL)
+	if (Holder)
 	{
 		delete Holder;
-		Holder = NULL;
+		Holder = nullptr;
 	}
 	return true;
 }

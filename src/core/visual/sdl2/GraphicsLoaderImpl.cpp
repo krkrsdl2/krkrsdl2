@@ -418,15 +418,11 @@ bool TVPLoadEmscriptenPreloadedData(void* formatdata, void *callbackdata, tTVPGr
 #ifdef __EMSCRIPTEN__
 	// We don't handle key or palette at the moment
 	if (keyidx != -1 || mode == glmPalettized)
-	{
 		return false;
-	}
 
 	ttstr localname = TVPGetLocallyAccessibleName(name);
 	if (localname.IsEmpty())
-	{
 		return false;
-	}
 
 	std::string filename;
 	TVPUtf16ToUtf8(filename, localname.AsStdString());
@@ -444,17 +440,11 @@ bool TVPLoadEmscriptenPreloadedData(void* formatdata, void *callbackdata, tTVPGr
 		{
 			void *scanline = scanlinecallback(callbackdata, y);
 			if (!scanline)
-			{
 				break;
-			}
 			if (sizeof(tjs_uint32) == size_pixel)
-			{
 				memcpy(scanline, (const void*)&data[y * pitch], w * size_pixel);
-			}
 			else if (sizeof(tjs_uint8) == size_pixel)
-			{
 				TVPBLConvert32BitTo8Bit((tjs_uint8*)scanline, (const tjs_uint32*)(tjs_uint8*)&data[y * pitch], w * size_pixel);
-			}
 			scanlinecallback(callbackdata, -1);
 		}
 		free(data);

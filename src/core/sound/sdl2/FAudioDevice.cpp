@@ -51,21 +51,15 @@ public:
 	virtual void Initialize(tTVPAudioInitParam& param) override
 	{
 		if (param.SampleRate < FAUDIO_MIN_SAMPLE_RATE || param.SampleRate > FAUDIO_MAX_SAMPLE_RATE)
-		{
 			TVPThrowExceptionMessage(TJS_W("Sample rate parameter is out of range"));
-		}
 		if (param.Channels > FAUDIO_MAX_AUDIO_CHANNELS)
-		{
 			TVPThrowExceptionMessage(TJS_W("Channel parameter is out of range"));
-		}
 		TVPAddLog(TJS_W("FAudio initializing..."));
 
 		uint32_t flags = 0;
 		uint32_t hr = FAudioCreate(&FAudioObj, flags, FAUDIO_DEFAULT_PROCESSOR);
 		if (hr)
-		{
 			TVPThrowExceptionMessage(TJS_W("Failed to call FAudioCreate"));
-		}
 		hr = FAudio_CreateMasteringVoice(
 			FAudioObj,
 			&MasteringVoiceObj,
@@ -76,9 +70,7 @@ public:
 			nullptr
 		);
 		if (hr)
-		{
 			TVPThrowExceptionMessage(TJS_W("Failed to call FAudio_CreateMasteringVoice"));
-		}
 
 		FAudioVoiceDetails details;
 		FAudioVoice_GetVoiceDetails(MasteringVoiceObj, &details);
@@ -110,14 +102,8 @@ public:
 
 	virtual void SetMasterVolume(tjs_int vol) override
 	{
-		if (Volume == vol)
-		{
+		if (Volume == vol || !MasteringVoiceObj)
 			return;
-		}
-		if (!MasteringVoiceObj)
-		{
-			return;
-		}
 		Volume = vol;
 		FAudioVoice_SetVolume(MasteringVoiceObj, CalcVolume(), FAUDIO_COMMIT_NOW);
 	}
@@ -173,13 +159,9 @@ private:
 			level *= balance;
 		}
 		if (level < 0.0f)
-		{
 			level = 0.0f;
-		}
 		if (level > 1.0f)
-		{
 			level = 1.0f;
-		}
 		return level;
 	}
 
@@ -209,13 +191,8 @@ public:
 		memset(&CallbackParam, 0, sizeof(CallbackParam));
 		CallbackParam.callback.OnBufferEnd = OnBufferEndEntry;
 		CallbackParam.userdata = (void *)this;
-		uint16_t tag = FAUDIO_FORMAT_PCM;
-		if (param.SampleType == astFloat32)
-		{
-			tag = FAUDIO_FORMAT_IEEE_FLOAT;
-		}
 		FAudioWaveFormatEx sourceWaveFormat;
-		sourceWaveFormat.wFormatTag = tag;
+		sourceWaveFormat.wFormatTag = (param.SampleType == astFloat32) ? FAUDIO_FORMAT_IEEE_FLOAT : FAUDIO_FORMAT_PCM;
 		sourceWaveFormat.nChannels = param.Channels;
 		sourceWaveFormat.nSamplesPerSec = param.SampleRate;
 		sourceWaveFormat.wBitsPerSample = param.BitsPerSample;
@@ -234,9 +211,7 @@ public:
 			nullptr
 		);
 		if (hr)
-		{
 			TVPThrowExceptionMessage(TJS_W("Failed to call FAudio_CreateSourceVoice"));
-		}
 		StreamParam = param;
 	}
 
@@ -263,9 +238,7 @@ public:
 	virtual void Enqueue(void *data, size_t size, bool last) override
 	{
 		if (!SourceVoiceObj)
-		{
 			return;
-		}
 		FAudioBuffer bufferDesc;
 		memset(&bufferDesc, 0, sizeof(bufferDesc));
 		bufferDesc.Flags = last ? FAUDIO_END_OF_STREAM : 0;
@@ -276,17 +249,13 @@ public:
 	virtual void ClearQueue() override
 	{
 		if (!SourceVoiceObj)
-		{
 			return;
-		}
 		FAudioSourceVoice_FlushSourceBuffers(SourceVoiceObj);
 	}
 	virtual tjs_uint32 GetQueuedCount() const override
 	{
 		if (!SourceVoiceObj)
-		{
 			return 0;
-		}
 		FAudioVoiceState state;
 		FAudioSourceVoice_GetState(SourceVoiceObj, &state, FAUDIO_VOICE_NOSAMPLESPLAYED);
 		return state.BuffersQueued;
@@ -294,9 +263,7 @@ public:
 	virtual tjs_uint64 GetSamplesPlayed() const override
 	{
 		if (!SourceVoiceObj)
-		{
 			return 0;
-		}
 		FAudioVoiceState state;
 		FAudioSourceVoice_GetState(SourceVoiceObj, &state, 0);
 		return state.SamplesPlayed;
@@ -305,47 +272,33 @@ public:
 	virtual void StartStream() override
 	{
 		if (!SourceVoiceObj)
-		{
 			return;
-		}
 		FAudioSourceVoice_Start(SourceVoiceObj, 0, FAUDIO_COMMIT_NOW);
 	}
 	virtual void StopStream() override
 	{
 		if (!SourceVoiceObj)
-		{
 			return;
-		}
 		FAudioSourceVoice_Stop(SourceVoiceObj, 0, FAUDIO_COMMIT_NOW);
 		FAudioSourceVoice_FlushSourceBuffers(SourceVoiceObj);
 	}
 	virtual void AbortStream() override
 	{
 		if (!SourceVoiceObj)
-		{
 			return;
-		}
 		FAudioSourceVoice_Stop(SourceVoiceObj, 0, FAUDIO_COMMIT_NOW);
 	}
 
 	virtual void SetVolume(tjs_int vol) override
 	{
 		if (AudioVolumeValue == vol)
-		{
 			return;
-		}
 		if (vol > iTVPAudioDevice::VOLUME_MAX)
-		{
 			AudioVolumeValue = iTVPAudioDevice::VOLUME_MAX;
-		}
 		else if (vol < 0)
-		{
 			AudioVolumeValue = 0;
-		}
 		else
-		{
 			AudioVolumeValue = vol;
-		}
 
 		SetVolumeToFAudio();
 	}
@@ -356,21 +309,13 @@ public:
 	virtual void SetPan(tjs_int pan) override
 	{
 		if (AudioBalanceValue == pan)
-		{
 			return;
-		}
 		if (pan < -100000)
-		{
 			AudioBalanceValue = -100000;
-		}
 		else if (pan > 100000)
-		{
 			AudioBalanceValue = 100000;
-		}
 		else
-		{
 			AudioBalanceValue = pan;
-		}
 
 		SetVolumeToFAudio();
 	}
@@ -381,18 +326,14 @@ public:
 	virtual void SetFrequency(tjs_int freq) override
 	{
 		if (!SourceVoiceObj)
-		{
 			return;
-		}
 		float rate = (float)freq / (float)StreamParam.SampleRate;
 		FAudioSourceVoice_SetFrequencyRatio(SourceVoiceObj, rate, FAUDIO_COMMIT_NOW);
 	}
 	virtual tjs_int GetFrequency() const override
 	{
 		if (!SourceVoiceObj)
-		{
 			return 0;
-		}
 		float rate = 1.0f;
 		FAudioSourceVoice_GetFrequencyRatio(SourceVoiceObj, &rate);
 		return (tjs_int)(StreamParam.SampleRate * rate);
@@ -401,9 +342,7 @@ public:
 	void SetVolumeToFAudio()
 	{
 		if (!SourceVoiceObj)
-		{
 			return;
-		}
 		uint32_t count = StreamParam.Channels;
 		if (count == 2)
 		{
@@ -421,9 +360,7 @@ public:
 			std::vector<float> channels;
 			channels.resize(count);
 			for (uint32_t i = 0; i < count; i += 1)
-			{
 				channels[i] = CalcVolume();
-			}
 			FAudioVoice_SetChannelVolumes(SourceVoiceObj, count, channels.data(), FAUDIO_COMMIT_NOW);
 		}
 	}
@@ -431,9 +368,7 @@ public:
 	virtual void OnBufferEnd(void *pBufferContext)
 	{
 		if (!QueueCallback)
-		{
 			return;
-		}
 		QueueCallback(this, UserData);
 	}
 
@@ -444,9 +379,7 @@ public:
 		{
 			FAudioStream *thisobj = (FAudioStream *)(callback->userdata);
 			if (thisobj)
-			{
 				thisobj->OnBufferEnd(pBufferContext);
-			}
 		}
 	}
 };

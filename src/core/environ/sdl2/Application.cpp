@@ -158,15 +158,11 @@ tjs_string ExePath() {
 #ifdef __linux__
 	if (exepath.empty())
 	{
-		ssize_t size = PATH_MAX;
 		struct stat lnst;
-		if (lstat("/proc/self/exe", &lnst) != -1 && lnst.st_size != 0)
-		{
-			size = lnst.st_size + 1;
-		}
+		ssize_t size = (lstat("/proc/self/exe", &lnst) != -1 && lnst.st_size != 0) ? (lnst.st_size + 1) : PATH_MAX;
 		char *buf = (char *)SDL_malloc(size);
 		ssize_t retsize = readlink("/proc/self/exe", buf, size);
-		while (retsize != -1 && retsize == size && buf != nullptr)
+		while (retsize != -1 && retsize == size && buf)
 		{
 			size *= 2;
 			buf = (char *)SDL_realloc(buf, size);
@@ -696,16 +692,7 @@ void tTVPApplication::PrintConsole( const tjs_char* mes, unsigned long len, bool
 	}
 #else
 	if (is_attach_console_)
-	{
-		if (iserror)
-		{
-			fprintf(stdout, "%s\n", &(console_cache_[0]) );
-		}
-		else
-		{
-			fprintf(stdout, "%s\n", &(console_cache_[0]) );
-		}
-	}
+		fprintf(stdout, "%s\n", &(console_cache_[0]) );
 #endif
 #if 0
 #ifdef _DEBUG
@@ -767,9 +754,7 @@ void tTVPApplication::ShowException( const tjs_char* e ) {
 extern "C" void EMSCRIPTEN_KEEPALIVE emscripten_syncfs_is_finished()
 {
 	if (Application)
-	{
 		Application->FinishedSyncSavedata();
-	}
 }
 #endif
 
@@ -788,11 +773,7 @@ void tTVPApplication::Run() {
 	{
 		return;
 	}
-	bool done = false;
-	if (TVPSystemControl)
-	{
-		done = TVPSystemControl->ApplicationIdle();
-	}
+	bool done = TVPSystemControl && TVPSystemControl->ApplicationIdle();
 	tjs_int count = TVPGetWindowCount();
 	for( tjs_int i = 0; i<count; i++ ) {
 		tTJSNI_Window *win = TVPGetWindowListAt(i);
@@ -806,14 +787,11 @@ void tTVPApplication::Run() {
 		emscripten_run_script("FS.syncfs(false, function (err) { Module._" "emscripten_syncfs_is_finished" "(); });");
 #endif
 	}
-	if (done)
+	if (done && SDL_WasInit(SDL_INIT_EVENTS) != 0)
 	{
-		if (SDL_WasInit(SDL_INIT_EVENTS) != 0)
-		{
 #ifndef __EMSCRIPTEN__
-			SDL_WaitEvent(NULL);
+		SDL_WaitEvent(NULL);
 #endif
-		}
 	}
 }
 

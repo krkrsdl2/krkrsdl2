@@ -39,10 +39,6 @@ public:
 
 	virtual void SetMasterVolume(tjs_int vol) override
 	{
-		if (Volume == vol)
-		{
-			return;
-		}
 		Volume = vol;
 	}
 	virtual tjs_int GetMasterVolume() const override
@@ -121,22 +117,12 @@ public:
 
 	virtual void SetVolume(tjs_int vol) override
 	{
-		if (AudioVolumeValue == vol)
-		{
-			return;
-		}
 		if (vol > iTVPAudioDevice::VOLUME_MAX)
-		{
 			AudioVolumeValue = iTVPAudioDevice::VOLUME_MAX;
-		}
 		else if (vol < 0)
-		{
 			AudioVolumeValue = 0;
-		}
 		else
-		{
 			AudioVolumeValue = vol;
-		}
 	}
 	virtual tjs_int GetVolume() const override
 	{
@@ -144,22 +130,12 @@ public:
 	}
 	virtual void SetPan(tjs_int pan) override
 	{
-		if (AudioBalanceValue == pan)
-		{
-			return;
-		}
 		if (pan < -100000)
-		{
 			AudioBalanceValue = -100000;
-		}
 		else if (pan > 100000)
-		{
 			AudioBalanceValue = 100000;
-		}
 		else
-		{
 			AudioBalanceValue = pan;
-		}
 	}
 	virtual tjs_int GetPan() const override
 	{

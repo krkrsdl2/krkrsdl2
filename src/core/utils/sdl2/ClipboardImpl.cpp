@@ -20,11 +20,7 @@
 //---------------------------------------------------------------------------
 bool TVPClipboardHasFormat(tTVPClipboardFormat format)
 {
-	if (format == cbfText)
-	{
-		return SDL_HasClipboardText() == SDL_TRUE;
-	}
-	return false;
+	return (format == cbfText) && (SDL_HasClipboardText() == SDL_TRUE);
 }
 //---------------------------------------------------------------------------
 void TVPClipboardSetText(const ttstr & text)
@@ -32,18 +28,14 @@ void TVPClipboardSetText(const ttstr & text)
 	tjs_string v_utf16 = text.AsStdString();
 	std::string v_utf8;
 	if (TVPUtf16ToUtf8(v_utf8, v_utf16))
-	{
 		SDL_SetClipboardText(v_utf8.c_str());
-	}
 }
 //---------------------------------------------------------------------------
 bool TVPClipboardGetText(ttstr & text)
 {
 	char* src_text = SDL_GetClipboardText();
 	if (!src_text)
-	{
 		return false;
-	}
 	try
 	{
 		tjs_string v_utf16;
